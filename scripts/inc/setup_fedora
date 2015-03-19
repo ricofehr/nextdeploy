@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+# fedora specific part for setup mvmc
+# @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
+
+install_git_fedora() {
+  echo "###### Git Installation ######"
+  yum install git wget
+  echo "###### Git Installation Complete ######"
+}
+
+install_kvm_fedora() {
+  echo "###### Kvm Installation ######"
+  yum install qemu-kvm
+  echo "###### Kvm Installation Complete ######"
+}
+
+vagrantfiles_fedora() {
+  echo "Prepare vagrantfile for openstack nodes"
+  pushd vagrant/os > /dev/null
+  ln -s vagrantfiles/vbox Vagrantfile
+  popd > /dev/null
+
+  echo "Prepare vagrantfile for manager node"
+  pushd vagrant/mvmc > /dev/null
+  ln -s vagrantfiles/vbox Vagrantfile
+  popd > /dev/null
+}
+
+install_fedora() {
+  echo "Your system is a Fedora"
+  echo "Some prerequisite must be installed"
+  sleep 5
+
+  install_git_fedora
+  install_kvm_fedora
+  vagrantfiles_fedora
+}

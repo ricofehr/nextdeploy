@@ -1,0 +1,334 @@
+#!/bin/bash --login
+#
+# Setup script for install mvmc platform into local computer
+# @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
+
+
+RAM=8
+EMAIL='admin@mvmc-openstack.local'
+PASSWORD='wordpass123123'
+ENDPOINT='mvmc.local'
+DOMAIN=''
+DEBUG=1
+BINSED='/bin/sed'
+OUT="$(pwd)/out/setup.log"
+DNSIP='192.168.171.60'
+YES=0
+
+# Parse cmd options
+while (($# > 0)); do
+  case "$1" in
+    -d)
+      shift
+      DEBUG=2
+      shift
+      ;;
+    -q)
+      shift
+      DEBUG=0
+      shift
+      ;;  
+    -y)
+      shift
+      YES=1
+      shift
+      ;;
+     *)
+      shift
+      ;;
+  esac
+done
+
+# Clean log file
+rm -f "${OUT}" 
+
+# If high debug, show all commands output
+((DEBUG==2)) && OUT=''
+
+# Redirect output to log file
+if [[ -n "$OUT" ]]; then
+  exec 3>&1 4>&2 1>>$OUT 2>&1
+fi
+
+# Include some usable functions
+source scripts/inc/utils
+
+# Include distribution install functions
+source scripts/inc/setup_osx
+source scripts/inc/setup_debian
+source scripts/inc/setup_fedora
+
+# Make ruby install
+install_ruby() {
+  output -q 'Ruby Installation ...'
+  curl -sSL https://get.rvm.io | bash
+  (($?!=0)) && output -e 'Rvm installation has failed'
+
+  source ~/.rvm/scripts/rvm
+  rvm get stable --auto-dotfiles
+  rvm reload
+  rvm install 2.1.0
+  (($?!=0)) && output -e 'Ruby installation has failed'
+
+  rvm gemset create rails410
+  rvm use ruby-2.1.0@rails410
+  gem install bundler
+  (($?!=0)) && output -e 'Bundler installation has failed'
+
+  gem install rails -v 4.1.0
+  (($?!=0)) && output -e 'Rails installation has failed'
+}
+
+# nodejs install
+install_nodejs() {
+  output -q 'Nodejs Installation ...'
+  curl https://raw.githubusercontent.com/creationix/nvm/v0.23.3/install.sh | bash
+  (($?!=0)) && output -w 'Nvm installation has failed or was already done before'
+
+  source ~/.nvm/nvm.sh
+  nvm install 0.10.33
+  (($?!=0)) && output -w 'Node installation has failed'
+  nvm use 0.10.33
+}
+
+# ember install
+install_embertools() {
+  output -q 'Emberjs installation ...'
+  source ~/.nvm/nvm.sh
+  nvm use 0.10.33
+  npm install -g fsmonitor
+  (($?!=0)) && output -w 'fsmonitor installation has failed'
+  npm install -g ember-tools
+  (($?!=0)) && output -e 'ember-tools installation has failed'
+  rm -f npm-debug.log
+}
+
+# rails install
+install_rails() {
+  output -q 'Rails installation ...'
+  rvm use ruby-2.1.0@rails410
+  pushd ror > /dev/null
+  bundle install
+  (($?!=0)) && output -e 'Rails application installation has failed'
+  popd > /dev/null
+}
+
+# generate yard doc for rails project
+generate_doc() {
+  output -q 'Generate yardoc'
+  rvm use ruby-2.1.0@rails410
+  yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
+  (($?!=0)) && output -w 'Yardoc execution has failed'
+}
+
+# setup ruby-client with default values
+install_client() {
+  output -q "Ruby Client Installation ..."
+  rvm use ruby-2.1.0@rails410
+  pushd client > /dev/null
+  bundle install
+  (($?!=0)) && output -w 'Client installation has failed'
+  popd > /dev/null
+
+  output -l "Client Setting File /etc/mvmc.conf"
+  sudo /bin/bash -c "echo \"email: ${EMAIL}\" > /etc/mvmc.conf"
+  sudo /bin/bash -c "echo \"password: ${PASSWORD}\" >> /etc/mvmc.conf"
+  sudo /bin/bash -c "echo \"endpoint: ${ENDPOINT}\" >> /etc/mvmc.conf"
+}
+
+# Add mvmc platform uris into hosts file
+file_hosts() {
+  output -q "Added 2 lines in /etc/hosts file"
+  sudo $BINSED -i "s;192.168.170.*;;" /etc/hosts
+  sudo /bin/bash -c "echo \"192.168.170.60 mvmc.local gitlab.local doc.mvmc.local\" >> /etc/hosts"
+  sudo /bin/bash -c "echo \"192.168.170.70 uosc${DOMAIN}\" >> /etc/hosts"
+}
+
+# Some intoduction words 
+welcome_step() {
+  output -q -l "Welcome to setup process for mvmc platform in local environment"
+  output -q -l "Remember, the project needs lot of ram for running in virtualisation mode on local workstation computer"
+  output -q -l "At least 8Go are needed and 12Go are recommended"
+  output -q -l "The installation process needs long time (at least 90min), needs curl command and ask sometimes root password (assume that sudo command is installed)"
+  confirm "Ok for continue"
+  echo -en "\n\n"
+}
+
+# Install prerequisites need by mvmc platform
+install_prerequisites() {
+  output -q "Installing prerequisites ..."
+
+  install_ruby  
+  if [[ -f /etc/debian_version ]]; then
+    install_debian
+    DOMAIN=''
+  fi
+
+  if [[ -f /usr/bin/sw_vers ]]; then
+    install_osx
+    #DOMAIN="$(get_domain)"
+    DOMAIN=''
+    BINSED='/usr/local/bin/gsed'
+    #RAM="$(($(sysctl hw.memsize | sed "s;^.*: ;;")/1024/1024/1024))"
+  fi
+
+  #if [[ -f /etc/fedora-release ]]; then
+  #  OS='FEDORA'
+  #  install_fedora
+  #  HVISOR='libvirt'
+  #  DOMAIN=''
+  #fi
+
+  #install_nodejs
+  #install_rails
+  #install_embertools
+
+  output -q 'Prerequisites are installed'
+}
+
+# Target well vagrantfile following hypervisor on local workstation
+vagrantfiles() {
+  local hvisor="$(get_hypervisor)"
+
+  output -q "Prepare vagrantfile for openstack nodes"
+  pushd vagrant/os > /dev/null
+  rm -f Vagrantfile
+  ln -s vagrantfiles/${hvisor} Vagrantfile
+  (($?!=0)) && output -e 'Cant create Vagrantfile for openstack nodes'
+  popd > /dev/null
+
+  output -q "Prepare vagrantfile for manager node"
+  pushd vagrant/mvmc > /dev/null
+  rm -f Vagrantfile
+  ln -s vagrantfiles/${hvisor} Vagrantfile
+  (($?!=0)) && output -e 'Cant create Vagrantfile for mvmc node'
+  popd > /dev/null
+}
+
+# Execute ember_build command for generate application.js on the fly
+init_ember() {
+  output -q "Init ember project"
+  pushd ror > /dev/null
+  # start ember_build only if it dont yet
+  if ! ps aux | grep "ember_build" | grep -v grep >/dev/null;then 
+    ./bin/./ember_build &
+    (($?!=0)) && output -w 'Ember_build execution has failed'
+  fi
+  # force application.js writing
+  touch public/javascripts/config/app.js
+  popd > /dev/null
+}
+
+# Start vms for create mvmc platform
+start_vms() {
+  local hvisor="$(get_hypervisor)"
+
+  output -q "Start vagrant vms"
+
+  vagrantfiles
+
+  # local domain are difficult to manage with vagrant
+  cp /etc/resolv.conf tmp/resolv.conf.mvmc
+  sudo $BINSED -i "s;search.*$;;" /etc/resolv.conf
+  sudo $BINSED -i "s;domain.*$;;" /etc/resolv.conf
+
+  pushd vagrant/os/hiera > /dev/null
+  rm -f uos*
+  ln -s os/uosc.yaml uosc${DOMAIN}.yaml
+  ln -s os/uosnv_${hvisor}.yaml uosnv${DOMAIN}.yaml
+  ln -s os/uosnt.yaml uosnt${DOMAIN}.yaml
+  ln -s os/uosst.yaml uosst${DOMAIN}.yaml
+  popd > /dev/null
+
+  pushd vagrant/os > /dev/null
+  if [[ -d .vagrant ]]; then
+    output -q -l "Do you want to Destroy old openstack vm created ? (y/n)"
+    if ((YES==1)); then
+      response="y"
+    else
+      read response
+    fi
+    
+    if [[ "$response" = "y" ]]; then
+      vagrant destroy -f
+      (($?!=0)) && output -w 'Destroy openstack nodes has failed'
+      rm -rf .vagrant
+    fi
+  fi
+
+  output -q "Creating openstack controller vm, please wait a moment..."
+  vagrant up --provider=${hvisor}
+  (($?!=0)) && output -w 'Controller creation has failed, only a warning ?'
+  output -q "Openstack controller is up"
+
+  output -q "Creating openstack neutron (network node) vm, please wait a moment..."
+  vagrant up uosnt --provider=${hvisor}
+  (($?!=0)) && output -e 'Neutron creation has failed'
+  output -q "Openstack neutron is up"
+
+  output -q "Creating openstack glance (image node) vm, please wait a moment..."
+  vagrant up uosst --provider=${hvisor}
+  (($?!=0)) && output -e 'Glance creation has failed'
+  output -q "Openstack glance is up"
+
+  output -q "Creating openstack nova (compute node) vm, please wait a moment..."
+  vagrant up uosnv --provider=${hvisor}
+  (($?!=0)) && output -e 'Nova creation has failed'
+  output -q "Openstack nova is up"
+  popd > /dev/null
+
+  # Delete old private_token value before up mvmc vm
+  rm -f ror/tmp/private_token
+
+  # Clean hiera symlinks
+  pushd vagrant/mvmc/hiera > /dev/null
+  rm -f mvmc.*
+  ln -s mvmc/mvmc.yaml mvmc${DOMAIN}.yaml
+  popd > /dev/null
+  
+  pushd vagrant/mvmc > /dev/null
+  if [[ -d .vagrant ]]; then
+    output -q -l "Do you want to Destroy old manager vm created ? (y/n)"
+    if ((YES==1)); then
+      response="y"
+    else
+      read response
+    fi
+
+    if [[ "$response" = "y" ]]; then
+      vagrant destroy -f
+      (($?!=0)) && output -w 'Destroy manager node has failed'
+      rm -rf .vagrant
+    fi
+  fi
+
+  output -q "Creating the manager vm, please wait a moment ..."
+  vagrant up --provider=${hvisor}
+  (($?!=0)) && output -w 'Manager node creation has error(s)'
+  # ensure that rails app is up
+  sleep 120
+  output -q "The manager instance is up"
+  popd > /dev/null
+
+  set_dnsserver "$DNSIP"
+}
+
+# Some conclusions words.
+# List all useful uris
+complete_step() {
+  output -q "Installation of Mvmc platform is Complete"
+  output -q -l "Manager: http://mvmc.local/"
+  output -q -l "Openstack WebUI: http://uosc${DOMAIN}/"
+  output -q -l "Gitlab WebUI: http://gitlab.local/"
+  output -q -l "Rails Documentation: http://doc.mvmc.local/"
+}
+
+
+welcome_step
+install_prerequisites
+#init_rails
+#init_ember
+start_vms
+file_hosts
+install_client
+complete_step

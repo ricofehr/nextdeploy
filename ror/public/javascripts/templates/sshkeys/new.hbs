@@ -1,0 +1,72 @@
+<form {{action "postItem" on="submit"}} class="form-horizontal">
+  <legend>{{#if id}}Edit sshkey {{name}}{{else}}Add new sshkey{{/if}}</legend>
+  <div class="form-group">
+    {{#if errorUser}}
+      <label class="control-label col-sm-2 alert-danger">User</label>
+    {{else}}
+      <label class="control-label col-sm-2 alert-success">User</label>
+    {{/if}}
+    <div class="col-sm-3">
+    {{#if id}}
+      {{view Ember.Select
+       classNames="form-control"
+       content=usersSort
+       optionValuePath="content.id"
+       optionLabelPath="content.email"
+       selection=user.content
+       prompt="Please select an User"
+       disabled=true}}
+    {{else}}
+      {{view Ember.Select
+       classNames="form-control"
+       content=usersSort
+       optionValuePath="content.id"
+       optionLabelPath="content.email"
+       selection=user.content
+       prompt="Please select an User"}}
+     {{/if}}
+     </div>
+  </div>
+
+  <div class="form-group">
+    {{#if errorName}}
+      <label class="control-label col-sm-2 alert-danger">Name</label>
+    {{else}}
+      <label class="control-label col-sm-2 alert-success">Name</label>
+    {{/if}}
+    <div class="col-sm-3">
+    {{#if id}}
+      {{input type="text"
+            classNames="form-control"
+            value=name
+            placeholder="Name" readonly=true}}
+    {{else}}
+      {{input type="text"
+            classNames="form-control"
+            value=name
+            placeholder="Name"}}
+     {{/if}}
+     </div>
+  </div>
+
+  <div class="form-group">
+    {{#if errorKey}}
+      <label class="control-label col-sm-2 alert-danger">Key</label>
+    {{else}}
+      <label class="control-label col-sm-2 alert-success">Key</label>
+    {{/if}}
+    <div class="col-sm-4">
+    {{textarea
+            classNames="form-control"
+            rows=10
+            value=key
+            placeholder="Key"}}
+     </div>
+  </div>
+
+  <div class="form-group">
+    <div class="control-label col-sm-2">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </div>
+</form>

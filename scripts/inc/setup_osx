@@ -1,0 +1,94 @@
+#!/bin/bash
+#
+# mac os x specific part for setup mvmc
+# @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
+
+# Cmdline xcode tools install
+install_xcode_osx() {
+  output -q "CommandLineTools Installation ..."
+  /bin/bash -c 'xcode-select --install'
+  sudo /bin/bash -c 'xcode-select -switch /Library/Developer/CommandLineTools'
+  (($?!=0)) && output -e 'Xcode CommandLineTools has failed'
+}
+
+# brew install
+install_brew_osx() {
+  output -q "Brew Installation ..."
+  rvm use ruby-2.1.0@rails410
+
+  # Install brew only if it isnt yes installed
+  if [[ ! -e /usr/local/Cellar ]]; then
+    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    (($?!=0)) && output -e 'Brew installation has failed'
+  fi
+
+  output -q "gnu-sed Installation ..."
+  brew install gnu-sed
+}
+
+# virtualbox install
+install_vbox_osx() {
+  output -q "VirtualBox Installation ..."
+  # Install virtualbox only it isnt yes installed
+  if [[ ! -e /usr/bin/VBoxManage ]]; then
+    curl -OsSL http://download.virtualbox.org/virtualbox/4.3.22/VirtualBox-4.3.22-98236-OSX.dmg
+    hdiutil mount VirtualBox-4.3.22-98236-OSX.dmg
+    sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
+    (($?!=0)) && output -e 'Virtualbox installation has failed'
+    hdiutil unmount /Volumes/VirtualBox/
+    rm -f VirtualBox-4.3.22-98236-OSX.dmg
+
+    curl -OsSL "http://download.virtualbox.org/virtualbox/4.3.22/Oracle_VM_VirtualBox_Extension_Pack-4.3.22-98236.vbox-extpack"
+    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-4.3.22-98236.vbox-extpack
+    (($?!=0)) && output -w 'Virtualbox extension installation has failed'
+    rm -f Oracle_VM_VirtualBox_Extension_Pack-4.3.22-98236.vbox-extpack
+  fi
+}
+
+# vagrant install
+install_vagrant_osx() {
+  output -q "Vagrant Installation ..."
+  curl -OsSL "https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2.dmg"
+  hdiutil mount vagrant_1.7.2.dmg
+  sudo installer -pkg /Volumes/Vagrant/Vagrant.pkg -target /
+  (($?!=0)) && output -e 'Vagrant installation has failed'
+  hdiutil unmount /Volumes/Vagrant
+  rm -f vagrant_1.7.2.dmg
+}
+
+# git install
+install_git_osx() {
+  output -q "Git Installation ..."
+  curl -OsSL "http://downloads.sourceforge.net/project/git-osx-installer/git-2.2.1-intel-universal-mavericks.dmg"
+  hdiutil mount git-2.2.1-intel-universal-mavericks.dmg
+  sudo installer -pkg /Volumes/Git\ 2.2.1\ Mavericks\ Intel\ Universal/git-2.2.1-intel-universal-mavericks.pkg -target /
+  (($?!=0)) && output -e 'Git installation has failed'
+  hdiutil unmount /Volumes/Git\ 2.2.1\ Mavericks\ Intel\ Universal
+  rm -f git-2.2.1-intel-universal-mavericks.dmg
+}
+
+# install osx prerequisites
+install_osx() {
+  output -q -l "Your system is Mac-osx"
+  output -q -l "Now we are installing brew, gsed, git, vagrant and virtualbox"
+  output -q -l "If you have already this commands installed on your system, you can avoid this step"
+  output -q -l "Install prerequisites on your System ? (y/n)"
+  if ((YES==1)); then
+    echo "y"
+    response="y"
+  else
+    read response
+  fi
+
+  if [[ "$response" = "y" ]]; then
+    install_xcode_osx
+    install_git_osx
+    install_brew_osx
+    install_vbox_osx
+    install_vagrant_osx
+  fi
+
+  # Enable ip_forwarding on macos
+  sudo sysctl -w net.inet.ip.forwarding=1
+}
+

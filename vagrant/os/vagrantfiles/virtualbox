@@ -1,0 +1,107 @@
+Vagrant.configure("2") do |config|
+    config.ssh.username = "modem"
+    config.ssh.password = "modem"
+    config.vm.box_download_insecure = true
+    
+    config.vm.define :uosc, primary: true do |uosc|   
+      uosc.vm.hostname = "uosc"
+      uosc.vm.box = "uos-c"
+      uosc.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/uos-c.box"
+      uosc.vm.provider :virtualbox do |virthost|
+        uosc.vm.network :private_network, ip: "192.168.170.70", netmask: "255.255.255.128"
+        uosc.vm.network :private_network, ip: "192.168.171.70", netmask: "255.255.255.128"
+        uosc.vm.network :private_network, ip: "172.16.170.70", netmask: "255.255.255.128"
+        uosc.vm.network :private_network, ip: "172.16.171.70", netmask: "255.255.255.128"
+        virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
+        virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
+        #virthost.customize ["modifyvm", :id, "--nictype1", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype2", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype3", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype4", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype5", "virtio"]
+        virthost.memory = 1536
+        virthost.cpus = 2
+      end
+    end
+
+   config.vm.define :uosnv, autostart: false do |uosnv|
+      uosnv.vm.hostname = :uosnv
+      uosnv.vm.box = "uos-s"
+      uosnv.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/uos-s.box"
+      uosnv.vm.provider :virtualbox do |virthost|
+        uosnv.vm.network :private_network, :ip => "192.168.170.75", :netmask => "255.255.255.128"
+        uosnv.vm.network :private_network, :ip => "192.168.171.75", :netmask => "255.255.255.128"
+        uosnv.vm.network :private_network, :ip => "172.16.170.75", :netmask => "255.255.255.128"
+        uosnv.vm.network :private_network, :ip => "172.16.171.75", :netmask => "255.255.255.128"
+        virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
+        virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
+        #virthost.customize ["modifyvm", :id, "--nictype1", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype2", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype3", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype4", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype5", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nicpromisc1", "allow-all"]
+        #virthost.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+        virthost.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+        #virthost.customize ["modifyvm", :id, "--nicpromisc4", "allow-all"]
+        #virthost.customize ["modifyvm", :id, "--nicpromisc5", "allow-all"]
+        virthost.auto_nat_dns_proxy = false
+        virthost.memory = 2560
+        virthost.cpus = 2
+      end
+    end
+
+   config.vm.define :uosnt, autostart: false do |uosnt|
+      uosnt.vm.hostname = :uosnt
+      uosnt.vm.box = "uos-c"
+      uosnt.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/uos-c.box"
+      uosnt.vm.provider :virtualbox do |virthost|
+        uosnt.vm.network :private_network, :ip => "192.168.170.71", :netmask => "255.255.255.128"
+        uosnt.vm.network :private_network, :ip => "192.168.171.71", :netmask => "255.255.255.128"
+        uosnt.vm.network :private_network, :ip => "172.16.170.71", :netmask => "255.255.255.128"
+        uosnt.vm.network :private_network, :ip => "172.16.171.71", :netmask => "255.255.255.128"
+        virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
+        virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
+        virthost.customize ["modifyvm", :id, "--natsettings1", "1400,0,0,0,0"]
+        #virthost.customize ["modifyvm", :id, "--nictype1", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype2", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype3", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype4", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype5", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+        virthost.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+        #virthost.customize ["modifyvm", :id, "--nicpromisc4", "allow-all"]
+        #virthost.customize ["modifyvm", :id, "--nicpromisc5", "allow-all"]
+        virthost.memory = 512
+        virthost.cpus = 1
+        virthost.auto_nat_dns_proxy = false
+      end
+    end
+
+   config.vm.define :uosst, autostart: false do |uosst|
+      uosst.vm.hostname = "uosst"
+      uosst.vm.box = "uos-s"
+      uosst.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/uos-s.box"
+      uosst.vm.provider :virtualbox do |virthost|
+        uosst.vm.network :private_network, :ip => "192.168.170.72", :netmask => "255.255.255.128"
+        uosst.vm.network :private_network, :ip => "192.168.171.72", :netmask => "255.255.255.128"
+        uosst.vm.network :private_network, :ip => "172.16.170.72", :netmask => "255.255.255.128"
+        uosst.vm.network :private_network, :ip => "172.16.171.72", :netmask => "255.255.255.128"
+        virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
+        virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
+        #virthost.customize ["modifyvm", :id, "--nictype1", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype2", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype3", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype4", "virtio"]
+        #virthost.customize ["modifyvm", :id, "--nictype5", "virtio"]
+        virthost.memory = 512
+        virthost.cpus = 1
+      end
+    end
+
+  config.vm.provision :puppet do |puppet|
+    puppet.manifest_file = "init.pp"
+    puppet.module_path = "modules"
+    puppet.options = "--ordering=manifest --hiera_config /vagrant/hiera/hiera.yaml"
+  end
+end

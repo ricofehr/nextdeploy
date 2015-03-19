@@ -1,0 +1,81 @@
+---
+
+classes:
+  - roles::os::uosst
+
+#glance classes
+glance::api::verbose: true
+glance::api::auth_host: 'keystone-m'
+glance::api::keystone_tenant: 'services'
+glance::api::keystone_user: 'glance'
+glance::api::keystone_password: 'osglance'
+glance::api::registry_host: 'glance-a'
+glance::api::database_connection: 'mysql://glance:osglance@controller-m/glancedb'
+glance::api::mysql_module: '2.2'
+
+glance::registry::verbose: true
+glance::registry::auth_host: 'keystone-m'
+glance::registry::keystone_tenant: 'services'
+glance::registry::keystone_user: 'glance'
+glance::registry::keystone_password: 'osglance'
+glance::registry::database_connection: 'mysql://glance:osglance@controller-m/glancedb'
+glance::registry::mysql_module: '2.2'
+
+glance::notify::rabbitmq::rabbit_password: 'useros'
+glance::notify::rabbitmq::rabbit_userid: 'osuser'
+glance::notify::rabbitmq::rabbit_host: 'controller-m'
+
+glance_image:
+  osvm-jessie:
+    ensure: present
+    name: 'osvm-jessie'
+    is_public: 'yes'
+    container_format: 'bare'
+    disk_format: 'qcow2'
+    source: 'http://imgs.mvmc.services-pm.fr/os/osvm-jessie.img'
+  # osvm-wheezy:
+  #   ensure: present
+  #   name: 'osvm-wheezy'
+  #   is_public: 'yes'
+  #   container_format: 'bare'
+  #   disk_format: 'qcow2'
+  #   source: 'http://imgs.mvmc.services-pm.fr/os/osvm-wheezy.img'
+  # osvm-trusty:
+  #   ensure: present
+  #   name: 'osvm-trusty'
+  #   is_public: 'yes'
+  #   container_format: 'bare'
+  #   disk_format: 'qcow2'
+  #   source: 'http://imgs.mvmc.services-pm.fr/os/osvm-trusty.img'
+
+#keystone setting
+keystone::enabled: false
+keystone::verbose: false
+keystone::catalog_type: 'sql'
+keystone::admin_bind_host: '172.16.170.70'
+keystone::mysql_module: '2.2'
+keystone::admin_token: 'token123'
+keystone::database_connection: 'mysql://keystone:oskeystone@controller-m/keystonedb'
+
+#cinder classes
+cinder::database_connection: 'mysql://cinder:oscinder@controller-m/cinderdb'
+cinder::rabbit_userid: 'osuser'
+cinder::rabbit_password: 'useros'
+cinder::rabbit_host: 'controller-m'
+cinder::verbose: true
+cinder::mysql_module: '2.2'
+
+cinder::glance::glance_api_servers: 'cinder-a:9292'
+
+cinder::setup_test_volume::volume_name: 'cinder-volumes'
+cinder::setup_test_volume::size: '30G'
+
+cinder::volume::package_ensure: true
+cinder::volume::enabled: true
+
+cinder::volume::iscsi::iscsi_ip_address: 'cinder-m'
+cinder::volume::iscsi::volume_group: 'cinder-volumes'
+
+
+
+is_cron: "no"

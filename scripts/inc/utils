@@ -1,0 +1,229 @@
+#!/bin/bash
+#
+# Some common bash function
+# @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
+
+# Return local domain on workstation
+get_domain() {
+  # get current local domain
+  domain=''
+  if grep domain /etc/resolv.conf > /dev/null; then
+    domain=".$(grep domain /etc/resolv.conf | sed "s;,.*$;;" | sed "s;^[^ ]* ;;")"
+  elif grep search /etc/resolv.conf > /dev/null; then
+    domain=".$(grep search /etc/resolv.conf | sed "s;,.*$;;" | sed "s;^[^ ]* ;;")"
+  fi
+
+  echo "${domain}"
+}
+
+# Return compliant hypervisors following the operating system
+get_hypervisor() {
+  # if macosx virtualbox, libvirt in other cases
+  if [[ -f /usr/bin/sw_vers ]]; then
+    echo 'virtualbox'
+  else
+    echo 'libvirt'
+  fi
+}
+
+# change dns server
+set_dnsserver() {
+  local server="$1"
+
+  sudo /bin/bash -c "echo \"nameserver ${server}\" > /etc/resolv.conf"
+
+  # if mac os x, change network preferences
+  if [[ -f /usr/bin/sw_vers ]]; then
+    networksetup -listallnetworkservices | grep -v "An asterisk" | while read NETSERV;do 
+      sudo networksetup -setdnsservers "$NETSERV" $server
+      sudo networksetup -setsearchdomains "$NETSERV" ''
+    done
+  fi
+}
+
+# change again dns server with backupped resolv.conf
+reset_dnsserver() {
+  local resolvconf="$1"
+  local searchdomains=''
+  local servers=''
+
+  sudo cp ${resolvconf} /etc/resolv.conf
+  searchdomains="$(egrep "^search|^domain" /etc/resolv.conf | sed 's;search;;' | sed 's;domain;;' | tr -d '\n')"
+  servers="$(egrep "nameserver" /etc/resolv.conf | sed 's;nameserver;;' | tr -d '\n')"
+
+  # if mac os x, change network preferences
+  if [[ -f /usr/bin/sw_vers ]]; then
+    networksetup -listallnetworkservices | grep -v "An asterisk" | while read NETSERV;do 
+      sudo networksetup -setdnsservers "$NETSERV" "$servers"
+      sudo networksetup -setsearchdomains "$NETSERV" "$searchdomains"
+    done
+  fi
+}
+
+
+#reset dirstack
+resetdirs() {
+  output -l "resetdirs: Reset directory stack"
+  #unstack one dir for each loop
+  while (($(dirs -v | wc -l) != 1)); do
+    popd > /dev/null
+    #if error break (else infinite loop)
+    (($? != 0)) && break
+  done
+
+  return 0
+}
+
+#print debug and exit if asked
+output() {
+  local ifexit=0
+  local debuglevel=0
+  local msg=""
+  local color="32m"
+  local title="INFO"
+  local notitle=0
+
+  #parse function arguments (-e ask exit and -v for extra debug)
+  while (($# > 0)); do
+    case "$1" in
+      -e)
+        ifexit=1
+        color="31m"
+        title="EXIT"
+        ;;
+      -l)
+        color="34m"
+        title="LOG"
+        ;;
+      -q)
+        notitle=1
+        ;;
+      -v)
+        debuglevel=2
+        ;;
+      -w)
+        color="35m"
+        title="WARNING"
+        ;;
+      *)
+        msg="$1"
+        ;;
+    esac
+    shift
+  done
+
+  # Enable standard output
+  [[ -n "$OUT" ]] && exec 1>&3 2>&4 3<&- 4<&- 
+
+  # reformat INFO msg
+  [[ "$title" = "INFO" ]] && msg="###### $msg ######"
+
+  #if debug enabled, echo statement to stderr
+  if ((DEBUG > debuglevel)); then
+    #echo in color setted, echo title if -q missing
+    echo -en '\033[1;'${color} 1>&2
+    ((notitle == 0)) && echo -en "[${title}] " 1>&2
+    echo "$msg" 1>&2
+    echo -en '\033[0m' 1>&2
+  fi
+
+  #if exit enabled, exit cmd
+  if ((ifexit == 1)); then
+    #unset local var before exit
+    unset -v ifexit debuglevel msg
+    unset -v color title notitle
+
+    #exit
+    exit 66
+  fi
+
+  # enable again log output
+  if [[ -n "$OUT" ]]; then
+    exec 3>&1 4>&2 1>>$OUT 2>&1
+  fi
+
+  #unset local var before exit
+  unset -v ifexit debuglevel msg
+  unset -v color title notitle
+
+  return 0
+}
+
+#confirm bloc
+confirm() {
+  local a
+
+  # Enable standard output
+  if [[ -n "$OUT" ]]; then
+    exec 1>&3 2>&4 3<&- 4<&- 
+    #exec 1<&3 3<&-
+  fi
+
+  #confirm statement
+  echo -en '\033[1;36m' 1>&2
+  echo -en "[CONFIRM] " 1>&2
+  echo -en "$* (y/n): " 1>&2
+
+  #if "yes to all" enabled, reply yes and return 0
+  if [[ "$YES" = "1" ]]; then
+    echo " y" 1>&2
+    echo -en '\033[0m' 1>&2
+
+    # enable again log output
+    if [[ -n "$OUT" ]]; then
+      exec 3>&1 4>&2 1>>$OUT 2>&1
+    fi
+
+    return 0
+  fi
+
+  #read to stdin
+  read a
+  echo "$a" 1>&2
+  echo -en '\033[0m' 1>&2
+  if [[ "$a" != "y" ]]; then
+    #unset local var before exit
+    unset -v a
+    exit 66
+  fi
+
+  # enable again log output
+  if [[ -n "$OUT" ]]; then
+    exec 3>&1 4>&2 1>>$OUT 2>&1
+  fi
+
+  #unset local var before exit
+  unset -v a
+
+  return 0
+}
+
+#count n second
+minuteur() {
+  local max=60
+  local ind
+
+  #if parameter, override max var
+  (($1)) && max=$1
+
+  output -l "Wait $max seconds ..."
+
+  # Enable standard output
+  [[ -n "$OUT" ]] && exec 1>&3 2>&4 3<&- 4<&- 
+
+  #loop around sleep option for waiting max seconds
+  for ((ind=0;ind <= max;ind++)); do
+    ((ind%15 == 0)) && ((ind !=0)) && echo "..."
+    echo -en "$((max-ind))s "
+    sleep 1
+  done
+  echo "..."
+
+  # enable again log output
+  if [[ -n "$OUT" ]]; then
+    exec 3>&1 4>&2 1>>$OUT 2>&1
+  fi
+
+  #unset local var before exit
+  unset -v max
+}

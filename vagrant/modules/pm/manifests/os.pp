@@ -1,0 +1,460 @@
+
+# == Class: pm::os::memcached
+#
+# Install memcached (on controller node) with help of official module
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::memcached_c {
+  class { '::memcached': }
+}
+
+
+# == Class: pm::os::keystone
+#
+# Install keystone (on controller node) with help of official module
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::keystone {
+  class { '::keystone::params': }
+
+  class { '::keystone':
+    require => [ Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
+  }
+
+  # Installs the service user endpoint.
+  class { 'keystone::endpoint': }
+
+  create_resources('keystone_tenant', hiera('keystone_tenant', []))
+  create_resources('keystone_user', hiera('keystone_user', []))
+  create_resources('keystone_role', hiera('keystone_role', []))
+  create_resources('keystone_user_role', hiera('keystone_user_role', []))
+  create_resources('keystone_service', hiera('keystone_service', []))
+  create_resources('keystone_endpoint', hiera('keystone_endpoint', [])) 
+}
+
+
+# == Class: pm::os::nv_c
+#
+# Install nova-api (on controller node) with help of official module
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::nv_c {
+  class { '::nova':
+    require => [ Class['pm::os::memcached_c'], Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
+  }
+
+  nova_config { 'DEFAULT/default_floating_pool': value => 'public' }
+
+  class { '::nova::api': }
+
+  class { '::nova::vncproxy': }
+
+  class { '::nova::network::neutron':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { [
+    'nova::scheduler',
+    'nova::objectstore',
+    'nova::cert',
+    'nova::consoleauth',
+    'nova::conductor'
+  ]:
+    enabled => true,
+  }
+}
+
+
+# == Class: pm::os::nv
+#
+# Install nova on compute side with help of official module
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::nv {
+  Exec {
+      path => '/usr/bin:/usr/sbin:/bin:/sbin',
+      user => 'root'
+  }
+ 
+  ::sysctl::value { 'net.ipv4.conf.all.rp_filter':
+    value     => '0',
+  }
+
+  ::sysctl::value { 'net.ipv4.conf.default.rp_filter':
+    value     => '0',
+  } 
+
+  class { '::keystone':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  # enable the neutron service
+  class { '::neutron':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { '::neutron::server': }
+
+  class { '::neutron::server::notifications':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { '::neutron::agents::ml2::ovs': }
+
+  class  { '::neutron::plugins::ml2': }
+
+   class { '::nova':
+    require => [ File['/etc/hosts'] ],
+  }
+  
+  nova_config { 'DEFAULT/default_floating_pool': value => 'public' }
+
+  class { '::nova::compute':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { '::nova::compute::libvirt': }
+
+  file { '/etc/libvirt/qemu.conf':
+    ensure => present,
+    mode   => '0644',
+    source => [ "puppet:///modules/pm/qemu/qemu.conf" ],
+    notify => Service['libvirt']
+  }
+
+  Package['libvirt'] -> File['/etc/libvirt/qemu.conf']
+
+  class { '::nova::compute::neutron': }
+
+  class { '::nova::network::neutron':
+    require => [ File['/etc/hosts'] ],
+  }
+}
+
+
+# == Class: pm::os::postinstall_nv
+#
+# Some commands who must be executed at the end of compute node creation
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::nv_postinstall {
+  Exec {
+      path => '/usr/bin:/usr/sbin:/bin:/sbin',
+      user => 'root'
+  }
+   #post install stuff
+  exec { 'nova-secgroup-rule22':
+    command => 'nova --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 secgroup-add-rule default tcp 22 22 0.0.0.0/0',
+  } ->
+  exec { 'nova-secgroup-rule80':
+    command => 'nova --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 secgroup-add-rule default tcp 80 80 0.0.0.0/0',
+  } ->
+  exec { 'nova-secgroup-ruleicmp':
+    command => 'nova --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 secgroup-add-rule default icmp -1 -1 0.0.0.0/0',
+  } ->
+  exec { 'nova-delete-tiny':
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 flavor-delete 1',
+  } ->
+  exec { 'nova-recreate-tiny':
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 flavor-create m1.tiny 1 512 15 1',
+  }
+  exec { 'nova-delete-small':
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 flavor-delete 2',
+  } ->
+  exec { 'nova-recreate-small':
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 flavor-create m1.small 2 1024 15 2',
+  } 
+}
+
+
+# == Class: pm::os::gl
+#
+# Install glance with help of official module
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::gl {
+  class { '::glance::api':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { '::glance::registry':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { '::glance::backend::file': }
+
+  class { '::glance::notify::rabbitmq':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  create_resources('glance_image', hiera('glance_image', []))
+}
+
+
+# == Class: pm::os::nt_c
+#
+# Install neutron-server on controller side with help of official module
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::nt_c {
+  # enable the neutron service
+  class { '::neutron':
+    require => [ Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
+  }
+
+  # configure authentication
+  class { 'neutron::server':
+    require => [ Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
+  }
+
+  class { '::neutron::server::notifications':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { '::neutron::agents::ml2::ovs':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class  { '::neutron::plugins::ml2': }
+
+  Exec {
+      path => '/usr/bin:/usr/sbin:/bin:/sbin',
+  }
+
+  file_line { 'database_ml2_step1':
+    path => '/etc/neutron/plugin.ini',
+    line => '[database]'
+  } ->
+  file_line { 'database_ml2_step2':
+    path => '/etc/neutron/plugin.ini',
+    line => 'connection = mysql://neutron:osneutron@controller-m/neutrondb?charset=utf8'
+  }
+
+  File_line['database_ml2_step2'] -> Exec['neutron-db-sync']
+}
+
+
+# == Class: pm::os::nt
+#
+# Install neutron node with help of official module
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::nt {
+  Exec {
+      path => '/usr/bin:/usr/sbin:/bin:/sbin',
+  }
+
+  # some hiera variable
+  $ext_dev = hiera('externaldev', 'eth0')
+  $gateway_ip = hiera('gateway_ip', '')
+  $masquerade_dev = hiera('masqdev', 'eth0')
+  
+  ::sysctl::value { 'net.ipv4.ip_forward':
+    value     => '1',
+  }
+  
+  ::sysctl::value { 'net.ipv4.conf.all.rp_filter':
+    value     => '0',
+  }
+  
+  ::sysctl::value { 'net.ipv4.conf.default.rp_filter':
+    value     => '0',
+  }
+
+  class { '::keystone':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  # enable the neutron service
+  class { '::neutron':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  # configure authentication
+  class { 'neutron::server':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { '::neutron::server::notifications':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { '::neutron::agents::ml2::ovs': } 
+  
+  class  { '::neutron::plugins::ml2': }
+
+  ## Router service installation
+  class { '::neutron::agents::l3': }
+
+  class { '::neutron::agents::dhcp': }
+
+  class { '::neutron::agents::metadata':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { '::neutron::agents::lbaas': }
+
+  class { '::neutron::agents::vpnaas': }
+
+  class { '::neutron::agents::metering': }
+
+  class { '::neutron::services::fwaas': }
+
+  exec { 'gro-off':
+    command => "ethtool -K ${ext_dev} gro off",
+    path => '/usr/bin:/usr/sbin:/bin:/sbin',
+  } 
+
+  create_resources('vs_bridge', hiera('vs_bridge', []))
+  create_resources('vs_port', hiera('vs_port', []))
+
+  exec { 'ifcfg':
+    command => "ifconfig brex ${gateway_ip}",
+    path => '/usr/bin:/usr/sbin:/bin:/sbin'
+  } ->
+  file { '/root/ethtobr.sh':
+    owner => 'root',
+    mode => '700',
+    source => [ "puppet:///modules/pm/scripts/ethtobr.sh" ]
+  } ->
+  exec { 'ethtobr':
+    command => "/root/./ethtobr.sh ${ext_dev}"
+  } ->
+  exec { 'ipt':  
+    command => "iptables -t nat -A POSTROUTING -o ${masquerade_dev} -j MASQUERADE",
+  } ->
+  file { '/etc/rc.local':
+    content => "ifconfig brex ${gateway_ip}
+/root/./ethtobr.sh ${ext_dev}
+iptables -t nat -A POSTROUTING -o ${masquerade_dev} -j MASQUERADE
+exit 0"
+  } 
+}
+
+
+# == Class: pm::os::nt_postinstall
+#
+# Some commands (networks, subnets and router creations) who must be executed at the end of neutron node creation
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::nt_postinstall {
+
+  create_resources('neutron_network', hiera('neutron_network', []))
+  create_resources('neutron_subnet', hiera('neutron_subnet', []))
+  create_resources('neutron_router', hiera('neutron_router', []))
+  create_resources('neutron_router_interface', hiera('neutron_router_interface', []))
+}
+
+
+# == Class: pm::os::cder_c
+#
+# Install cinder-api on controller node with help of official module
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::cder_c {
+  class { 'cinder':
+    require => [ Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
+  }
+
+  class { '::cinder::glance': }
+
+  class { 'cinder::api':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { 'cinder::scheduler': }
+}
+
+
+# == Class: pm::os::cder
+#
+# Install cinder on glance node with help of official module
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::cder {
+  class { '::keystone':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { '::cinder':
+    require => [ File['/etc/hosts'] ],
+  }
+
+  class { '::cinder::glance': }
+
+  class { '::cinder::setup_test_volume': } ->
+
+  class { '::cinder::volume': }
+
+  class { '::cinder::volume::iscsi': }
+}
+
+
+# == Class: pm::os::hz
+#
+# Install horizon (openstack webui) on controller side with help of official module
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::hz {
+  exec {'loghorizon':
+     command => '/bin/mkdir -p /var/log/horizon'
+  } ->
+  exec {'loghorizon2':
+     command => '/bin/touch /var/log/horizon/horizon.log'
+  } ->
+  exec {'loghorizon3':
+     command => '/bin/chmod -R 777 /var/log/horizon'
+  }
+
+  class { '::horizon':
+    require => [ Class ['pm::sql'], Class ['pm::rabbit'], Exec['loghorizon'], File['/etc/hosts'] ],
+  }
+}

@@ -1,0 +1,320 @@
+#!/bin/bash
+
+#global vars
+DEBUG=2
+PROJROOT="/home/modem/www/"
+RORSBIN="/ror/sbin"
+GITPATH="git@127.0.0.1:root/"
+DOCROOT="/directorydontexist"
+DOCONLINE="/directorydontexist"
+EXITSOP=0
+
+####################### utils lib ##########################
+#This lib includes some tools functions
+####################### utils lib ###########################
+
+#exit and before it, execute some clean stuff
+exitsop() {
+  #output msg before exit
+  if ((EXITCODE == 0)); then
+    debug -l "exitsop: Exit with code $EXITCODE"
+  else
+    debug -w "exitsop: Exit with code $EXITCODE"
+  fi
+
+  #reset folder stack and reinit permission for sites/* and sites/*/settings.php
+  resetdirs
+
+  #if debug enabled, output carrier return before exit
+  ((DEBUG > 0)) && echo -en "\n\n"
+  exit $EXITCODE
+}
+
+#reset dirstack
+resetdirs() {
+  debug -l "resetdirs: Reset directory stack"
+  #unstack one dir for each loop
+  while (($(dirs -v | wc -l) != 1)); do
+    popd > /dev/null
+    #if error break (else infinite loop)
+    (($? != 0)) && break
+  done
+
+  return 0
+}
+
+#print debug and exit if asked
+debug() {
+  local ifexit=0
+  local debuglevel=1
+  local msg=""
+  local color="32m"
+  local title="INFO"
+  local notitle=0
+
+  #parse function arguments (-e ask exit sop and -v for extra debug)
+  while (($# > 0)); do
+    case "$1" in
+      -e)
+        ifexit=1
+        color="31m"
+        title="EXIT"
+        ;;
+      -l)
+        color="34m"
+        title="LOG"
+        ;;
+      -q)
+        notitle=1
+        ;;
+      -v)
+        debuglevel=2
+        ;;
+      -w)
+        color="35m"
+        title="WARNING"
+        ;;
+      *)
+        msg="$1"
+        ;;
+    esac
+    shift
+  done
+
+  #if debug enabled, echo statement to stderr
+  if ((DEBUG > debuglevel)); then
+    #echo in color setted, echo title if -q missing
+    echo -en '\033[1;'${color} 1>&2
+    ((notitle == 0)) && echo -en "[${title}] " 1>&2
+    echo "$msg" 1>&2
+    echo -en '\033[0m' 1>&2
+  fi
+
+  #if exit enabled, exit cmd
+  if ((ifexit == 1)); then
+    #unset local var before exit
+    unset -v ifexit debuglevel msg
+    unset -v color title notitle
+
+    #exit
+    EXITCODE=66
+    exitsop
+  fi
+
+  #unset local var before exit
+  unset -v ifexit debuglevel msg
+  unset -v color title notitle
+
+  return 0
+}
+
+####################### main function ##########################
+
+#create a new project
+newproject() {
+  local projname=""
+  local gitpath=""
+  local framework=""
+  local branchs=('develop', 'release', 'hotfixes')
+
+  # We want sure that gitlab has well created project
+  sleep 5
+
+  # get options
+  while (($# != 0)); do
+    case "$1" in
+      -n)
+        shift
+        projname="$1"
+        shift
+        ;;
+      -g)
+        shift
+        gitpath="${GITPATH}$1"
+        shift
+        ;;
+      -f)
+        shift
+        framework="$1"
+        shift
+        ;;
+      -*)
+        shift
+        ;;
+    esac
+  done
+
+  DOCROOT="${PROJROOT}${projname}/_online/server"
+  DOCONLINE="${PROJROOT}${projname}/_online"
+
+  [[ -d "${DOCONLINE}" ]] && rm -rf "${DOCONLINE}"
+  /bin/mkdir -p "${DOCONLINE}"
+
+  #make init commit
+  pushd ${DOCONLINE} > /dev/null
+  git clone "${gitpath}" .
+  mkdir -p html flash client nodejs server scripts
+  touch html/emptyfile
+  touch flash/emptyfile
+  touch client/emptyfile
+  touch nodejs/emptyfile
+  touch server/emptyfile
+  touch scripts/postinstall.sh
+  cp "${RORSBIN}/files/gitignore_other" .gitignore
+  git add html flash client nodejs server scripts .gitignore
+  git commit -m "Init project"
+  git push origin master
+  popd > /dev/null
+
+  case "$framework" in
+    Drupal6)
+      newdrupal6 -n "$projname"
+      ;;
+    Drupal7)
+      newdrupal7 -n "$projname"
+      ;;
+    Drupal8)
+      newdrupal8 -n "$projname"
+      ;;
+    Symfony2)
+      newsymfony2 -n "$projname"
+      ;;
+    Ezpublish_2014.05)
+      newez -n "$projname"
+      ;;
+    Wordpress)
+      newwordpress
+      ;;
+    # NoFrameWork)
+      # newother -n "$projname"
+      # ;;
+    *)
+      echo "NoFrameWork"
+      # newother -n "$projname"
+      ;;
+  esac
+
+  # Clean temporary working directory
+  /bin/rm -rf "${PROJROOT}${projname}"
+}
+
+####################### framework create function ##########################
+
+#install a new drupal
+newdrupal() {
+  local projname=""
+  local drupalfolder=""
+  local version=6
+
+  #get options
+  while (($# != 0)); do
+    case "$1" in
+      -v)
+        shift
+        version="$1"
+        shift
+        ;;
+      -n)
+        shift
+        projname="$1"
+        shift
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
+
+  #ensure requirements
+  # isprojectexists -e "$projname"
+
+  #install drupal
+  pushd "${DOCROOT}" > /dev/null
+  if [[ "$version" = "7" ]]; then
+    drush dl drupal
+  else
+    drush dl drupal-6
+  fi
+
+  #remove tmp drupal-x folder
+  drupalfolder="$(ls | grep "drupal")"
+  if [[ -d "$drupalfolder" ]]; then
+    mv ${PROJROOT}${projname}/_online/server/${drupalfolder}/* .
+    rm "${drupalfolder}/.htaccess"
+    rm "${drupalfolder}/.gitignore"
+    rmdir "$drupalfolder"
+
+    pushd "${DOCONLINE}" > /dev/null
+    cp "${RORSBIN}/files/gitignore_drupal" .gitignore
+    git add .
+    git add .gitignore
+    git commit -m "init drupal"
+    git push origin master
+    popd > /dev/null
+  fi
+
+  popd > /dev/null
+}
+
+#create a drupal6 website
+newdrupal6() {
+  newdrupal -v 6 "$@"
+}
+
+#create a drupal7 website
+newdrupal7() {
+  newdrupal -v 7 "$@"
+}
+
+#create symfony website
+newsymfony2() {
+  # debug "init symfony2 project..."
+  pushd "${DOCROOT}" > /dev/null
+  curl -s https://getcomposer.org/installer | php
+  php composer.phar create-project symfony/framework-standard-edition sf2 --no-progress --no-interaction
+  mkdir -p vendor; mv sf2/vendor/* vendor/; rm -rf sf2/vendor
+  mv sf2/* .; rm sf2/.gitignore; rm -rf sf2
+  php composer.phar install --no-progress --no-interaction
+  cp "${RORSBIN}/files/console" app/
+  cp "${RORSBIN}/files/app.php" web/
+  cp "${RORSBIN}/files/app_dev.php" web/
+  popd > /dev/null
+
+  pushd "${DOCONLINE}" > /dev/null
+  cp "${RORSBIN}/files/gitignore_sf2" .gitignore
+  git add .
+  git add .gitignore
+  git commit -m "init sf2"
+  git push origin master
+
+  popd > /dev/null
+
+  # debug "init symfony done"
+}
+
+#create ez website
+#working progress ... or not
+newezpublish() {
+  echo "ezpublish"
+}
+
+#create wp website
+#working progress ... or not
+newwordpress() {
+  echo "wordpress"
+  
+  pushd "${DOCROOT}" > /dev/null
+  wp core download --locale=fr_FR
+  popd > /dev/null
+
+  pushd "${DOCONLINE}" > /dev/null
+  cp "${RORSBIN}/files/gitignore_wordpress" .gitignore
+  git add .
+  git add .gitignore
+  git commit -m "init wp"
+  git push origin master
+  popd > /dev/null
+}
+
+echo "Parameters: $@"
+newproject "$@"

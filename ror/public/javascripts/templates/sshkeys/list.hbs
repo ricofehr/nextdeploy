@@ -1,0 +1,28 @@
+<table class="table">
+ <thead>
+    <tr>
+        <th><span {{action "toggleDeleteAll"}} class="glyphicon glyphicon-check"></span></th>
+        <th>SShkey</th>
+        <th>Email</th>
+        <th>Group</th>
+    </tr>
+</thead>
+<tbody>
+    {{#each}}
+    <tr>
+        <td>{{input type="checkbox" checked=todelete}}</td>
+        <td>{{#linkTo 'sshkeys.edit' id}}{{name}}{{/linkTo}}</td>
+        <td>{{#linkTo 'users.edit' user.id}}{{user.email}}{{/linkTo}}</td>
+        <td>{{user.group.name}}</td>
+    </tr>
+    {{/each}}
+</tbody>
+</table>
+<div class="btn-group" style="margin: 9px 0 5px;">
+    <button {{action "newItem"}} class="btn btn-default"><span class="glyphicon glyphicon-plus-sign"></span></button>
+{{#if isShowingDeleteConfirmation}}
+  <button {{action "deleteItems"}} class="btn btn-default"><span class="glyphicon glyphicon-remove"></span> Confirm to delete list</button>
+{{else}}
+  <button {{action "showDeleteConfirmation"}} class="btn btn-default"><span class="glyphicon glyphicon-trash"></span></button>
+{{/if}}
+</div>

@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# Stop script for halt mvmc platform
+# @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
+
+# Include some usable functions
+source scripts/inc/utils
+
+# Stop openstack nodes
+pushd vagrant/os > /dev/null
+vagrant halt
+popd > /dev/null
+
+# Stop manager node
+pushd vagrant/mvmc > /dev/null
+vagrant halt
+popd > /dev/null
+
+# Rollback resolv.conf
+[[ -f tmp/resolv.conf.mvmc ]] && reset_dnsserver tmp/resolv.conf.mvmc

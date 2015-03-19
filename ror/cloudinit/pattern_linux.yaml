@@ -1,0 +1,78 @@
+
+#cloud-config
+#manage_etc_hosts: True
+manage_resolv_conf: False
+
+preserve_hostname: true
+manage_etc_hosts: false
+
+# dynamically set hostname using the instance's instanceid
+#runcmd:
+# - apt-get install -y --force-yes language-pack-UTF-8 puppet-common puppet
+
+bootcmd:
+ - cloud-init-per instance my_set_hostname sh -xc "sed -i 's/mvmc.localdomain/mvmc.local/' /etc/hosts;echo %{vmreplace} > /etc/hostname; hostname -F /etc/hostname"
+ - cloud-init-per instance my_etc_hosts sh -xc "sed -i 's/exit 0/puppet agent --enable/' /etc/rc.local;echo 'exit 0' >> /etc/rc.local;sed -i -e '/^127.0.1.1/d' /etc/hosts; echo 127.0.1.1 %{vmreplace}%{os_suffix} %{vmreplace} >> /etc/hosts"
+
+# Run 'apt-get update' on first boot
+#apt_update: true
+
+# Run 'apt-get upgrade' on first boot
+#apt_upgrade: true
+
+# Reboot after package install/upgrade if needed (e.g. if kernel update)
+apt_reboot_if_required: True
+
+# set the locale
+locale: en_US.UTF-8
+
+# timezone: set the timezone for this instance (ALWAYS user UTC!)
+timezone: UTC
+
+fqdn: %{vmreplace}
+puppet:
+  conf:
+    main:
+      ordering: manifest
+    agent:
+      server: mvmc
+      certname: "%f"
+  ca_cert: |
+    -----BEGIN CERTIFICATE-----
+    MIIFWDCCA0CgAwIBAgIBATANBgkqhkiG9w0BAQsFADAaMRgwFgYDVQQDDA9QdXBw
+    ZXQgQ0E6IG12bWMwHhcNMTQxMjA5MTIzMjU4WhcNMTkxMjA5MTIzMjU4WjAaMRgw
+    FgYDVQQDDA9QdXBwZXQgQ0E6IG12bWMwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAw
+    ggIKAoICAQDDIfWOflgIpUh2RDpTyqrStxEPRVB8tGnikxWUHdx7C+vdllALYZMg
+    tfaox7sHVfj1KsuIYpglm/YkxDnto1t9zHOTXyrocAU1X8X4hxuEcYh+ztNXDIFd
+    LfwW0k91/zGpaMvsfv6C9Da1KKNaI/dFs+Y+Qu/s8sdyMVjC7Xp0Xn05zEcu3YR/
+    8I+1cSHMK59p8sO09+KMBrMSy9Vuqp4vOtAW2T5fNFNba5Iwt9U8SGhSUSHRARwM
+    WBvmLAy6a1qt/W1wQIsXwuHFglQ0KHNqrUYg8hHkAPOmd9Yaoy4ldRATuNJYewGI
+    t5pMWFeXqDNpNUhB2QAvnJItWp9vgNVKpuYWFrdGLqj6G/beb//hlD288dYAO2yJ
+    TeDfk8PpIdAQK++cd+Jm8/vfWCV8H5NXc7dDcWZ4Cx2HWiYbYzzfzBYE+xYrfxu2
+    kRkvRi5feyFuMihiqhDa7BTVwO+0tiKnU2vIwlyUZYQgHgvrRZaEN62IqB3wuAJY
+    us66C/RxPNGnBEFvYfsYmpmJqw5YpctHpKmdurmK1ABmQNgRJtqFhrgLQ9xloQzZ
+    Bk6B2Ip60eCIkvkdFTIdBScf/5rGJWq1CartX1kIfRLNAYheHCYGQabEsuvo2Hkt
+    O4qy+rHXBTOXvbx8LdA/di+ICZVTd7j2PuJ3pcXoExE5XeG1hYMqvQIDAQABo4Go
+    MIGlMDUGCWCGSAGG+EIBDQQoUHVwcGV0IFJ1YnkvT3BlblNTTCBJbnRlcm5hbCBD
+    ZXJ0aWZpY2F0ZTAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAdBgNV
+    HQ4EFgQUK2wspzPN+boftAslO+E0cw5QArkwLAYDVR0jBCUwI6EepBwwGjEYMBYG
+    A1UEAwwPUHVwcGV0IENBOiBtdm1jggEBMA0GCSqGSIb3DQEBCwUAA4ICAQCr+PvA
+    Ci+ECuPrkwZGj619uL8TCDeNCawVJykr7tZPZJ4D7xxHLonOf9s6pqOGaNRwoFpG
+    cYK6cqkf1sTBkWe3sjFae2Rh8fzps/Gl7mdbG1x8Rt49uulQbN3Xz01PWygYY77F
+    cP1FMLgcOw/RiCLh7RvuJNpbUz312bnKjo3VCNUja37wx/Oih0wE90YPsZn4g0YJ
+    GTgWx/W2KSZO3k0xkFu4hkPoiMcFq7pwJV1+RAoItigu4d0cLMJD3orQCQCdhthS
+    08FsZFOENcrIs/yxsQq8u2igPWvIQ1RHD66QC5efnacGDOtpxKAqpP8uLwc3MQmR
+    7pqsdlS2PbtTkSxmXtal0Wr1rOltVnSP4fwWMtSU5MYVNFDfgf6Va/I6gpBCw25I
+    VVfYaqGdjKCaTCXflx5dA6uq2cyoPrCmqPqg8UGyNnhtZER7izoKLqtbTvn2T6vL
+    pM6D0whiSKd2FCIeVjBVA7U8jv/bNqwvsH3hNyrcaJ5oqp5pU2yD5KMkGu2o07Jk
+    rkUVboDOHBZM66vNYu3MWYh8N9fKl+UbYcW1BiFfxYN4QFQol8WzahWbR8RHiquG
+    2LLI95fqHiLyQS1AHywlKujzG3MK2HfPyKX/JX+up8R0L4wMgC7AlMPNNBQJzUHL
+    PxcNwZ9yJ6mN+iPdv0vjzW30pC6Kv6b9QUYopg==
+    -----END CERTIFICATE-----
+
+final_message: "The system is finally up, after $UPTIME seconds"
+power_state:
+ delay: "+1"
+ mode: reboot
+ message: Bye Bye Bye
+ timeout: 10

@@ -1,0 +1,44 @@
+# == Class: pm::gitlab7
+#
+# Install gitlab with help of gitlab module and apply some custom settings
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::gitlab7 {
+  $server_name = hiera('gitlab::server_name', 'gitlab.local')
+
+  class { 'gitlab': }
+  ->
+  file_line { 'gitlab_servername':
+    path => '/var/opt/gitlab/nginx/etc/gitlab-http.conf',
+    line => "server_name ${server_name};",
+    match => '.*server_name.*'
+  } ->
+  #exec { 'rmsvnginx':
+  #  command => '/bin/rm -f /opt/gitlab/service/nginx'
+  #} ->
+  #class { 'nginx': 
+  #} ->
+  #exec { 'nginxconf':
+  #  command => '/bin/ln -sf /var/opt/gitlab/nginx/etc/nginx.conf /etc/nginx/nginx.conf'
+  #} ->
+  #file { '/opt/gitlab/embedded/logs':
+  #  ensure => 'directory',
+  #  owner => 'git'
+  #} ->
+  file { '/opt/gitlab/embedded/logs/nginx.pid':
+    ensure => 'link',
+    target => '/var/opt/gitlab/nginx/nginx.pid'
+  } ->
+  #exec { 'restart_nginx':
+  #  command => '/usr/bin/service nginx restart',
+  #  user => 'root'
+  #}
+  exec { 'restart_nginx':
+    command => '/opt/gitlab/embedded/sbin/nginx -c /var/opt/gitlab/nginx/etc/nginx.conf -s reload',
+    user => 'root'
+  }
+}

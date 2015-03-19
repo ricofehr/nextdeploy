@@ -1,0 +1,18 @@
+# WP settings
+/server/*
+!/server/wp-content
+/server/wp-content/*
+!/server/wp-content/plugins
+!/server/wp-content/themes
+
+# IDE settings
+.buildpath
+.externalToolBuilders/
+.project
+.settings/
+.idea
+/server/.apdisk
+
+# Excluding unwanted files
+.DS_Store
+*~

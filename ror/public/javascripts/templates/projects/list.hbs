@@ -1,0 +1,68 @@
+<table class="table">
+ <thead>
+    <tr>
+        {{#if isAdmin}}
+        <th><span {{action "toggleDeleteAll"}} class="glyphicon glyphicon-check"></span></th>{{/if}}
+        <th>Name</th>
+        <th>Brand</th>
+        <th>System</th>
+        <th>Gitpath</th>
+        <th>Login</th>
+        <th>Password</th>
+        <th>Framework</th>
+        <th>Technos</th>
+        <th>Isassets</th>
+        <th>Enabled</th>
+        {{#if isLead}}<th>Users</th>{{/if}}
+        <th>Vms</th>
+        <th>Date</th>
+    </tr>
+</thead>
+<tbody>
+  {{#each project in projects}}
+    {{#if project.isCurrent}}
+    <tr>
+
+      {{#if isAdmin}}
+        <td>{{input type="checkbox" checked=project.todelete}}</td>
+        <td>{{#linkTo 'projects.edit' project.id}}{{project.name}}{{/linkTo}}</td>
+        <td>{{#linkTo 'projects.bybrand' project.brand.id}}{{project.brand.name}}{{/linkTo}}</td>
+      {{else}}
+        <td>{{project.name}}</td>
+        <td>{{project.brand.name}}</td>
+      {{/if}}
+
+      <td>{{project.systemimagetype.name}}</td>
+      <td><span {{action "showGitpath" project.gitpath_href}} class="glyphicon glyphicon-new-window"></span></td>
+      <td>{{project.login}}</td>
+      <td>{{project.password}}</td>
+      <td>{{project.framework.name}}</td>
+      <td>{{#each project.technos}}{{name}}<br>{{/each}}</td>
+      <td>{{project.isassets}}</td>
+      <td>{{project.enabled}}</td>
+      {{#if isLead}}
+        <td>{{#linkTo 'users.byproject' project.id}}{{project.users.length}}{{/linkTo}}</td>
+      {{/if}}
+
+      {{#if isAdmin}}
+        <td>{{#linkTo 'vms.byproject' project.id}}{{project.vms.length}}{{/linkTo}}</td>
+      {{else}}
+        <td>{{#linkTo 'vms.byproject' project.id}}here{{/linkTo}}</td>
+      {{/if}}
+      <td>{{project.created_at_short}}</td>
+    </tr>
+    {{/if}}
+  {{/each}}
+</tbody>
+</table>
+{{#if isAdmin}}
+<div class="btn-group" style="margin: 9px 0 5px;">
+    <button {{action "newItem"}} class="btn btn-default"><span class="glyphicon glyphicon-plus-sign"></span></button>
+  {{#if isShowingDeleteConfirmation}}
+    <button {{action "deleteItems"}} class="btn btn-default"><span class="glyphicon glyphicon-remove"></span> Confirm to delete list</button>
+  {{else}}
+    <button {{action "showDeleteConfirmation"}} class="btn btn-default"><span class="glyphicon glyphicon-trash"></span></button>
+  {{/if}}
+</div>
+{{/if}}
+
