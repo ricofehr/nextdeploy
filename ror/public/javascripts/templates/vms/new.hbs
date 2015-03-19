@@ -1,0 +1,117 @@
+<form {{action "createItem" on="submit"}} class="form-horizontal">
+  <legend>Launch new vm</legend>
+  <div class="form-group">
+    {{#if errorProject}}
+      <label class="control-label col-sm-2 alert-danger">Project</label>
+    {{else}}
+      <label class="control-label col-sm-2 alert-success">Project</label>
+    {{/if}}
+    <div class="col-sm-3">
+    {{view Ember.Select
+       classNames="form-control"
+       content=projectsSort
+       optionValuePath="content.id"
+       optionLabelPath="content.name"
+       selection=selectedProject
+       prompt="Please select a Project"}}
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{#if errorFlavor}}
+      <label class="control-label col-sm-2 alert-danger">Flavor</label>
+    {{else}}
+      <label class="control-label col-sm-2 alert-success">Flavor</label>
+    {{/if}}
+    <div class="col-sm-3">
+    {{view Ember.Select
+       classNames="form-control"
+       content=flavorsList
+       optionValuePath="content.id"
+       optionLabelPath="content.title"
+       selection=selectedFlavor
+       prompt="Please select a Flavor"}}
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{#if errorUser}}
+      <label class="control-label col-sm-2 alert-danger">User</label>
+    {{else}}
+      <label class="control-label col-sm-2 alert-success">User</label>
+    {{/if}}
+    <div class="col-sm-3">
+    {{view Ember.Select
+       classNames="form-control"
+       content=usersList
+       optionValuePath="content.id"
+       optionLabelPath="content.email"
+       selection=selectedUser
+       prompt="Please select an User"}}
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{#if errorBranch}}
+      <label class="control-label col-sm-2 alert-danger">Branchs</label>
+    {{else}}
+      <label class="control-label col-sm-2 alert-success">Branchs</label>
+    {{/if}}
+    <div class="col-sm-3">
+    {{view Ember.Select
+       classNames="form-control"
+       content=selectedProject.branches
+       optionValuePath="content.id"
+       optionLabelPath="content.name"
+       selection=selectedBranch
+       prompt="Please select a Branch"}}
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{#if errorCommit}}
+      <label class="control-label col-sm-2 alert-danger">Commits</label>
+    {{else}}
+      <label class="control-label col-sm-2 alert-success">Commits</label>
+    {{/if}}
+    <div class="col-sm-3">
+    {{view Ember.Select
+       classNames="form-control"
+       content=selectedBranch.commits
+       optionValuePath="content.id"
+       optionLabelPath="content.short_id"
+       selection=selectedCommit
+       prompt="Please select a Commit"}}
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{#if errorOs}}
+      <label class="control-label col-sm-2 alert-danger">System</label>
+    {{else}}
+      <label class="control-label col-sm-2 alert-success">System</label>
+    {{/if}}
+    <div class="col-sm-3">
+    {{view Ember.Select
+       classNames="form-control"
+       content=osSort
+       optionValuePath="content.id"
+       optionLabelPath="content.name"
+       selection=selectedOs
+       prompt="Please select an Os"}}
+    </div>
+  </div>
+
+  <div class="form-group">
+  <label class="control-label col-sm-2">
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </label>
+  </div>
+<div class="form-group">
+{{#each message in model.errors.messages}}
+  <div class="error">
+    {{message}}
+  </div>
+{{/each}}
+</div>
+</form>

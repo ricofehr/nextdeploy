@@ -1,0 +1,94 @@
+---
+
+classes:
+  - roles::os::uosnv
+
+#keystone class
+keystone::enabled: false
+keystone::verbose: false
+keystone::catalog_type: 'sql'
+keystone::admin_bind_host: '172.16.170.70'
+keystone::mysql_module: '2.2'
+keystone::admin_token: 'token123'
+keystone::database_connecion: 'mysql://keystone:oskeystone@controller-m/keystonedb'
+
+#neutron class
+neutron::enabled: true
+neutron::rabbit_host: 'controller-m'
+neutron::rabbit_user: 'osuser'
+neutron::rabbit_password: 'useros'
+neutron::verbose: false
+neutron::debug: false
+neutron::allow_overlapping_ips: true
+neutron::core_plugin: 'neutron.plugins.ml2.plugin.Ml2Plugin'
+neutron::service_plugins:
+  - 'neutron.services.l3_router.l3_router_plugin.L3RouterPlugin'
+  - 'neutron.services.loadbalancer.plugin.LoadBalancerPlugin'
+  - 'neutron.services.vpn.plugin.VPNDriverPlugin'
+  - 'neutron.services.firewall.fwaas_plugin.FirewallPlugin'
+  - 'neutron.services.metering.metering_plugin.MeteringPlugin'
+#neutron::server class
+neutron::server::auth_host: 'keystone-m'
+neutron::server::auth_user: 'neutron'
+neutron::server::auth_password: 'osneutron'
+neutron::server::auth_uri: 'http://keystone-a:5000/v2.0'
+neutron::server::database_connection: 'mysql://neutron:osneutron@controller-m/neutrondb?charset=utf8'
+neutron::server::mysql_module: '2.2'
+neutron::server::enabled: false
+neutron::server::sync_db: false
+
+#neutron::server::notifications
+neutron::server::notifications::nova_url: 'http://controller-m:8774/v2/'
+neutron::server::notifications::nova_admin_auth_url: 'http://keystone-m:35357/v2.0/'
+neutron::server::notifications::nova_admin_password: 'osnova'
+neutron::server::notifications::nova_region_name: 'RegionOne'
+
+#neutron::agents
+neutron::agents::ml2::ovs::enable_tunneling: true
+neutron::agents::ml2::ovs::local_ip: '172.16.171.75'
+neutron::agents::ml2::ovs::enabled: true
+neutron::agents::ml2::ovs::tunnel_types:
+  - 'gre'
+
+#neutron::plugins
+neutron::plugins::ml2::type_drivers:
+  - 'gre'
+neutron::plugins::ml2::tenant_network_types:
+  - 'gre'
+neutron::plugins::ml2::mechanism_drivers:
+  - 'openvswitch'
+neutron::plugins::ml2::tunnel_id_ranges:
+  - '1:1000'
+
+#nova class
+nova::database_connection: 'mysql://nova:osnova@controller-m/novadb?charset=utf8'
+nova::glance_api_servers: 'http://glance-a:9292'
+nova::memcached_servers:
+  - 'controller-m:11211'
+nova::rabbit_hosts:
+  - 'controller-m'
+nova::rabbit_userid: 'osuser'
+nova::rabbit_password: 'useros'
+nova::verbose:  false
+nova::mysql_module: '2.2'
+
+#nova::compute class
+nova::compute::vncserver_proxyclient_address: '172.16.170.75'
+nova::compute::vncproxy_host: '192.168.170.70'
+nova::compute::enabled: true
+nova::compute::vnc_enabled: true
+
+#nova::compute::libvirt setting
+nova::compute::libvirt::migration_support: true
+nova::compute::libvirt::libvirt_virt_type: 'kvm'
+nova::compute::libvirt::vncserver_listen: '0.0.0.0'
+
+#nova::network class
+nova::network::neutron::neutron_admin_password: 'osneutron'
+nova::network::neutron::neutron_region_name: 'RegionOne'
+nova::network::neutron::neutron_admin_auth_url: 'http://keystone-m:35357/v2.0'
+nova::network::neutron::neutron_url: 'http://controller-a:9696'
+nova::network::neutron::vif_plugging_is_fatal: false
+nova::network::neutron::vif_plugging_timeout: '0'
+
+is_cron: "no"

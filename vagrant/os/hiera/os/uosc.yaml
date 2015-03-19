@@ -1,0 +1,339 @@
+---
+
+classes:
+  - roles::os::uosc
+
+#memcached setting
+memcached::listen_ip: '172.16.170.70'
+memcached::tcp_port: '11211'
+memcached::udp_port: '11211'
+
+#keystone setting
+keystone::enabled: true
+keystone::verbose: true
+keystone::catalog_type: 'sql'
+keystone::admin_bind_host: '172.16.170.70'
+keystone::mysql_module: '2.2'
+keystone::admin_token: 'token123'
+keystone::token_expiration: 14400
+keystone::database_connection: 'mysql://keystone:oskeystone@controller-m/keystonedb'
+
+keystone::endpoint::public_url: 'http://keystone-a:5000'
+keystone::endpoint::admin_url: 'http://keystone-m:35357'
+keystone::endpoint::internal_url: 'http://keystone-m:5000'
+keystone::endpoint::version: 'v2.0'
+keystone::endpoint::region: 'RegionOne'
+
+#keystone tenant resources
+keystone_tenant:
+  services:
+    ensure: present
+    enabled: true
+    description: 'Tenant for openstack services'
+  admin:
+    ensure: present
+    enabled: true
+    description: 'admin tenant'
+  tenant0:
+    ensure: present
+    enabled: true
+    description: 'user tenant'
+
+keystone_user:
+  admin:
+    ensure: present
+    enabled: true
+    tenant: 'admin'
+    email: 'admin@mvmc-openstack.local'
+    password: 'toor'
+    ignore_default_tenant: false
+  user:
+    ensure: present
+    enabled: true
+    tenant: 'tenant0'
+    email: 'user@mvmc-openstack.local'
+    password: 'wordpass'
+  nova:
+    ensure: present
+    enabled: true
+    tenant: 'services'
+    email: 'nova@mvmc-openstack.local'
+    password: 'osnova'
+  neutron:
+    ensure: present
+    enabled: true
+    tenant: 'services'
+    email: 'neutron@mvmc-openstack.local'
+    password: 'osneutron'
+  cinder:
+    ensure: present
+    enabled: true
+    tenant: 'services'
+    email: 'cinder@mvmc-openstack.local'
+    password: 'oscinder'
+  glance:
+    ensure: present
+    enabled: true
+    tenant: 'services'
+    email: 'glance@mvmc-openstack.local'
+    password: 'osglance'
+  swift:
+    ensure: present
+    enabled: true
+    tenant: 'services'
+    email: 'swift@mvmc-openstack.local'
+    password: 'osswift'
+
+
+keystone_role:
+  admin:
+    ensure: present
+  _member_:
+    ensure: present
+
+keystone_user_role:
+  admin@admin:
+    ensure: present
+    roles:
+      - 'admin'
+      - '_member_'
+  user@tenant0:
+    ensure: present
+    roles:
+      - '_member_'
+  nova@services:
+    ensure: present
+    roles:
+      - 'admin'
+  glance@services:
+    ensure: present
+    roles:
+      - 'admin'
+  cinder@services:
+    ensure: present
+    roles:
+      - 'admin'
+  neutron@services:
+    ensure: present
+    roles:
+      - 'admin'
+  swift@services:
+    ensure: present
+    roles:
+      - 'admin'
+
+keystone_service:
+  nova:
+    ensure: present
+    type: 'compute'
+    description: 'Openstack Compute Service'
+  glance:
+    ensure: present
+    type: 'image'
+    description: 'Openstack Image Service'
+  cinder:
+    ensure: present
+    type: 'volume'
+    description: 'Openstack Block Storage Service'
+  cinderv2:
+    ensure: present
+    type: 'volumev2'
+    description: 'Openstack Block Storage Service v2'
+  neutron:
+    ensure: present
+    type: 'network'
+    description: 'Openstack Network Service'
+
+keystone_endpoint:
+  RegionOne/nova:
+    ensure: present
+    public_url: 'http://controller-a:8774/v2/%(tenant_id)s'
+    admin_url: 'http://controller-m:8774/v2/%(tenant_id)s'
+    internal_url: 'http://controller-m:8774/v2/%(tenant_id)s'
+  RegionOne/glance:
+    ensure: present
+    public_url: 'http://glance-a:9292'
+    admin_url: 'http://glance-m:9292'
+    internal_url: 'http://glance-m:9292'
+  RegionOne/cinder:
+    ensure: present
+    public_url: 'http://controller-a:8776/v1/%(tenant_id)s'
+    admin_url: 'http://controller-m:8776/v1/%(tenant_id)s'
+    internal_url: 'http://controller-m:8776/v1/%(tenant_id)s'
+  RegionOne/cinderv2:
+    ensure: present
+    public_url: 'http://controller-a:8776/v2/%(tenant_id)s'
+    admin_url: 'http://controller-m:8776/v2/%(tenant_id)s'
+    internal_url: 'http://controller-m:8776/v2/%(tenant_id)s'
+  RegionOne/neutron:
+    ensure: present
+    public_url: 'http://controller-a:9696'
+    admin_url: 'http://controller-m:9696'
+    internal_url: 'http://controller-m:9696'
+
+#neutron settings
+neutron::enabled: true
+neutron::rabbit_host: 'controller-m'
+neutron::rabbit_user: 'osuser'
+neutron::rabbit_password: 'useros'
+neutron::verbose: false
+neutron::debug: false
+neutron::allow_overlapping_ips: true
+neutron::core_plugin: 'neutron.plugins.ml2.plugin.Ml2Plugin'
+neutron::service_plugins:
+  - 'neutron.services.l3_router.l3_router_plugin.L3RouterPlugin'
+  - 'neutron.services.loadbalancer.plugin.LoadBalancerPlugin'
+  - 'neutron.services.vpn.plugin.VPNDriverPlugin'
+  - 'neutron.services.firewall.fwaas_plugin.FirewallPlugin'
+  - 'neutron.services.metering.metering_plugin.MeteringPlugin'
+neutron::server::auth_host: 'keystone-m'
+neutron::server::auth_user: 'neutron'
+neutron::server::auth_uri: 'http://keystone-a:5000/v2.0'
+neutron::server::auth_password: 'osneutron'
+neutron::server::database_connection: 'mysql://neutron:osneutron@controller-m/neutrondb?charset=utf8'
+neutron::server::mysql_module: '2.2'
+neutron::server::sync_db: true
+neutron::server::enabled: true
+
+neutron::server::notifications::nova_url: 'http://controller-m:8774/v2/'
+neutron::server::notifications::nova_admin_auth_url: 'http://keystone-m:35357/v2.0/'
+neutron::server::notifications::nova_admin_password: 'osnova'
+neutron::server::notifications::nova_region_name: 'RegionOne'
+
+neutron::agents::ml2::ovs::enable_tunneling: true
+neutron::agents::ml2::ovs::local_ip: '172.16.171.70'
+neutron::agents::ml2::ovs::enabled: true
+neutron::agents::ml2::ovs::tunnel_types:
+  - 'gre'
+neutron::plugins::ml2::type_drivers:
+  - 'gre'
+neutron::plugins::ml2::tenant_network_types:
+  - 'gre'
+neutron::plugins::ml2::mechanism_drivers:
+  - 'openvswitch'
+neutron::plugins::ml2::tunnel_id_ranges:
+  - '1:1000'
+#nova settings
+nova::database_connection: 'mysql://nova:osnova@controller-m/novadb?charset=utf8'
+nova::glance_api_servers: 'http://glance-a:9292'
+nova::memcached_servers:
+  - 'controller-m:11211'
+nova::rabbit_hosts:
+  - 'controller-m'
+nova::rabbit_userid: 'osuser'
+nova::rabbit_password: 'useros'
+nova::verbose: false
+nova::mysql_module: '2.2'
+
+nova::api::admin_password: 'osnova'
+nova::api::auth_host: 'controller-m'
+nova::api::enabled: true
+nova::api::neutron_metadata_proxy_shared_secret: 'osneutron'
+
+nova::vncproxy::host: '192.168.170.70'
+nova::vncproxy::enabled: true
+
+nova::network::neutron::neutron_admin_password: 'osneutron'
+nova::network::neutron::neutron_region_name: 'RegionOne'
+nova::network::neutron::neutron_admin_auth_url: 'http://keystone-m:35357/v2.0'
+nova::network::neutron::neutron_url: 'http://controller-a:9696'
+nova::network::neutron::vif_plugging_is_fatal: false
+nova::network::neutron::vif_plugging_timeout: 0
+
+#cinder classes
+cinder::database_connection: 'mysql://cinder:oscinder@controller-m/cinderdb'
+cinder::rabbit_userid: 'osuser'
+cinder::rabbit_password: 'useros'
+cinder::rabbit_host: 'controller-m'
+cinder::verbose: false
+cinder::mysql_module: '2.2'
+
+cinder::glance::glance_api_servers: 'cinder-a:9292'
+
+cinder::api::keystone_password: 'oscinder'
+cinder::api::keystone_enabled: true
+cinder::api::keystone_user: 'cinder'
+cinder::api::keystone_auth_host: 'keystone-m'
+cinder::api::keystone_auth_port: '35357'
+cinder::api::keystone_auth_protocol: 'http'
+cinder::api::service_port: '8776'
+cinder::api::enabled: true
+
+cinder::scheduler::scheduler_driver: 'cinder.scheduler.simple.SimpleScheduler'
+
+#horizon settings
+horizon::fqdn:
+  - '127.0.0.1'
+  - 'controller-a'
+  - $::fqdn
+horizon::cache_server_ip: 'controller-m'
+horizon::cache_server_port: '11211'
+horizon::secret_key: 'oshorizon'
+horizon::swift: false
+horizon::django_debug: true
+horizon::api_result_limit: 2000
+
+#rabbitmq settigns
+#rabbitmq::version: '3.3.5-1'
+rabbitmq::port: '5672'
+rabbitmq::node_ip_address: '172.16.170.70'
+rabbitmq::delete_guest_user: true
+rabbitmq::admin_enable: false
+
+#rabbitmq resources
+rabbitmq_user:
+  osuser:
+    admin: true
+    password: 'useros'
+
+rabbitmq_user_permissions:
+  osuser@/:
+    configure_permission: '.*'
+    read_permission: '.*'
+    write_permission: '.*'
+
+#mysql resources
+mysql_db:
+  keystonedb:
+    user: keystone 
+    password: oskeystone
+    host: '172.16.170.%'
+    grant: 'all'
+  novadb:
+    user: nova
+    password: osnova
+    host: '172.16.170.%'
+    grant: 'all'
+  glancedb:
+    user: glance
+    password: osglance
+    host: '172.16.170.%'
+    grant: 'all'
+  cinderdb:
+    user: cinder
+    password: oscinder
+    host: '172.16.170.%'
+    grant: 'all'
+  neutrondb:
+    user: neutron
+    password: osneutron
+    host: '172.16.170.%'
+    grant: 'all'
+
+mysql::server::root_password: 'toor'
+mysql::server::override_options:
+  mysqld_safe:
+    log_error: /var/log/mysql/mysql.err
+  mysqld:
+    bind_address: 172.16.170.70
+    datadir: /var/lib/mysql
+    skip-external-locking: true
+
+is_cron: "yes"
+cron_cmd:
+  checkrabbit:
+    command: 'netstat -lnp | grep 5672 >/dev/null || service rabbitmq-server restart'
+    user:  'root'
+    minute: '*'
+    hour: '*'
+    weekday: '*'

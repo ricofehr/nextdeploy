@@ -1,0 +1,35 @@
+<table class="table">
+ <thead>
+    <tr>
+        {{#if isAdmin}}
+        <th><span {{action "toggleDeleteAll"}} class="glyphicon glyphicon-check"></span></th>
+        {{/if}}
+        <th>Name</th>
+        <th>Projects</th>
+    </tr>
+</thead>
+<tbody>
+  {{#each brand in model}}
+    <tr>
+        {{#if isAdmin}}
+        <td>{{input type="checkbox" checked=brand.todelete}}</td>
+        {{/if}}
+        <td>
+        {{#if isAdmin}}{{#linkTo 'brands.edit' brand.id}}{{brand.name}}{{/linkTo}}
+        {{else}}{{brand.name}}{{/if}}
+        </td>
+        <td>{{#linkTo 'projects.bybrand' brand.id}}{{brand.projects.length}}{{/linkTo}}</td>
+    </tr>
+    {{/each}}
+</tbody>
+</table>
+{{#if isAdmin}}
+<div class="btn-group" style="margin: 9px 0 5px;">
+    <button {{action "newItem"}} class="btn btn-default"><span class="glyphicon glyphicon-plus-sign"></span></button>
+{{#if isShowingDeleteConfirmation}}
+  <button {{action "deleteItems"}} class="btn btn-default"><span class="glyphicon glyphicon-remove"></span> Confirm to delete list</button>
+{{else}}
+  <button {{action "showDeleteConfirmation"}} class="btn btn-default"><span class="glyphicon glyphicon-trash"></span></button>
+{{/if}}
+</div>
+{{/if}}

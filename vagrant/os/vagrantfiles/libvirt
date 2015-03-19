@@ -1,0 +1,72 @@
+Vagrant.configure("2") do |config|
+    config.ssh.username = "modem"
+    config.ssh.password = "modem"
+    config.vm.box_download_insecure = true
+   
+    config.vm.define :uosc, primary: true do |uosc|   
+      uosc.vm.hostname = "uosc"
+      uosc.vm.box = "uos-c"
+      uosc.vm.box_url = "http://imgs.mvmc.services-pm.fr/kvm/uos-c.box"
+      uosc.vm.provider :libvirt do |virthost|
+        uosc.vm.network :private_network, :ip => "192.168.170.70", :libvirt__network_name => "vagrant-os"
+        uosc.vm.network :private_network, :ip => "192.168.171.70", :libvirt__network_name => "vagrant-os2"
+        uosc.vm.network :private_network, :ip => "172.16.170.70", :libvirt__network_name => "vagrant-os3"
+        uosc.vm.network :private_network, :ip => "172.16.171.70", :libvirt__network_name => "vagrant-os4"
+        virthost.memory = 1280
+        virthost.cpus = 2
+        virthost.nested = false
+        virthost.volume_cache = "none"
+      end
+    end
+
+   config.vm.define :uosnv, autostart: false do |uosnv|
+      uosnv.vm.hostname = "uosnv"
+      uosnv.vm.box = "uos-s"
+      uosnv.vm.box_url = "http://imgs.mvmc.services-pm.fr/kvm/uos-s.box"
+      uosnv.vm.provider :libvirt do |virthost|
+        uosnv.vm.network :private_network, :ip => "192.168.170.75", :libvirt__network_name => "vagrant-os"
+        uosnv.vm.network :private_network, :ip => "192.168.171.75", :libvirt__network_name => "vagrant-os2"
+        uosnv.vm.network :private_network, :ip => "172.16.170.75", :libvirt__network_name => "vagrant-os3"
+        uosnv.vm.network :private_network, :ip => "172.16.171.75", :libvirt__network_name => "vagrant-os4"
+        virthost.memory = 2304
+        virthost.cpus = 2
+        virthost.nested = true
+      end
+    end
+
+   config.vm.define :uosnt, autostart: false do |uosnt|
+      uosnt.vm.hostname = "uosnt"
+      uosnt.vm.box = "uos-c"
+      uosnt.vm.box_url = "http://imgs.mvmc.services-pm.fr/kvm/uos-c.box"
+      uosnt.vm.provider :libvirt do |virthost|
+        uosnt.vm.network :private_network, :ip => "192.168.170.71", :libvirt__network_name => "vagrant-os"
+        uosnt.vm.network :private_network, :ip => "192.168.171.71", :libvirt__network_name => "vagrant-os2"
+        uosnt.vm.network :private_network, :ip => "172.16.170.71", :libvirt__network_name => "vagrant-os3"
+        uosnt.vm.network :private_network, :ip => "172.16.171.71", :libvirt__network_name => "vagrant-os4"
+        virthost.memory = 256
+        virthost.cpus = 1
+        virthost.nested = false
+      end
+    end
+
+   config.vm.define :uosst, autostart: false do |uosst|
+      uosst.vm.hostname = "uosst"
+      uosst.vm.box = "uos-s"
+      uosst.vm.box_url = "http://imgs.mvmc.services-pm.fr/kvm/uos-s.box"
+      uosst.vm.provider :libvirt do |virthost|
+        uosst.vm.network :private_network, :ip => "192.168.170.72", :libvirt__network_name => "vagrant-os"
+        uosst.vm.network :private_network, :ip => "192.168.171.72", :libvirt__network_name => "vagrant-os2"
+        uosst.vm.network :private_network, :ip => "172.16.170.72", :libvirt__network_name => "vagrant-os3"
+        uosst.vm.network :private_network, :ip => "172.16.171.72", :libvirt__network_name => "vagrant-os4"
+        virthost.memory = 512
+        virthost.cpus = 2
+        virthost.nested = false
+      end
+    end
+
+  config.vm.provision :puppet do |puppet|
+    puppet.manifest_file = "init.pp"
+    puppet.module_path = "modules"
+    puppet.options = "--ordering=manifest --hiera_config /vagrant/hiera/hiera.yaml"
+  end
+end

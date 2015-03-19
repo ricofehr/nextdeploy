@@ -1,0 +1,159 @@
+[submodule "vagrant/modules/apache"]
+	path = vagrant/modules/apache
+	url = https://github.com/puppetlabs/puppetlabs-apache
+[submodule "vagrant/modules/cinder"]
+	path = vagrant/modules/cinder
+	url = https://github.com/stackforge/puppet-cinder.git
+	branch = stable/icehouse
+[submodule "vagrant/modules/concat"]
+	path = vagrant/modules/concat
+	url = https://github.com/puppetlabs/puppetlabs-concat.git
+[submodule "vagrant/modules/gitlab"]
+	path = vagrant/modules/gitlab
+	url = https://github.com/spuder/puppet-gitlab.git
+[submodule "vagrant/modules/glance"]
+	path = vagrant/modules/glance
+	url = https://github.com/stackforge/puppet-glance.git
+	branch = stable/icehouse
+[submodule "vagrant/modules/horizon"]
+	path = vagrant/modules/horizon
+	url = https://github.com/stackforge/puppet-horizon.git
+	branch = stable/icehouse
+[submodule "vagrant/modules/inifile"]
+	path = vagrant/modules/inifile
+	url = https://github.com/puppetlabs/puppetlabs-inifile.git
+[submodule "vagrant/modules/jenkins"]
+	path = vagrant/modules/jenkins
+	url = https://github.com/jenkinsci/puppet-jenkins.git
+[submodule "vagrant/modules/keystone"]
+	path = vagrant/modules/keystone
+	url = https://github.com/stackforge/puppet-keystone.git
+	branch = stable/icehouse
+[submodule "vagrant/modules/logrotate"]
+	path = vagrant/modules/logrotate
+	url = https://github.com/rodjek/puppet-logrotate.git
+[submodule "vagrant/modules/memcached"]
+	path = vagrant/modules/memcached
+	url = https://github.com/saz/puppet-memcached
+[submodule "vagrant/modules/mysql"]
+	path = vagrant/modules/mysql
+	url = https://github.com/puppetlabs/puppetlabs-mysql.git
+[submodule "vagrant/modules/nginx"]
+	path = vagrant/modules/nginx
+	url = https://github.com/jfryman/puppet-nginx.git
+[submodule "vagrant/modules/nodejs"]
+	path = vagrant/modules/nodejs
+	url = https://github.com/puppetlabs/puppetlabs-nodejs.git
+[submodule "vagrant/modules/ntp"]
+	path = vagrant/modules/ntp
+	url = https://github.com/puppetlabs/puppetlabs-ntp.git
+[submodule "vagrant/modules/openvpn"]
+	path = vagrant/modules/openvpn
+	url = https://github.com/luxflux/puppet-openvpn.git
+[submodule "vagrant/modules/php"]
+	path = vagrant/modules/php
+	url = https://github.com/thias/puppet-php.git
+[submodule "vagrant/modules/postfix"]
+	path = vagrant/modules/postfix
+	url = https://github.com/thias/puppet-postfix.git
+[submodule "vagrant/modules/qpid"]
+	path = vagrant/modules/qpid
+	url = https://github.com/dprince/puppet-qpid.git
+[submodule "vagrant/modules/rabbitmq"]
+	path = vagrant/modules/rabbitmq
+	url = https://github.com/puppetlabs/puppetlabs-rabbitmq.git
+[submodule "vagrant/modules/ruby"]
+	path = vagrant/modules/ruby
+	url = https://github.com/puppetlabs/puppetlabs-ruby.git
+[submodule "vagrant/modules/rvm"]
+	path = vagrant/modules/rvm
+	url = https://github.com/maestrodev/puppet-rvm.git
+[submodule "vagrant/modules/staging"]
+	path = vagrant/modules/staging
+	url = https://github.com/nanliu/puppet-staging.git
+[submodule "vagrant/modules/stdlib"]
+	path = vagrant/modules/stdlib
+	url = https://github.com/puppetlabs/puppetlabs-stdlib.git
+[submodule "vagrant/modules/sysctl"]
+	path = vagrant/modules/sysctl
+	url = https://github.com/duritong/puppet-sysctl.git
+[submodule "vagrant/modules/timezone"]
+	path = vagrant/modules/timezone
+	url = https://github.com/saz/puppet-timezone.git
+[submodule "vagrant/modules/vcsrepo"]
+	path = vagrant/modules/vcsrepo
+	url = https://github.com/puppetlabs/puppetlabs-vcsrepo.git
+[submodule "vagrant/modules/vswitch"]
+	path = vagrant/modules/vswitch
+	url = https://github.com/stackforge/puppet-vswitch.git
+[submodule "vagrant/modules/wget"]
+	path = vagrant/modules/wget
+	url = https://github.com/maestrodev/puppet-wget.git
+[submodule "puppet/apache"]
+	path = puppet/apache
+	url = https://github.com/puppetlabs/puppetlabs-apache
+[submodule "puppet/apt"]
+	path = puppet/apt
+	url = https://github.com/puppetlabs/puppetlabs-apt.git
+[submodule "puppet/concat"]
+	path = puppet/concat
+	url = https://github.com/puppetlabs/puppetlabs-concat.git
+[submodule "puppet/elasticsearch"]
+	path = puppet/elasticsearch
+	url = https://github.com/elastic/puppet-elasticsearch.git
+[submodule "puppet/gcc"]
+	path = puppet/gcc
+	url = https://github.com/puppetlabs/puppetlabs-gcc.git
+[submodule "puppet/inifile"]
+	path = puppet/inifile
+	url = https://github.com/puppetlabs/puppetlabs-inifile.git
+[submodule "puppet/memcached"]
+	path = puppet/memcached
+	url = https://github.com/saz/puppet-memcached
+[submodule "puppet/mongodb"]
+	path = puppet/mongodb
+	url = https://github.com/puppetlabs/puppetlabs-mongodb.git
+[submodule "puppet/mysql"]
+	path = puppet/mysql
+	url = https://github.com/puppetlabs/puppetlabs-mysql.git
+[submodule "puppet/ntp"]
+	path = puppet/ntp
+	url = https://github.com/puppetlabs/puppetlabs-ntp.git
+[submodule "puppet/php"]
+	path = puppet/php
+	url = https://github.com/thias/puppet-php.git
+[submodule "puppet/rabbitmq"]
+	path = puppet/rabbitmq
+	url = https://github.com/puppetlabs/puppetlabs-rabbitmq.git
+[submodule "puppet/redis"]
+	path = puppet/redis
+	url = https://github.com/thomasvandoren/puppet-redis.git
+[submodule "puppet/staging"]
+	path = puppet/staging
+	url = https://github.com/nanliu/puppet-staging.git
+[submodule "puppet/stdlib"]
+	path = puppet/stdlib
+	url = https://github.com/puppetlabs/puppetlabs-stdlib.git
+[submodule "puppet/sysctl"]
+	path = puppet/sysctl
+	url = https://github.com/duritong/puppet-sysctl.git
+[submodule "puppet/wget"]
+	path = puppet/wget
+	url = https://github.com/maestrodev/puppet-wget.git
+[submodule "vagrant/modules/apt"]
+	path = vagrant/modules/apt
+	url = https://github.com/puppetlabs/puppetlabs-apt.git
+[submodule "vagrant/modules/neutron"]
+	path = vagrant/modules/neutron
+	url = https://github.com/stackforge/puppet-neutron.git
+	branch = stable/icehouse
+[submodule "vagrant/modules/nova"]
+	path = vagrant/modules/nova
+	url = https://github.com/stackforge/puppet-nova.git
+	branch = stable/icehouse
+[submodule "vagrant/modules/java"]
+	path = vagrant/modules/java
+	url = https://github.com/puppetlabs/puppetlabs-java.git
+[submodule "vagrant/modules/zypprepo"]
+	path = vagrant/modules/zypprepo
+	url = https://github.com/deadpoint/puppet-zypprepo.git

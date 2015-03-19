@@ -1,0 +1,21 @@
+# Excluding unwanted files
+.DS_Store
+
+# Drupal specific excludes
+# If settings.local.php exists, we can remove settings.php on this list
+/server/sites/*/temp/
+/server/sites/*/settings.local.php
+/server/sites/*/settings.php
+/server/sites/*/files/
+/server/sites/sites.php
+
+# IDE settings
+.buildpath
+.externalToolBuilders/
+.project
+.settings/
+.idea
+/server/.apdisk
+
+# Zend Debugger
+dummy.php

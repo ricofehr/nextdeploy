@@ -1,0 +1,110 @@
+#!/bin/sh -
+#
+### BEGIN INIT INFO
+# Provides:          iptables
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Should-Start:      $network $named $time
+# Should-Stop:       $network $named $time
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start and stop the iptables service
+# Description:       Controls the iptables service.
+### END INIT INFO
+#
+IPTABLES=/sbin/iptables
+
+# spoofing protection 
+if [ -e /proc/sys/net/ipv4/conf/all/rp_filter ]
+then
+for filtre in /proc/sys/net/ipv4/conf/*/rp_filter
+do
+echo 1 > $filtre
+done
+fi
+
+do_stop()
+{
+        $IPTABLES -F
+        $IPTABLES -X
+
+        $IPTABLES -P INPUT ACCEPT
+        $IPTABLES -P OUTPUT ACCEPT
+        $IPTABLES -P FORWARD ACCEPT
+}
+
+do_start()
+{
+        $IPTABLES -F
+        $IPTABLES -X
+
+        $IPTABLES -P INPUT DROP
+        $IPTABLES -P OUTPUT DROP
+        $IPTABLES -P FORWARD DROP
+
+        # localhost
+        $IPTABLES -A INPUT -s 127.0.0.1 -j ACCEPT
+        $IPTABLES -A INPUT -d 127.0.0.1 -j ACCEPT
+        $IPTABLES -A OUTPUT -s 127.0.0.1 -j ACCEPT
+        $IPTABLES -A OUTPUT -d 127.0.0.1 -j ACCEPT
+
+        # private network
+        $IPTABLES -A INPUT -s 172.16.0.0/16 -j ACCEPT
+        $IPTABLES -A INPUT -d 172.16.0.0/16 -j ACCEPT
+        $IPTABLES -A OUTPUT -s 172.16.0.0/16 -j ACCEPT
+        $IPTABLES -A OUTPUT -d 172.16.0.0/16 -j ACCEPT
+
+        $IPTABLES -A INPUT -s 192.168.0.0/16 -j ACCEPT
+        $IPTABLES -A INPUT -d 192.168.0.0/16 -j ACCEPT
+        $IPTABLES -A OUTPUT -s 192.168.0.0/16 -j ACCEPT
+        $IPTABLES -A OUTPUT -d 192.168.0.0/16 -j ACCEPT
+
+        $IPTABLES -A INPUT -s 10.0.0.0/8 -j ACCEPT
+        $IPTABLES -A INPUT -d 10.0.0.0/8 -j ACCEPT
+        $IPTABLES -A OUTPUT -s 10.0.0.0/8 -j ACCEPT
+        $IPTABLES -A OUTPUT -d 10.0.0.0/8 -j ACCEPT
+
+        #DNS sortant
+        $IPTABLES -A OUTPUT -m state --state NEW -p udp --dport 53 -j ACCEPT
+
+        #ICMP
+        $IPTABLES -A OUTPUT -p icmp -j ACCEPT
+
+        #Connection already established
+        $IPTABLES -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+        $IPTABLES -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+        #SMTP
+        $IPTABLES -A OUTPUT -m state --state NEW -p tcp --dport 25 -j ACCEPT
+
+      	#HTTP
+	      $IPTABLES -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+	      $IPTABLES -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
+	      $IPTABLES -A OUTPUT -m state --state NEW -p tcp --dport 80 -j ACCEPT
+	      $IPTABLES -A OUTPUT -m state --state NEW -p tcp --dport 443 -j ACCEPT
+
+	      # SSH
+	      $IPTABLES -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+
+        # Port 123 (NTP)
+        $IPTABLES -A OUTPUT -m state --state NEW -p udp --dport 123 -j ACCEPT
+}
+
+case "$1" in
+  start|"")
+        do_start
+        ;;
+  restart|reload|force-reload)
+        do_stop
+        do_start
+        ;;
+  stop)
+        do_stop
+        ;;
+  status)
+        exit $?
+        ;;
+  *)
+        echo "Usage: firewall [start|stop|restart]" >&2
+        exit 3
+        ;;
+esac
