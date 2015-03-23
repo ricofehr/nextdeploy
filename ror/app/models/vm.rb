@@ -6,7 +6,7 @@ class Vm < ActiveRecord::Base
   include VmsHelper
 
   belongs_to :project
-  belongs_to :flavor 
+  belongs_to :vmsize 
 
   belongs_to :user
   belongs_to :systemimage
@@ -63,7 +63,7 @@ class Vm < ActiveRecord::Base
       generate_hiera
       user_data = generate_userdata
       sshname = user.sshkeys.first ? user.sshkeys.first.name : '' 
-      self.nova_id = @osapi.boot_vm(self.name, systemimage.glance_id, sshname, self.flavor.title, user_data)
+      self.nova_id = @osapi.boot_vm(self.name, systemimage.glance_id, sshname, self.vmsize.title, user_data)
     rescue Exceptions::MvmcException => me
       me.log
     end

@@ -52,10 +52,8 @@ prerequisites() {
   cp vagrant/modules/pm/files/hosts/* tmp/remote/
   
   # change private subnet into remote yaml
-  ${BINSED} -i "s;192\.168\.170;192.168.70;g" tmp/remote/*
-  ${BINSED} -i "s;192\.168\.171;192.168.71;g" tmp/remote/*
-  ${BINSED} -i "s;172\.16\.170;172.16.70;g" tmp/remote/*
-  ${BINSED} -i "s;172\.16\.171;172.16.71;g" tmp/remote/*
+  ${BINSED} -i "s/192\.168\.170/192.168.70/g;s/192\.168\.171/192.168.71/g" tmp/remote/*
+  ${BINSED} -i "s/172\.16\.170/172.16.70/g;s/172\.16\.171/172.16.71/g" tmp/remote/*
 }
 
 # Upload puppet templates for openstack and manager install
@@ -133,10 +131,6 @@ EOF
 install_uosc() {
   local fqdn='uosc'
 
-  # get the fqdn
-  #output -q -l "The fqdn ? (hostname + domain)"
-  #read fqdn
-
   # get the ip
   output -q -l 'The ip for openstack controller node ?'
   read remote_ip
@@ -145,7 +139,7 @@ install_uosc() {
 
   # set the fqdn
   ssh root@${remote_ip} "hostname ${fqdn}; sed -i 's;127.0.0.1;127.0.0.1 ${fqdn};' /etc/hosts;"
-  ssh root@${remote_ip} 'sed -i "s;^domain.*;;" /etc/resolv.conf;sed -i "s;^search.*;;" /etc/resolv.conf;'
+  ssh root@${remote_ip} 'sed -i "s/^domain.*//;s/^search.*//" /etc/resolv.conf'
 
   # set locale
   ssh root@${remote_ip} 'echo LANG=en_US.UTF-8 > /etc/default/locale'
@@ -197,10 +191,6 @@ install_uosnt() {
   local startip=''
   local endip=''
   local mvmcip=''
-
-  # get the fqdn
-  # output -q -l "The fqdn ? (hostname + domain)"
-  # read fqdn
 
   # get the ip
   output -q -l 'The ip for openstack network node ?'
@@ -305,10 +295,6 @@ install_uosnt() {
 install_uosst() {
   local fqdn='uosst'
 
-  # get the fqdn
-  #output -q -l "The fqdn ? (hostname + domain)"
-  #read fqdn
-
   # get the ip
   output -q -l 'The ip for openstack glance node ?'
   read remote_ip
@@ -365,10 +351,6 @@ install_uosst() {
 # Install openstack compute node
 install_uosnv() {
   local fqdn='uosnv'
-
-  # get the fqdn
-  #output -q -l "The fqdn ? (hostname + domain)"
-  #read fqdn
 
   # get the ip
   output -q -l 'The ip for openstack compute node ?'
@@ -427,10 +409,6 @@ install_uosnv() {
 install_mvmc() {
   local fqdn='mvmc'
 
-  # get the fqdn
-  #output -q -l "The fqdn ? (hostname + domain)"
-  #read fqdn
-
   # get the ip
   output -q -l 'The ip for mvmc manager node ?'
   read remote_ip
@@ -486,6 +464,7 @@ EOF
   [[ -z "$docurl" ]] && docurl="doc.${mvmcurl}"
 
 
+  # change specific variables into nginx setting file and puma start daemon script
   ${BINSED} -i "s;os.local;${suffix};" tmp/remote/os-http.conf
   ${BINSED} -i "s;mvmc.local;${mvmcurl};" tmp/remote/os-http.conf
   ${BINSED} -i "s;doc.mvmc.local;${docurl};" tmp/remote/os-doc.conf
@@ -529,7 +508,7 @@ EOF
   # clone project into tmp folder
   mkdir /tmp/mvmc
   pushd /tmp/mvmc > /dev/null
-  git clone git@github.com:ricofehr/mvmc.git .
+  git clone --recursive git@github.com:ricofehr/mvmc.git .
   rsync -avzPessh /tmp/mvmc root@${remote_ip}:/home/
   ssh root@${remote_ip} 'ln -s /home/mvmc/puppet /puppet'
   ssh root@${remote_ip} 'ln -s /home/mvmc/ror /ror'
@@ -539,15 +518,8 @@ EOF
   rm -rf /tmp/mvmc
 
   # rsync rails app (git clone on remote server should be better)
-  #rsync -avzPessh ror root@${remote_ip}:/
   rsync -avzPessh tmp/remote/production.rb root@${remote_ip}:/ror/config/environments/
-  #rsync -avzPessh puppet root@${remote_ip}:/
-  #rsync -avzPessh ror/hiera root@${remote_ip}:/
-  #rsync -avzPessh out root@${remote_ip}:/
-
-  # reinit private token
-  #ssh root@${remote_ip} 'rm -f /ror/tmp/private_token'
-
+  
   # allow puppet to start
   ssh root@${remote_ip} '[[ -f /etc/default/puppet ]] && sed -i "s;START=no;START=yes;" /etc/default/puppet'
 

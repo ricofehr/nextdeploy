@@ -37,7 +37,7 @@ class pm::http {
   apache::mod { 'mpm_prefork': }
   apache::mod { 'access_compat': }
   apache::mod { 'authn_core': }
-  apache::mod { 'authz_core': }
+  #apache::mod { 'authz_core': }
 
   # avoid issue when restart apache2.4
   exec {'touch_confd':

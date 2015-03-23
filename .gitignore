@@ -13,6 +13,9 @@
 # Ignore nohup file
 nohup.out
 
+# Ignore production setting file
+/ror/config/environments/production.rb
+
 # Ignore sshkeys symlink
 /vagrant/mvmc/puppet/pm/files/sshkeys
 

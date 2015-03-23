@@ -11,7 +11,7 @@ var Project = DS.Model.extend({
   framework: DS.belongsTo('framework', {async: true}),
   systemimagetype: DS.belongsTo('systemimagetype', {async: true}),
   technos: DS.hasMany('techno', {async: true}),
-  flavors: DS.hasMany('flavor', {async: true}),
+  vmsizes: DS.hasMany('vmsize', {async: true}),
   users: DS.hasMany('user', {async: true}),
   vms: DS.hasMany('vm', {async: true}),
   branches: DS.hasMany('branche', {async: true})

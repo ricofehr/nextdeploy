@@ -8,7 +8,7 @@ var ProjectsNewRoute = AuthenticatedRoute.extend({
       brandlist: this.store.all('brand'),
       frameworklist: this.store.all('framework'),
       technolist: this.store.all('techno'),
-      flavorlist: this.store.all('flavor'),
+      vmsizelist: this.store.all('vmsize'),
       userlist: this.store.all('user'),
       systemlist: this.store.all('systemimagetype'),
       groups: this.store.all('group')
@@ -27,7 +27,7 @@ var ProjectsNewRoute = AuthenticatedRoute.extend({
     this.controllerFor('projects.new').setProperties({brandlist: model.brandlist,
                                                       frameworklist: model.frameworklist,
                                                       technolist: model.technolist,
-                                                      flavorlist: model.flavorlist,
+                                                      vmsizelist: model.vmsizelist,
                                                       userlist: model.userlist,
                                                       systemlist: model.systemlist,
                                                       groups: model.groups});

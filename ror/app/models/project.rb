@@ -16,8 +16,8 @@ class Project < ActiveRecord::Base
   has_many :user_project, dependent: :destroy
   has_many :users, through: :user_project
 
-  has_many :project_flavor, dependent: :destroy
-  has_many :flavors, through: :project_flavor
+  has_many :project_vmsize, dependent: :destroy
+  has_many :vmsizes, through: :project_vmsize
 
   has_many :vms, dependent: :destroy
 

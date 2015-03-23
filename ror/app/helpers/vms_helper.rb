@@ -76,6 +76,7 @@ module VmsHelper
       pattern = IO.read(template)
       pattern.gsub!('%{vmreplace}', vm_replace)
       pattern.gsub!('%{os_suffix}',Rails.application.config.os_suffix)
+      pattern.gsub!('%{mvmcip}',Rails.application.config.mvmcip)
       # ft = File.open(template, "rb")
       # pattern = ft.read
       # ft.close()

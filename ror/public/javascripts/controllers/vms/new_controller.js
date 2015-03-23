@@ -21,8 +21,8 @@ var VmsNewController = Ember.ObjectController.extend({
   selectedCommit: null,
   selectedOs: null,
   usersList: null,
-  flavorsList: null,
-  selectedFlavor: null,
+  vmsizesList: null,
+  selectedVmsize: null,
   
   //validation variables
   errorProject: false,
@@ -30,7 +30,7 @@ var VmsNewController = Ember.ObjectController.extend({
   errorBranch: false,
   errorCommit: false,
   errorOs: false,
-  errorFlavor: false,
+  errorVmsize: false,
 
   //validation function
   checkProject: function() {
@@ -88,16 +88,16 @@ var VmsNewController = Ember.ObjectController.extend({
     this.set('errorOs', errorOs) ;
   }.observes('selectedOs'),
 
-  checkFlavor: function() {
-    var flavor = this.get('selectedFlavor') ;
-    var errorFlavor = false ;
+  checkVmsize: function() {
+    var vmsize = this.get('selectedVmsize') ;
+    var errorVmsize = false ;
 
-    if (!flavor) {
-      errorFlavor = true ;
+    if (!vmsize) {
+      errorVmsize = true ;
     }
 
-    this.set('errorFlavor', errorFlavor) ;
-  }.observes('selectedFlavor'),
+    this.set('errorVmsize', errorVmsize) ;
+  }.observes('selectedVmsize'),
 
   //check form before submit
   formIsValid: function() {
@@ -106,14 +106,14 @@ var VmsNewController = Ember.ObjectController.extend({
     this.checkBranch() ;
     this.checkCommit() ;
     this.checkOs() ;
-    this.checkFlavor() ;
+    this.checkVmsize() ;
 
     if (!this.get('errorProject') &&
         !this.get('errorUser') &&
         !this.get('errorBranch') &&
         !this.get('errorCommit') &&
         !this.get('errorOs') &&
-        !this.get('errorFlavor')) return true ;
+        !this.get('errorVmsize')) return true ;
     return false ;
   },
 
@@ -124,7 +124,7 @@ var VmsNewController = Ember.ObjectController.extend({
     this.set('selectedBranch', null) ;
     this.set('selectedCommit', null) ;
     this.set('selectedOs', null) ;
-    this.set('selectedFlavor', null) ;
+    this.set('selectedVmsize', null) ;
   },
 
   // project change event
@@ -133,7 +133,7 @@ var VmsNewController = Ember.ObjectController.extend({
     if (!this.get('selectedProject')) {
       this.set('usersList', []) ;
       this.set('osSort', []) ;
-      this.set('flavorsList', []) ;
+      this.set('vmsizesList', []) ;
       return ;
     }
 
@@ -152,8 +152,8 @@ var VmsNewController = Ember.ObjectController.extend({
 
     this.set('usersList', users) ;
 
-    //flavor combobox
-    this.set('flavorsList', this.get('selectedProject').get('flavors')) ;
+    //vmsize combobox
+    this.set('vmsizesList', this.get('selectedProject').get('vmsizes')) ;
 
     //and the system combobox
     systemtype = this.get('selectedProject').get('systemimagetype') ;
@@ -174,7 +174,7 @@ var VmsNewController = Ember.ObjectController.extend({
       var selectedCommit = this.get('selectedCommit') ;
       var selectedUser = this.get('selectedUser') ;
       var selectedOs = this.get('selectedOs') ;
-      var selectedFlavor = this.get('selectedFlavor') ;
+      var selectedVmsize = this.get('selectedVmsize') ;
 
       // check if form is valid
       if (!this.formIsValid()) {
@@ -186,7 +186,7 @@ var VmsNewController = Ember.ObjectController.extend({
       data['project'] = selectedProject ;
       data['user'] = selectedUser ;
       data['systemimage'] = selectedOs ;
-      data['flavor'] = selectedFlavor ;
+      data['vmsize'] = selectedVmsize ;
       
       // create a vm object for the rest post request
       vm = store.createRecord('vm', data) ;

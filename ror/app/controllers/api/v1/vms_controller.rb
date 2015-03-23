@@ -107,7 +107,7 @@ module API
         params_p[:user_id] = params_p[:user] unless params_p[:user_id]
         params_p[:project_id] = params_p[:project] unless params_p[:project_id] 
         params_p[:systemimage_id] = params_p[:systemimage] unless params_p[:systemimage_id]
-        params_p[:flavor_id] = params_p[:flavor] unless params_p[:flavor_id]
+        params_p[:vmsize_id] = params_p[:vmsize] unless params_p[:vmsize_id]
         params_p[:commit_id] = params_p[:commit] unless params_p[:commit_id]
 
         params_p.delete(:created_at)
@@ -118,13 +118,14 @@ module API
         params_p.delete(:project)
         params_p.delete(:systemimage)
         params_p.delete(:commit)
-
+        params_p.delete(:vmsize)
+        
         params[:vm] = params_p
       end
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def vm_params
-        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :flavor_id)
+        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id)
       end
     end
   end

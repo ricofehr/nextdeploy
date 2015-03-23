@@ -9,7 +9,7 @@ var ProjectsEditRoute = AuthenticatedRoute.extend({
       brandlist: this.store.all('brand'),
       frameworklist: this.store.all('framework'),
       technolist: this.store.all('techno'),
-      flavorlist: this.store.all('flavor'),
+      vmsizelist: this.store.all('vmsize'),
       userlist: this.store.all('user'),
       project: this.store.find('project', params.project_id)
     });
@@ -28,13 +28,14 @@ var ProjectsEditRoute = AuthenticatedRoute.extend({
                                                       gitpath: model.project.get('gitpath').replace(/^.*\//, ''),
                                                       project_users: model.project.get('users'),
                                                       project_technos: model.project.get('technos'),
-                                                      project_flavors: model.project.get('flavors'),
+                                                      project_vmsizes: model.project.get('vmsizes'),
                                                       brandlist: model.brandlist,
                                                       frameworklist: model.frameworklist,
                                                       technolist: model.technolist,
-                                                      flavorlist: model.flavorlist,
+                                                      vmsizelist: model.vmsizelist,
                                                       userlist: model.userlist});
   },
+  
 });
 
 module.exports = ProjectsEditRoute;

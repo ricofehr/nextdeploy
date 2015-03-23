@@ -119,7 +119,7 @@ class pm::os::nv {
 
   class  { '::neutron::plugins::ml2': }
 
-   class { '::nova':
+  class { '::nova':
     require => [ File['/etc/hosts'] ],
   }
   
@@ -162,7 +162,19 @@ class pm::os::nv_postinstall {
       path => '/usr/bin:/usr/sbin:/bin:/sbin',
       user => 'root'
   }
-   #post install stuff
+
+  # move nova folder into home filesystem (ensure that we have large disk space)
+  exec { 'movenova':
+    command => 'mv /var/lib/nova /home/'
+  } ->
+  file { '/var/lib/nova':
+    ensure => 'link',
+    target => '/home/nova'
+  } ->
+  exec { 'restartcompute':
+    command => 'service nova-compute restart'
+  } ->
+  # post install stuff
   exec { 'nova-secgroup-rule22':
     command => 'nova --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 secgroup-add-rule default tcp 22 22 0.0.0.0/0',
   } ->

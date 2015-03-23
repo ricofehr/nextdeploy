@@ -13,7 +13,7 @@ class VmSerializer < ActiveModel::Serializer
 
   has_one :commit, key: :commit
   has_one :project, key: :project
-  has_one :flavor, key: :flavor
+  has_one :vmsize, key: :vmsize
   has_one :user, key: :user
   has_one :systemimage, key: :systemimage
 end

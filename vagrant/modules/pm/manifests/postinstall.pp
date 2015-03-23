@@ -35,19 +35,8 @@ class pm::postinstall::mvmc {
   # ensure that ror and out folders is on modem owner
   # temporary before git repo will be public
   exec { 'chownmodem':
-    command => 'chown -R modem: /ror',
-    user => 'root'
-  } ->
-  exec { 'chownmodem2':
-    command => 'chown -R modem: /out',
-    user => 'root'
-  } ->
-  exec { 'chownmodem3':
-    command => 'chown -R modem: /hiera',
-    user => 'root'
-  } ->
-  exec { 'chownmodem4':
-    command => 'chown -R puppet: /puppet',
+    command => 'chown -R modem: /home/mvmc',
+    onlyif => 'test -d /home/mvmc',
     user => 'root'
   } ->
   # disable hostkey verification on mvmc
@@ -111,6 +100,12 @@ class pm::postinstall::mvmc {
   file { '/home/modem/puma.sh':
     ensure => file,
     source => ['puppet:///modules/pm/scripts/puma.sh'],
+    owner => 'modem',
+    mode => '0700'
+  } ->
+  file { '/home/modem/ember.sh':
+    ensure => file,
+    source => ['puppet:///modules/pm/scripts/ember.sh'],
     owner => 'modem',
     mode => '0700'
   } ->

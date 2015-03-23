@@ -7,7 +7,7 @@ var Vm = DS.Model.extend({
   user: DS.belongsTo('user', {async: true}),
   project: DS.belongsTo('project', {async: true}),
   systemimage: DS.belongsTo('systemimage', {async: true}),
-  flavor: DS.belongsTo('flavor', {async: true}),
+  vmsize: DS.belongsTo('vmsize', {async: true}),
   created_at: DS.attr('date')
 });
 

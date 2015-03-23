@@ -8,17 +8,17 @@ var ProjectsNewController = Ember.ObjectController.extend({
   //system combobox
   systemsSort: Ember.computed.sort('systemlist', 'computeSorting'),
 
-  //flavors checkboxes
-  flavorSorting: ['title:desc'],
-  flavorsSort: Ember.computed.sort('flavorlist', 'flavorSorting'),
-  checkedFlavors: Ember.computed.map('flavorsSort', function(model){
+  //vmsizes checkboxes
+  vmsizeSorting: ['title:desc'],
+  vmsizesSort: Ember.computed.sort('vmsizelist', 'vmsizeSorting'),
+  checkedVmsizes: Ember.computed.map('vmsizesSort', function(model){
     var checked = false ;
     var readonly = false ;
-    var flavors = this.get('project_flavors') ;
+    var vmsizes = this.get('project_vmsizes') ;
 
-    if (flavors) {
-      var flavor = flavors.findBy('id', model.id) ;
-      if (flavor) checked = true ;
+    if (vmsizes) {
+      var vmsize = vmsizes.findBy('id', model.id) ;
+      if (vmsize) checked = true ;
     }
 
     return Ember.ObjectProxy.create({
@@ -90,7 +90,7 @@ var ProjectsNewController = Ember.ObjectController.extend({
   errorSystem: false,
   errorAsset: false,
   errorTechnos: false,
-  errorFlavors: false,
+  errorVmsizes: false,
   errorUsers: false,
 
   //validation functions
@@ -165,13 +165,13 @@ var ProjectsNewController = Ember.ObjectController.extend({
     this.set('errorTechnos', errorTechnos) ;
   }.observes('checkedTechnos.@each.checked'),
 
-  checkFlavors: function() {
-    var errorFlavors = true ;
-    var flavors = this.get('checkedFlavors').filterBy('checked', true) ;
-    if (flavors.length > 0) errorFlavors = false ;
+  checkVmsizes: function() {
+    var errorVmsizes = true ;
+    var vmsizes = this.get('checkedVmsizes').filterBy('checked', true) ;
+    if (vmsizes.length > 0) errorVmsizes = false ;
 
-    this.set('errorFlavors', errorFlavors) ;
-  }.observes('checkedFlavors.@each.checked'),
+    this.set('errorVmsizes', errorVmsizes) ;
+  }.observes('checkedVmsizes.@each.checked'),
 
   checkUsers: function() {
     var errorUsers = true ;
@@ -191,7 +191,7 @@ var ProjectsNewController = Ember.ObjectController.extend({
     this.checkSystem() ;
     this.checkAsset() ;
     this.checkTechnos() ;
-    this.checkFlavors() ;
+    this.checkVmsizes() ;
     this.checkUsers() ;
 
     if (!this.get('errorBrand') &&
@@ -202,7 +202,7 @@ var ProjectsNewController = Ember.ObjectController.extend({
         !this.get('errorSystem') &&
         !this.get('errorAsset') &&
         !this.get('errorTechnos') &&
-        !this.get('errorFlavors') &&
+        !this.get('errorVmsizes') &&
         !this.get('errorUsers')) return true ;
     return false ;
   }.observes('model'),
@@ -233,13 +233,14 @@ var ProjectsNewController = Ember.ObjectController.extend({
     // Action when submit ofrm
     postItem: function() {
       var router = this.get('target');
+      var self = this;
       var store = this.store;
       var data = this.getProperties('id', 'name', 'isassets', 'gitpath', 'login', 'password') ;
       var selectedBrand = this.get('brand.content') ;
       var selectedFramework = this.get('framework.content') ;
       var selectedSystem = this.get('systemimagetype.content') ;
       var technos = this.get('checkedTechnos').filterBy('checked', true).mapBy('content') ;
-      var flavors = this.get('checkedFlavors').filterBy('checked', true).mapBy('content') ;
+      var vmsizes = this.get('checkedVmsizes').filterBy('checked', true).mapBy('content') ;
       var users = this.get('checkedUsers').filterBy('checked', true).mapBy('content') ;
 
       var project ;
@@ -259,27 +260,42 @@ var ProjectsNewController = Ember.ObjectController.extend({
       if(data['id']) {
         this.set('loadingButton', true) ;
         store.find('project', data['id']).then(function (project) {
+          var vmsizes_p = project.get('vmsizes').toArray(),
+          technos_p = project.get('technos').toArray(),
+          users_p = project.get('users').toArray() ;
+
+          // reset old values from object
+          vmsizes_p.forEach(function (item) {
+            project.get('vmsizes').removeObject(item) ;
+            item.get('projects').removeObject(project) ;
+          }) ;
+
+          technos_p.forEach(function (item) {
+            project.get('technos').removeObject(item) ;
+            item.get('projects').removeObject(project) ;
+          }) ;
+
+          users_p.forEach(function (item) {
+            project.get('users').removeObject(item) ;
+            item.get('projects').removeObject(project) ;
+          }) ;
+
+          project.get('framework').get('projects').removeObject(project);
+          project.get('brand').get('projects').removeObject(project);
+          project.get('systemimagetype').get('projects').removeObject(project);
+
           project.setProperties(data) ;
-          project.get('technos').forEach(function (item) {
-             project.get('technos').removeObject(item);
-          });
 
-          project.get('flavors').forEach(function (item) {
-             project.get('flavors').removeObject(item);
-          });
-
-          project.get('users').forEach(function (item) {
-             project.get('users').removeObject(item);
-          });
-
+          // add technos checked into project object
           technos.toArray().forEach(function (item) {
             item.get('projects').addObject(project) ;
             project.get('technos').pushObject(item) ;
           }) ;
 
-          flavors.toArray().forEach(function (item) {
+          // add vmsizes checked into project object
+          vmsizes.toArray().forEach(function (item) {
             item.get('projects').addObject(project) ;
-            project.get('flavors').pushObject(item) ;
+            project.get('vmsizes').pushObject(item) ;
           }) ;
 
           users.toArray().forEach(function (item) {
@@ -287,17 +303,15 @@ var ProjectsNewController = Ember.ObjectController.extend({
             project.get('users').pushObject(item) ;
           }) ;
 
-          project.get('users').then(function (users_p) {
-            users_p.pushObjects(users.toArray()) ;
-          }) ;
-
           selectedBrand.get('projects').pushObject(project) ;
           selectedFramework.get('projects').pushObject(project) ;
+          selectedSystem.get('projects').pushObject(project) ;
 
           project.save().then(function() {
             // Return to projects list page
             router.transitionTo('projects.list');
           }) ;
+
         });
       } else {
         project = store.createRecord('project', data) ;
@@ -306,8 +320,8 @@ var ProjectsNewController = Ember.ObjectController.extend({
            project.get('technos').removeObject(item);
         });
 
-        project.get('flavors').forEach(function (item) {
-           project.get('flavors').removeObject(item);
+        project.get('vmsizes').forEach(function (item) {
+           project.get('vmsizes').removeObject(item);
         });
 
         project.get('users').forEach(function (item) {
@@ -319,9 +333,9 @@ var ProjectsNewController = Ember.ObjectController.extend({
           project.get('technos').pushObject(item) ;
         }) ;
 
-        flavors.toArray().forEach(function (item) {
+        vmsizes.toArray().forEach(function (item) {
           item.get('projects').addObject(project) ;
-          project.get('flavors').pushObject(item) ;
+          project.get('vmsizes').pushObject(item) ;
         }) ;
 
         users.toArray().forEach(function (item) {
@@ -335,6 +349,7 @@ var ProjectsNewController = Ember.ObjectController.extend({
 
         selectedBrand.get('projects').pushObject(project) ;
         selectedFramework.get('projects').pushObject(project) ;
+        selectedSystem.get('projects').pushObject(project) ;
 
         this.set('loadingButton', true) ;
         project.save().then(function() {

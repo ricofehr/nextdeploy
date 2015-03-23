@@ -36,7 +36,7 @@ class Mvmc < Thor
       exit
     end
 
-    launch_req = { vm: { project_id: @project[:id], flavor: 'm1.tiny', user_id: @user[:id], systemimage_id: 2, commit_id: commitid } }
+    launch_req = { vm: { project_id: @project[:id], flavor_id: 1, user_id: @user[:id], systemimage_id: 1, commit_id: commitid } }
     
     response = @conn.post do |req|
       req.url "/api/v1/vms"
@@ -160,9 +160,9 @@ class Mvmc < Thor
       end
       fp.close
 
-      error("no email into mvmc.conf") if email == nil
-      error("no password into mvmc.conf") if password == nil
-      error("no endpoint into mvmc.conf") if endpoint == nil
+      error("no email into mvmc.conf") if @email == nil
+      error("no password into mvmc.conf") if @password == nil
+      error("no endpoint into mvmc.conf") if @endpoint == nil
     end
 
     # Get current git url
@@ -170,7 +170,7 @@ class Mvmc < Thor
     # No params
     # @return [String] the git path
     def gitpath
-      %x{git config --get remote.origin2.url | sed "s;^.*root/;;" | sed "s;\.git$;;"}.squish
+      %x{git config --get remote.origin.url | sed "s;^.*root/;;" | sed "s;\.git$;;"}.squish
     end
 
     # Get current commit
@@ -203,7 +203,7 @@ class Mvmc < Thor
     # @return [Array[String]] json output for a project
     def get_project
       gitp = gitpath
-
+      
       response = @conn.get do |req|
         req.url "/api/v1/projects/git/#{gitp}"
         req.headers = rest_headers
@@ -242,7 +242,7 @@ class Mvmc < Thor
     def init_conn
       @conn = Faraday.new(:url => "http://#{@endpoint}") do |faraday|
         faraday.adapter  Faraday.default_adapter
-        faraday.port = 3000
+        faraday.port = 80
       end
     end
 

@@ -19,7 +19,6 @@ class roles::mvmc {
   class {'pm::osclient':} ->
   class {'pm::dnsmasq':} ->
   class {'pm::openvpn':} ->
-  class {'pm::jenkins':} ->
   class {'pm::postinstall::mvmc':} ->
   class {'pm::cron':} ->
   class {'pm::fw':}

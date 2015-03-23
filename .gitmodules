@@ -22,9 +22,6 @@
 [submodule "vagrant/modules/inifile"]
 	path = vagrant/modules/inifile
 	url = https://github.com/puppetlabs/puppetlabs-inifile.git
-[submodule "vagrant/modules/jenkins"]
-	path = vagrant/modules/jenkins
-	url = https://github.com/jenkinsci/puppet-jenkins.git
 [submodule "vagrant/modules/keystone"]
 	path = vagrant/modules/keystone
 	url = https://github.com/stackforge/puppet-keystone.git

@@ -120,13 +120,13 @@
   </div>
 
   <div class="form-group">
-    {{#if errorFlavors}}
-      <label class="control-label col-sm-2 alert-danger">Flavors</label>
+    {{#if errorVmsizes}}
+      <label class="control-label col-sm-2 alert-danger">Sizing</label>
     {{else}}
-      <label class="control-label col-sm-2 alert-success">Flavors</label>
+      <label class="control-label col-sm-2 alert-success">Sizing</label>
     {{/if}}
     <div class="checkbox col-sm-3">
-    {{#each checkedFlavors}}
+    {{#each checkedVmsizes}}
       <label>{{input type="checkbox" checked=checked disabled=readonly}} {{content.title}} ({{content.description}})</label><br/>
     {{/each}}
     </div>
