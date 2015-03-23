@@ -8,7 +8,8 @@
 *.swp
 
 # Ignore temporary folder
-/tmp
+/tmp/*
+!/tmp/.keep
 
 # Ignore nohup file
 nohup.out
