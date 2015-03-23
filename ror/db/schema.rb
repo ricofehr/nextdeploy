@@ -11,18 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150214134837) do
+ActiveRecord::Schema.define(version: 20150322215832) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
     t.string   "logo"
     t.datetime "created_at"
     t.datetime "updated_at"
-  end
-
-  create_table "flavors", force: true do |t|
-    t.string "title"
-    t.text   "description"
   end
 
   create_table "frameworks", force: true do |t|
@@ -50,14 +45,6 @@ ActiveRecord::Schema.define(version: 20150214134837) do
 
   add_index "prefix_dns", ["project_id"], name: "index_prefix_dns_on_project_id", using: :btree
 
-  create_table "project_flavors", force: true do |t|
-    t.integer "project_id"
-    t.integer "flavor_id"
-  end
-
-  add_index "project_flavors", ["flavor_id"], name: "index_project_flavors_on_flavor_id", using: :btree
-  add_index "project_flavors", ["project_id"], name: "index_project_flavors_on_project_id", using: :btree
-
   create_table "project_technos", force: true do |t|
     t.integer  "project_id"
     t.integer  "techno_id"
@@ -68,6 +55,14 @@ ActiveRecord::Schema.define(version: 20150214134837) do
 
   add_index "project_technos", ["project_id"], name: "index_project_technos_on_project_id", using: :btree
   add_index "project_technos", ["techno_id"], name: "index_project_technos_on_techno_id", using: :btree
+
+  create_table "project_vmsizes", force: true do |t|
+    t.integer "project_id"
+    t.integer "vmsize_id"
+  end
+
+  add_index "project_vmsizes", ["project_id"], name: "index_project_vmsizes_on_project_id", using: :btree
+  add_index "project_vmsizes", ["vmsize_id"], name: "index_project_vmsizes_on_vmsize_id", using: :btree
 
   create_table "projects", force: true do |t|
     t.string   "name"
@@ -168,11 +163,16 @@ ActiveRecord::Schema.define(version: 20150214134837) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "name"
-    t.integer  "flavor_id"
+    t.integer  "vmsize_id"
   end
 
   add_index "vms", ["project_id"], name: "index_vms_on_project_id", using: :btree
   add_index "vms", ["systemimage_id"], name: "index_vms_on_systemimage_id", using: :btree
   add_index "vms", ["user_id"], name: "index_vms_on_user_id", using: :btree
+
+  create_table "vmsizes", force: true do |t|
+    t.string "title"
+    t.text   "description"
+  end
 
 end

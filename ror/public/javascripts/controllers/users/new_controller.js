@@ -3,6 +3,10 @@ var UsersNewController = Ember.ObjectController.extend({
   password: null,
   password_confirmation: null,
 
+  // sort group
+  computeSorting: ['name'],
+  groupSort: Ember.computed.sort('grouplist', 'computeSorting'),
+
   //validation variables
   errorCompany: false,
   errorEmail: false,
@@ -16,43 +20,57 @@ var UsersNewController = Ember.ObjectController.extend({
   errorPassword2: false,
   successPassword2: false,
 
+  errorGroup: false,
+  successGroup: false,
+
   //validation function
   checkEmail: function() {
-    var email = this.get('email') ;
+    var email = this.get('email');
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    var errorEmail = false ;
+    var errorEmail = false;
 
     if (!re.test(email)) {
-      errorEmail = true ;
+      errorEmail = true;
     }
 
-    this.set('errorEmail', errorEmail) ;
+    this.set('errorEmail', errorEmail);
   }.observes('email'),
 
   checkCompany: function() {
-    var company = this.get('company') ;
-    var errorCompany = false ;
+    var company = this.get('company');
+    var errorCompany = false;
 
     if (!company) {
-      errorCompany = true ;
+      errorCompany = true;
     }
 
     this.set('errorCompany', errorCompany) ;
   }.observes('company'),
 
+  checkGroup: function() {
+    var group = this.get('group.content');
+    var errorGroup = false;
+
+    if (!group) {
+      errorGroup = true;
+    }
+
+    this.set('errorGroup', errorGroup);
+  }.observes('group.content'),
+
   checkPassword: function() {
-    var password = this.get('password') ;
-    var errorPassword = false ;
-    var successPassword = true ;
+    var password = this.get('password');
+    var errorPassword = false;
+    var successPassword = true;
 
     if (password && password.length < 8) {
-      errorPassword = true ;
-      successPassword = false ;
+      errorPassword = true;
+      successPassword = false;
     }
 
     if (!password || password.length == 0) {
-      errorPassword = false ;
-      successPassword = false ;
+      errorPassword = false;
+      successPassword = false;
     }
 
     this.set('errorPassword', errorPassword) ;
@@ -61,71 +79,79 @@ var UsersNewController = Ember.ObjectController.extend({
 
   checkPasswordConfirmation: function() {
     var passwordConfirmation = this.get('password_confirmation') ;
-    var errorPasswordConfirmation = false ;
-    var successPasswordConfirmation = true ;
+    var errorPasswordConfirmation = false;
+    var successPasswordConfirmation = true;
 
     if (passwordConfirmation && passwordConfirmation.length < 8) {
-      errorPasswordConfirmation = true ;
-      successPasswordConfirmation = false ;
+      errorPasswordConfirmation = true;
+      successPasswordConfirmation = false;
     }
 
     if (!passwordConfirmation || passwordConfirmation.length == 0) {
-      errorPasswordConfirmation = false ;
-      successPasswordConfirmation = false ;
+      errorPasswordConfirmation = false;
+      successPasswordConfirmation = false;
     }
 
-    this.set('errorPasswordConfirmation', errorPasswordConfirmation) ;
-    this.set('successPasswordConfirmation', successPasswordConfirmation) ;
+    this.set('errorPasswordConfirmation', errorPasswordConfirmation);
+    this.set('successPasswordConfirmation', successPasswordConfirmation);
   }.observes('password_confirmation'),
 
   checkSamePassword: function() {
-    var password = this.get('password') ;
-    var password2 = this.get('password_confirmation') ;
-    var errorPassword2 = false ;
-    var successPassword2 = true ;
+    var password = this.get('password');
+    var password2 = this.get('password_confirmation');
+    var errorPassword2 = false;
+    var successPassword2 = true;
 
     if (password != password2) {
-      errorPassword2 = true ;
-      successPassword2 = false ;
+      errorPassword2 = true;
+      successPassword2 = false;
     }
 
-    this.set('errorPassword2', errorPassword2) ;
-    this.set('successPassword2', successPassword2) ;
+    this.set('errorPassword2', errorPassword2);
+    this.set('successPassword2', successPassword2);
   }.observes('password', 'password_confirmation'),
 
 
   //check form before submit
   formIsValid: function() {
-    this.checkEmail() ;
-    this.checkCompany() ;
-    this.checkPassword() ;
-    this.checkPasswordConfirmation() ;
-    this.checkSamePassword() ;
+    this.checkEmail();
+    this.checkCompany();
+    this.checkGroup();
+    this.checkPassword();
+    this.checkPasswordConfirmation();
+    this.checkSamePassword();
 
     if (!this.get('errorEmail') &&
         !this.get('errorCompany') &&
+        !this.get('errorGroup') &&
         !this.get('errorPassword') &&
         !this.get('errorPasswordConfirmation') &&
-        !this.get('errorPassword2')) return true ;
-    return false ;
+        !this.get('errorPassword2')) return true;
+    return false;
   },
 
   //clear form
   clearForm: function() {
-    this.set('email', null) ;
-    this.set('company', null) ;
-    this.set('quotavm', null) ;
-    this.set('password', null) ;
-    this.set('password_confirmation', null) ;
+    this.set('email', null);
+    this.set('company', null);
+    this.set('quotavm', null);
+    this.set('password', null);
+    this.set('password_confirmation', null);
+    this.set('group', {content: null});
   },
 
   // actions binding with user event
   actions: {
     postItem: function() {
       var router = this.get('target');
-      var data = this.getProperties('id', 'email', 'company', 'password', 'password_confirmation', 'quotavm')
+      var data = this.getProperties('id', 'email', 'company', 'password', 'password_confirmation', 'quotavm');
       var store = this.store;
+      var selectedGroup = this.get('group.content');
+      var user;
 
+      // get group selected
+      data['group'] = selectedGroup;
+      
       // check if form is valid
       if (!this.formIsValid()) {
         return
@@ -134,16 +160,16 @@ var UsersNewController = Ember.ObjectController.extend({
       //if id is present, so update item, else create new one
       if(data['id']) {
         store.find('user', data['id']).then(function (user) {
-          user.setProperties(data) ;
+          user.get('group').get('users').removeObject(user);
+          user.setProperties(data);
+          selectedGroup.get('users').pushObject(user);
           user.save();
         });
       } else {
-        user = store.createRecord('user', data) ;
-        user.save() ;
+        user = store.createRecord('user', data);
+        selectedGroup.get('users').pushObject(user);
+        user.save();
       }
-
-      // Clear the form before exit page
-      this.clearForm() ;
 
       // Return to users list page
       router.transitionTo('users.list');

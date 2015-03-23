@@ -95,7 +95,7 @@ cron_cmd:
     hour: '*'
     weekday: '*'
   emberbuild:
-    command: '[[ -n "$(find /ror/public/javascripts/. -type f -mmin -1 | grep -v application.js)" ]] && cd /ror && ember build -d'
+    command: '/home/modem/./ember.sh'
     user: 'modem'
     minute: '*'
     hour: '*'

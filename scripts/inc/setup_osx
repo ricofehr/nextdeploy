@@ -31,17 +31,17 @@ install_vbox_osx() {
   output -q "VirtualBox Installation ..."
   # Install virtualbox only it isnt yes installed
   if [[ ! -e /usr/bin/VBoxManage ]]; then
-    curl -OsSL http://download.virtualbox.org/virtualbox/4.3.22/VirtualBox-4.3.22-98236-OSX.dmg
-    hdiutil mount VirtualBox-4.3.22-98236-OSX.dmg
+    curl -OsSL http://download.virtualbox.org/virtualbox/4.3.26/VirtualBox-4.3.26-98988-OSX.dmg
+    hdiutil mount VirtualBox-4.3.26-98988-OSX.dmg
     sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
     (($?!=0)) && output -e 'Virtualbox installation has failed'
     hdiutil unmount /Volumes/VirtualBox/
-    rm -f VirtualBox-4.3.22-98236-OSX.dmg
+    rm -f VirtualBox-4.3.26-98988-OSX.dmg
 
-    curl -OsSL "http://download.virtualbox.org/virtualbox/4.3.22/Oracle_VM_VirtualBox_Extension_Pack-4.3.22-98236.vbox-extpack"
-    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-4.3.22-98236.vbox-extpack
+    curl -OsSL "http://download.virtualbox.org/virtualbox/4.3.26/Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack"
+    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack
     (($?!=0)) && output -w 'Virtualbox extension installation has failed'
-    rm -f Oracle_VM_VirtualBox_Extension_Pack-4.3.22-98236.vbox-extpack
+    rm -f Oracle_VM_VirtualBox_Extension_Pack-4.3.26-98988.vbox-extpack
   fi
 }
 

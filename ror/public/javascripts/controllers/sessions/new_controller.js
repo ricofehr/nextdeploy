@@ -47,7 +47,7 @@ var SessionsNewController = Ember.ObjectController.extend({
     // chained calls for synchronous load
     // .... ugly !
     store.findAll('brand').then(function() {
-      store.findAll('flavor').then(function() {
+      store.findAll('vmsize').then(function() {
         store.findAll('framework').then(function() {
           store.findAll('techno').then(function() {
             store.findAll('systemimagetype').then(function() {

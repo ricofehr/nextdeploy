@@ -2,16 +2,22 @@ var AuthenticatedRoute = require('../authenticated_route');
 
 // User Ember Route Class (inherit from auth route because restricted)
 var UsersNewRoute = AuthenticatedRoute.extend({
-  // The model is empty
+  // This controller needs lot of datas: brands, frameworks, technos, flavors, users 
   model: function() {
-    return Ember.Object.create();
+    return Ember.RSVP.hash({
+      grouplist: this.store.all('group')
+    });
   },
 
-  // Setup the controller, empty the form before diplay this one
+  // Setup the controller with thie model
   setupController: function(controller, model) {
-    this._super(controller, model) ;
+    content = Ember.Object.create() ;
+    content.set('group', {content: null}) ;
+
+    this.controllerFor('users.new').setProperties({model: content}) ;
     this.controllerFor('users.new').clearForm() ;
-  },
+    this.controllerFor('users.new').setProperties({grouplist: model.grouplist});
+  }
 });
 
 module.exports = UsersNewRoute;

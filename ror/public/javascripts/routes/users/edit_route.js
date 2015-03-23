@@ -4,7 +4,10 @@ var AuthenticatedRoute = require('../authenticated_route');
 var UsersEditRoute = AuthenticatedRoute.extend({
   // Init the model with the user_id parameter
   model: function(params) {
-    return this.store.find('user', params.user_id) ;
+    return Ember.RSVP.hash({
+      grouplist: this.store.all('group'),
+      user: this.store.find('user', params.user_id) 
+    });
   },
 
   // Same template than the create form
@@ -14,9 +17,10 @@ var UsersEditRoute = AuthenticatedRoute.extend({
 
   // Setup the controller "users.new" with this model
   setupController: function(controller, model) {
-    model.set('password', null) ;
-    model.set('password_confirmation', null) ;
-    this.controllerFor('users.new').setProperties({content:model});
+    model.user.set('password', null) ;
+    model.user.set('password_confirmation', null) ;
+    this.controllerFor('users.new').setProperties({content: model.user,
+                                                  grouplist: model.grouplist});
   },
 });
 
