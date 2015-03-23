@@ -26,12 +26,15 @@ install_vagrant_debian() {
 install_libvirt_debian() {
   output -q "Libvirt Installation ..."
   
-  sudo apt-get -y --force-yes install libvirt-daemon libvirt-bin virt-manager
+  sudo apt-get -y --force-yes install virt-manager
   (($?!=0)) && output -e 'Libvirt installation has failed'
-  sudo usermod -G libvirt -a $USER
+  sudo usermod -G "$(grep libvirt /etc/group | cut -d: -f 1)" -a $USER
   (($?!=0)) && output -e 'Cant add current user to libvirt group'
-
   sudo service libvirtd restart
+
+  # check if libvirt is already on user group
+  groups | grep libvirt
+  (($?!=0)) && output -e 'libvirt is not already on your group list. Please exit term, log you again with current user and start again ./scripts/./setup'  
 }
 
 # libvirt plugin for vagrant install

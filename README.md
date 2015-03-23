@@ -1,5 +1,7 @@
 # Mvmc
 
+[![Build Status](http://mvmc.publicis-modem.fr:9292/buildStatus/icon?job=mvmc)](http://mvmc.publicis-modem.fr:9292/job/mvmc/)
+
 The project is an ongoing deployment system virtualized development environment in the cloud. Generic installation templates are defined for different frameworks or cms. When creating a project, a git repository is associated with this installation template. Thus, virtual machines can be run on demand by deploying the site on a preinstalled system following prerequisites specified in the template.
 
 The project uses a cloud to host vms. The api is working actually with openstack. In the future, HP and AWS cloud will also be taken into account. Installation templates are defined for the puppet tool. Git is used for versioning developments on projects and Gitlab manager is installed for these deposits. A REST API (in ruby on rails) is the intermediary between these systems and can manage user authentication, project creation, adding users, and of course the launch of vms.
@@ -77,7 +79,7 @@ When local mvmc facility (see above INSTALL), the following users are created:
 * userg@os.mvmc (password: word123123 and guest group)
 
 
-## Templates d'installation
+## Vm installation pattern
 
 The tool used for managing templates facilities associated with the project is puppet. Currently supported technologies are mainly directed php with Symfony2, drupal and wordpress. It is also possible to start a vm "php" without involving a framework or cms. To follow, support for Java technology (ame), windows (sitecore), ...
 

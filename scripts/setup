@@ -306,7 +306,7 @@ start_vms() {
   vagrant up --provider=${hvisor}
   (($?!=0)) && output -w 'Manager node creation has error(s)'
   # ensure that rails app is up
-  sleep 120
+  sleep 300
   output -q "The manager instance is up"
   popd > /dev/null
 
