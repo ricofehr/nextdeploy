@@ -31,6 +31,7 @@ install_libvirt_debian() {
   sudo usermod -G "$(grep libvirt /etc/group | cut -d: -f 1)" -a $USER
   (($?!=0)) && output -e 'Cant add current user to libvirt group'
   sudo service libvirtd restart
+  (($?!=0)) && sudo service libvirt-bin restart
 
   # check if libvirt is already on user group
   groups | grep libvirt

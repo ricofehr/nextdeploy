@@ -4,12 +4,12 @@ Vagrant.configure("2") do |config|
     config.vm.box_download_insecure = true
    
     config.vm.define :mvmc, primary: true do |mvmc|   
-      #mvmc.vm.hostname = "mvmc"
+      mvmc.vm.hostname = "mvmc"
       mvmc.vm.box = "mc"
       mvmc.vm.synced_folder "../../client", "/mvmc", type: 'nfs'
       mvmc.vm.synced_folder "../../ror", "/ror", type: 'nfs'
       mvmc.vm.synced_folder "../../out", "/out", type: 'nfs'
-      mvmc.vm.synced_folder "puppet", "/puppet", type: 'nfs'
+      mvmc.vm.synced_folder "../../puppet", "/puppet", type: 'nfs'
       mvmc.vm.synced_folder "../../ror/hiera", "/hiera", type: 'nfs'
       mvmc.vm.box_url = "http://imgs.mvmc.services-pm.fr/kvm/mc.box"
       mvmc.vm.provider :libvirt do |virthost|
