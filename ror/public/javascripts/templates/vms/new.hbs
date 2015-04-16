@@ -17,6 +17,7 @@
     </div>
   </div>
 
+  {{#if advancedForm}}
   <div class="form-group">
     {{#if errorVmsize}}
       <label class="control-label col-sm-2 alert-danger">Sizing</label>
@@ -28,7 +29,7 @@
        classNames="form-control"
        content=vmsizesList
        optionValuePath="content.id"
-       optionLabelPath="content.title content.description"
+       optionLabelPath="content.title"
        selection=selectedSizing
        prompt="Please select a Sizing"}}
     </div>
@@ -50,6 +51,7 @@
        prompt="Please select an User"}}
     </div>
   </div>
+  {{/if}}
 
   <div class="form-group">
     {{#if errorBranch}}
@@ -68,6 +70,7 @@
     </div>
   </div>
 
+  {{#if advancedForm}}
   <div class="form-group">
     {{#if errorCommit}}
       <label class="control-label col-sm-2 alert-danger">Commits</label>
@@ -101,12 +104,19 @@
        prompt="Please select an Os"}}
     </div>
   </div>
+  {{/if}}
 
   <div class="form-group">
+  {{#if advancedForm}}
+  <button {{action "toggleAdvanced"}} class="btn btn-default"><span class="glyphicon glyphicon-collapse-up"></span> Standard Mode</button><br/>
+  {{else}}
+  <button {{action "toggleAdvanced"}} class="btn btn-default"><span class="glyphicon glyphicon-collapse-down"></span> Advanced Mode</button><br/>
+  {{/if}}
   <label class="control-label col-sm-2">
     <button type="submit" class="btn btn-primary">Submit</button>
   </label>
   </div>
+
 <div class="form-group">
 {{#each message in model.errors.messages}}
   <div class="error">

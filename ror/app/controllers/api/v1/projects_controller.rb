@@ -117,7 +117,7 @@ module API
           params_p[:framework_id] = params_p[:framework]
           params_p[:brand_id] = params_p[:brand]
           params_p[:systemimagetype_id] = params_p[:systemimagetype]
-          params_p[:vmsizes_ids] = params_p[:vmsizes]
+          params_p[:vmsize_ids] = params_p[:vmsizes]
 
           params_p.delete(:created_at)
           params_p.delete(:technos)
@@ -125,14 +125,14 @@ module API
           params_p.delete(:framework)
           params_p.delete(:brand)
           params_p.delete(:systemimagetype)
-          params_p.delete(:vmsizes_ids)
+          params_p.delete(:vmsizes)
 
           params[:project] = params_p
         end
 
         # Never trust parameters from the scary internet, only allow the white list through.
         def project_params
-          params.require(:project).permit(:name, :gitpath, :isassets, :brand_id, :framework_id, :systemimagetype_id, :enabled, :login, :password, :user_ids => [], :techno_ids => [], :vmsizes_ids => [])
+          params.require(:project).permit(:name, :gitpath, :isassets, :brand_id, :framework_id, :systemimagetype_id, :enabled, :login, :password, :user_ids => [], :techno_ids => [], :vmsize_ids => [])
         end
     end
   end
