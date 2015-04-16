@@ -8,6 +8,7 @@ var VmsNewRoute = AuthenticatedRoute.extend({
     return Ember.RSVP.hash({
       projects: this.store.all('project'),
       users: this.store.all('user'),
+      vmsizes: this.store.all('vmsize'),
       systemimages: this.store.all('systemimage'),
     });
   },
@@ -24,6 +25,7 @@ var VmsNewRoute = AuthenticatedRoute.extend({
     controller.set('projects', model.projects);
     controller.set('users', model.users);
     controller.set('systemimages', model.systemimages);
+    controller.set('vmsizes', model.vmsizes);
     
     // Clear form
     controller.clearForm() ;
