@@ -135,6 +135,7 @@ module API
         params_p = params[:user]
 
         params_p[:group_id] = params_p[:group]
+        params_p[:project_ids] = params_p[:projects]
 
         if ((params_p[:password] && params_p[:password].empty?) ||
             (params_p[:password_confirmation] && params_p[:password_confirmation].empty?))
@@ -145,13 +146,14 @@ module API
         params_p.delete(:created_at)
         params_p.delete(:authentication_token)
         params_p.delete(:group)
+        params_p.delete(:projects)
 
         params[:user] = params_p
       end
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def user_params
-        params.require(:user).permit(:email, :company, :quotavm, :password, :password_confirmation, :group_id)
+        params.require(:user).permit(:email, :company, :quotavm, :password, :password_confirmation, :group_id, :project_ids => [])
       end
     end
   end

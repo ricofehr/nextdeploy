@@ -23,6 +23,30 @@ var UsersNewController = Ember.ObjectController.extend({
   errorGroup: false,
   successGroup: false,
 
+  //project checkboxes array
+  projectSorting: ['name'],
+  projectSort: Ember.computed.sort('projectlist', 'projectSorting'),
+  checkedProjects: Ember.computed.map('projectSort', function(model){
+    var checked = false ;
+    var readonly = false ;
+    var projects = this.get('user_projects') ;
+
+    var project = null ;
+
+    if(projects) {
+      project = projects.findBy('id', model.id) ;
+      if(project) checked = true ;
+    }
+
+    if(this.get('group').get('access_level') == 50) readonly = true;
+
+    return Ember.ObjectProxy.create({
+      content: model,
+      checked: checked,
+      readonly: readonly
+    });
+  }),
+
   //validation function
   checkEmail: function() {
     var email = this.get('email');
@@ -147,6 +171,7 @@ var UsersNewController = Ember.ObjectController.extend({
       var data = this.getProperties('id', 'email', 'company', 'password', 'password_confirmation', 'quotavm');
       var store = this.store;
       var selectedGroup = this.get('group.content');
+      var projects = this.get('checkedProjects').filterBy('checked', true).mapBy('content');
       var user;
 
       // get group selected
@@ -160,13 +185,35 @@ var UsersNewController = Ember.ObjectController.extend({
       //if id is present, so update item, else create new one
       if(data['id']) {
         store.find('user', data['id']).then(function (user) {
+          var projects_p = user.get('projects').toArray();
+
+          // reset old values from object
+          projects_p.forEach(function (item) {
+            user.get('projects').removeObject(item);
+            item.get('users').removeObject(user);
+          }) ;
+
+          // add projects association
+          projects.toArray().forEach(function (item) {
+            item.get('users').addObject(user);
+            user.get('projects').pushObject(item);
+          });
+
           user.get('group').get('users').removeObject(user);
           user.setProperties(data);
+
           selectedGroup.get('users').pushObject(user);
           user.save();
         });
       } else {
         user = store.createRecord('user', data);
+
+        // add projects association
+        projects.toArray().forEach(function (item) {
+          item.get('users').addObject(user) ;
+          user.get('projects').pushObject(item) ;
+        });
+
         selectedGroup.get('users').pushObject(user);
         user.save();
       }
