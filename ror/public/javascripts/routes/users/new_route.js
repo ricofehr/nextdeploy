@@ -5,7 +5,8 @@ var UsersNewRoute = AuthenticatedRoute.extend({
   // This controller needs lot of datas: brands, frameworks, technos, flavors, users 
   model: function() {
     return Ember.RSVP.hash({
-      grouplist: this.store.all('group')
+      grouplist: this.store.all('group'),
+      projectlist: this.store.all('project')
     });
   },
 
@@ -16,7 +17,8 @@ var UsersNewRoute = AuthenticatedRoute.extend({
 
     this.controllerFor('users.new').setProperties({model: content}) ;
     this.controllerFor('users.new').clearForm() ;
-    this.controllerFor('users.new').setProperties({grouplist: model.grouplist});
+    this.controllerFor('users.new').setProperties({grouplist: model.grouplist,
+                                                   projectlist: model.projectlist});
   }
 });
 

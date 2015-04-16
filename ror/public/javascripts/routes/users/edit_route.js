@@ -6,6 +6,7 @@ var UsersEditRoute = AuthenticatedRoute.extend({
   model: function(params) {
     return Ember.RSVP.hash({
       grouplist: this.store.all('group'),
+      projectlist: this.store.all('project'),
       user: this.store.find('user', params.user_id) 
     });
   },
@@ -20,7 +21,9 @@ var UsersEditRoute = AuthenticatedRoute.extend({
     model.user.set('password', null) ;
     model.user.set('password_confirmation', null) ;
     this.controllerFor('users.new').setProperties({content: model.user,
-                                                  grouplist: model.grouplist});
+                                                  grouplist: model.grouplist,
+                                                  user_projects: model.user.get('projects'),
+                                                  projectlist: model.projectlist});
   },
 });
 
