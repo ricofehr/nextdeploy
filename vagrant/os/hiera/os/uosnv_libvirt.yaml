@@ -80,7 +80,7 @@ nova::compute::vnc_enabled: true
 
 #nova::compute::libvirt setting
 nova::compute::libvirt::migration_support: true
-nova::compute::libvirt::libvirt_virt_type: 'kvm'
+nova::compute::libvirt::libvirt_virt_type: 'qemu'
 nova::compute::libvirt::vncserver_listen: '0.0.0.0'
 
 #nova::network class

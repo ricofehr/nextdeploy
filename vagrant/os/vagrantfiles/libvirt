@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
         uosnv.vm.network :private_network, :ip => "172.16.171.75", :libvirt__network_name => "vagrant-os4"
         virthost.memory = 2304
         virthost.cpus = 2
-        virthost.nested = true
+        virthost.nested = false
       end
     end
 
