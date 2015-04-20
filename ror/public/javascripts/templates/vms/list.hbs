@@ -24,7 +24,7 @@
         <td>{{#linkTo 'vms.byuser' user.id}}{{vm.user.email}}{{/linkTo}}</td>
         <td>{{vm.floating_ip}}</td>
         <td>{{vm.nova_id}}</td>
-        <td>{{vm.flavor.title}}</td>
+        <td>{{vm.vmsize.title}}</td>
         <td>{{vm.created_at_short}}</td>
     </tr>
     {{/each}}
