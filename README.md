@@ -32,7 +32,9 @@ The REST api can be reached with 3 different ways
 * /vagrant Definitions for create the 4 openstack nodes and the manager node
 
 ## Submodules and Clone
-The puppet modules of the community are included in the project in the form of Submodules git. To retrieve, use this clone cmd. 
+The cli application (client folder) and the puppet modules of the community are included in the project in the form of Submodules git. 
+
+To retrieve, use this clone cmd. 
 ```
 git clone --recursive git@github.com:ricofehr/mvmc
 ```
@@ -165,7 +167,7 @@ cancel_api_v1_user_registration GET    /api/v1/users/cancel
 
 ## CommandLine Client
 
-A little client developed in Ruby allows communication with the rest api via the command line. 
+A client developed in Ruby allows communication with the rest api via the command line. 
 A small configuration file is related to the script and must contain the email / password of the user.
 An example of /etc/mvmc.conf
 ```
@@ -182,6 +184,8 @@ The ruby client manages the following commands
 `mvmc ssh` ssh into current vm
 `mvmc projects` list projects for current user
 ```
+
+The git repository for cli application: https://github.com/ricofehr/mvmc-cli
 
 
 ## Ember
