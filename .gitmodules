@@ -154,3 +154,6 @@
 [submodule "vagrant/modules/zypprepo"]
 	path = vagrant/modules/zypprepo
 	url = https://github.com/deadpoint/puppet-zypprepo.git
+[submodule "client"]
+	path = client
+	url = https://github.com/ricofehr/mvmc-cli
