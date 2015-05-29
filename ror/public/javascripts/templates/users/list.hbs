@@ -20,7 +20,7 @@
     {{#if isAdmin}}
     <td>{{input type="checkbox" checked=user.todelete}}</td>
     {{/if}}
-    {{#if isAdmin}}
+    {{#if isLead}}
       <td>{{#linkTo 'users.edit' user.id}}{{user.email}}{{/linkTo}}</td>
     {{else}}
       {{#if user.isCurrent}}

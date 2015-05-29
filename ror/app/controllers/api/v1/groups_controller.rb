@@ -11,7 +11,12 @@ module API
 
       # List all groups
       def index
-        @groups = Group.all
+        # select only objects allowed by current user
+        if @user.admin?
+          @groups = Group.all
+        else
+          @groups = [] << @user.group
+        end
 
         respond_to do |format|
           format.json { render json: @groups }
@@ -22,7 +27,7 @@ module API
       def show
 
         # if no admin, only current group
-        if @user.admin?
+        if @user.lead?
           # Json output
           respond_to do |format|
             format.json { render json: @group }

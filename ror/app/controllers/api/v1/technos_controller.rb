@@ -11,7 +11,17 @@ module API
 
       # List all technos objects
       def index
-        @technos = Techno.all
+        # select only objects allowed by current user
+        if @user.admin?
+          @technos = Techno.all
+        else
+          @technos = []
+          projects = @user.projects
+          if projects
+            @technos = [] << projects.map { |project| project.technos }
+            @technos.flatten!.uniq!
+          end
+        end
 
         # Json output
         respond_to do |format|

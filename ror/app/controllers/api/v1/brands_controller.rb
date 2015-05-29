@@ -11,7 +11,17 @@ module API
 
       # List all brands
       def index
-        @brands = Brand.all
+        # select only objects allowed by current user
+        if @user.admin?
+          @brands = Brand.all
+        else
+          @brands = []
+          projects = @user.projects
+          if projects
+            @brands = [] << projects.map { |project| project.brand }
+            @brands.flatten!.uniq!
+          end
+        end
 
         # Json output
         respond_to do |format|

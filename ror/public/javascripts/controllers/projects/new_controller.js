@@ -14,7 +14,10 @@ var ProjectsNewController = Ember.ObjectController.extend({
   checkedVmsizes: Ember.computed.map('vmsizesSort', function(model){
     var checked = false ;
     var readonly = false ;
+    var access_level = App.AuthManager.get('apiKey.accessLevel') ;
     var vmsizes = this.get('project_vmsizes') ;
+
+    if (access_level < 50) readonly = true ;
 
     if (vmsizes) {
       var vmsize = vmsizes.findBy('id', model.id) ;
@@ -33,7 +36,10 @@ var ProjectsNewController = Ember.ObjectController.extend({
   checkedTechnos: Ember.computed.map('technosSort', function(model){
     var checked = false ;
     var readonly = false ;
+    var access_level = App.AuthManager.get('apiKey.accessLevel') ;
     var technos = this.get('project_technos') ;
+
+    if (access_level < 50) readonly = true ;
 
     if (technos) {
       var techno = technos.findBy('id', model.id) ;
@@ -88,7 +94,6 @@ var ProjectsNewController = Ember.ObjectController.extend({
   errorPassword: false,
   errorFramework: false,
   errorSystem: false,
-  errorAsset: false,
   errorTechnos: false,
   errorVmsizes: false,
   errorUsers: false,
@@ -152,11 +157,6 @@ var ProjectsNewController = Ember.ObjectController.extend({
     this.set('errorSystem', errorSystem) ;
   }.observes('systemimagetype.content'),
 
-  checkAsset: function() {
-    var errorAsset = false ;
-    this.set('errorAsset', errorAsset) ;
-  },
-
   checkTechnos: function() {
     var errorTechnos = true ;
     var technos = this.get('checkedTechnos').filterBy('checked', true) ;
@@ -189,7 +189,6 @@ var ProjectsNewController = Ember.ObjectController.extend({
     this.checkPassword() ;
     this.checkFramework() ;
     this.checkSystem() ;
-    this.checkAsset() ;
     this.checkTechnos() ;
     this.checkVmsizes() ;
     this.checkUsers() ;
@@ -200,7 +199,6 @@ var ProjectsNewController = Ember.ObjectController.extend({
         !this.get('errorPassword') &&
         !this.get('errorFramework') &&
         !this.get('errorSystem') &&
-        !this.get('errorAsset') &&
         !this.get('errorTechnos') &&
         !this.get('errorVmsizes') &&
         !this.get('errorUsers')) return true ;
@@ -217,7 +215,6 @@ var ProjectsNewController = Ember.ObjectController.extend({
     this.set('password', null) ;
     this.set('framework', {content: null}) ;
     this.set('systemimagetype', {content: null}) ;
-    this.set('isassets', false) ;
   },
 
   //events when projectname or brand changes
@@ -228,6 +225,14 @@ var ProjectsNewController = Ember.ObjectController.extend({
       this.set('gitpath', gitpath.toLowerCase()) ;
   }.observes('brand.content', 'name'),
 
+  // Check if current user is admin and can change properties
+  isDisableAdmin: function() {
+    var access_level = App.AuthManager.get('apiKey.accessLevel') ;
+
+    if (access_level >= 50) return false ;
+    return true ;
+  }.property('App.AuthManager.apiKey'),
+
   // actions binding with user event
   actions: {
     // Action when submit ofrm
@@ -235,7 +240,7 @@ var ProjectsNewController = Ember.ObjectController.extend({
       var router = this.get('target');
       var self = this;
       var store = this.store;
-      var data = this.getProperties('id', 'name', 'isassets', 'gitpath', 'login', 'password') ;
+      var data = this.getProperties('id', 'name', 'gitpath', 'login', 'password') ;
       var selectedBrand = this.get('brand.content') ;
       var selectedFramework = this.get('framework.content') ;
       var selectedSystem = this.get('systemimagetype.content') ;
