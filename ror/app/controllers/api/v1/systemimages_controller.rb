@@ -14,7 +14,7 @@ module API
         @systemimages = Systemimage.all
 
         # If systemimagetype parameter, get all systemimages for one type
-        if systemimagetype_id = params[:project_id]
+        if systemimagetype_id = params[:systemimagetype_id]
           systemimagetype = Systemimagetype.includes(:systemimages).find(systemimagetype_id)
           @systemimages = systemimagetype.systemimages
         end

@@ -11,26 +11,30 @@ class ApplicationController < ActionController::Base
   before_filter :authenticate_user_from_token!
   before_filter :authenticate_api_v1_user!
 
+  # access to controller object from serializers
+  serialization_scope :view_context
+  helper_method :current_user
+
   protected
 
   # check if the current user is included into group "lead developer"
   def check_lead
-    return true if @user.lead?
-
-    params[:user_id] = @user.id if params[:user_id] == nil
-    if @user.id.to_i != params[:user_id].to_i
-      raise Exceptions::MvmcApiException.new("Access forbidden for this user")
+    if ! @user
+      raise Exceptions::GitlabApiException.new("Access forbidden for this user")
     end
+
+    return true if @user.lead?
+    params[:user_id] = @user.id
   end
 
   # check if the current user is included into group "admin"
   def check_admin
-    return true if @user.admin?
-
-    params[:user_id] = @user.id if params[:user_id] == nil
-    if @user.id.to_i != params[:user_id].to_i
-       raise Exceptions::MvmcException.new("Access forbidden for this user")
+    if ! @user
+      raise Exceptions::GitlabApiException.new("Access forbidden for this user")
     end
+    
+    return true if @user.admin?
+    params[:user_id] = @user.id
   end
 
   # check right about current user
@@ -54,6 +58,11 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  # permit current suer access from serializer objects
+  def current_user
+    @user
+  end
 
   # signin process
   def authenticate_user_from_token!

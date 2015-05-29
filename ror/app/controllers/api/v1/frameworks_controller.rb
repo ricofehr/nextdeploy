@@ -11,7 +11,17 @@ module API
 
       # List all frameworks
       def index
-        @frameworks = Framework.all
+        # select only objects allowed by current user
+        if @user.admin?
+          @frameworks = Framework.all
+        else
+          @frameworks = []
+          projects = @user.projects
+          if projects
+            @frameworks = [] << projects.map { |project| project.framework }
+            @frameworks.flatten!.uniq!
+          end
+        end
 
         # Json output
         respond_to do |format|

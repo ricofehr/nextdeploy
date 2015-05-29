@@ -9,23 +9,6 @@ var ProjectsListController = Ember.ArrayController.extend({
 
   //filter projects array only with valid item for current user
   projects: Ember.computed.map('model', function(model){
-    var users = model.get('users').toArray() ;
-    var access_level = App.AuthManager.get('apiKey.accessLevel') ;
-    var current_id = App.AuthManager.get('apiKey.user') ;
-    var isCurrent = false ;
-
-    if (access_level == 50) {
-      isCurrent = true ;
-    } else {
-      for (var i=0; i<users.length; i++) {
-        if (users[i].id == current_id) {
-          isCurrent = true ;
-          break ;
-        }
-      }
-    }
-
-    model.set('isCurrent', isCurrent) ;
     model.set('gitpath_href', "git@" + model.get('gitpath')) ;
     model.set('created_at_short', model.get('created_at').getDate() + "/" + (model.get('created_at').getMonth()+1) + "/" + model.get('created_at').getFullYear()) ;
 

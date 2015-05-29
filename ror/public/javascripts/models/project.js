@@ -2,7 +2,6 @@
 var Project = DS.Model.extend({
   name: DS.attr('string'),
   gitpath: DS.attr('string'),
-  isassets: DS.attr('boolean'),
   enabled: DS.attr('boolean'),
   login: DS.attr('string'),
   password: DS.attr('string'),

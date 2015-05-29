@@ -9,24 +9,34 @@ module API
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
       # Check user right for avoid no-authorized access
-      before_action :check_admin, only: [:create, :destroy, :index]
+      before_action :check_admin, only: [:create, :destroy]
 
       # List all vms
       def index
-        @vms = Vm.all
-
-        # if project parameters, list only vms about one project
-        # If user parameter, list only vms owned by one user
+        # select only objects allowed by current user
         if project_id = params[:project_id]
-          if user_id = params[:user_id]
-            @vms = Vm.find_by_user_project(user_id, project_id)
-          else
+          @vms = []
+          if @user.lead?
             project = Project.find(project_id)
-            @vms = project.vms
+            @vms = project.vms if @user.projects.include?(project)
+          else
+            @vms = Vm.find_by_user_project(@user.id, project_id)
           end
-        elsif user_id = params[:user_id]
-          user = User.find(user_id)
-          @vms = user.vms
+        else
+          if @user.admin?
+            @vms = Vm.all
+          else
+            if @user.lead?
+              @vms = []
+              projects = @user.projects
+              if projects
+                @vms = [] << projects.map { |project| project.vms }
+                @vms.flatten!.uniq!
+              end
+            else
+              @vms = @user.vms
+            end
+          end
         end
 
         # Json format

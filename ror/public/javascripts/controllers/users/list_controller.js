@@ -31,6 +31,14 @@ var UsersListController = Ember.ArrayController.extend({
     return false ;
   }.property('App.AuthManager.apiKey'),
 
+  // Check if current user is admin
+  isLead: function() {
+    var access_level = App.AuthManager.get('apiKey.accessLevel') ;
+
+    if (access_level >= 40) return true ;
+    return false ;
+  }.property('App.AuthManager.apiKey'),
+
   // Return current user
   isCurrent: function(user_id) {
     var current_id = App.AuthManager.get('apiKey.user') ;

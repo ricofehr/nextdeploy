@@ -1,5 +1,5 @@
 <form {{action "postItem" on="submit"}} class="form-horizontal">
-  <legend>{{#if name}}Edit project {{name}}{{else}}Add new project{{/if}}</legend>
+  <legend>{{#if id}}Edit project {{name}}{{else}}Add new project{{/if}}</legend>
   <div class="form-group">
     {{#if errorBrand}}
       <label class="control-label col-sm-2 alert-danger">Brand</label>
@@ -14,7 +14,8 @@
        optionLabelPath="content.name"
        selection=brand.content
        action="updateGitpath"
-       prompt="Please select a Brand"}}
+       prompt="Please select a Brand"
+       disabled=isDisableAdmin}}
      </div>
   </div>
 
@@ -29,7 +30,8 @@
             classNames="form-control"
             value=name
             placeholder="Name"
-            on="key-press"}}
+            on="key-press"
+            readonly=isDisableAdmin}}
      </div>
   </div>
 
@@ -59,7 +61,7 @@
       <label class="control-label col-sm-2 alert-success">Login</label>
     {{/if}}
     <div class="col-sm-3">
-    {{input type="text" classNames="form-control" value=login placeholder="Login"}}
+    {{input type="text" classNames="form-control" value=login placeholder="Login" readonly=isDisableAdmin}}
     </div>
   </div>
 
@@ -70,7 +72,7 @@
       <label class="control-label col-sm-2 alert-success">Password</label>
     {{/if}}
     <div class="col-sm-3">
-    {{input type="text" classNames="form-control" value=password placeholder="Password"}}
+    {{input type="text" classNames="form-control" value=password placeholder="Password" readonly=isDisableAdmin}}
     </div>
   </div>
 
@@ -87,7 +89,8 @@
        optionValuePath="content.id"
        optionLabelPath="content.name"
        selection=framework.content
-       prompt="Please select a Framework"}}
+       prompt="Please select a Framework"
+       disabled=isDisableAdmin}}
      </div>
   </div>
 
@@ -104,19 +107,9 @@
        optionValuePath="content.id"
        optionLabelPath="content.name"
        selection=systemimagetype.content
-       prompt="Please select a System"}}
+       prompt="Please select a System"
+       disabled=isDisableAdmin}}
      </div>
-  </div>
-
-  <div class="form-group">
-    {{#if errorAsset}}
-      <label class="control-label col-sm-2 alert-danger">Assets</label>
-    {{else}}
-      <label class="control-label col-sm-2 alert-success">Assets</label>
-    {{/if}}
-    <div class="checkbox col-sm-3">
-      <label>{{input type="checkbox" placeholder="isassets" checked=isassets}} With assets ?</label>
-    </div>
   </div>
 
   <div class="form-group">
@@ -153,7 +146,7 @@
     {{else}}
       <label class="control-label col-sm-2 alert-success">Users</label>
     {{/if}}
-    <div class="checkbox col-sm-3">
+    <div class="checkbox col-sm-4">
     {{#each checkedUsers}}
       <label>{{input type="checkbox" checked=checked disabled=readonly}} {{content.email}} ({{content.group.name}})</label><br/>
     {{/each}}
@@ -169,11 +162,4 @@
       {{/if}}
     </div>
   </div>
-  <div class="form-group">
-{{#each message in model.errors.messages}}
-  <div class="error">
-    {{message}}
-  </div>
-{{/each}}
-</div>
 </form>

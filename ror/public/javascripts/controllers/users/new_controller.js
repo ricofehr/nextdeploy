@@ -27,18 +27,20 @@ var UsersNewController = Ember.ObjectController.extend({
   projectSorting: ['name'],
   projectSort: Ember.computed.sort('projectlist', 'projectSorting'),
   checkedProjects: Ember.computed.map('projectSort', function(model){
+    var access_level = App.AuthManager.get('apiKey.accessLevel') ;
     var checked = false ;
     var readonly = false ;
     var projects = this.get('user_projects') ;
-
+    var group_access = 0;
     var project = null ;
+
+    if (this.get('id') && this.get('id') != null) group_access = this.get('group').get('access_level');
+    if (access_level < 50 || group_access == 50) readonly = true ;
 
     if(projects) {
       project = projects.findBy('id', model.id) ;
       if(project) checked = true ;
     }
-
-    if(this.get('group').get('access_level') == 50) readonly = true;
 
     return Ember.ObjectProxy.create({
       content: model,
@@ -164,6 +166,44 @@ var UsersNewController = Ember.ObjectController.extend({
     this.set('group', {content: null});
   },
 
+  // Check if current user is lead and can change properties
+  isDisableLead: function() {
+    var access_level = App.AuthManager.get('apiKey.accessLevel') ;
+
+    if (access_level >= 40) return false ;
+    return true ;
+  }.property('App.AuthManager.apiKey'),
+
+  // Check if current user is admin and can change properties
+  isDisableAdmin: function() {
+    var access_level = App.AuthManager.get('apiKey.accessLevel') ;
+
+    if (access_level >= 50) return false ;
+    return true ;
+  }.property('App.AuthManager.apiKey'),
+
+  // Check if current user is same as current form / or admin and can change properties
+  isDisable: function() {
+    var access_level = App.AuthManager.get('apiKey.accessLevel') ;
+    var current_id = App.AuthManager.get('apiKey.user') ;
+    var form_id = this.get('id');
+
+    if (access_level >= 50) return false ;
+    if (current_id == form_id) return false ;
+    return true ;
+  }.property('App.AuthManager.apiKey'),
+
+  // show only if current user is same as current form / or admin
+  isEnable: function() {
+    var access_level = App.AuthManager.get('apiKey.accessLevel') ;
+    var current_id = App.AuthManager.get('apiKey.user') ;
+    var form_id = this.get('id');
+
+    if (access_level >= 50) return true ;
+    if (current_id == form_id) return true ;
+    return false ;
+  }.property('App.AuthManager.apiKey'),
+
   // actions binding with user event
   actions: {
     postItem: function() {
@@ -201,6 +241,8 @@ var UsersNewController = Ember.ObjectController.extend({
 
           user.get('group').get('users').removeObject(user);
           user.setProperties(data);
+
+          Ember.Logger.debug(user) ;
 
           selectedGroup.get('users').pushObject(user);
           user.save();

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150322215832) do
+ActiveRecord::Schema.define(version: 20150511082530) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -67,7 +67,6 @@ ActiveRecord::Schema.define(version: 20150322215832) do
   create_table "projects", force: true do |t|
     t.string   "name"
     t.string   "gitpath"
-    t.boolean  "isassets"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "framework_id"

@@ -5,42 +5,44 @@ module API
     # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
     class UsersController < ApplicationController
       # Check user right for avoid no-authorized access
-      before_action :check_rights, only: [:show_by_email, :index, :show]
+      before_action :check_lead, only: [:show_by_email, :index, :show, :update]
       # Hook who set user object
       before_action :set_user, only: [:show, :update, :destroy]
       # Check user right for avoid no-authorized access
-      before_action :only_admin, only: [:create, :destroy, :update]
+      before_action :only_admin, only: [:create, :destroy]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
 
       # List all users
       def index
-        # Find users with project associated
-        @users = User.includes(:projects).all
+        if @user.admin?
+          # Find users with project associated
+          @users = User.includes(:projects).all
 
-        # If project parameter, get all users for one project
-        if project_id = params[:project_id]
-          project = Project.find(project_id)
-          @users = project.users
-        end
+          # If project parameter, get all users for one project
+          if project_id = params[:project_id]
+            project = Project.find(project_id)
+            @users = project.users
+          end
 
-        # If group parameter, get all users included into one group
-        if group_id = params[:group_id]
-          group = Group.find(group_id)
-          @users = group.users
-        end
+          # If group parameter, get all users included into one group
+          if group_id = params[:group_id]
+            group = Group.find(group_id)
+            @users = group.users
+          end
 
         #filter by user_id for limited access
-        if user_id = params[:user_id]
+        else
           if @user.lead?
             @users = []
             projects = @user.projects
             if projects
               @users = projects.map { |project| project.users }
               @users.flatten!.uniq!
+              @users.select! { |u| ! u.lead? || u.id == @user.id }
             end
           else
-            @users = [] << User.find(user_id)
+            @users = [] << User.includes(:projects).find(@user.id)
           end
         end
 
@@ -115,18 +117,11 @@ module API
 
       # set user_c object (other user than current)
       def set_user
+        if ! @user.lead?
+          params[:id] = @user.id
+        end
+
         @user_c = User.includes(:projects).find(params[:id])
-      end
-
-      # filtering actions by user rights
-      def check_rights
-        if !@user
-          raise Exceptions::GitlabApiException.new("Access forbidden for this user")
-        end
-
-        if ! @user.admin?
-          params[:user_id] = @user.id
-        end
       end
 
       # change ember parameter name for well rails relationships
@@ -147,6 +142,9 @@ module API
         params_p.delete(:authentication_token)
         params_p.delete(:group)
         params_p.delete(:projects)
+        params_p.delete(:group_id) if ! @user.admin?
+        params_p.delete(:quotavm) if ! @user.lead?
+        params_p.delete(:project_ids) if ! @user.admin?
 
         params[:user] = params_p
       end

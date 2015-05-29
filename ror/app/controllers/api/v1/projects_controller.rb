@@ -23,16 +23,16 @@ module API
           @projects = brand.projects
         end
 
-        # if user parameter, get only all projects for one user
-        if user_id = params[:user_id]
-          user = User.find(user_id)
-          @projects = user.projects
-        end
-
         # if techno parameter, get only all projects for one techno
         if techno_id = params[:techno_id]
           techno = Techno.find(techno_id)
           @projects = techno.projects
+        end
+
+        # if user parameter, get only all projects for one user
+        if user_id = params[:user_id]
+          user = User.find(user_id)
+          @projects = user.projects
         end
 
         # Json output
@@ -132,7 +132,7 @@ module API
 
         # Never trust parameters from the scary internet, only allow the white list through.
         def project_params
-          params.require(:project).permit(:name, :gitpath, :isassets, :brand_id, :framework_id, :systemimagetype_id, :enabled, :login, :password, :user_ids => [], :techno_ids => [], :vmsize_ids => [])
+          params.require(:project).permit(:name, :gitpath, :brand_id, :framework_id, :systemimagetype_id, :enabled, :login, :password, :user_ids => [], :techno_ids => [], :vmsize_ids => [])
         end
     end
   end

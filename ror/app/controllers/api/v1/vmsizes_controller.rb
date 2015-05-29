@@ -11,7 +11,17 @@ module API
 
       # List all vmsizes
       def index
-        @vmsizes = Vmsize.all
+        # select only objects allowed by current user
+        if @user.admin?
+          @vmsizes = Vmsize.all
+        else
+          @vmsizes = []
+          projects = @user.projects
+          if projects
+            @vmsizes = [] << projects.map { |project| project.vmsizes }
+            @vmsizes.flatten!.uniq!
+          end
+        end
 
         # json output
         respond_to do |format|
