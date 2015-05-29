@@ -195,9 +195,10 @@ The Ember stack is localised in rails standard location, into public folder.
 From this publics folder, we find MVC classes respectively into models / templates / controllers folders.
 For generate application.js
 ```
-cd ror && ./bin/./ember_build
+cd ror/public && ./bin/./ember_build
 ```
 
+The git repository for webui application: https://github.com/ricofehr/mvmc-webui
 
 ## Yard
 
