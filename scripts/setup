@@ -208,14 +208,14 @@ vagrantfiles() {
 # Execute ember_build command for generate application.js on the fly
 init_ember() {
   output -q "Init ember project"
-  pushd ror > /dev/null
+  pushd ror/public > /dev/null
   # start ember_build only if it dont yet
   if ! ps aux | grep "ember_build" | grep -v grep >/dev/null;then 
     ./bin/./ember_build &
     (($?!=0)) && output -w 'Ember_build execution has failed'
   fi
   # force application.js writing
-  touch public/javascripts/config/app.js
+  touch javascripts/config/app.js
   popd > /dev/null
 }
 
