@@ -112,34 +112,34 @@ puts "Created #{User.count} users"
 
 
 #Project import rows
-project_drupal = Project.create!(name: "www.drupalmycompany.com", brand: brand_cust1, framework: framework_drupal, isassets: true,
+project_drupal = Project.create!(name: "www.drupalmycompany.com", brand: brand_cust1, framework: framework_drupal, 
                                gitpath: "mycompany-www-drupalmycompany-com", systemimagetype: linux, enabled: true,
                                login: "modem", password: "modem",
                                vmsizes: [flavor_tiny, flavor_small],
                                users: [admin, user_lead, user_dev, user_pm, user_g],
                                technos: [techno_varnish, techno_apache, techno_mysql, techno_redis, techno_memcached])
-project_symfony_c = Project.create!(name: "www.symfonyyourcompany.com", systemimagetype: linux, brand: brand_cust2, framework: framework_sf2, isassets: true,
+project_symfony_c = Project.create!(name: "www.symfonyyourcompany.com", systemimagetype: linux, brand: brand_cust2, framework: framework_sf2,
                                   login: "modem", password: "modem",
                                   vmsizes: [flavor_small],
                                   gitpath: "yourcompany-www-symfonyyourcompany-com", enabled: true,
                                   users: [admin, user_dev, user_g],
                                   technos: [techno_varnish, techno_apache, techno_mongodb, techno_redis, techno_rabbitmq, techno_elasticsearch])
 
-project_symfony_s = Project.create!(name: "www.symfonyhiscompany.com", systemimagetype: linux, brand: brand_cust3, framework: framework_sf2, isassets: true,
+project_symfony_s = Project.create!(name: "www.symfonyhiscompany.com", systemimagetype: linux, brand: brand_cust3, framework: framework_sf2,
                                         login: "modem", password: "modem",
                                         vmsizes: [flavor_tiny],
                                         gitpath: "hiscompany-www-symfonyhiscompany-com", enabled: true,
                                         users: [admin, user_dev],
                                         technos: [techno_varnish, techno_apache, techno_mysql, techno_redis])
 
-project_no = Project.create!(name: "www.statichiscompany.com", systemimagetype: linux, brand: brand_cust3, framework: framework_no, isassets: false,
+project_no = Project.create!(name: "www.statichiscompany.com", systemimagetype: linux, brand: brand_cust3, framework: framework_no,
                                       login: "modem", password: "modem",
                                       vmsizes: [flavor_tiny],
                                       users: [admin, user_lead, user_dev],
                                       gitpath: "hiscompany-www-statichiscompany-com", enabled: true,
                                       technos: [techno_varnish, techno_apache])
 
-project_wordpress = Project.create!(name: "www.wordpressmycompany.com", systemimagetype: linux, brand: brand_cust1, framework: framework_wordpress, isassets: false,
+project_wordpress = Project.create!(name: "www.wordpressmycompany.com", systemimagetype: linux, brand: brand_cust1, framework: framework_wordpress,
                                login: "modem", password: "modem",
                                vmsizes: [flavor_small],
                                users: [admin, user_lead, user_g],
