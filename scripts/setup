@@ -58,6 +58,14 @@ source scripts/inc/setup_osx
 source scripts/inc/setup_debian
 source scripts/inc/setup_fedora
 
+# clone submodules
+install_submodules() {
+  rm -f ror/public/javascripts/application.js
+  rmdir ror/public/javascripts
+  rmdir ror/public
+  git submodule update --init
+}
+
 # Make ruby install
 install_ruby() {
   output -q 'Ruby Installation ...'
@@ -325,6 +333,7 @@ complete_step() {
 
 
 welcome_step
+install_submodules
 install_prerequisites
 #init_rails
 #init_ember
