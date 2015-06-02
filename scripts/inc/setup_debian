@@ -28,7 +28,7 @@ install_libvirt_debian() {
   
   sudo apt-get -y --force-yes install virt-manager
   (($?!=0)) && output -e 'Libvirt installation has failed'
-  sudo usermod -G "$(grep libvirt /etc/group | cut -d: -f 1)" -a $USER
+  sudo usermod -G "$(grep libvirt /etc/group | grep -v qemu | cut -d: -f 1)" -a $USER
   (($?!=0)) && output -e 'Cant add current user to libvirt group'
   sudo service libvirtd restart
   (($?!=0)) && sudo service libvirt-bin restart
