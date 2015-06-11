@@ -32,6 +32,7 @@ module API
               if projects
                 @vms = [] << projects.map { |project| project.vms }
                 @vms.flatten!.uniq!
+                @vms.select! { |v| ! v.user.lead? || v.user.id == @user.id }
               end
             else
               @vms = @user.vms

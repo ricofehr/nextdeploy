@@ -380,6 +380,8 @@ module Apiexternal
         req.headers = self.headers
       end
 
+      puts response
+
       raise Exceptions::OSApiException.new("Delete request on /v2.0/floatingips/#{floatingip_id}: #{response.status}") if response.status != 204
     end
 

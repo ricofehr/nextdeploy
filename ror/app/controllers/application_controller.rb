@@ -2,6 +2,9 @@
 #
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
 class ApplicationController < ActionController::Base
+  # include serializers class. Needed for serialization_scope parameter
+  include ActionController::Serialization
+
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception

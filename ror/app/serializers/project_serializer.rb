@@ -15,14 +15,17 @@ class ProjectSerializer < ActiveModel::Serializer
 
   # avoid for no lead/admin users to see other users details
   def users
-    if current_user.lead?
+    if current_user.admin?
       object.users
+    elsif current_user.lead?
+      users_a = object.users.select { |u| ! u.lead? && u.id != current_user.id }
+      users_a.unshift(current_user)
     else
       [] << current_user
     end
   end
 
-    # gitpath needs string changes
+  # gitpath needs string changes
   def attributes
     data = super
     data[:gitpath] = Rails.application.config.gitlab_endpoint0.gsub('http://', '') << ':/root/' << data[:gitpath] if current_user.lead?
