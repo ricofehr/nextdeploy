@@ -71,7 +71,7 @@ module API
       # return an user by email
       def show_by_email
         @user_c = User.find_by_email(params[:email])
-
+        
         # Json output
         respond_to do |format|
           format.json { render json: @user_c, status: 200 }

@@ -264,15 +264,15 @@ class pm::deploy::wordpress {
   ->
   exec { 'dlwp':
     command => 'wp core download --locale=fr_FR',
-    unless => 'test -d wp-content'
+    unless => 'test -d wp-admin'
   }
   ->
   exec { 'configwp':
     command => 'wp core config --dbname=s_bdd --dbuser=s_bdd --dbpass=s_bdd',
-    unless => 'test -f config.php'
+    unless => 'test -f wp-config.php'
   }
   ->
-  exec { 'gitreset':
+  exec { 'gitresetwp':
     command => "git reset --hard ${commit}",
     user => 'modem',
     cwd => "${docroot}",
@@ -280,7 +280,7 @@ class pm::deploy::wordpress {
   }
   ->
   exec { 'installbdd':
-    command => 'wp core install --url=${weburi} --title=vm --admin_user=modem --admin_password=modem --admin_email=${email}'
+    command => "wp core install --url=${weburi} --title=vm --admin_user=modem --admin_password=modem --admin_email=${email}"
   }
   ->
   exec { 'touchdeploy': 
