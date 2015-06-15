@@ -104,6 +104,8 @@ sub vcl_recv {
        return(pipe) ;
   }
 
+  ###STATUSOK if (req.url == "/status_ok") { return (synth(200, "")); }
+
   ###AUTH###
 
   # Some generic URL manipulation, useful for all templates that follow
@@ -392,6 +394,10 @@ sub vcl_purge {
 }
 
 sub vcl_synth {
+  if (resp.status == 200) {
+    return (deliver);
+  }
+
   if (resp.status == 401) {
   #set resp.http.Content-Type = "text/html; charset=utf-8";
   set resp.http.WWW-Authenticate = "Basic realm=Secured";

@@ -86,24 +86,29 @@ Disallow: /'
   package { [ 'php-pear', 'php5-dev']:
     ensure => installed,
   }
-  ->
-  exec { "pecl-mongo":
-    command => "/usr/bin/yes '' | /usr/bin/pecl install --force mongo-1.5.8",
-    user => "root",
-    environment => ["HOME=/root"],
-    unless => '/usr/bin/test -f /etc/php5/apache2/conf.d/20-mongo.ini'
-  }
-  ->
-  exec { "mongo.ini":
-    command => "/bin/echo extension=mongo.so > /etc/php5/apache2/conf.d/20-mongo.ini",
-    user => "root",
-    environment => ["HOME=/root"],
-  }
-  ->
-  exec { "mongo.inicli":
-    command => "/bin/echo extension=mongo.so > /etc/php5/cli/conf.d/20-mongo.ini",
-    user => "root",
-    environment => ["HOME=/root"],
+  
+  #install mongo extension only if mongo is part of the project
+  $is_mongo = hiera("is_mongo", "no")
+  if $is_cron == "yes" {
+    exec { "pecl-mongo":
+      command => "/usr/bin/yes '' | /usr/bin/pecl install --force mongo-1.5.8",
+      user => "root",
+      environment => ["HOME=/root"],
+      unless => '/usr/bin/test -f /etc/php5/apache2/conf.d/20-mongo.ini',
+      require => [ Package['php-pear'], Package['php5-dev'] ]
+    }
+    ->
+    exec { "mongo.ini":
+      command => "/bin/echo extension=mongo.so > /etc/php5/apache2/conf.d/20-mongo.ini",
+      user => "root",
+      environment => ["HOME=/root"],
+    }
+    ->
+    exec { "mongo.inicli":
+      command => "/bin/echo extension=mongo.so > /etc/php5/cli/conf.d/20-mongo.ini",
+      user => "root",
+      environment => ["HOME=/root"],
+    }
   }
 
   php::module { [ 'mysql', 'redis', 'memcached', 'gd', 'curl', 'intl', 'mcrypt' ]: }

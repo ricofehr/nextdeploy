@@ -2,7 +2,7 @@
 #
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
 class VmSerializer < ActiveModel::Serializer
-  attributes :id, :nova_id, :floating_ip, :created_at, :name
+  attributes :id, :nova_id, :floating_ip, :created_at, :name, :status
 
   # gitpath needs post string actions
   def attributes
