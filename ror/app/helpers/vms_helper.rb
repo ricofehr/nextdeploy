@@ -88,7 +88,7 @@ module VmsHelper
     Base64.encode64(pattern)
   end
 
-  # Generate Host file with delegated zone for mvmc.publicis-modem.fr
+  # Generate Host file with delegated zone for mvmc virtual instances
   #
   # No param
   # @raise an exception if errors occurs during file writing
@@ -110,4 +110,30 @@ module VmsHelper
     end
 
   end
+
+  # Check status for current vm and update it if needed
+  #
+  # No param
+  # No return
+  def check_status
+    conn_status = Faraday.new(:url => "http://#{vm_url}") do |faraday|
+      faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+    end
+
+    begin
+      response = conn_status.get do |req|
+        req.url "/status_ok"
+      end
+    rescue
+      self.status = 2 if self.status == 1 || (self.updated_at && self.updated_at < (Time.now - 120.minutes))
+      return
+    end
+
+    if response.status == 200
+      self.status = 1
+    else
+      self.status = 2 if self.status == 1 || (self.updated_at && self.updated_at < (Time.now - 120.minutes))
+    end  
+  end
+
 end

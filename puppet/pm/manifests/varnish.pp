@@ -40,7 +40,13 @@ class pm::varnish {
   }
   ->
   exec { 'authbasic':
-    command => "sed -i 's%###AUTH###%${auth}%' /etc/varnish/default.vcl",
+    command => "sed -i 's%###AUTH###%${auth}%' /etc/varnish/default.vcl"
+  }
+  ->
+  exec { 'statusok2':
+    command => 'sed -i "s;###STATUSOK;;" /etc/varnish/default.vcl',
+    user => 'root',
+    onlyif => 'test -f /home/modem/.postinstall'
   }
   ->
   file { '/etc/varnish/devicedetect.vcl':

@@ -75,6 +75,8 @@ sub vcl_recv {
        return(pipe) ;
   }
 
+  ###STATUSOK if (req.url == "/status_ok") { error 200; }
+
   ###AUTH###
 
  ## Remove has_js and Google Analytics cookies.
@@ -256,6 +258,11 @@ sub vcl_deliver {
 }
 
 sub vcl_error {
+if (obj.status == 200) {
+  synthetic {""};
+  return (deliver);
+}
+
 if (obj.status == 401) {
   set obj.http.Content-Type = "text/html; charset=utf-8";
   set obj.http.WWW-Authenticate = "Basic realm=Secured";

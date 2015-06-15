@@ -263,7 +263,7 @@ class pm::deploy::wordpress {
   }
   ->
   exec { 'dlwp':
-    command => 'wp core download --locale=fr_FR',
+    command => 'wp core download', # --locale=fr_FR',
     unless => 'test -d wp-admin'
   }
   ->
@@ -338,6 +338,11 @@ class pm::deploy::postinstall {
   ->
   exec { 'postinstall':
     command => "/bin/bash scripts/postinstall.sh ${weburi} admin.${weburi} m.${weburi}",
+  }
+  ->
+  exec { 'statusvarnish':
+    command => 'sed -i "s;###STATUSOK;;" /etc/varnish/default.vcl',
+    user => 'root'
   }
   ->
   exec { 'restartvarnish_postinstall':

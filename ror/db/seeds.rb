@@ -59,7 +59,7 @@ apache_vhost:
       custom_fragment: \"%{rewrites}\"")
 
 techno_mongodb = Techno.create!(name: "mongodb", puppetclass: "pm::nosql::mongo", ordering: 80,
-                                hiera: "")
+                                hiera: "is_mongo: yes")
 techno_rabbitmq = Techno.create!(name: "rabbitmq", puppetclass: "pm::rabbit", ordering: 60,
                                 hiera: "")
 techno_elasticsearch = Techno.create!(name: "elasticsearch", puppetclass: "pm::elastic", ordering: 40,

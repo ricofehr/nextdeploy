@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150511082530) do
+ActiveRecord::Schema.define(version: 20150612122132) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -163,6 +163,7 @@ ActiveRecord::Schema.define(version: 20150511082530) do
     t.datetime "updated_at"
     t.string   "name"
     t.integer  "vmsize_id"
+    t.integer  "status"
   end
 
   add_index "vms", ["project_id"], name: "index_vms_on_project_id", using: :btree
