@@ -60,9 +60,11 @@ source scripts/inc/setup_fedora
 
 # clone submodules
 install_submodules() {
-  rm -f ror/public/javascripts/application.js
-  rmdir ror/public/javascripts
-  rmdir ror/public
+  if [[ -f ror/public/javascripts/application.js ]]; then
+    rm -f ror/public/javascripts/application.js
+    rmdir ror/public/javascripts
+    rmdir ror/public
+  fi
   git submodule update --init
 }
 
