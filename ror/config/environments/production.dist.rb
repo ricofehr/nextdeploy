@@ -45,7 +45,7 @@ Rails.application.configure do
   # config.force_ssl = true
 
   # Set to :debug to see everything in the log.
-  config.log_level = :info
+  config.log_level = :warn
 
   # Prepend all log lines with the following tags.
   # config.log_tags = [ :subdomain, :uuid ]
@@ -91,10 +91,10 @@ Rails.application.configure do
   config.gitlab_token = ''
   config.gitlab_rootpath = '/var/opt/gitlab/git-data/repositories/root'
   config.project_initpath = '/home/modem/www'
+  config.limit_vm = 10
 
   config.os_suffix = ".os.local"
   config.os_endpoint = 'http://controller-m:35357'
-
   config.os_endpoint_neutron = 'http://controller-a:9696'
   config.os_endpoint_nova = 'http://controller-a:8774'
   config.os_endpoint_glance = 'http://glance-a:9292'

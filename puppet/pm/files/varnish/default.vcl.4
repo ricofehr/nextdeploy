@@ -22,6 +22,16 @@ backend server1 { # Define one backend
   .connect_timeout        = 5s;     # How long to wait for a backend connection?
   .between_bytes_timeout  = 2s;     # How long to wait between bytes received from our backend?
 }
+
+backend nodejs { # Define one backend
+  .host = "127.0.0.1"; # IP or Hostname of backend
+  .port = "3100"; # Port Apache or whatever is listening
+  .max_connections = 300; # That's it
+  .first_byte_timeout     = 300s;   # How long to wait before we receive a first byte from our backend?
+  .connect_timeout        = 5s;     # How long to wait for a backend connection?
+  .between_bytes_timeout  = 2s;     
+}
+
 acl purge {
 # ACL we'll use later to allow purges
   "localhost";
@@ -52,6 +62,7 @@ sub vcl_recv {
 # also used to modify the request
 
   set req.backend_hint = vdir.backend(); # send all traffic to the vdir director
+  if (req.http.host ~ "nodejs") { set req.backend_hint = nodejs; }
 
   if (req.restarts == 0) {
     if (req.http.X-Forwarded-For) { # set or append the client.ip to X-Forwarded-For header

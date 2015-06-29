@@ -169,6 +169,54 @@ class pm::deploy::static {
   }
 }
 
+# == Class: pm::deploy::nodejs
+#
+# Launch nodejs app if exists on the project repo
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::deploy::nodejs {
+  $docroot = hiera('docrootgit', '/var/www/html')
+
+  Exec { 
+    path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
+    user => 'modem',
+    group => 'www-data',
+    unless => 'test -f /home/modem/.deploynodejs',
+    environment => ["HOME=/home/modem"],
+    cwd => "${docroot}/nodejs",
+    timeout => 1800,
+    require => [ Service['varnish'], Exec['touchdeploygit'] ]
+  }
+
+  exec { 'npminstall': 
+    command => 'npm install',
+    onlyif => 'test -f package.json'
+  } ->
+  exec { 'bowerinstall': 
+    command => 'bower install',
+    onlyif => 'test -f bower.json'
+  } ->
+  exec { 'gruntbuild': 
+    command => 'grunt build',
+    onlyif => 'test -f Gruntfile.js'
+  } ->
+  exec { 'gulpbuild': 
+    command => 'gulp build',
+    onlyif => 'test -f gulpfile.js'
+  } ->
+  exec { 'pm2start': 
+    command => 'PORT=3100 pm2 start -f app.js',
+    onlyif => 'test -f app.js'
+  } ->
+  exec { 'touchdeploynodejs': 
+    command => 'touch /home/modem/.deploynodejs'
+  }
+}
+
 
 # == Class: pm::deploy::drupal
 #

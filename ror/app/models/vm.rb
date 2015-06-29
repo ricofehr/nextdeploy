@@ -58,6 +58,9 @@ class Vm < ActiveRecord::Base
   # No param
   # No return
   def boot_os
+    # Raise an exception if the limit of vms is reachable
+    raise Exceptions::MvmcException.new("Vms limit is reachable") if Vm.all.length > Rails.application.config.limit_vm
+
     begin
       self.name = vm_name
       generate_hiera

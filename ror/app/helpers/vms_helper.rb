@@ -33,6 +33,7 @@ module VmsHelper
       templates << template
     }
     classes << "  - #{project.framework.puppetclass}" if project.framework.puppetclass && project.framework.puppetclass.length > 0
+    classes << "  - pm::deploy::nodejs" if project.technos.any? { |t| t.name == 'nodejs' } 
     classes << '  - pm::deploy::postinstall'
     
     begin
@@ -101,7 +102,7 @@ module VmsHelper
     begin
       open("/etc/hosts.mvmc", "w") { |f|
         vms.each { |v|
-          f.puts "#{v.floating_ip} #{v.vm_url} admin.#{v.vm_url} m.#{v.vm_url}\n" if v.floating_ip && v.floating_ip.length > 0
+          f.puts "#{v.floating_ip} #{v.vm_url} admin.#{v.vm_url} m.#{v.vm_url} nodejs.#{v.vm_url}\n" if v.floating_ip && v.floating_ip.length > 0
         }
       }
 

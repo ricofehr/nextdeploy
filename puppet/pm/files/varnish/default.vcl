@@ -11,6 +11,15 @@ backend default {
   .between_bytes_timeout = 600s;
 }
 
+#web1
+backend nodejs {
+  .host = "127.0.0.1";
+  .port = "3100";
+  .connect_timeout = 600s;
+  .first_byte_timeout = 600s;
+  .between_bytes_timeout = 600s;
+}
+
 sub vcl_recv {
   // Rename the incoming XFF header to work around a Varnish bug.
   if (req.http.X-Forwarded-For) {
@@ -23,7 +32,8 @@ sub vcl_recv {
     set req.http.X-Real-Forwarded-For = req.http.Client_IP;
   }
 
-  #set req.backend = default;
+  set req.backend = default;
+  if (req.http.host ~ "nodejs") { set req.backend = nodejs; }
 
   # Si la requete est PURGE, on trie
   if (req.request == "PURGE") {

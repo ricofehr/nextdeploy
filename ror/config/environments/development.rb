@@ -36,7 +36,7 @@ Rails.application.configure do
   config.assets.raise_runtime_errors = true
 
   # set logger level
-  config.log_level = :warn
+  config.log_level = :info
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
@@ -51,6 +51,7 @@ Rails.application.configure do
   config.gitlab_token = ''
   config.gitlab_rootpath = '/var/opt/gitlab/git-data/repositories/root'
   config.project_initpath = '/home/modem/www'
+  config.limit_vm = 2
 
   config.os_suffix = ".os.mvmc"
   config.os_endpoint = 'http://controller-m:35357'
