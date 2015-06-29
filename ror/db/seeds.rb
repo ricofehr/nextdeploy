@@ -77,7 +77,9 @@ hiera: "mysql_db:
     password: s_bdd
     host: 'localhost'
     grant: 'all'")
-techno_tomcat7 = Techno.create!(name: "tomcat7", puppetclass: "mvmc::tomcat7", ordering: 140,
+#techno_tomcat7 = Techno.create!(name: "tomcat7", puppetclass: "mvmc::tomcat7", ordering: 140,
+#                                hiera: "")
+techno_nodejs = Techno.create!(name: "nodejs", puppetclass: "pm::nodejs", ordering: 140,
                                 hiera: "")
 
 puts "Created #{Techno.count} technos"
@@ -120,7 +122,7 @@ project_drupal = Project.create!(name: "www.drupalmycompany.com", brand: brand_c
                                technos: [techno_varnish, techno_apache, techno_mysql, techno_redis, techno_memcached])
 project_symfony_c = Project.create!(name: "www.symfonyyourcompany.com", systemimagetype: linux, brand: brand_cust2, framework: framework_sf2,
                                   login: "modem", password: "modem",
-                                  vmsizes: [flavor_small],
+                                  vmsizes: [flavor_tiny, flavor_small],
                                   gitpath: "yourcompany-www-symfonyyourcompany-com", enabled: true,
                                   users: [admin, user_dev, user_g],
                                   technos: [techno_varnish, techno_apache, techno_mongodb, techno_redis, techno_rabbitmq, techno_elasticsearch])
@@ -141,10 +143,18 @@ project_no = Project.create!(name: "www.statichiscompany.com", systemimagetype: 
 
 project_wordpress = Project.create!(name: "www.wordpressmycompany.com", systemimagetype: linux, brand: brand_cust1, framework: framework_wordpress,
                                login: "modem", password: "modem",
-                               vmsizes: [flavor_small],
+                               vmsizes: [flavor_tiny, flavor_small],
                                users: [admin, user_lead, user_g],
                                gitpath: "mycompany-www-wordpressmycompany-com", enabled: true,
                                technos: [techno_varnish, techno_apache, techno_mysql])
+
+project_njs = Project.create!(name: "www.njsyourcompany.com", systemimagetype: linux, brand: brand_cust2, framework: framework_no,
+                                      login: "modem", password: "modem",
+                                      vmsizes: [flavor_tiny],
+                                      users: [admin, user_lead, user_dev],
+                                      gitpath: "yourcompany-www-njsyourcompany-com", enabled: true,
+                                      technos: [techno_varnish, techno_apache, techno_nodejs])
+
 
 puts "Created #{Project.count} projects"
 

@@ -26,7 +26,7 @@ module Exceptions
     # No params
     # No return
     def log
-      puts @message
+      Rails.logger.warn @message
     end
   end
 

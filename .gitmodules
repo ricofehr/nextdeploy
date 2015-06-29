@@ -86,6 +86,23 @@
 [submodule "vagrant/modules/wget"]
 	path = vagrant/modules/wget
 	url = https://github.com/maestrodev/puppet-wget.git
+[submodule "vagrant/modules/apt"]
+	path = vagrant/modules/apt
+	url = https://github.com/puppetlabs/puppetlabs-apt.git
+[submodule "vagrant/modules/neutron"]
+	path = vagrant/modules/neutron
+	url = https://github.com/stackforge/puppet-neutron.git
+	branch = stable/icehouse
+[submodule "vagrant/modules/nova"]
+	path = vagrant/modules/nova
+	url = https://github.com/stackforge/puppet-nova.git
+	branch = stable/icehouse
+[submodule "vagrant/modules/java"]
+	path = vagrant/modules/java
+	url = https://github.com/puppetlabs/puppetlabs-java.git
+[submodule "vagrant/modules/zypprepo"]
+	path = vagrant/modules/zypprepo
+	url = https://github.com/deadpoint/puppet-zypprepo.git
 [submodule "puppet/apache"]
 	path = puppet/apache
 	url = https://github.com/puppetlabs/puppetlabs-apache
@@ -137,26 +154,12 @@
 [submodule "puppet/wget"]
 	path = puppet/wget
 	url = https://github.com/maestrodev/puppet-wget.git
-[submodule "vagrant/modules/apt"]
-	path = vagrant/modules/apt
-	url = https://github.com/puppetlabs/puppetlabs-apt.git
-[submodule "vagrant/modules/neutron"]
-	path = vagrant/modules/neutron
-	url = https://github.com/stackforge/puppet-neutron.git
-	branch = stable/icehouse
-[submodule "vagrant/modules/nova"]
-	path = vagrant/modules/nova
-	url = https://github.com/stackforge/puppet-nova.git
-	branch = stable/icehouse
-[submodule "vagrant/modules/java"]
-	path = vagrant/modules/java
-	url = https://github.com/puppetlabs/puppetlabs-java.git
-[submodule "vagrant/modules/zypprepo"]
-	path = vagrant/modules/zypprepo
-	url = https://github.com/deadpoint/puppet-zypprepo.git
+[submodule "puppet/nodejs"]
+	path = puppet/nodejs
+	url = https://github.com/puppetlabs/puppetlabs-nodejs.git
 [submodule "client"]
 	path = client
-	url = https://github.com/ricofehr/mvmc-cli
+	url = git@github.com:ricofehr/mvmc-cli
 [submodule "ror/public"]
 	path = ror/public
-	url = https://github.com/ricofehr/mvmc-webui
+	url = git@github.com:ricofehr/mvmc-webui
