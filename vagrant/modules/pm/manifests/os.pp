@@ -164,8 +164,14 @@ class pm::os::nv_postinstall {
   }
 
   # move nova folder into home filesystem (ensure that we have large disk space)
+  exec { 'mknova':
+    command => 'mkdir -p /home/nova'
+  } ->
   exec { 'movenova':
-    command => 'mv /var/lib/nova /home/'
+    command => 'mv /var/lib/nova/* /home/nova/'
+  } ->
+  exec { 'rmdirnova':
+    command => 'rmdir /var/lib/nova'
   } ->
   file { '/var/lib/nova':
     ensure => 'link',

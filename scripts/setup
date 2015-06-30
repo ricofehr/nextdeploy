@@ -149,7 +149,8 @@ install_client() {
 # Add mvmc platform uris into hosts file
 file_hosts() {
   output -q "Added 2 lines in /etc/hosts file"
-  sudo $BINSED -i "s;192.168.170.60;;" /etc/hosts
+  sudo $BINSED -i "s;^192.168.170.60.*;;" /etc/hosts
+  sudo $BINSED -i "s;^192.168.170.70.*;;" /etc/hosts
   sudo /bin/bash -c "echo \"192.168.170.60 mvmc.local gitlab.local doc.mvmc.local\" >> /etc/hosts"
   sudo /bin/bash -c "echo \"192.168.170.70 uosc${DOMAIN}\" >> /etc/hosts"
 }
