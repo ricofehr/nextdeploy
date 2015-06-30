@@ -158,6 +158,7 @@ newproject() {
   touch flash/emptyfile
   touch client/emptyfile
   touch nodejs/emptyfile
+  cp "${RORSBIN}/files/app.js" nodejs/
   touch server/emptyfile
   touch scripts/postinstall.sh
   cp "${RORSBIN}/files/gitignore_other" .gitignore
