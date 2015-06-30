@@ -6,12 +6,12 @@ class UserSerializer < ActiveModel::Serializer
   delegate :current_user, to: :scope
 
   has_many :vms, key: :vms
-  has_many :projects, key: :projects
   has_many :sshkeys, key: :sshkeys
   has_one :group, key: :group
+  has_many :projects, key: :projects
 
   # avoid for no lead/admin users to see other users details
   def projects
-    object.projects.select { |p| p.users.include?(current_user) }
+    object.projects.select { |project| !current_user || project.users.include?(current_user) }
   end
 end
