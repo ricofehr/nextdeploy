@@ -75,4 +75,4 @@ power_state:
  delay: "+1"
  mode: reboot
  message: Bye Bye Bye
- timeout: 10
+ timeout: 1800
