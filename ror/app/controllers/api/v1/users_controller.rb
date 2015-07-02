@@ -78,6 +78,46 @@ module API
         end
       end
 
+      # return server ca
+      def dl_openvpn_ca
+        # download file
+        respond_to do |format|
+          format.text do 
+            render plain: @user.openvpn_ca, status: 200
+          end
+        end
+      end
+
+      # return openvpn key
+      def dl_openvpn_key
+        # download file
+        respond_to do |format|
+          format.text do 
+            render plain: @user.openvpn_key, status: 200
+          end
+        end
+      end
+
+      # return openvpn crt
+      def dl_openvpn_crt
+        # donwload file
+        respond_to do |format|
+          format.text do 
+            render plain: @user.openvpn_crt, status: 200
+          end
+        end
+      end
+
+      # return openvpn client conf
+      def dl_openvpn_conf
+        # donwload file
+        respond_to do |format|
+          format.text do 
+            render plain: @user.openvpn_conf, status: 200
+          end
+        end
+      end
+
       # Create a new user
       def create
         @user_c = User.create!(user_params)

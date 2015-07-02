@@ -11,6 +11,10 @@ Rails.application.routes.draw do
       get '/users/email/:email' => 'users#show_by_email', as: 'user_by_email', constraints: { email: /.+@.+\..*/ }
       get '/users/:id' => 'users#show', as: 'user', constraints: { id: /\d+/ }
       get '/user' => 'users#show_current', as: 'user_current'
+      get '/user/ovpnca' => 'users#dl_openvpn_ca', as: 'dl_ocpnca'
+      get '/user/ovpnkey' => 'users#dl_openvpn_key', as: 'dl_ovpnkey'
+      get '/user/ovpncrt' => 'users#dl_openvpn_crt', as: 'dl_ovpncrt'
+      get '/user/ovpnconf' => 'users#dl_openvpn_conf', as: 'dl_ovpnconf'
       get '/group' => 'groups#show_current', as: 'group_current'
       get '/vms/user/:user_id/:commit' => 'vms#show_by_user_commit', as: 'vms_by_user_commit', constraints: { commit: /\d+-[a-zA-Z0-9]+-([a-z0-9]{40})/, user_id: /\d+/ }
       get '/vms/user/:user_id' => 'vms#show_by_user', as: 'vms_by_user', constraints: { user_id: /\d+/ }

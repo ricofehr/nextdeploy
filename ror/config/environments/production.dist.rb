@@ -87,6 +87,8 @@ Rails.application.configure do
   config.gitlab_endpoint0       = 'http://gitlab.remote' # API endpoint URL, default: ENV['GITLAB_API_ENDPOINT']
   config.gitlab_prefix = 'git@mvmc.remote:root/'
   config.mvmcip = '192.168.71.60'
+  config.mvmcip = '192.168.71.60'
+  config.ovpnport = '1194'
 
   config.gitlab_token = ''
   config.gitlab_rootpath = '/var/opt/gitlab/git-data/repositories/root'

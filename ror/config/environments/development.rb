@@ -45,6 +45,8 @@ Rails.application.configure do
   config.gitlab_endpoint0       = 'http://gitlab.local' # API endpoint URL, default: ENV['GITLAB_API_ENDPOINT']
   config.gitlab_prefix       = 'git@mvmc:root/'
   config.mvmcip = '192.168.171.60'
+  config.ovpnip = '192.168.171.60'
+  config.ovpnport = '1194'
 
   #config.private_token  = JSON.parse(response.body, symbolize_names: true)[:private_token]
   #config.gitlab_private_token = '1hA4vmgtUezjKSbAcyxF'
