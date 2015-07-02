@@ -18,7 +18,7 @@ nohup.out
 /ror/config/environments/production.rb
 
 # Ignore sshkeys symlink
-/vagrant/mvmc/puppet/pm/files/sshkeys
+/puppet/pm/files/sshkeys
 
 # Ignore bundler config.
 .bundle
@@ -41,9 +41,6 @@ nohup.out
 /ror/tmp/*
 !/ror/tmp/.keep
 
-# Ignore hiera files
-
-
 # Ignore application.js who must be generated
 /ror/public/javascripts/application.js
 
@@ -60,6 +57,17 @@ nohup.out
 
 # Ignore sshkeys
 /ror/sshkeys/*
+!/ror/sshkeys/.keep
+
+# Ignore openvpn keys and duplicated conf
+/ror/vpnkeys/*
+!/ror/vpnkeys/.keep
+!/ror/vpnkeys/bin
+/ror/vpnkeys/bin/*
+!/ror/vpnkeys/bin/.keep
+!/ror/vpnkeys/bin/vars
+!/ror/vpnkeys/bin/build-key
+!/ror/vpnkeys/conf
 
 #log folder
 /out/*

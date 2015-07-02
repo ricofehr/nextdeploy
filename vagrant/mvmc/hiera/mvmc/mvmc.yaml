@@ -54,7 +54,7 @@ vpnserver:
     organization: os.mvmc
     email: usera@os.mvmc
     server: '10.0.171.0 255.255.255.0'
-    route:
+    push:
       - '192.168.171.0 255.255.255.0'
 
 rvm::system_rubies:

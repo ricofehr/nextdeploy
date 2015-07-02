@@ -32,6 +32,68 @@ class pm::postinstall::mvmc {
       cwd => '/ror'
   }
   
+  # prepare vpnkeys folder
+  file { '/ror/vpnkeys/index.txt':
+    ensure => 'file',
+    source => '/etc/openvpn/mvmc/easy-rsa/keys/index.txt',
+    owner => 'root',
+    require => Class['pm::openvpn']
+  } ->
+  file { '/ror/vpnkeys/serial':
+    ensure => 'file',
+    source => '/etc/openvpn/mvmc/easy-rsa/keys/serial',
+    owner => 'root'
+  } ->
+  file { '/ror/vpnkeys/ca.key':
+    ensure => 'file',
+    source => '/etc/openvpn/mvmc/easy-rsa/keys/ca.key',
+    owner => 'root'
+  } ->
+  file { '/ror/vpnkeys/ca.crt':
+    ensure => 'file',
+    source => '/etc/openvpn/mvmc/easy-rsa/keys/ca.crt',
+    owner => 'root'
+  } ->
+  file { '/ror/vpnkeys/bin/whichopensslcnf':
+    ensure => 'file',
+    source => '/etc/openvpn/mvmc/easy-rsa/whichopensslcnf',
+    owner => 'root'
+  } ->
+  file { '/ror/vpnkeys/bin/openssl-0.9.8.cnf':
+    ensure => 'file',
+    source => '/etc/openvpn/mvmc/easy-rsa/openssl-0.9.8.cnf',
+    owner => 'root'
+  } ->
+  file { '/ror/vpnkeys/bin/openssl-1.0.0.cnf':
+    ensure => 'file',
+    source => '/etc/openvpn/mvmc/easy-rsa/openssl-1.0.0.cnf',
+    owner => 'root'
+  } ->
+  file { '/ror/vpnkeys/bin/openssl-0.9.6.cnf':
+    ensure => 'file',
+    source => '/etc/openvpn/mvmc/easy-rsa/openssl-0.9.6.cnf',
+    owner => 'root'
+  } ->
+  file { '/ror/vpnkeys/bin/openssl.cnf':
+    ensure => 'file',
+    source => '/etc/openvpn/mvmc/easy-rsa/openssl.cnf',
+    owner => 'root'
+  } ->
+  file { '/ror/vpnkeys/bin/pkitool':
+    ensure => 'file',
+    source => '/etc/openvpn/mvmc/easy-rsa/pkitool',
+    owner => 'root'
+  } ->
+  exec { 'chownmodemvpnkeys':
+    command => 'chown -R modem: /rot/vpnkeys',
+    user => 'root'
+  } ->
+  # patch gitlab for auto-confirm users
+  file_line { 'gitlab_users_patch':
+    path => '/opt/gitlab/embedded/service/gitlab-rails/lib/api/users.rb',
+    line => 'user.skip_confirmation!',
+    after => 'user.admin = admin unless admin.nil?'
+  } ->
   # ensure that ror and out folders is on modem owner
   # temporary before git repo will be public
   exec { 'chownmodem':

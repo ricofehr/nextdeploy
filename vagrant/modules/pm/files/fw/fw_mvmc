@@ -31,6 +31,9 @@ do_stop()
         $IPTABLES -P INPUT ACCEPT
         $IPTABLES -P OUTPUT ACCEPT
         $IPTABLES -P FORWARD ACCEPT
+
+        # nat rule for openvpn
+        $IPTABLES -t nat -D POSTROUTING -s 10.0.171.0/24 -d 192.168.0.0/16 -j MASQUERADE
 }
 
 do_start()
@@ -40,7 +43,8 @@ do_start()
 
         $IPTABLES -P INPUT DROP
         $IPTABLES -P OUTPUT DROP
-        $IPTABLES -P FORWARD DROP
+        #for openvpn, accept all forward packet
+        #$IPTABLES -P FORWARD DROP
 
         #localhost
         $IPTABLES -A INPUT -s 127.0.0.1 -j ACCEPT
@@ -95,6 +99,9 @@ do_start()
 
         # Port 123 (NTP)
         $IPTABLES -A OUTPUT -m state --state NEW -p udp --dport 123 -j ACCEPT
+
+        # nat rule for openvpn
+        $IPTABLES -t nat -A POSTROUTING -s 10.0.171.0/24 -d 192.168.0.0/16 -j MASQUERADE
 }
 
 case "$1" in
