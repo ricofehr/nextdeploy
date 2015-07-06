@@ -6,9 +6,18 @@
 # Cmdline xcode tools install
 install_xcode_osx() {
   output -q "CommandLineTools Installation ..."
-  /bin/bash -c 'xcode-select --install'
+  if [[ ! -d /Library/Developer/CommandLineTools ]]; then
+    echo "CommandLineTools Installation ..."
+    /bin/bash -c 'xcode-select --install'
+    #wait install is finish
+    while [[ ! -d /Library/Developer/CommandLineTools ]]; do 
+      echo "wait 5s ...."
+      sleep 5
+    done
+  fi
+    
   sudo /bin/bash -c 'xcode-select -switch /Library/Developer/CommandLineTools'
-  (($?!=0)) && output -e 'Xcode CommandLineTools has failed'
+  (($?!=0)) && echo 'Xcode CommandLineTools has failed'
 }
 
 # brew install
