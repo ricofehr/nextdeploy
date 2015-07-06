@@ -186,7 +186,7 @@ class pm::deploy::nodejs {
     user => 'modem',
     group => 'www-data',
     unless => 'test -f /home/modem/.deploynodejs',
-    environment => ["HOME=/home/modem"],
+    environment => ["HOME=/home/modem", "PORT=3100"],
     cwd => "${docroot}/nodejs",
     timeout => 1800,
     require => [ Service['varnish'], Exec['touchdeploygit'] ]
@@ -209,7 +209,7 @@ class pm::deploy::nodejs {
     onlyif => 'test -f gulpfile.js'
   } ->
   exec { 'pm2start': 
-    command => 'PORT=3100 pm2 start -f app.js',
+    command => 'pm2 start -f app.js',
     onlyif => 'test -f app.js'
   } ->
   exec { 'touchdeploynodejs': 
