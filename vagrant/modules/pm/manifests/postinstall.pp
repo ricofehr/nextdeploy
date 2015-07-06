@@ -33,66 +33,62 @@ class pm::postinstall::mvmc {
   }
   
   # prepare vpnkeys folder
-  file { '/ror/vpnkeys/index.txt':
-    ensure => 'file',
-    source => '/etc/openvpn/mvmc/easy-rsa/keys/index.txt',
-    owner => 'root',
-    require => Class['pm::openvpn']
+  exec { 'copyindextxt':
+    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/index.txt /ror/vpnkeys/index.txt',
+    user => 'root'
   } ->
-  file { '/ror/vpnkeys/serial':
-    ensure => 'file',
-    source => '/etc/openvpn/mvmc/easy-rsa/keys/serial',
-    owner => 'root'
+  exec { 'copyserial':
+    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/serial /ror/vpnkeys/serial',
+    user => 'root'
   } ->
-  file { '/ror/vpnkeys/ca.key':
-    ensure => 'file',
-    source => '/etc/openvpn/mvmc/easy-rsa/keys/ca.key',
-    owner => 'root'
+  exec { 'copycakey':
+    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/ca.key /ror/vpnkeys/ca.key',
+    user => 'root'
   } ->
-  file { '/ror/vpnkeys/ca.crt':
-    ensure => 'file',
-    source => '/etc/openvpn/mvmc/easy-rsa/keys/ca.crt',
-    owner => 'root'
+  exec { 'copycacrt':
+    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/ca.crt /ror/vpnkeys/ca.crt',
+    user => 'root'
   } ->
-  file { '/ror/vpnkeys/bin/whichopensslcnf':
-    ensure => 'file',
-    source => '/etc/openvpn/mvmc/easy-rsa/whichopensslcnf',
-    owner => 'root'
+  exec { 'copywhichopenssl':
+    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/whichopensslcnf /ror/vpnkeys/bin/whichopensslcnf',
+    user => 'root'
   } ->
-  file { '/ror/vpnkeys/bin/openssl-0.9.8.cnf':
-    ensure => 'file',
-    source => '/etc/openvpn/mvmc/easy-rsa/openssl-0.9.8.cnf',
-    owner => 'root'
+  exec { 'copyopenssl098':
+    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/openssl-0.9.8.cnf /ror/vpnkeys/bin/openssl-0.9.8.cnf',
+    user => 'root'
   } ->
-  file { '/ror/vpnkeys/bin/openssl-1.0.0.cnf':
-    ensure => 'file',
-    source => '/etc/openvpn/mvmc/easy-rsa/openssl-1.0.0.cnf',
-    owner => 'root'
+  exec { 'copyopenssl100':
+    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/openssl-1.0.0.cnf /ror/vpnkeys/bin/openssl-1.0.0.cnf',
+    user => 'root'
   } ->
-  file { '/ror/vpnkeys/bin/openssl-0.9.6.cnf':
-    ensure => 'file',
-    source => '/etc/openvpn/mvmc/easy-rsa/openssl-0.9.6.cnf',
-    owner => 'root'
+  exec { 'copyopenssl096':
+    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/openssl-0.9.6.cnf /ror/vpnkeys/bin/openssl-0.9.6.cnf',
+    user => 'root'
   } ->
-  file { '/ror/vpnkeys/bin/openssl.cnf':
-    ensure => 'file',
-    source => '/etc/openvpn/mvmc/easy-rsa/openssl.cnf',
-    owner => 'root'
+  exec { 'copyopenssl':
+    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/openssl.cnf /ror/vpnkeys/bin/openssl.cnf',
+    user => 'root'
   } ->
-  file { '/ror/vpnkeys/bin/pkitool':
-    ensure => 'file',
-    source => '/etc/openvpn/mvmc/easy-rsa/pkitool',
-    owner => 'root'
+  exec { 'copypkitool':
+    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/pkitool /ror/vpnkeys/bin/pkitool',
+    user => 'root'
   } ->
   exec { 'chownmodemvpnkeys':
-    command => 'chown -R modem: /rot/vpnkeys',
+    command => 'chown -R modem: /ror/vpnkeys',
     user => 'root'
   } ->
   # patch gitlab for auto-confirm users
-  file_line { 'gitlab_users_patch':
-    path => '/opt/gitlab/embedded/service/gitlab-rails/lib/api/users.rb',
-    line => 'user.skip_confirmation!',
-    after => 'user.admin = admin unless admin.nil?'
+  file { '/opt/gitlab/embedded/service/gitlab-rails/lib/api/users.rb':
+    ensure => file,
+    source => ['puppet:///modules/pm/gitlab/users.rb'],
+    owner => 'modem',
+    mode => '0664',
+    require => Exec['/usr/bin/gitlab-ctl reconfigure']
+  } ->
+  # restart gitlab
+  exec { 'restartgitalb':
+    command => '/usr/bin/gitlab-ctl restart',
+    user => 'root'
   } ->
   # ensure that ror and out folders is on modem owner
   # temporary before git repo will be public
@@ -151,7 +147,8 @@ class pm::postinstall::mvmc {
   } ->
   exec { 'db-seed':
     command => 'rake db:seed > /out/logdbseed.log 2>&1',
-    timeout => 0
+    timeout => 0,
+    require => Exec['bashdefaultshell']
   } ->
   # puma setting
   file { '/var/run/puma':

@@ -82,4 +82,8 @@ LC_ALL=en_US.UTF-8",
     unless => "test -f /home/modem/.ssh/id_rsa"
   }
 
+  # make bash default shell
+  exec { 'bashdefaultshell':
+    command => 'ln -sf /bin/bash /bin/sh'
+  }
 }
