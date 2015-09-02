@@ -4,28 +4,32 @@
 [submodule "vagrant/modules/cinder"]
 	path = vagrant/modules/cinder
 	url = https://github.com/stackforge/puppet-cinder.git
-	branch = stable/icehouse
+	branch = stable/kilo
 [submodule "vagrant/modules/concat"]
 	path = vagrant/modules/concat
 	url = https://github.com/puppetlabs/puppetlabs-concat.git
 [submodule "vagrant/modules/gitlab"]
 	path = vagrant/modules/gitlab
-	url = https://github.com/spuder/puppet-gitlab.git
+	url = https://github.com/vshn/puppet-gitlab
 [submodule "vagrant/modules/glance"]
 	path = vagrant/modules/glance
 	url = https://github.com/stackforge/puppet-glance.git
-	branch = stable/icehouse
+	branch = stable/kilo
 [submodule "vagrant/modules/horizon"]
 	path = vagrant/modules/horizon
 	url = https://github.com/stackforge/puppet-horizon.git
-	branch = stable/icehouse
+	branch = stable/kilo
+[submodule "vagrant/modules/openstacklib"]
+        path = vagrant/modules/openstacklib
+        url = https://github.com/openstack/puppet-openstacklib.git
+        branch = stable/kilo
 [submodule "vagrant/modules/inifile"]
 	path = vagrant/modules/inifile
 	url = https://github.com/puppetlabs/puppetlabs-inifile.git
 [submodule "vagrant/modules/keystone"]
 	path = vagrant/modules/keystone
 	url = https://github.com/stackforge/puppet-keystone.git
-	branch = stable/icehouse
+	branch = stable/kilo
 [submodule "vagrant/modules/logrotate"]
 	path = vagrant/modules/logrotate
 	url = https://github.com/rodjek/puppet-logrotate.git
@@ -82,7 +86,8 @@
 	url = https://github.com/puppetlabs/puppetlabs-vcsrepo.git
 [submodule "vagrant/modules/vswitch"]
 	path = vagrant/modules/vswitch
-	url = https://github.com/stackforge/puppet-vswitch.git
+        url = https://github.com/openstack/puppet-vswitch.git
+	branch = stable/kilo
 [submodule "vagrant/modules/wget"]
 	path = vagrant/modules/wget
 	url = https://github.com/maestrodev/puppet-wget.git
@@ -92,17 +97,20 @@
 [submodule "vagrant/modules/neutron"]
 	path = vagrant/modules/neutron
 	url = https://github.com/stackforge/puppet-neutron.git
-	branch = stable/icehouse
+	branch = stable/kilo
 [submodule "vagrant/modules/nova"]
 	path = vagrant/modules/nova
 	url = https://github.com/stackforge/puppet-nova.git
-	branch = stable/icehouse
+	branch = stable/kilo
 [submodule "vagrant/modules/java"]
 	path = vagrant/modules/java
 	url = https://github.com/puppetlabs/puppetlabs-java.git
 [submodule "vagrant/modules/zypprepo"]
 	path = vagrant/modules/zypprepo
 	url = https://github.com/deadpoint/puppet-zypprepo.git
+[submodule "vagrant/modules/gnupg"]
+	path = vagrant/modules/gnupg
+	url = https://github.com/n1tr0g/golja-gnupg.git
 [submodule "puppet/apache"]
 	path = puppet/apache
 	url = https://github.com/puppetlabs/puppetlabs-apache

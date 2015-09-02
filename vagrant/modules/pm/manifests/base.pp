@@ -8,11 +8,24 @@
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::base::apt {
-    include apt
+  class { '::apt': }
 
+  exec { 'ubuntu-cloud-keyring':
+    command => '/usr/bin/apt-get install --yes --force-yes ubuntu-cloud-keyring',
+    environment => 'DEBIAN_FRONTEND=noninteractive'
+  } ->  
+  file { '/etc/apt/sources.list.d/cloudarchive-kilo.list':
+    ensure => file,
+    content => "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/kilo main"
+  } ->
   exec { "apt-update":
     command => "/usr/bin/apt-get update",
     timeout => 1800
+  } ->
+  exec { "apt-upgrade":
+    command => '/usr/bin/apt-get dist-upgrade --yes --force-yes',
+    timeout => 1800,
+    environment => 'DEBIAN_FRONTEND=noninteractive'
   }
 
   Class['pm::base::apt'] -> Package<| |>

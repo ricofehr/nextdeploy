@@ -44,11 +44,12 @@ module Apiexternal
                       flavorRef: flav_id,
                       networks: [{ port: port_uuid }],
                       security_groups: [{ name: "default" }],
-                      key_name: ssh_key,
                       user_data: user_data
                    }
                }
 
+      # add key_name parameter if ssh key is associated to current user
+      boot_req[:server][:key_name] = ssh_key unless ssh_key.nil? || ssh_key.empty? 
 
       response = @conn[:nova].post do |req|
         req.url "/v2/#{@tenant}/servers"
@@ -56,7 +57,7 @@ module Apiexternal
         req.body = boot_req.to_json
       end
 
-      raise Exceptions::OSApiException.new("boot new vm failed, error code: #{response.status}, #{response.body}") if response.status != 202
+      raise Exceptions::OSApiException.new("boot new vm failed, error code: #{response.status}, #{response.body}, #{boot_req.to_json}") if response.status != 202
 
       #get nova_id value
       nova_id = json(response.body)[:server][:id]

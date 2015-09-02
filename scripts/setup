@@ -70,6 +70,10 @@ install_submodules() {
 
 # Make ruby install
 install_ruby() {
+  # test if rvm and ruby are already installed
+  rvm gemset list 2>/dev/null | grep rails41 >/dev/null
+  (($?==0)) && return
+
   output -q 'Ruby Installation ...'
   curl -sSL https://get.rvm.io | bash
   (($?!=0)) && output -e 'Rvm installation has failed'
@@ -269,7 +273,7 @@ start_vms() {
 
   output -q "Creating openstack controller vm, please wait a moment..."
   vagrant up --provider=${hvisor}
-  (($?!=0)) && output -w 'Controller creation has some error(s)'
+  (($?!=0)) && output -e 'Controller creation has failed'
   output -q "Openstack controller is up"
 
   output -q "Creating openstack neutron (network node) vm, please wait a moment..."

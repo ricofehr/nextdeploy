@@ -23,7 +23,7 @@ class pm::os::memcached_c {
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::os::keystone {
-  class { '::keystone::params': }
+  #class { '::keystone::params': }
 
   class { '::keystone':
     require => [ Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
@@ -37,7 +37,7 @@ class pm::os::keystone {
   create_resources('keystone_role', hiera('keystone_role', []))
   create_resources('keystone_user_role', hiera('keystone_user_role', []))
   create_resources('keystone_service', hiera('keystone_service', []))
-  create_resources('keystone_endpoint', hiera('keystone_endpoint', [])) 
+  create_resources('keystone_endpoint', hiera('keystone_endpoint', []))
 }
 
 
@@ -59,7 +59,7 @@ class pm::os::nv_c {
 
   class { '::nova::api': }
 
-  class { '::nova::vncproxy': }
+  #class { '::nova::vncproxy': }
 
   class { '::nova::network::neutron':
     require => [ File['/etc/hosts'] ],
@@ -91,14 +91,14 @@ class pm::os::nv {
       path => '/usr/bin:/usr/sbin:/bin:/sbin',
       user => 'root'
   }
- 
+
   ::sysctl::value { 'net.ipv4.conf.all.rp_filter':
     value     => '0',
   }
 
   ::sysctl::value { 'net.ipv4.conf.default.rp_filter':
     value     => '0',
-  } 
+  }
 
   class { '::keystone':
     require => [ File['/etc/hosts'] ],
@@ -122,7 +122,7 @@ class pm::os::nv {
   class { '::nova':
     require => [ File['/etc/hosts'] ],
   }
-  
+
   nova_config { 'DEFAULT/default_floating_pool': value => 'public' }
 
   class { '::nova::compute':
@@ -201,7 +201,7 @@ class pm::os::nv_postinstall {
   } ->
   exec { 'nova-recreate-small':
     command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 flavor-create m1.small 2 1024 15 2',
-  } 
+  }
 }
 
 
@@ -217,13 +217,21 @@ class pm::os::nv_postinstall {
 class pm::os::gl {
   class { '::glance::api':
     require => [ File['/etc/hosts'] ],
+  } ->
+  exec { 'waitglance':
+    command => '/bin/sleep 10'
   }
 
   class { '::glance::registry':
     require => [ File['/etc/hosts'] ],
+  } ->
+  exec { 'waitglance2':
+    command => '/bin/sleep 10'
   }
 
-  class { '::glance::backend::file': }
+  class { '::glance::backend::file':
+    require => [ File['/etc/hosts'] ],
+  }
 
   class { '::glance::notify::rabbitmq':
     require => [ File['/etc/hosts'] ],
@@ -267,16 +275,16 @@ class pm::os::nt_c {
       path => '/usr/bin:/usr/sbin:/bin:/sbin',
   }
 
-  file_line { 'database_ml2_step1':
-    path => '/etc/neutron/plugin.ini',
-    line => '[database]'
-  } ->
-  file_line { 'database_ml2_step2':
-    path => '/etc/neutron/plugin.ini',
-    line => 'connection = mysql://neutron:osneutron@controller-m/neutrondb?charset=utf8'
-  }
+  #file_line { 'database_ml2_step1':
+  #  path => '/etc/neutron/plugin.ini',
+  #  line => '[database]'
+  #} ->
+  #file_line { 'database_ml2_step2':
+  #  path => '/etc/neutron/plugin.ini',
+  #  line => 'connection = mysql://neutron:osneutron@controller-m/neutrondb?charset=utf8'
+  #}
 
-  File_line['database_ml2_step2'] -> Exec['neutron-db-sync']
+  #File_line['database_ml2_step2'] -> Exec['neutron-db-sync']
 }
 
 
@@ -298,15 +306,15 @@ class pm::os::nt {
   $ext_dev = hiera('externaldev', 'eth0')
   $gateway_ip = hiera('gateway_ip', '')
   $masquerade_dev = hiera('masqdev', 'eth0')
-  
+
   ::sysctl::value { 'net.ipv4.ip_forward':
     value     => '1',
   }
-  
+
   ::sysctl::value { 'net.ipv4.conf.all.rp_filter':
     value     => '0',
   }
-  
+
   ::sysctl::value { 'net.ipv4.conf.default.rp_filter':
     value     => '0',
   }
@@ -329,8 +337,8 @@ class pm::os::nt {
     require => [ File['/etc/hosts'] ],
   }
 
-  class { '::neutron::agents::ml2::ovs': } 
-  
+  class { '::neutron::agents::ml2::ovs': }
+
   class  { '::neutron::plugins::ml2': }
 
   ## Router service installation
@@ -342,9 +350,9 @@ class pm::os::nt {
     require => [ File['/etc/hosts'] ],
   }
 
-  class { '::neutron::agents::lbaas': }
+  #class { '::neutron::agents::lbaas': }
 
-  class { '::neutron::agents::vpnaas': }
+  #class { '::neutron::agents::vpnaas': }
 
   class { '::neutron::agents::metering': }
 
@@ -353,7 +361,7 @@ class pm::os::nt {
   exec { 'gro-off':
     command => "ethtool -K ${ext_dev} gro off",
     path => '/usr/bin:/usr/sbin:/bin:/sbin',
-  } 
+  }
 
   create_resources('vs_bridge', hiera('vs_bridge', []))
   create_resources('vs_port', hiera('vs_port', []))
@@ -370,7 +378,7 @@ class pm::os::nt {
   exec { 'ethtobr':
     command => "/root/./ethtobr.sh ${ext_dev}"
   } ->
-  exec { 'ipt':  
+  exec { 'ipt':
     command => "iptables -t nat -A POSTROUTING -o ${masquerade_dev} -j MASQUERADE",
   } ->
   file { '/etc/rc.local':
@@ -378,7 +386,7 @@ class pm::os::nt {
 /root/./ethtobr.sh ${ext_dev}
 iptables -t nat -A POSTROUTING -o ${masquerade_dev} -j MASQUERADE
 exit 0"
-  } 
+  }
 }
 
 
@@ -442,7 +450,9 @@ class pm::os::cder {
     require => [ File['/etc/hosts'] ],
   }
 
-  class { '::cinder::glance': }
+  class { '::cinder::glance':
+    require => [ File['/etc/hosts'] ],
+  }
 
   class { '::cinder::setup_test_volume': } ->
 

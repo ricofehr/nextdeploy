@@ -83,7 +83,7 @@ class pm::postinstall::mvmc {
     source => ['puppet:///modules/pm/gitlab/users.rb'],
     owner => 'modem',
     mode => '0664',
-    require => Exec['/usr/bin/gitlab-ctl reconfigure']
+    require => Exec['gitlab_reconfigure']
   } ->
   # restart gitlab
   exec { 'restartgitalb':
@@ -169,28 +169,28 @@ class pm::postinstall::mvmc {
     mode => '0700'
   } ->
   # Nginx settings
-  file { '/var/opt/gitlab/nginx/etc/os-http.conf':
+  file { '/var/opt/gitlab/nginx/conf/os-http.conf':
     ensure =>  file,
     source => ['puppet:///modules/pm/nginx/os-http.conf'], 
     owner => 'root'
   } ->
-  file { '/var/opt/gitlab/nginx/etc/os-doc.conf':
+  file { '/var/opt/gitlab/nginx/conf/os-doc.conf':
     ensure =>  file,
     source => ['puppet:///modules/pm/nginx/os-doc.conf'], 
     owner => 'root'
   } ->
   file_line { 'os-http':
-    path => '/var/opt/gitlab/nginx/etc/nginx.conf',
-    line => 'include /var/opt/gitlab/nginx/etc/os-http.conf;',
-    after => 'include /var/opt/gitlab/nginx/etc/gitlab-http.conf;'
+    path => '/var/opt/gitlab/nginx/conf/nginx.conf',
+    line => 'include /var/opt/gitlab/nginx/conf/os-http.conf;',
+    after => 'include /var/opt/gitlab/nginx/conf/gitlab-http.conf;'
   } ->
   file_line { 'os-doc':
-    path => '/var/opt/gitlab/nginx/etc/nginx.conf',
-    line => 'include /var/opt/gitlab/nginx/etc/os-doc.conf;',
-    after => 'include /var/opt/gitlab/nginx/etc/gitlab-http.conf;'
+    path => '/var/opt/gitlab/nginx/conf/nginx.conf',
+    line => 'include /var/opt/gitlab/nginx/conf/os-doc.conf;',
+    after => 'include /var/opt/gitlab/nginx/conf/gitlab-http.conf;'
   } ->
   exec { 'restart_nginx2':
-    command => '/opt/gitlab/embedded/sbin/nginx -c /var/opt/gitlab/nginx/etc/nginx.conf -s reload',
+    command => '/opt/gitlab/embedded/sbin/nginx -c /var/opt/gitlab/nginx/conf/nginx.conf -p /var/opt/gitlab/nginx/ -s reload',
    user => 'root'
   }
   #exec { 'restart_nginx2':
