@@ -29,22 +29,31 @@ jenkins::port: 9292
 #jenkins::repo: false
 
 # gitlab parameters
-gitlab::ensure: present
-gitlab::git_email: 'usera@mvmc-openstack.local'
-gitlab::gitlab_branch: '7.2.1'
+gitlab::ensure: installed
+#gitlab::git_email: 'usera@mvmc-openstack.local'
+#gitlab::gitlab_branch: '7.14.1'
 gitlab::gitlab_http_port: '8181'
 gitlab::gitlab_ssl_port: '8282'
 gitlab::external_url: 'http://gitlab.local'
-gitlab::params::gitlab_dbtype: 'mysql'
-gitlab::params::gitlab_dbname: 's_gitlab'
-gitlab::params::gitlab_dbuser: 's_gitlab'
-gitlab::params::gitlab_dbpwd: 's_gitlab'
-gitlab::params::gitlab_dbhost: 'localhost'
-gitlab::puppet_manage_config: true
-gitlab::puppet_manage_backups:  true
-gitlab::puppet_manage_packages: true
-gitlab::gitlab_release: basic
-gitlab::server_name: gitlab.local
+gitlab::gitlab_rails:
+  time_zone: 'UTC'
+  gitlab_email_enabled: false
+  gitlab_default_theme: 4
+  gitlab_email_display_name: 'Gitlab'
+gitlab::sidekiq:
+  shutdown_timeout: 5
+
+#gitlab::gitlab_download_link: 'https://packages.gitlab.com/gitlab/gitlab-ce/packages/ubuntu/trusty/gitlab-ce_7.14.1-ce.0_amd64.deb/download.deb'
+#gitlab::params::gitlab_dbtype: 'mysql'
+#gitlab::params::gitlab_dbname: 's_gitlab'
+#gitlab::params::gitlab_dbuser: 's_gitlab'
+#gitlab::params::gitlab_dbpwd: 's_gitlab'
+#gitlab::params::gitlab_dbhost: 'localhost'
+#gitlab::puppet_manage_config: true
+#gitlab::puppet_manage_backups:  true
+#gitlab::puppet_manage_packages: true
+#gitlab::gitlab_release: basic
+#gitlab::server_name: gitlab.local
 
 vpnserver:
   mvmc:

@@ -5,21 +5,27 @@ classes:
 
 #glance classes
 glance::api::verbose: true
-glance::api::auth_host: 'keystone-m'
 glance::api::keystone_tenant: 'services'
 glance::api::keystone_user: 'glance'
 glance::api::keystone_password: 'osglance'
-glance::api::registry_host: 'glance-a'
+glance::api::registry_host: 'glance-m'
 glance::api::database_connection: 'mysql://glance:osglance@controller-m/glancedb'
-glance::api::mysql_module: '2.2'
+glance::api::auth_uri: 'http://keystone-m:5000/v2.0/'
+glance::api::identity_uri: 'http://keystone-m:35357'
+glance::api::rabbit_host: 'controller-m'
+glance::api::rabbit_user: 'osuser'
+glance::api::rabbit_password: 'useros'
 
 glance::registry::verbose: true
-glance::registry::auth_host: 'keystone-m'
+glance::registry::auth_uri: 'http://keystone-m:5000/v2.0/'
+glance::registry::identity_uri: 'http://keystone-m:35357'
 glance::registry::keystone_tenant: 'services'
 glance::registry::keystone_user: 'glance'
 glance::registry::keystone_password: 'osglance'
 glance::registry::database_connection: 'mysql://glance:osglance@controller-m/glancedb'
-glance::registry::mysql_module: '2.2'
+glance::registry::rabbit_host: 'controller-m'
+glance::registry::rabbit_user: 'osuser'
+glance::registry::rabbit_password: 'useros'
 
 glance::notify::rabbitmq::rabbit_password: 'useros'
 glance::notify::rabbitmq::rabbit_userid: 'osuser'
@@ -53,7 +59,6 @@ keystone::enabled: false
 keystone::verbose: false
 keystone::catalog_type: 'sql'
 keystone::admin_bind_host: '172.16.170.70'
-keystone::mysql_module: '2.2'
 keystone::admin_token: 'token123'
 keystone::database_connection: 'mysql://keystone:oskeystone@controller-m/keystonedb'
 
@@ -63,19 +68,12 @@ cinder::rabbit_userid: 'osuser'
 cinder::rabbit_password: 'useros'
 cinder::rabbit_host: 'controller-m'
 cinder::verbose: true
-cinder::mysql_module: '2.2'
-
-cinder::glance::glance_api_servers: 'cinder-a:9292'
-
+cinder::glance::glance_api_servers: 'glance-a:9292'
 cinder::setup_test_volume::volume_name: 'cinder-volumes'
 cinder::setup_test_volume::size: '30G'
-
 cinder::volume::package_ensure: true
 cinder::volume::enabled: true
-
 cinder::volume::iscsi::iscsi_ip_address: 'cinder-m'
 cinder::volume::iscsi::volume_group: 'cinder-volumes'
-
-
 
 is_cron: "no"

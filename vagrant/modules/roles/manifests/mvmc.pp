@@ -10,16 +10,18 @@
 class roles::mvmc {
   class {'pm::base::apt':} ->
   class {'pm::base':} ->
+  class {'pm::hosts':} ->
+  class {'pm::gitlab7':} ->
+  class {'pm::ror':} ->
   class {'pm::puppet':} ->
   class {'pm::sql':} ->
   class {'pm::phpcli':} ->
-  class {'pm::ror':} ->
-  class {'pm::gitlab7':}
-  class {'pm::hosts':} ->
   class {'pm::osclient':} ->
   class {'pm::dnsmasq':} ->
   class {'pm::openvpn':} ->
   class {'pm::postinstall::mvmc':} ->
   class {'pm::cron':} ->
   class {'pm::fw':}
+
+  Class['::gitlab'] -> Class['::rvm']
 }

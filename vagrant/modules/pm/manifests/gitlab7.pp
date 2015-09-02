@@ -13,12 +13,12 @@ class pm::gitlab7 {
   class { 'gitlab': }
   ->
   file_line { 'gitlab_servername':
-    path => '/var/opt/gitlab/nginx/etc/gitlab-http.conf',
+    path => '/var/opt/gitlab/nginx/conf/gitlab-http.conf',
     line => "server_name ${server_name};",
     match => '.*server_name.*'
   } ->
   exec { 'restart_nginx':
-    command => '/opt/gitlab/embedded/sbin/nginx -c /var/opt/gitlab/nginx/etc/nginx.conf -s reload',
+    command => '/opt/gitlab/embedded/sbin/nginx -c /var/opt/gitlab/nginx/conf/nginx.conf -p /var/opt/gitlab/nginx/ -s reload', 
     user => 'root'
   }
 }

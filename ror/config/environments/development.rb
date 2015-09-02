@@ -53,7 +53,7 @@ Rails.application.configure do
   config.gitlab_token = ''
   config.gitlab_rootpath = '/var/opt/gitlab/git-data/repositories/root'
   config.project_initpath = '/home/modem/www'
-  config.limit_vm = 2
+  config.limit_vm = 6
 
   config.os_suffix = ".os.mvmc"
   config.os_endpoint = 'http://controller-m:35357'

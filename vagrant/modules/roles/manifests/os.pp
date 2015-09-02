@@ -22,6 +22,8 @@ class roles::os::uosc {
   class {'pm::os::hz':} ->
   class {'pm::cron':} ->
   class {'pm::fw':}
+
+  Class['pm::base::apt'] -> Class['::rabbitmq']
 }
 
 
@@ -81,8 +83,8 @@ class roles::os::uosst {
   class {'pm::base':} ->
   class {'pm::hosts':} ->
   class {'pm::osclient':} ->
-  class {'pm::os::gl':} ->
   class {'pm::os::cder':} ->
+  class {'pm::os::gl':} ->
   class {'pm::cron':} ->
   class {'pm::fw':}
 }
