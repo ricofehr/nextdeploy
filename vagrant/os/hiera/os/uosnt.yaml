@@ -7,7 +7,7 @@ classes:
 externaldev: eth2
 
 # gateway ip for public network
-gateway_ip: '192.168.171.10'
+gateway_ip: "%{hiera('global::pubprefix')}.10"
 
 # masquerade dev
 masqdev: eth0
@@ -98,17 +98,17 @@ neutron_network:
     shared: true
 
 neutron_subnet:
-  '192.168.171.0/24':
-    cidr: '192.168.171.0/24'
+  "%{hiera('global::pubprefix')}.0/24":
+    cidr: "%{hiera('global::pubprefix')}.0/24"
     ip_version: '4'
-    gateway_ip: '192.168.171.10'
+    gateway_ip: "%{hiera('global::pubprefix')}.10"
     enable_dhcp: false
     network_name: 'public'
     tenant_name: 'services'
     allocation_pools:
-      - 'start=192.168.171.80,end=192.168.171.254'
+      - "start=%{hiera('global::pubprefix')}.80,end=%{hiera('global::pubprefix')}.254"
     dns_nameservers:
-      - '192.168.171.60'
+      - "%{hiera('global::pubprefix')}.60"
   '10.0.170.0/24':
     cidr: '10.0.170.0/24'
     ip_version: '4'
@@ -116,7 +116,7 @@ neutron_subnet:
     network_name: 'private'
     tenant_name: 'tenant0'
     dns_nameservers:
-      - '192.168.171.60'
+      - "%{hiera('global::pubprefix')}.60"
 
 neutron_router:
   tenant0:

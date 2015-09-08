@@ -50,7 +50,7 @@ prerequisites() {
   cp vagrant/os/hiera/os/uos* tmp/remote/
   cp vagrant/mvmc/hiera/mvmc/mvmc* tmp/remote/
   cp vagrant/modules/pm/files/hosts/* tmp/remote/
-  
+
   # change private subnet into remote yaml
   ${BINSED} -i "s/192\.168\.170/192.168.70/g;s/192\.168\.171/192.168.71/g" tmp/remote/*
   ${BINSED} -i "s/172\.16\.170/172.16.70/g;s/172\.16\.171/172.16.71/g" tmp/remote/*
@@ -71,7 +71,7 @@ remote_puppet() {
   # add extra line into hosts file
   hosts=(tmp/remote/hosts*)
   for host in "${hosts[@]}"; do echo "${PUPPETIP} ${PUPPETFQDN}" >> ${host}; done
-  
+
   output -q 'Working on remote puppet master'
   # install puppetmaster if we are on debian / ubuntu
   ssh root@${PUPPETIP} '[[ -x /etc/debian_version ]] && apt-get install puppetmaster'
@@ -450,7 +450,7 @@ EOF
 
   output -q -l 'The global cloud subdomain (common endpoint, for example cloud.example.com and we ll have soms urls like vm01.cloud.example.com, vm02.cloud.example.com, ...) ?'
   read suffix
-  
+
   output -q -l "The endpoint for mvmc manager webui (default value is mvmc.${suffix}) ?"
   read mvmcurl
   [[ -z "$mvmcurl" ]] && mvmcurl="mvmc.${suffix}"
@@ -519,7 +519,7 @@ EOF
 
   # rsync rails app (git clone on remote server should be better)
   rsync -avzPessh tmp/remote/production.rb root@${remote_ip}:/ror/config/environments/
-  
+
   # allow puppet to start
   ssh root@${remote_ip} '[[ -f /etc/default/puppet ]] && sed -i "s;START=no;START=yes;" /etc/default/puppet'
 
@@ -534,14 +534,14 @@ EOF
   rsync -avzPessh tmp/remote/os-http.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx/
   rsync -avzPessh tmp/remote/os-doc.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx/
   rsync -avzPessh tmp/remote/puma.sh root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
-  
+
   # enable puppet on the remote node and validate on puppetmaster
   ssh root@${remote_ip} 'puppet agent --test'
   sleep 3
   ssh root@${PUPPETIP} 'puppet cert sign --all'
   ssh root@${remote_ip} 'service puppet agent --enable'
   ssh root@${remote_ip} 'service puppet restart'
-  
+
   output -q -l "Verify on mvmc manager node that the installation begins."
   confirm "Continue ?"
 }

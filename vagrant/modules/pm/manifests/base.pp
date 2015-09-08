@@ -13,7 +13,7 @@ class pm::base::apt {
   exec { 'ubuntu-cloud-keyring':
     command => '/usr/bin/apt-get install --yes --force-yes ubuntu-cloud-keyring',
     environment => 'DEBIAN_FRONTEND=noninteractive'
-  } ->  
+  } ->
   file { '/etc/apt/sources.list.d/cloudarchive-kilo.list':
     ensure => file,
     content => "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/kilo main"
@@ -84,11 +84,11 @@ LC_ALL=en_US.UTF-8",
 
   #ntp class
   include ntp
- 
+
   exec { 'user-modem':
     command => 'useradd -s /bin/bash -d /home/modem -m modem',
     unless => 'test -d /home/modem'
-  } -> 
+  } ->
   exec { "rsa-modem":
     command => "ssh-keygen -f /home/modem/.ssh/id_rsa -P ''",
     user => 'modem',

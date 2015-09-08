@@ -29,7 +29,7 @@ backend nodejs { # Define one backend
   .max_connections = 300; # That's it
   .first_byte_timeout     = 300s;   # How long to wait before we receive a first byte from our backend?
   .connect_timeout        = 5s;     # How long to wait for a backend connection?
-  .between_bytes_timeout  = 2s;     
+  .between_bytes_timeout  = 2s;
 }
 
 acl purge {

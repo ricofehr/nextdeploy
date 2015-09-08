@@ -21,7 +21,7 @@ module API
           respond_to do |format|
             format.json { render json: resource, status: 200 }
           end
-          
+
           return
         end
 

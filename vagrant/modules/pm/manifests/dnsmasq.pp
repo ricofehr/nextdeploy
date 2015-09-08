@@ -9,9 +9,9 @@
 #
 class pm::dnsmasq {
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ] }
-  
+
   package { [
-          'dnsmasq', 
+          'dnsmasq',
           ]:
           ensure => installed
           } ->

@@ -35,7 +35,7 @@ class ApplicationController < ActionController::Base
     if ! @user
       raise Exceptions::GitlabApiException.new("Access forbidden for this user")
     end
-    
+
     return true if @user.admin?
     params[:user_id] = @user.id
   end

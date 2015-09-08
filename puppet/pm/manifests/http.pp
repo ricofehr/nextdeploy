@@ -16,8 +16,8 @@ class pm::http {
     default_vhost => false,
     mpm_module => 'prefork',
     service_ensure => true
-  } 
-  
+  }
+
   file { '/etc/apache2/mime.types':
    ensure => 'link',
    target => '/etc/mime.types',
@@ -86,7 +86,7 @@ Disallow: /'
   package { [ 'php-pear', 'php5-dev']:
     ensure => installed,
   }
-  
+
   #install mongo extension only if mongo is part of the project
   $is_mongo = hiera("is_mongo", "no")
   if $is_cron == "yes" {
@@ -112,8 +112,8 @@ Disallow: /'
   }
 
   php::module { [ 'mysql', 'redis', 'memcached', 'gd', 'curl', 'intl', 'mcrypt' ]: }
-  
-  
+
+
   #php::module::ini { 'apc':
   #  settings => {
   #    'apc.enabled'      => '1',

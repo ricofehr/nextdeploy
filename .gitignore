@@ -14,8 +14,9 @@
 # Ignore nohup file
 nohup.out
 
-# Ignore production setting file
+# Ignore setting file
 /ror/config/environments/production.rb
+/ror/config/environments/development.rb
 
 # Ignore sshkeys symlink
 /puppet/pm/files/sshkeys
@@ -49,10 +50,12 @@ nohup.out
 !/ror/hiera/hiera.yaml
 !/ror/hiera/global.yaml
 
-# Ignore symbolic links generated
+# Ignore template file generated
 /vagrant/os/hiera/uos*.yaml
+/vagrant/os/hiera/global.yaml
 /vagrant/os/Vagrantfile
 /vagrant/mvmc/hiera/mvmc*.yaml
+/vagrant/mvmc/hiera/global.yaml
 /vagrant/mvmc/Vagrantfile
 
 # Ignore sshkeys

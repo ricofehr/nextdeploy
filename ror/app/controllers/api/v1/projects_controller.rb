@@ -68,7 +68,7 @@ module API
       # Create a new project object
       def create
         @project = Project.new(project_params)
-        
+
         # Json output
         respond_to do |format|
           if @project.save

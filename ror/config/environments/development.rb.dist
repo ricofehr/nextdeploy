@@ -41,21 +41,20 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
-  config.gitlab_endpoint       = 'http://gitlab.local/api/v3' # API endpoint URL, default: ENV['GITLAB_API_ENDPOINT']
-  config.gitlab_endpoint0       = 'http://gitlab.local' # API endpoint URL, default: ENV['GITLAB_API_ENDPOINT']
+  config.gitlab_endpoint       = 'http://%%GITLABURI%%/api/v3' # API endpoint URL, default: ENV['GITLAB_API_ENDPOINT']
+  config.gitlab_endpoint0       = 'http://%%GITLABURI%%' # API endpoint URL, default: ENV['GITLAB_API_ENDPOINT']
   config.gitlab_prefix       = 'git@mvmc:root/'
-  config.mvmcip = '192.168.171.60'
-  config.ovpnip = '192.168.171.60'
+  config.mvmcip = '%%PUBPREFIX%%.60'
+  config.ovpnip = '%%PUBPREFIX%%.60'
+  config.mvmcuri = '%%MVMCURI%%'
   config.ovpnport = '1194'
 
-  #config.private_token  = JSON.parse(response.body, symbolize_names: true)[:private_token]
-  #config.gitlab_private_token = '1hA4vmgtUezjKSbAcyxF'
   config.gitlab_token = ''
   config.gitlab_rootpath = '/var/opt/gitlab/git-data/repositories/root'
   config.project_initpath = '/home/modem/www'
   config.limit_vm = 6
 
-  config.os_suffix = ".os.mvmc"
+  config.os_suffix = ".%%MVMCSUF%%"
   config.os_endpoint = 'http://controller-m:35357'
 
   config.os_endpoint_neutron = 'http://controller-a:9696'

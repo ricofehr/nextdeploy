@@ -24,7 +24,7 @@ The REST api can be reached with 3 different ways
 ## Folders
 
 * /client The Ruby client for exchange with the rest api thanks to commandline
-* /out Some logs, specially during the setup of the platform 
+* /out Some logs, specially during the setup of the platform
 * /puppet Installation templates for the vms into the cloud. Customs class are included into puppet/pm folder, others are taken from puppetforge catalog.
 * /ror The rails application who serves the rest api. The Webui developped on EmberJs is included into /ror/public folder.
 * /scripts Some jobs for setup completely the project in local workstation, start or stop mvmc
@@ -32,9 +32,9 @@ The REST api can be reached with 3 different ways
 * /vagrant Definitions for create the 4 openstack nodes and the manager node
 
 ## Submodules and Clone
-The cli application (client folder) and the puppet modules of the community are included in the project in the form of Submodules git. 
+The cli application (client folder) and the puppet modules of the community are included in the project in the form of Submodules git.
 
-To retrieve, use this clone cmd. 
+To retrieve, use this clone cmd.
 ```
 git clone --recursive git@github.com:ricofehr/mvmc
 ```
@@ -51,7 +51,7 @@ For the installation of the project on the computer for testing or development
 ./scripts/./setup
 ```
 
-Installation requires a large amount of RAM, a computer with 8GB of RAM minimum is required. Indeed, the OpenStack cloud is then implemented using vagrant through the creation of four virtual machines (controller, neutron, glance, nova) and another virtual machine is created to launch the rest app and hosts the gitlab and templates puppet installation. The script requires "curl" and "sudo" as a prerequisite. 
+Installation requires a large amount of RAM, a computer with 8GB of RAM minimum is required. Indeed, the OpenStack cloud is then implemented using vagrant through the creation of four virtual machines (controller, neutron, glance, nova) and another virtual machine is created to launch the rest app and hosts the gitlab and templates puppet installation. The script requires "curl" and "sudo" as a prerequisite.
 
 The setup script has been tested on mac os x and debian. The hypervisor for mvmc installation is virtualbox (mac osx) or kvm (debian, ubuntu, fedora). Knowing that the performance of virtual machines deployed on OpenStack will be much better if mvmc is virtualized through kvm. Indeed, kvm can then itself be used as a hypervisor-level cloud. Otherwise (mvmc installation on virtualbox on macosx), it uses qemu.
 
@@ -167,7 +167,7 @@ cancel_api_v1_user_registration GET    /api/v1/users/cancel
 
 ## CommandLine Client
 
-A client developed in Ruby allows communication with the rest api via the command line. 
+A client developed in Ruby allows communication with the rest api via the command line.
 A small configuration file is related to the script and must contain the email / password of the user.
 An example of /etc/mvmc.conf
 ```
@@ -190,7 +190,7 @@ The git repository for cli application: https://github.com/ricofehr/mvmc-cli
 
 ## Ember
 
-The Web Gui is developed with Ember framework. 
+The Web Gui is developed with Ember framework.
 The Ember stack is localised in rails standard location, into public folder.
 From this publics folder, we find MVC classes respectively into models / templates / controllers folders.
 For generate application.js

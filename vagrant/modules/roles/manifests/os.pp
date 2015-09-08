@@ -15,7 +15,7 @@ class roles::os::uosc {
   class {'pm::os::memcached_c':} ->
   class {'pm::hosts':} ->
   class {'pm::osclient':} ->
-  class {'pm::os::keystone':} -> 
+  class {'pm::os::keystone':} ->
   class {'pm::os::nv_c':} ->
   class {'pm::os::nt_c':} ->
   class {'pm::os::cder_c':} ->

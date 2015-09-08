@@ -9,7 +9,7 @@
 #
 class pm::osclient {
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ] }
-  
+
   class {'nova::client':}
   class {'neutron::client':}
   class {'glance::client':}
@@ -18,7 +18,7 @@ class pm::osclient {
   file { '/root/admin-openrc.sh':
     ensure => file,
     source => [ "puppet:///modules/pm/osenv/admin-openrc.sh" ],
-    require => [ 
+    require => [
       Class['nova::client'],
       Class['neutron::client'],
       Class['glance::client'],
@@ -50,5 +50,5 @@ class pm::osclient {
     ensure => file,
     source => [ "puppet:///modules/pm/osenv/cinder-openrc.sh" ]
   }
-  
+
 }

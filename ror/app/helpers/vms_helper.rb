@@ -18,7 +18,7 @@ module VmsHelper
     templates = Array.new
     technos = project.technos
     technos = technos.sort_by {|t| t.ordering}
-    
+
     #add base puppet class
     classes << '  - pm::base::apt'
     classes << '  - pm::base'
@@ -33,23 +33,23 @@ module VmsHelper
       templates << template
     }
     classes << "  - #{project.framework.puppetclass}" if project.framework.puppetclass && project.framework.puppetclass.length > 0
-    classes << "  - pm::deploy::nodejs" if project.technos.any? { |t| t.name == 'nodejs' } 
+    classes << "  - pm::deploy::nodejs" if project.technos.any? { |t| t.name == 'nodejs' }
     classes << '  - pm::deploy::postinstall'
-    
+
     begin
       open("hiera/#{self.name}#{Rails.application.config.os_suffix}.yaml", "w") { |f|
         f.puts "---\n\nclasses:\n"
         f.puts classes.join("\n")
         f.puts templates.join("\n")
         if systemimage.name == "Debian8"
-          f.puts "varnish_version: 4\n" 
+          f.puts "varnish_version: 4\n"
           if project.login && project.login.length > 0
             f.puts 'varnish_auth: "if (! req.http.Authorization ~ \"Basic ' + Base64.strict_encode64(project.login + ":" + project.password) +'\") { return (synth(401, \"Error 401\")) ;}"' + "\n"
           end
         elsif project.login && project.login.length > 0
           f.puts 'varnish_auth: "if (! req.http.Authorization ~ \"Basic ' + Base64.strict_encode64(project.login + ":" + project.password) +'\") { error 401 ;}"' + "\n"
         end
-  
+
         f.puts "commit: #{commit.commit_hash}\n"
         f.puts "branch: #{commit.branche.name}\n"
         f.puts "gitpath: #{Rails.application.config.gitlab_prefix}#{project.gitpath}\n"
@@ -72,12 +72,13 @@ module VmsHelper
     #vhost = project.prefix_dns_s.first.URI
     template = "cloudinit/pattern_linux.yaml"
     vm_replace = self.name
-    
+
     begin
       pattern = IO.read(template)
       pattern.gsub!('%{vmreplace}', vm_replace)
       pattern.gsub!('%{os_suffix}',Rails.application.config.os_suffix)
       pattern.gsub!('%{mvmcip}',Rails.application.config.mvmcip)
+      pattern.gsub!('%{mvmcuri}',Rails.application.config.mvmcuri)
       # ft = File.open(template, "rb")
       # pattern = ft.read
       # ft.close()
@@ -134,7 +135,7 @@ module VmsHelper
       self.status = 1
     else
       self.status = 2 if self.status == 1 || (self.updated_at && self.updated_at < (Time.now - 120.minutes))
-    end  
+    end
   end
 
 end

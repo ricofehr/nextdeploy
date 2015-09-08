@@ -6,11 +6,11 @@ class Vm < ActiveRecord::Base
   include VmsHelper
 
   belongs_to :project
-  belongs_to :vmsize 
+  belongs_to :vmsize
 
   belongs_to :user
   belongs_to :systemimage
-  
+
   # Some scope for find vms objects by commit or by project
   scope :find_by_user_commit, ->(user_id, commit){ where("user_id=#{user_id} AND commit_id like '%#{commit}'") }
   scope :find_by_user_project, ->(user_id, project_id){ where(user_id: user_id, project_id: project_id) }
@@ -65,7 +65,7 @@ class Vm < ActiveRecord::Base
       self.name = vm_name
       generate_hiera
       user_data = generate_userdata
-      sshname = user.sshkeys.first ? user.sshkeys.first.name : '' 
+      sshname = user.sshkeys.first ? user.sshkeys.first.name : ''
       self.nova_id = @osapi.boot_vm(self.name, systemimage.glance_id, sshname, self.vmsize.title, user_data)
       self.status = 0
     rescue Exceptions::MvmcException => me

@@ -6,7 +6,7 @@ class Group < ActiveRecord::Base
 
   # Name is mandatory
   validates :name, presence: true
-  
+
   # Return true if admin
   #
   # No param

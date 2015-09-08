@@ -49,7 +49,7 @@ module Apiexternal
                }
 
       # add key_name parameter if ssh key is associated to current user
-      boot_req[:server][:key_name] = ssh_key unless ssh_key.nil? || ssh_key.empty? 
+      boot_req[:server][:key_name] = ssh_key unless ssh_key.nil? || ssh_key.empty?
 
       response = @conn[:nova].post do |req|
         req.url "/v2/#{@tenant}/servers"

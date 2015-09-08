@@ -65,7 +65,7 @@ module UsersHelper
   # No return
   def openvpn_conf
     template = "vpnkeys/conf/mvmc.conf"
-    
+
     begin
       pattern = IO.read(template)
       pattern.gsub!('%{email}', self.email)

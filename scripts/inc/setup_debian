@@ -14,9 +14,9 @@ install_vbox_debian() {
 install_vagrant_debian() {
   # check if vagrant 1.7 is already installed
   vagrant version 2>/dev/null | grep "Installed Version: 1.7.4" >/dev/null
-  if (($?!=0)); then 
+  if (($?!=0)); then
     output -q "Vagrant Installation ..."
-    curl -OsSL https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.4_x86_64.deb 
+    curl -OsSL https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.4_x86_64.deb
     sudo dpkg -i --force-confdef vagrant_1.7.4_x86_64.deb
     (($?!=0)) && output -e 'Vagrant installation has failed'
     rm -f vagrant_1.7.4_x86_64.deb
@@ -32,7 +32,7 @@ install_libvirt_debian() {
   [[ -x /usr/bin/virt-manager ]] && return
 
   output -q "Libvirt Installation ..."
-  
+
   sudo apt-get -y --force-yes install virt-manager
   (($?!=0)) && output -e 'Libvirt installation has failed'
   sudo usermod -G "$(grep libvirt /etc/group | grep -v qemu | cut -d: -f 1)" -a $USER
@@ -42,7 +42,7 @@ install_libvirt_debian() {
 
   # check if libvirt is already on user group
   groups | grep libvirt
-  (($?!=0)) && output -e 'libvirt is not already on your group list. Please exit term, log you again with current user and start again ./scripts/./setup'  
+  (($?!=0)) && output -e 'libvirt is not already on your group list. Please exit term, log you again with current user and start again ./scripts/./setup'
 }
 
 # libvirt plugin for vagrant install
@@ -121,7 +121,7 @@ install_debian() {
   (($?!=0)) && output -w 'libmysqlclient-dev installation is on error. This library is needed by rails application'
   # Install rvm gpg key
   curl -sSL https://rvm.io/mpapis.asc | gpg --import -
-  
+
   install_git_debian
   install_kvm_debian
   install_vagrant_debian

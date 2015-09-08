@@ -9,6 +9,8 @@
 #
 class pm::postinstall::mvmc {
   $railsenv = hiera('railsenv', 'development')
+  $mvmcuri = hiera('global::mvmcuri', 'mvmc.local')
+  $mvmcsuf = hiera('global::mvmcsuf', 'os.mvmc')
 
   Exec {
       path => '/usr/local/rvm/gems/ruby-2.1.0/bin:/usr/local/rvm/gems/ruby-2.1.0@global/bin:/usr/local/rvm/rubies/ruby-2.1.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/rvm/bin:/opt/ruby/bin/',
@@ -31,7 +33,7 @@ class pm::postinstall::mvmc {
       ],
       cwd => '/ror'
   }
-  
+
   # prepare vpnkeys folder
   exec { 'copyindextxt':
     command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/index.txt /ror/vpnkeys/index.txt',
@@ -171,13 +173,25 @@ class pm::postinstall::mvmc {
   # Nginx settings
   file { '/var/opt/gitlab/nginx/conf/os-http.conf':
     ensure =>  file,
-    source => ['puppet:///modules/pm/nginx/os-http.conf'], 
+    source => ['puppet:///modules/pm/nginx/os-http.conf'],
     owner => 'root'
   } ->
   file { '/var/opt/gitlab/nginx/conf/os-doc.conf':
     ensure =>  file,
-    source => ['puppet:///modules/pm/nginx/os-doc.conf'], 
+    source => ['puppet:///modules/pm/nginx/os-doc.conf'],
     owner => 'root'
+  } ->
+  exec { 'mvmcsuffix':
+    command => "/bin/sed -i 's;%%MVMCSUF%%;${mvmcsuf};' /var/opt/gitlab/nginx/conf/os-http.conf",
+    user => 'root'
+  } ->
+  exec { 'mvmcuri':
+    command => "/bin/sed -i 's;%%MVMCURI%%;${mvmcuri};' /var/opt/gitlab/nginx/conf/os-http.conf",
+    user => 'root'
+  } ->
+  exec { 'mvmcuri2':
+    command => "/bin/sed -i 's;%%MVMCURI%%;${mvmcuri};' /var/opt/gitlab/nginx/conf/os-doc.conf",
+    user => 'root'
   } ->
   file_line { 'os-http':
     path => '/var/opt/gitlab/nginx/conf/nginx.conf',

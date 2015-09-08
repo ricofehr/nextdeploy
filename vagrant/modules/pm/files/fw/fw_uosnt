@@ -76,7 +76,7 @@ do_start()
         #Connection already established
         $IPTABLES -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
         $IPTABLES -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
-        
+
         #SMTP
         $IPTABLES -A OUTPUT -m state --state NEW -p tcp --dport 25 -j ACCEPT
 

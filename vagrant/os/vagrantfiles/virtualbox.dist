@@ -2,14 +2,14 @@ Vagrant.configure("2") do |config|
     config.ssh.username = "modem"
     config.ssh.password = "modem"
     config.vm.box_download_insecure = true
-    
-    config.vm.define :uosc, primary: true do |uosc|   
+
+    config.vm.define :uosc, primary: true do |uosc|
       uosc.vm.hostname = "uosc"
       uosc.vm.box = "uos-c"
       uosc.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/uos-c.box"
       uosc.vm.provider :virtualbox do |virthost|
         uosc.vm.network :private_network, ip: "192.168.170.70", netmask: "255.255.255.128"
-        uosc.vm.network :private_network, ip: "192.168.171.70", netmask: "255.255.255.128"
+        uosc.vm.network :private_network, ip: "%%PUBPREFIX%%.70", netmask: "255.255.255.128"
         uosc.vm.network :private_network, ip: "172.16.170.70", netmask: "255.255.255.128"
         uosc.vm.network :private_network, ip: "172.16.171.70", netmask: "255.255.255.128"
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
       uosnv.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/uos-s.box"
       uosnv.vm.provider :virtualbox do |virthost|
         uosnv.vm.network :private_network, :ip => "192.168.170.75", :netmask => "255.255.255.128"
-        uosnv.vm.network :private_network, :ip => "192.168.171.75", :netmask => "255.255.255.128"
+        uosnv.vm.network :private_network, :ip => "%%PUBPREFIX%%.75", :netmask => "255.255.255.128"
         uosnv.vm.network :private_network, :ip => "172.16.170.75", :netmask => "255.255.255.128"
         uosnv.vm.network :private_network, :ip => "172.16.171.75", :netmask => "255.255.255.128"
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
@@ -57,7 +57,7 @@ Vagrant.configure("2") do |config|
       uosnt.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/uos-c.box"
       uosnt.vm.provider :virtualbox do |virthost|
         uosnt.vm.network :private_network, :ip => "192.168.170.71", :netmask => "255.255.255.128"
-        uosnt.vm.network :private_network, :ip => "192.168.171.71", :netmask => "255.255.255.128"
+        uosnt.vm.network :private_network, :ip => "%%PUBPREFIX%%.71", :netmask => "255.255.255.128"
         uosnt.vm.network :private_network, :ip => "172.16.170.71", :netmask => "255.255.255.128"
         uosnt.vm.network :private_network, :ip => "172.16.171.71", :netmask => "255.255.255.128"
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
@@ -84,7 +84,7 @@ Vagrant.configure("2") do |config|
       uosst.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/uos-s.box"
       uosst.vm.provider :virtualbox do |virthost|
         uosst.vm.network :private_network, :ip => "192.168.170.72", :netmask => "255.255.255.128"
-        uosst.vm.network :private_network, :ip => "192.168.171.72", :netmask => "255.255.255.128"
+        uosst.vm.network :private_network, :ip => "%%PUBPREFIX%%.72", :netmask => "255.255.255.128"
         uosst.vm.network :private_network, :ip => "172.16.170.72", :netmask => "255.255.255.128"
         uosst.vm.network :private_network, :ip => "172.16.171.72", :netmask => "255.255.255.128"
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]

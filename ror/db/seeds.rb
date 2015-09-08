@@ -114,7 +114,7 @@ puts "Created #{User.count} users"
 
 
 #Project import rows
-project_drupal = Project.create!(name: "www.drupalmycompany.com", brand: brand_cust1, framework: framework_drupal, 
+project_drupal = Project.create!(name: "www.drupalmycompany.com", brand: brand_cust1, framework: framework_drupal,
                                gitpath: "mycompany-www-drupalmycompany-com", systemimagetype: linux, enabled: true,
                                login: "modem", password: "modem",
                                vmsizes: [flavor_tiny, flavor_small],
