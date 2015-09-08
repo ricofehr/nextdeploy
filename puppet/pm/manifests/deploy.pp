@@ -8,7 +8,7 @@
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::deploy::vhost {
-  Exec { 
+  Exec {
     path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
     unless => 'test -f /root/.deploygit'
   }
@@ -49,7 +49,7 @@ class pm::deploy::vhost {
     group => 'www-data'
   }
   ->
-  exec { 'touchdeploygit': 
+  exec { 'touchdeploygit':
     command => 'touch /root/.deploygit'
   }
 
@@ -68,7 +68,7 @@ class pm::deploy::vhost {
 class pm::deploy::symfony2 {
   $docroot = hiera('docrootgit', '/var/www/html')
 
-  Exec { 
+  Exec {
     path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
     user => 'modem',
     group => 'www-data',
@@ -137,7 +137,7 @@ class pm::deploy::symfony2 {
     command => 'php app/console assetic:dump'
   }
   ->
-  exec { 'touchdeploy': 
+  exec { 'touchdeploy':
     command => 'touch /home/modem/.deploysf2'
   }
 
@@ -154,7 +154,7 @@ class pm::deploy::symfony2 {
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::deploy::static {
-  Exec { 
+  Exec {
     path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
     user => 'modem',
     group => 'www-data',
@@ -164,7 +164,7 @@ class pm::deploy::static {
     require => [ Service['varnish'], Exec['touchdeploygit'] ]
   }
 
-  exec { 'touchdeploy': 
+  exec { 'touchdeploy':
     command => 'touch /home/modem/.deploystatic'
   }
 }
@@ -181,7 +181,7 @@ class pm::deploy::static {
 class pm::deploy::nodejs {
   $docroot = hiera('docrootgit', '/var/www/html')
 
-  Exec { 
+  Exec {
     path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
     user => 'modem',
     group => 'www-data',
@@ -192,27 +192,27 @@ class pm::deploy::nodejs {
     require => [ Service['varnish'], Exec['touchdeploygit'] ]
   }
 
-  exec { 'npminstall': 
+  exec { 'npminstall':
     command => 'npm install',
     onlyif => 'test -f package.json'
   } ->
-  exec { 'bowerinstall': 
+  exec { 'bowerinstall':
     command => 'bower install',
     onlyif => 'test -f bower.json'
   } ->
-  exec { 'gruntbuild': 
+  exec { 'gruntbuild':
     command => 'grunt build',
     onlyif => 'test -f Gruntfile.js'
   } ->
-  exec { 'gulpbuild': 
+  exec { 'gulpbuild':
     command => 'gulp build',
     onlyif => 'test -f gulpfile.js'
   } ->
-  exec { 'pm2start': 
+  exec { 'pm2start':
     command => 'pm2 start -f app.js',
     onlyif => 'test -f app.js'
   } ->
-  exec { 'touchdeploynodejs': 
+  exec { 'touchdeploynodejs':
     command => 'touch /home/modem/.deploynodejs'
   }
 }
@@ -231,7 +231,7 @@ class pm::deploy::drupal {
   $docroot = hiera('docrootgit', '/var/www/html')
   $email = hiera('email', 'test@yopmail.com')
 
-  Exec { 
+  Exec {
     path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
     user => 'modem',
     group => 'www-data',
@@ -264,7 +264,7 @@ class pm::deploy::drupal {
     command => "drush -y site-install --locale=en --db-url=mysql://s_bdd:s_bdd@localhost:3306/s_bdd --account-pass=modem --site-name=vm --account-mail=${email} --site-mail=${email} standard"
   }
   ->
-  exec { 'touchdeploy': 
+  exec { 'touchdeploy':
     command => 'touch /home/modem/.deploydrupal'
   }
 }
@@ -285,7 +285,7 @@ class pm::deploy::wordpress {
   $weburi = hiera('weburi', '')
   $commit = hiera('commit', 'HEAD')
 
-  Exec { 
+  Exec {
     path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
     user => 'modem',
     group => 'www-data',
@@ -331,7 +331,7 @@ class pm::deploy::wordpress {
     command => "wp core install --url=${weburi} --title=vm --admin_user=modem --admin_password=modem --admin_email=${email}"
   }
   ->
-  exec { 'touchdeploy': 
+  exec { 'touchdeploy':
     command => 'touch /home/modem/.deploywp'
   }
 }
@@ -365,7 +365,7 @@ class pm::deploy::postinstall {
   $weburi = hiera('weburi', '')
   $email = hiera('email')
 
-  Exec { 
+  Exec {
     path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
     cwd => "${docroot}",
     environment => ["HOME=/home/modem"],

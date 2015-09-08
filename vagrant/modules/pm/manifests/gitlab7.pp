@@ -8,7 +8,7 @@
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::gitlab7 {
-  $server_name = hiera('gitlab::server_name', 'gitlab.local')
+  $server_name = hiera('global::gitlabns', 'gitlab.local')
 
   class { 'gitlab': }
   ->
@@ -18,7 +18,7 @@ class pm::gitlab7 {
     match => '.*server_name.*'
   } ->
   exec { 'restart_nginx':
-    command => '/opt/gitlab/embedded/sbin/nginx -c /var/opt/gitlab/nginx/conf/nginx.conf -p /var/opt/gitlab/nginx/ -s reload', 
+    command => '/opt/gitlab/embedded/sbin/nginx -c /var/opt/gitlab/nginx/conf/nginx.conf -p /var/opt/gitlab/nginx/ -s reload',
     user => 'root'
   }
 }

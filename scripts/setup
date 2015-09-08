@@ -3,17 +3,18 @@
 # Setup script for install mvmc platform into local computer
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
 
-
-RAM=8
 EMAIL='admin@mvmc-openstack.local'
 PASSWORD='wordpass123123'
-ENDPOINT='mvmc.local'
 DOMAIN=''
 DEBUG=1
 BINSED='/bin/sed'
 OUT="$(pwd)/out/setup.log"
-DNSIP='192.168.171.60'
 YES=0
+MVMCSUF='os.mvmc'
+MVMCURI='mvmc.local'
+GITLABURI='gitlab.local'
+PUBPREFIX='192.168.171'
+DNSIP="${PUBPREFIX}.60"
 
 # Parse cmd options
 while (($# > 0)); do
@@ -21,16 +22,39 @@ while (($# > 0)); do
     -d)
       shift
       DEBUG=2
-      shift
       ;;
     -q)
       shift
       DEBUG=0
-      shift
-      ;;  
+      ;;
     -y)
       shift
       YES=1
+      ;;
+    -g)
+      shift
+      GITLABURI="$1"
+      shift
+      ;;
+    -p)
+      shift
+      PUBPREFIX="$1"
+      DNSIP="${PUBPREFIX}.60"
+      shift
+      ;;
+    -n)
+      shift
+      DNSIP="$1"
+      shift
+      ;;
+    -m)
+      shift
+      MVMCURI="$1"
+      shift
+      ;;
+    -s)
+      shift
+      MVMCSUF="$1"
       shift
       ;;
      *)
@@ -39,8 +63,14 @@ while (($# > 0)); do
   esac
 done
 
+# Format MVMCURI and GITLABURI
+MVMCURI="${MVMCURI#http://}"
+MVMCURI="${MVMCURI%/}"
+GITLABURI="${GITLABURI#http://}"
+GITLABURI="${GITLABURI%/}"
+
 # Clean log file
-rm -f "${OUT}" 
+rm -f "${OUT}"
 
 # If high debug, show all commands output
 ((DEBUG==2)) && OUT=''
@@ -147,7 +177,7 @@ install_client() {
   output -l "Client Setting File /etc/mvmc.conf"
   sudo /bin/bash -c "echo \"email: ${EMAIL}\" > /etc/mvmc.conf"
   sudo /bin/bash -c "echo \"password: ${PASSWORD}\" >> /etc/mvmc.conf"
-  sudo /bin/bash -c "echo \"endpoint: ${ENDPOINT}\" >> /etc/mvmc.conf"
+  sudo /bin/bash -c "echo \"endpoint: ${MVMCURI}\" >> /etc/mvmc.conf"
 }
 
 # Add mvmc platform uris into hosts file
@@ -159,7 +189,7 @@ file_hosts() {
   sudo /bin/bash -c "echo \"192.168.170.70 uosc${DOMAIN}\" >> /etc/hosts"
 }
 
-# Some intoduction words 
+# Some intoduction words
 welcome_step() {
   output -q -l "Welcome to setup process for mvmc platform in local environment"
   output -q -l "Remember, the project needs lot of ram for running in virtualisation mode on local workstation computer"
@@ -173,7 +203,7 @@ welcome_step() {
 install_prerequisites() {
   output -q "Installing prerequisites ..."
 
-  install_ruby  
+  install_ruby
   if [[ -f /etc/debian_version ]]; then
     install_debian
     DOMAIN=''
@@ -201,22 +231,61 @@ install_prerequisites() {
   output -q 'Prerequisites are installed'
 }
 
-# Target well vagrantfile following hypervisor on local workstation
-vagrantfiles() {
+# Prepare vagrantfiles and global.yaml
+preparefiles() {
   local hvisor="$(get_hypervisor)"
 
   output -q "Prepare vagrantfile for openstack nodes"
   pushd vagrant/os > /dev/null
   rm -f Vagrantfile
-  ln -s vagrantfiles/${hvisor} Vagrantfile
+  cp vagrantfiles/${hvisor}.dist Vagrantfile
+  $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" Vagrantfile
+  $BINSED -i "s;%%OSPUBSUF%%;${PUBPREFIX##*.};" Vagrantfile
   (($?!=0)) && output -e 'Cant create Vagrantfile for openstack nodes'
   popd > /dev/null
 
   output -q "Prepare vagrantfile for manager node"
   pushd vagrant/mvmc > /dev/null
   rm -f Vagrantfile
-  ln -s vagrantfiles/${hvisor} Vagrantfile
+  cp vagrantfiles/${hvisor}.dist Vagrantfile
+  $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" Vagrantfile
+  $BINSED -i "s;%%OSPUBSUF%%;${PUBPREFIX##*.};" Vagrantfile
   (($?!=0)) && output -e 'Cant create Vagrantfile for mvmc node'
+  popd > /dev/null
+
+  output -q "Prepare hiera global.yml for openstack nodes"
+  pushd vagrant/os/hiera > /dev/null
+  rm -f global.yaml
+  cp global.yaml.dist global.yaml
+  (($?!=0)) && output -e 'Cant create global.yml for openstack nodes'
+  $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" global.yaml
+  $BINSED -i "s;%%MVMCURI%%;${MVMCURI};" global.yaml
+  $BINSED -i "s;%%MVMCSUF%%;${MVMCSUF};" global.yaml
+  $BINSED -i "s;%%GITLABURI%%;${GITLABURI};" global.yaml
+  $BINSED -i "s;%%GITLABNS%%;${GITLABURI%%/*};" global.yaml
+  popd > /dev/null
+
+  output -q "Prepare hiera global.yml for mvmc node"
+  pushd vagrant/mvmc/hiera > /dev/null
+  rm -f global.yaml
+  cp global.yaml.dist global.yaml
+  (($?!=0)) && output -e 'Cant create global.yml for mvmc nodes'
+  $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" global.yaml
+  $BINSED -i "s;%%MVMCURI%%;${MVMCURI};" global.yaml
+  $BINSED -i "s;%%MVMCSUF%%;${MVMCSUF};" global.yaml
+  $BINSED -i "s;%%GITLABURI%%;${GITLABURI};" global.yaml
+  $BINSED -i "s;%%GITLABNS%%;${GITLABURI%%/*};" global.yaml
+  popd > /dev/null
+
+  output -q "Prepare rails development.rb settings file"
+  pushd ror/config/environments > /dev/null
+  rm -f  development.rb
+  cp development.rb.dist development.rb
+  (($?!=0)) && output -e 'Cant create development.rb'
+  $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" development.rb
+  $BINSED -i "s;%%MVMCSUF%%;${MVMCSUF};" development.rb
+  $BINSED -i "s;%%MVMCURI%%;${MVMCURI};" development.rb
+  $BINSED -i "s;%%GITLABURI%%;${GITLABURI};" development.rb
   popd > /dev/null
 }
 
@@ -225,7 +294,7 @@ init_ember() {
   output -q "Init ember project"
   pushd ror/public > /dev/null
   # start ember_build only if it dont yet
-  if ! ps aux | grep "ember_build" | grep -v grep >/dev/null;then 
+  if ! ps aux | grep "ember_build" | grep -v grep >/dev/null;then
     ./bin/./ember_build &
     (($?!=0)) && output -w 'Ember_build execution has failed'
   fi
@@ -240,7 +309,7 @@ start_vms() {
 
   output -q "Start vagrant vms"
 
-  vagrantfiles
+  preparefiles
 
   # local domain are difficult to manage with vagrant
   cp /etc/resolv.conf tmp/resolv.conf.mvmc
@@ -263,7 +332,7 @@ start_vms() {
     else
       read response
     fi
-    
+
     if [[ "$response" = "y" ]]; then
       vagrant destroy -f
       (($?!=0)) && output -w 'Destroy openstack nodes has failed'
@@ -300,7 +369,7 @@ start_vms() {
   rm -f mvmc.*
   ln -s mvmc/mvmc.yaml mvmc${DOMAIN}.yaml
   popd > /dev/null
-  
+
   pushd vagrant/mvmc > /dev/null
   if [[ -d .vagrant ]]; then
     output -q -l "Do you want to Destroy old manager vm created ? (y/n)"
@@ -319,7 +388,7 @@ start_vms() {
 
   output -q "Creating the manager vm, please wait a moment ..."
   vagrant up --provider=${hvisor}
-  (($?!=0)) && output -w 'Manager node creation has some error(s)'
+  (($?!=0)) && output -e 'Manager node creation has some error(s)'
   # ensure that rails app is up
   sleep 300
   output -q "The manager instance is up"
@@ -332,10 +401,10 @@ start_vms() {
 # List all useful uris
 complete_step() {
   output -q "Installation of Mvmc platform is Complete"
-  output -q -l "Manager: http://mvmc.local/"
+  output -q -l "Manager: http://${MVMCURI}/"
   output -q -l "Openstack WebUI: http://uosc${DOMAIN}/"
-  output -q -l "Gitlab WebUI: http://gitlab.local/"
-  output -q -l "Rails Documentation: http://doc.mvmc.local/"
+  output -q -l "Gitlab WebUI: http://${GITLABURI}/"
+  output -q -l "Rails Documentation: http://doc.${MVMCURI}/"
 }
 
 

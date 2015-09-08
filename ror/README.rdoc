@@ -15,7 +15,7 @@ bundle install --path vendor/bundle
 /ror/config/databases.yaml
 
 * Database creation
-rake db:schema:load 
+rake db:schema:load
 
 * Database initialization
 rake db:migrate

@@ -8,6 +8,20 @@ source scripts/inc/utils
 
 # define provider
 HVISOR="$(get_hypervisor)"
+DNSIP='192.168.171.60'
+
+while (($# > 0)); do
+  case "$1" in
+    -n)
+      shift
+      DNSIP="$1"
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
 
 # little ugly but sometimes in ubuntu statd is not starting
 ps aux | grep statd | grep -v grep > /dev/null
@@ -29,4 +43,4 @@ popd > /dev/null
 # Wait that manager is up and target dns resolv to manger node
 sleep 30
 cp /etc/resolv.conf tmp/resolv.conf.mvmc
-sudo /bin/bash -c "echo 'nameserver 192.168.171.60' > /etc/resolv.conf"
+sudo /bin/bash -c "echo 'nameserver ${DNSIP}' > /etc/resolv.conf"

@@ -3,7 +3,7 @@
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
 class Sshkey < ActiveRecord::Base
   belongs_to :user
-  
+
   # some hooks befor key changes
   before_create :init_sshkey
   before_destroy :purge_sshkey
@@ -19,7 +19,7 @@ class Sshkey < ActiveRecord::Base
 
   # some properties are mandatory and must be well-formed
   validates :name, :key, :user_id, presence: true
-  
+
 
   #get all sshkey for admins users
   scope :admins, ->(){ joins(:user => :group).where('groups.access_level' => 50) }
@@ -70,7 +70,7 @@ class Sshkey < ActiveRecord::Base
       #regenerate authorizedkeys
       self.user.generate_authorizedkeys
   end
-  
+
 
   # reset sshkey to openstack and gitlab
   #

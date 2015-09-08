@@ -71,7 +71,7 @@ module API
       # return an user by email
       def show_by_email
         @user_c = User.find_by_email(params[:email])
-        
+
         # Json output
         respond_to do |format|
           format.json { render json: @user_c, status: 200 }
@@ -82,7 +82,7 @@ module API
       def dl_openvpn_ca
         # download file
         respond_to do |format|
-          format.text do 
+          format.text do
             render plain: @user.openvpn_ca, status: 200
           end
         end
@@ -92,7 +92,7 @@ module API
       def dl_openvpn_key
         # download file
         respond_to do |format|
-          format.text do 
+          format.text do
             render plain: @user.openvpn_key, status: 200
           end
         end
@@ -102,7 +102,7 @@ module API
       def dl_openvpn_crt
         # donwload file
         respond_to do |format|
-          format.text do 
+          format.text do
             render plain: @user.openvpn_crt, status: 200
           end
         end
@@ -112,7 +112,7 @@ module API
       def dl_openvpn_conf
         # donwload file
         respond_to do |format|
-          format.text do 
+          format.text do
             render plain: @user.openvpn_conf, status: 200
           end
         end

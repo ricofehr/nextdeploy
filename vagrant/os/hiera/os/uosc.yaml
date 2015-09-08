@@ -287,7 +287,7 @@ rabbitmq_user_permissions:
 #mysql resources
 mysql_db:
   keystonedb:
-    user: keystone 
+    user: keystone
     password: oskeystone
     host: '172.16.170.%'
     grant: 'all'

@@ -14,7 +14,7 @@
 #
 IPTABLES=/sbin/iptables
 
-# spoofing protection 
+# spoofing protection
 if [ -e /proc/sys/net/ipv4/conf/all/rp_filter ]
 then
 for filtre in /proc/sys/net/ipv4/conf/*/rp_filter

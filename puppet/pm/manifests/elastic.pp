@@ -8,7 +8,7 @@
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::elastic {
-  Exec { 
+  Exec {
     path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
     user => 'modem',
     group => 'www-data',
@@ -31,7 +31,7 @@ class pm::elastic {
     user => 'root'
   }
   ->
-  exec { 'touches': 
+  exec { 'touches':
     command => 'touch /home/modem/.esrun'
   }
 }

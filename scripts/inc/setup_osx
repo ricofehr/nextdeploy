@@ -10,12 +10,12 @@ install_xcode_osx() {
     echo "CommandLineTools Installation ..."
     /bin/bash -c 'xcode-select --install'
     #wait install is finish
-    while [[ ! -d /Library/Developer/CommandLineTools ]]; do 
+    while [[ ! -d /Library/Developer/CommandLineTools ]]; do
       echo "wait 5s ...."
       sleep 5
     done
   fi
-    
+
   sudo /bin/bash -c 'xcode-select -switch /Library/Developer/CommandLineTools'
   (($?!=0)) && echo 'Xcode CommandLineTools has failed'
 }
@@ -40,7 +40,7 @@ install_vbox_osx() {
   output -q "VirtualBox Installation ..."
   # Install virtualbox only it isnt yes installed
   if [[ ! -e /usr/bin/VBoxManage ]] && [[ ! -e /usr/local/bin/VBoxManage ]]; then
-    curl -OsSL http://download.virtualbox.org/virtualbox/5.0.2/VirtualBox-5.0.2-102096-OSX.dmg 
+    curl -OsSL http://download.virtualbox.org/virtualbox/5.0.2/VirtualBox-5.0.2-102096-OSX.dmg
     hdiutil mount VirtualBox-5.0.2-102096-OSX.dmg
     sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
     (($?!=0)) && output -e 'Virtualbox installation has failed'

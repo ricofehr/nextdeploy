@@ -4,7 +4,7 @@
 class Branche
   # Activemodel object without database table
   include ActiveModel::Serializers::JSON
-  
+
   attr_reader :id, :name, :project, :commits
 
   # Constructor

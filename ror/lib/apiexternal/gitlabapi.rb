@@ -22,13 +22,13 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # No return
     def get_private_token(username='root', password='5iveL!fe')
-      
+
       #json request for session request
-      sess_req = {    
+      sess_req = {
         login: username,
         password: password
       }
-      
+
       # Prepare gitlab rest connection
       conn_token = Faraday.new(:url => "#{Rails.application.config.gitlab_endpoint0}") do |faraday|
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
@@ -54,7 +54,7 @@ module Apiexternal
       # if sshkey exists for modem, adding it to gitlab user
       if File.exist?('/home/modem/.ssh/id_rsa.pub')
         # Get the value from the file and return it
-        add_sshkey = {    
+        add_sshkey = {
           title: 'mvmckey',
           key: File.open('/home/modem/.ssh/id_rsa.pub', 'rb').read.strip
         }
@@ -317,7 +317,7 @@ module Apiexternal
     def private_token
       # if private_token is setted into rails config, return this value
       return Rails.application.config.gitlab_token unless Rails.application.config.gitlab_token.empty?
-      
+
       # Test if private_token file exist and create it if needed
       if ! File.exists?('tmp/private_token')
         token = get_private_token

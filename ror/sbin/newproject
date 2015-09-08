@@ -303,7 +303,7 @@ newezpublish() {
 #working progress ... or not
 newwordpress() {
   echo "wordpress"
-  
+
   pushd "${DOCROOT}" > /dev/null
   wp core download --locale=fr_FR
   popd > /dev/null

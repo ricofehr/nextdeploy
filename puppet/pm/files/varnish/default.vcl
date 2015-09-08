@@ -46,7 +46,7 @@ sub vcl_recv {
 
   # Options de securite :
   # On accepte que les requetes GET POST et HEAD, le reste est jete
-  
+
   if (req.request != "GET" &&
       req.request != "POST" &&
       req.request != "HEAD") {
@@ -103,7 +103,7 @@ sub vcl_recv {
   if (req.http.Cookie ~ "^[ \t\r\n\v\f]*$") {
     unset req.http.Cookie;
   }
- 
+
   ## Pass cron jobs and server-status
   if (req.url ~ "cron.php" ||
                         req.url ~ ".*/server-status$" ||

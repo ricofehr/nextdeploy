@@ -37,7 +37,7 @@ Rails.application.routes.draw do
         list_only.resources :systemimagetypes
         list_only.resources :technos
         list_only.resources :vmsizes
-        list_only.resources :frameworks       
+        list_only.resources :frameworks
         list_only.resources :systemimages
       end
 

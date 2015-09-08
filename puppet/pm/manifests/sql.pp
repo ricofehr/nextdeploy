@@ -14,7 +14,7 @@ class pm::sql {
   class { '::mysql::server':
    notify => Exec['restart-mysql'],
   }
-  
+
   exec {'restart-mysql':
     command => 'service mysql restart',
     unless => 'test -f /root/.sqlrestart'
@@ -23,6 +23,6 @@ class pm::sql {
   exec { 'touchsqlrestart':
     command => 'touch /root/.sqlrestart'
   }
-  
+
   create_resources ('mysql::db', hiera('mysql_db', []))
 }

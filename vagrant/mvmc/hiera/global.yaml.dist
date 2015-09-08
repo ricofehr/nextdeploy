@@ -1,0 +1,6 @@
+apt::always_apt_update: true
+global::pubprefix: %%PUBPREFIX%%
+global::mvmcuri: %%MVMCURI%%
+global::gitlaburi: %%GITLABURI%%
+global::gitlabns: %%GITLABNS%%
+global::mvmcsuf: %%MVMCSUF%%

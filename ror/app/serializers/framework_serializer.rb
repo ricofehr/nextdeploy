@@ -4,7 +4,7 @@
 class FrameworkSerializer < ActiveModel::Serializer
   attributes :id, :name, :publicfolder, :rewrites
   delegate :current_user, to: :scope
-  
+
   has_many :projects, key: :projects
 
   # dont display projects if user is not allowed for

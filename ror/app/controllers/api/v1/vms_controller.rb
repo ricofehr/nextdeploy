@@ -116,7 +116,7 @@ module API
         params_p = params[:vm]
 
         params_p[:user_id] = params_p[:user] unless params_p[:user_id]
-        params_p[:project_id] = params_p[:project] unless params_p[:project_id] 
+        params_p[:project_id] = params_p[:project] unless params_p[:project_id]
         params_p[:systemimage_id] = params_p[:systemimage] unless params_p[:systemimage_id]
         params_p[:vmsize_id] = params_p[:vmsize] unless params_p[:vmsize_id]
         params_p[:commit_id] = params_p[:commit] unless params_p[:commit_id]
@@ -130,7 +130,7 @@ module API
         params_p.delete(:systemimage)
         params_p.delete(:commit)
         params_p.delete(:vmsize)
-        
+
         params[:vm] = params_p
       end
 
