@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
       mvmc.vm.synced_folder "../../out", "/out", :owner => "modem", :group => "modem"
       mvmc.vm.synced_folder "../../puppet", "/puppet", :owner => "modem", :group => "modem"
       mvmc.vm.synced_folder "../../ror/hiera", "/hiera", :owner => "modem", :group => "modem"
-      mvmc.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/mc.box"
+      mvmc.vm.box_url = "http://imgs.mvmc.services-pm.fr:8383/vbox/mc.box"
       mvmc.vm.provider :virtualbox do |v|
         v.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         v.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]

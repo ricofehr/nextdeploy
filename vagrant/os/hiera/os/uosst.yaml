@@ -38,7 +38,7 @@ glance_image:
     is_public: 'yes'
     container_format: 'bare'
     disk_format: 'qcow2'
-    source: 'http://imgs.mvmc.services-pm.fr/os/osvm-jessie.img'
+    source: 'http://imgs.mvmc.services-pm.fr:8383/os/osvm-jessie.img'
   # osvm-wheezy:
   #   ensure: present
   #   name: 'osvm-wheezy'
