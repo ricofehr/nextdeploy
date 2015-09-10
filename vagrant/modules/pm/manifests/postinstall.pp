@@ -34,6 +34,9 @@ class pm::postinstall::mvmc {
       cwd => '/ror'
   }
 
+  # enable ip forwarding
+  sysctl::value { "net.ipv4.tcp_syncookies": value => "1"}
+
   # prepare vpnkeys folder
   exec { 'copyindextxt':
     command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/index.txt /ror/vpnkeys/index.txt',
@@ -201,6 +204,11 @@ class pm::postinstall::mvmc {
   file_line { 'os-doc':
     path => '/var/opt/gitlab/nginx/conf/nginx.conf',
     line => 'include /var/opt/gitlab/nginx/conf/os-doc.conf;',
+    after => 'include /var/opt/gitlab/nginx/conf/gitlab-http.conf;'
+  } ->
+  file_line { 'servernamehash':
+    path => '/var/opt/gitlab/nginx/conf/nginx.conf',
+    line => 'server_names_hash_bucket_size 128;',
     after => 'include /var/opt/gitlab/nginx/conf/gitlab-http.conf;'
   } ->
   exec { 'restart_nginx2':

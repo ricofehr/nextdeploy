@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
     config.vm.define :uosc, primary: true do |uosc|
       uosc.vm.hostname = "uosc"
       uosc.vm.box = "uos-c"
-      uosc.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/uos-c.box"
+      uosc.vm.box_url = "http://imgs.mvmc.services-pm.fr:8383/vbox/uos-c.box"
       uosc.vm.provider :virtualbox do |virthost|
         uosc.vm.network :private_network, ip: "192.168.170.70", netmask: "255.255.255.128"
         uosc.vm.network :private_network, ip: "%%PUBPREFIX%%.70", netmask: "255.255.255.128"
@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
    config.vm.define :uosnv, autostart: false do |uosnv|
       uosnv.vm.hostname = :uosnv
       uosnv.vm.box = "uos-s"
-      uosnv.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/uos-s.box"
+      uosnv.vm.box_url = "http://imgs.mvmc.services-pm.fr:8383/vbox/uos-s.box"
       uosnv.vm.provider :virtualbox do |virthost|
         uosnv.vm.network :private_network, :ip => "192.168.170.75", :netmask => "255.255.255.128"
         uosnv.vm.network :private_network, :ip => "%%PUBPREFIX%%.75", :netmask => "255.255.255.128"
@@ -54,7 +54,7 @@ Vagrant.configure("2") do |config|
    config.vm.define :uosnt, autostart: false do |uosnt|
       uosnt.vm.hostname = :uosnt
       uosnt.vm.box = "uos-c"
-      uosnt.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/uos-c.box"
+      uosnt.vm.box_url = "http://imgs.mvmc.services-pm.fr:8383/vbox/uos-c.box"
       uosnt.vm.provider :virtualbox do |virthost|
         uosnt.vm.network :private_network, :ip => "192.168.170.71", :netmask => "255.255.255.128"
         uosnt.vm.network :private_network, :ip => "%%PUBPREFIX%%.71", :netmask => "255.255.255.128"
@@ -81,7 +81,7 @@ Vagrant.configure("2") do |config|
    config.vm.define :uosst, autostart: false do |uosst|
       uosst.vm.hostname = "uosst"
       uosst.vm.box = "uos-s"
-      uosst.vm.box_url = "http://imgs.mvmc.services-pm.fr/vbox/uos-s.box"
+      uosst.vm.box_url = "http://imgs.mvmc.services-pm.fr:8383/vbox/uos-s.box"
       uosst.vm.provider :virtualbox do |virthost|
         uosst.vm.network :private_network, :ip => "192.168.170.72", :netmask => "255.255.255.128"
         uosst.vm.network :private_network, :ip => "%%PUBPREFIX%%.72", :netmask => "255.255.255.128"
