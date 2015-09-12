@@ -163,12 +163,17 @@ puts "Created #{Project.count} projects"
 # Oups, it's very very ugly. Commands to get glance_id generated just before during glance installation
 glance_id_j = %x(glance --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 image-show osvm-jessie | grep "id" | sed "s; [^ ]*$;;" | sed "s;^.* ;;")
 glance_id_j.strip!
+
+glance_id_t = %x(glance --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 image-show osvm-trusty | grep "id" | sed "s; [^ ]*$;;" | sed "s;^.* ;;")
+glance_id_t.strip!
+
+
 #glance_id_w = %x(glance --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 image-show osvm-wheezy | grep "id" | sed "s; [^ ]*$;;" | sed "s;^.* ;;")
 #glance_id_t = %x(glance --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 image-show osvm-trusty | grep "id" | sed "s; [^ ]*$;;" | sed "s;^.* ;;")
 
 
 #debian7 = Systemimage.create!(name: 'Debian7', glance_id: glance_id_w, enabled: true, systemimagetype: linux)
 debian8 = Systemimage.create!(name: 'Debian8', glance_id: glance_id_j, enabled: true, systemimagetype: linux)
-#ubuntu14 = Systemimage.create!(name: 'Ubuntu1404', glance_id: glance_id_t, enabled: true, systemimagetype: linux)
+ubuntu14 = Systemimage.create!(name: 'Ubuntu1404', glance_id: glance_id_t, enabled: true, systemimagetype: linux)
 
 puts "Create #{Systemimage.count} system image"

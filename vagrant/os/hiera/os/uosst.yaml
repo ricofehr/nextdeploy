@@ -39,6 +39,13 @@ glance_image:
     container_format: 'bare'
     disk_format: 'qcow2'
     source: 'http://imgs.mvmc.services-pm.fr:8383/os/osvm-jessie.img'
+  osvm-trusty:
+    ensure: present
+    name: 'osvm-trusty'
+    is_public: 'yes'
+    container_format: 'bare'
+    disk_format: 'qcow2'
+    source: 'http://imgs.mvmc.services-pm.fr:8383/os/osvm-trusty.img'
   # osvm-wheezy:
   #   ensure: present
   #   name: 'osvm-wheezy'
