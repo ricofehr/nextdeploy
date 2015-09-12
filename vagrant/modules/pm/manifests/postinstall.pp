@@ -35,7 +35,7 @@ class pm::postinstall::mvmc {
   }
 
   # enable ip forwarding
-  sysctl::value { "net.ipv4.tcp_syncookies": value => "1"}
+  sysctl::value { "net.ipv4.ip_forward": value => "1"}
 
   # prepare vpnkeys folder
   exec { 'copyindextxt':
