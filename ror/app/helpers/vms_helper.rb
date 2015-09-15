@@ -41,13 +41,17 @@ module VmsHelper
         f.puts "---\n\nclasses:\n"
         f.puts classes.join("\n")
         f.puts templates.join("\n")
-        if systemimage.name == "Debian8"
+        # varnish3 for old linux, v4 for newer
+        if systemimage.name == "Debian7"
+          f.puts "varnish_version: 3\n"
+          if project.login && project.login.length > 0
+            f.puts 'varnish_auth: "if (! req.http.Authorization ~ \"Basic ' + Base64.strict_encode64(project.login + ":" + project.password) +'\") { error 401 ;}"' + "\n"
+          end
+        else
           f.puts "varnish_version: 4\n"
           if project.login && project.login.length > 0
             f.puts 'varnish_auth: "if (! req.http.Authorization ~ \"Basic ' + Base64.strict_encode64(project.login + ":" + project.password) +'\") { return (synth(401, \"Error 401\")) ;}"' + "\n"
           end
-        elsif project.login && project.login.length > 0
-          f.puts 'varnish_auth: "if (! req.http.Authorization ~ \"Basic ' + Base64.strict_encode64(project.login + ":" + project.password) +'\") { error 401 ;}"' + "\n"
         end
 
         f.puts "commit: #{commit.commit_hash}\n"
