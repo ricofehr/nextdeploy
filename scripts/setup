@@ -14,11 +14,42 @@ MVMCSUF='os.mvmc'
 MVMCURI='mvmc.local'
 GITLABURI='gitlab.local'
 PUBPREFIX='192.168.171'
+HOSTOS=""
 DNSIP="${PUBPREFIX}.60"
+HVISOR=""
+DESTROYVM=1
+CHANGEDNS=1
+
+
+# display help
+mvmchelp() {
+  cat <<EOF
+Usage: $0 [options]
+
+-h           this is some help text.
+-c           no destroy vm already created
+-q           quieter mode
+-y           ask yes to all questions
+-g           gitlaburi (default is gitlab.local)
+-hv          hypervisor: vbox or kvm (default is vbox)
+-p           subnet prefix for vms (default is 192.168.171)
+-n           dns server for vms (default is 192.168.171.60)
+-m           mvmc webui URI (default is mvmc.local)
+-s           mvmc dns suffixes (default is os.mvmc)
+-r           avoid change resolv.conf file
+EOF
+
+exit 0
+}
+
 
 # Parse cmd options
 while (($# > 0)); do
   case "$1" in
+    -c)
+      shift
+      DESTROYVM=0
+      ;;
     -d)
       shift
       DEBUG=2
@@ -36,6 +67,15 @@ while (($# > 0)); do
       GITLABURI="$1"
       shift
       ;;
+    -hv)
+      shift
+      HVISOR="$1"
+      shift
+      ;;
+    -h)
+      shift
+      mvmchelp
+      ;;
     -p)
       shift
       PUBPREFIX="$1"
@@ -52,12 +92,17 @@ while (($# > 0)); do
       MVMCURI="$1"
       shift
       ;;
+    -r)
+      shift
+      CHANGEDNS=0
+      ;;
     -s)
       shift
       MVMCSUF="$1"
       shift
       ;;
-     *)
+    *)
+      mvmchelp
       shift
       ;;
   esac
@@ -83,11 +128,6 @@ fi
 # Include some usable functions
 source scripts/inc/utils
 
-# Include distribution install functions
-source scripts/inc/setup_osx
-source scripts/inc/setup_debian
-source scripts/inc/setup_fedora
-
 # clone submodules
 install_submodules() {
   if [[ -f ror/public/javascripts/application.js ]]; then
@@ -101,7 +141,7 @@ install_submodules() {
 # Make ruby install
 install_ruby() {
   # test if rvm and ruby are already installed
-  rvm gemset list 2>/dev/null | grep rails41 >/dev/null
+  rvm list 2>/dev/null | grep 2.1.0 >/dev/null
   (($?==0)) && return
 
   output -q 'Ruby Installation ...'
@@ -114,13 +154,9 @@ install_ruby() {
   rvm install 2.1.0
   (($?!=0)) && output -e 'Ruby installation has failed'
 
-  rvm gemset create rails410
-  rvm use ruby-2.1.0@rails410
+  rvm use ruby-2.1.0
   gem install bundler
   (($?!=0)) && output -e 'Bundler installation has failed'
-
-  gem install rails -v 4.1.0
-  (($?!=0)) && output -e 'Rails installation has failed'
 }
 
 # nodejs install
@@ -135,40 +171,11 @@ install_nodejs() {
   nvm use 0.10.33
 }
 
-# ember install
-install_embertools() {
-  output -q 'Emberjs installation ...'
-  source ~/.nvm/nvm.sh
-  nvm use 0.10.33
-  npm install -g fsmonitor
-  (($?!=0)) && output -w 'fsmonitor installation has failed'
-  npm install -g ember-tools
-  (($?!=0)) && output -e 'ember-tools installation has failed'
-  rm -f npm-debug.log
-}
-
-# rails install
-install_rails() {
-  output -q 'Rails installation ...'
-  rvm use ruby-2.1.0@rails410
-  pushd ror > /dev/null
-  bundle install
-  (($?!=0)) && output -e 'Rails application installation has failed'
-  popd > /dev/null
-}
-
-# generate yard doc for rails project
-generate_doc() {
-  output -q 'Generate yardoc'
-  rvm use ruby-2.1.0@rails410
-  yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
-  (($?!=0)) && output -w 'Yardoc execution has failed'
-}
-
 # setup ruby-client with default values
 install_client() {
   output -q "Ruby Client Installation ..."
-  rvm use ruby-2.1.0@rails410
+  install_ruby
+  rvm use ruby-2.1.0
   pushd client > /dev/null
   bundle install
   (($?!=0)) && output -w 'Client installation has failed'
@@ -199,58 +206,96 @@ welcome_step() {
   echo -en "\n\n"
 }
 
-# Install prerequisites need by mvmc platform
-install_prerequisites() {
-  output -q "Installing prerequisites ..."
+# check operatingsystem
+check_os() {
+  output -q "Check operating systems..."
 
-  install_ruby
   if [[ -f /etc/debian_version ]]; then
-    install_debian
-    DOMAIN=''
-  fi
-
-  if [[ -f /usr/bin/sw_vers ]]; then
-    install_osx
-    #DOMAIN="$(get_domain)"
-    DOMAIN=''
+    source scripts/inc/setup_debian
+    output -l "Your system is a Debian or Ubuntu"
+    HOSTOS="debian"
+  elif [[ -f /usr/bin/sw_vers ]]; then
+    source scripts/inc/setup_osx
     BINSED='/usr/local/bin/gsed'
-    #RAM="$(($(sysctl hw.memsize | sed "s;^.*: ;;")/1024/1024/1024))"
+    output -l "Your system is a MacOs"
+    HOSTOS="macos"
+  elif [[ -f /etc/fedora-release ]]; then
+    source scripts/inc/setup_fedora
+    output -l "Your system is a Fedora"
+    HOSTOS="fedora"
+  else
+    output -e 'Needs macos, debian-like or fedora operating system'
   fi
 
-  #if [[ -f /etc/fedora-release ]]; then
-  #  OS='FEDORA'
-  #  install_fedora
-  #  HVISOR='libvirt'
-  #  DOMAIN=''
-  #fi
+  output -q 'Operating System is ok'
+}
 
-  #install_nodejs
-  #install_rails
-  #install_embertools
+install_prerequisites() {
+  output -q -l "Install prerequisites on your System ? (y/n)"
+  if ((YES==1)); then
+    response="y"
+  else
+    read response
+  fi
 
-  output -q 'Prerequisites are installed'
+  [[ "$response" = "n" ]] && return
+
+  # init HVISOR var
+  if [[ -z "$HVISOR" ]]; then
+    output -q -l "Which targeted hypervisor on your system ? (kvm/virtualbox)"
+    if ((YES==1)); then
+      echo "virtualbox"
+      HVISOR="virtualbox"
+    else
+      read HVISOR
+    fi
+  fi
+
+  # if wrong HVISOR, set to vbox
+  if [[ "$HVISOR" = "kvm" ]]; then
+    HVISOR="libvirt"
+  else
+    HVISOR="virtualbox"
+  fi
+
+  # some specific os packages
+  install_specific_os
+  # install_ruby
+  install_git
+  if [[ "$HVISOR" = "virtualbox" ]]; then
+    install_vbox
+  else
+    install_kvm
+  fi
+  install_vagrant
+  ip_forward
 }
 
 # Prepare vagrantfiles and global.yaml
 preparefiles() {
-  local hvisor="$(get_hypervisor)"
-
   output -q "Prepare vagrantfile for openstack nodes"
   pushd vagrant/os > /dev/null
   rm -f Vagrantfile
-  cp vagrantfiles/${hvisor}.dist Vagrantfile
+  cp vagrantfiles/${HVISOR}.dist Vagrantfile
+  (($?!=0)) && output -e 'Cant create Vagrantfile for openstack nodes'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" Vagrantfile
   $BINSED -i "s;%%OSPUBSUF%%;${PUBPREFIX##*.};" Vagrantfile
-  (($?!=0)) && output -e 'Cant create Vagrantfile for openstack nodes'
   popd > /dev/null
 
   output -q "Prepare vagrantfile for manager node"
   pushd vagrant/mvmc > /dev/null
   rm -f Vagrantfile
-  cp vagrantfiles/${hvisor}.dist Vagrantfile
+  cp vagrantfiles/${HVISOR}.dist Vagrantfile
+  (($?!=0)) && output -e 'Cant create Vagrantfile for mvmc node'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" Vagrantfile
   $BINSED -i "s;%%OSPUBSUF%%;${PUBPREFIX##*.};" Vagrantfile
-  (($?!=0)) && output -e 'Cant create Vagrantfile for mvmc node'
+  # on fedora, we set rsync type for avoir firewalld issue
+  if [[ "$HOSTOS" = "fedora" ]]; then
+    $BINSED -i "s;%%FILESHARETYPE%%;rsync;" Vagrantfile
+    rm -f puppet/pm/files/sshkeys
+  else
+    $BINSED -i "s;%%FILESHARETYPE%%;nfs;" Vagrantfile
+  fi
   popd > /dev/null
 
   output -q "Prepare hiera global.yml for openstack nodes"
@@ -289,24 +334,8 @@ preparefiles() {
   popd > /dev/null
 }
 
-# Execute ember_build command for generate application.js on the fly
-init_ember() {
-  output -q "Init ember project"
-  pushd ror/public > /dev/null
-  # start ember_build only if it dont yet
-  if ! ps aux | grep "ember_build" | grep -v grep >/dev/null;then
-    ./bin/./ember_build &
-    (($?!=0)) && output -w 'Ember_build execution has failed'
-  fi
-  # force application.js writing
-  touch javascripts/config/app.js
-  popd > /dev/null
-}
-
 # Start vms for create mvmc platform
 start_vms() {
-  local hvisor="$(get_hypervisor)"
-
   output -q "Start vagrant vms"
 
   preparefiles
@@ -319,13 +348,13 @@ start_vms() {
   pushd vagrant/os/hiera > /dev/null
   rm -f uos*
   ln -s os/uosc.yaml uosc${DOMAIN}.yaml
-  ln -s os/uosnv_${hvisor}.yaml uosnv${DOMAIN}.yaml
+  ln -s os/uosnv_${HVISOR}.yaml uosnv${DOMAIN}.yaml
   ln -s os/uosnt.yaml uosnt${DOMAIN}.yaml
   ln -s os/uosst.yaml uosst${DOMAIN}.yaml
   popd > /dev/null
 
   pushd vagrant/os > /dev/null
-  if [[ -d .vagrant ]]; then
+  if ((DESTROYVM==1)) && [[ -d .vagrant ]]; then
     output -q -l "Do you want to Destroy old openstack vm created ? (y/n)"
     if ((YES==1)); then
       response="y"
@@ -341,22 +370,22 @@ start_vms() {
   fi
 
   output -q "Creating openstack controller vm, please wait a moment..."
-  vagrant up --provider=${hvisor}
+  vagrant up --provider=${HVISOR}
   (($?!=0)) && output -e 'Controller creation has failed'
   output -q "Openstack controller is up"
 
   output -q "Creating openstack neutron (network node) vm, please wait a moment..."
-  vagrant up uosnt --provider=${hvisor}
+  vagrant up uosnt --provider=${HVISOR}
   (($?!=0)) && output -e 'Neutron creation has failed'
   output -q "Openstack neutron is up"
 
   output -q "Creating openstack glance (image node) vm, please wait a moment..."
-  vagrant up uosst --provider=${hvisor}
+  vagrant up uosst --provider=${HVISOR}
   (($?!=0)) && output -e 'Glance creation has failed'
   output -q "Openstack glance is up"
 
   output -q "Creating openstack nova (compute node) vm, please wait a moment..."
-  vagrant up uosnv --provider=${hvisor}
+  vagrant up uosnv --provider=${HVISOR}
   (($?!=0)) && output -e 'Nova creation has failed'
   output -q "Openstack nova is up"
   popd > /dev/null
@@ -371,7 +400,7 @@ start_vms() {
   popd > /dev/null
 
   pushd vagrant/mvmc > /dev/null
-  if [[ -d .vagrant ]]; then
+  if ((DESTROYVM==1)) && [[ -d .vagrant ]]; then
     output -q -l "Do you want to Destroy old manager vm created ? (y/n)"
     if ((YES==1)); then
       response="y"
@@ -387,14 +416,24 @@ start_vms() {
   fi
 
   output -q "Creating the manager vm, please wait a moment ..."
-  vagrant up --provider=${hvisor}
+  vagrant up --provider=${HVISOR}
   (($?!=0)) && output -e 'Manager node creation has some error(s)'
   # ensure that rails app is up
   sleep 300
   output -q "The manager instance is up"
   popd > /dev/null
 
-  set_dnsserver "$DNSIP"
+  # init HVISOR var
+  if ((CHANGEDNS==1)); then
+    output -q -l "Change your dns server to the manager mvmc node (for resolve $MVMCSUF uri) ? (y/n)"
+    if ((YES==1)); then
+      response="y"
+    else
+      read response
+    fi
+
+    [[ "$response" = "y" ]] && set_dnsserver "$DNSIP"
+  fi
 }
 
 # Some conclusions words.
@@ -410,9 +449,8 @@ complete_step() {
 
 welcome_step
 install_submodules
+check_os
 install_prerequisites
-#init_rails
-#init_ember
 start_vms
 file_hosts
 install_client

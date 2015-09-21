@@ -2,15 +2,16 @@ Vagrant.configure("2") do |config|
     config.ssh.username = "modem"
     config.ssh.password = "modem"
     config.vm.box_download_insecure = true
+    config.vm.synced_folder ".", "/vagrant", type: "rsync"
 
     config.vm.define :mvmc, primary: true do |mvmc|
       mvmc.vm.hostname = "mvmc"
       mvmc.vm.box = "mc"
-      mvmc.vm.synced_folder "../../client", "/mvmc", :owner => "modem", :group => "modem"
-      mvmc.vm.synced_folder "../../ror", "/ror", :owner => "modem", :group => "modem"
-      mvmc.vm.synced_folder "../../out", "/out", :owner => "modem", :group => "modem"
-      mvmc.vm.synced_folder "../../puppet", "/puppet", :owner => "modem", :group => "modem"
-      mvmc.vm.synced_folder "../../ror/hiera", "/hiera", :owner => "modem", :group => "modem"
+      mvmc.vm.synced_folder "../../client", "/mvmc", type: '%%FILESHARETYPE%%'
+      mvmc.vm.synced_folder "../../ror", "/ror", type: '%%FILESHARETYPE%%'
+      mvmc.vm.synced_folder "../../out", "/out", type: '%%FILESHARETYPE%%'
+      mvmc.vm.synced_folder "../../puppet", "/puppet", type: '%%FILESHARETYPE%%'
+      mvmc.vm.synced_folder "../../ror/hiera", "/hiera", type: '%%FILESHARETYPE%%'
       mvmc.vm.box_url = "http://imgs.mvmc.services-pm.fr:8383/vbox/mc.box"
       mvmc.vm.provider :virtualbox do |v|
         v.customize ["modifyvm", :id, "--natdnsproxy1", "off"]

@@ -1,38 +1,162 @@
 #!/bin/bash
 #
-# fedora specific part for setup mvmc
+# debian specific part for setup mvmc
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
 
-install_git_fedora() {
-  echo "###### Git Installation ######"
-  yum install git wget
-  echo "###### Git Installation Complete ######"
+# virtualbox install
+install_vbox() {
+  [[ -f /usr/bin/VBox ]] && return
+  output -q "Virtualbox Installation ..."
+  sudo dnf install -y VirtualBox-5.0
+  (($?!=0)) && output -e 'Virtualbox installation has failed'
 }
 
-install_kvm_fedora() {
-  echo "###### Kvm Installation ######"
-  yum install qemu-kvm
-  echo "###### Kvm Installation Complete ######"
+# vagrant install
+install_vagrant() {
+  # check if vagrant 1.7 is already installed
+  vagrant version >/dev/null 2>&1
+  if (($?!=0)); then
+    output -q "Vagrant Installation ..."
+    sudo dnf install -y vagrant
+    (($?!=0)) && output -e 'Vagrant installation has failed'
+  fi
+
+  install_libvirt
+  install_vagrantlibvirt
 }
 
-vagrantfiles_fedora() {
-  echo "Prepare vagrantfile for openstack nodes"
-  pushd vagrant/os > /dev/null
-  ln -s vagrantfiles/vbox Vagrantfile
-  popd > /dev/null
+# libvirt install
+install_libvirt() {
+  # test if libvirt is already installed
+  [[ -x /usr/bin/virt-manager ]] && return
 
-  echo "Prepare vagrantfile for manager node"
-  pushd vagrant/mvmc > /dev/null
-  ln -s vagrantfiles/vbox Vagrantfile
-  popd > /dev/null
+  output -q "Libvirt Installation ..."
+
+  sudo dnf -y install virt-manager
+  (($?!=0)) && output -e 'Libvirt installation has failed'
+  sudo usermod -G "$(grep libvirt /etc/group | grep -v qemu | cut -d: -f 1)" -a $USER
+  (($?!=0)) && output -e 'Cant add current user to libvirt group'
+  sudo service libvirtd restart
+  (($?!=0)) && sudo service libvirt-bin restart
+
+  # check if libvirt is already on user group
+  groups | grep libvirt
+  (($?!=0)) && output -e "libvirt is not already on your group list. Please exit term, log you again with current user and start again setup script"
 }
 
-install_fedora() {
-  echo "Your system is a Fedora"
-  echo "Some prerequisite must be installed"
-  sleep 5
+# libvirt plugin for vagrant install
+install_vagrantlibvirt() {
+  # test if plugin is already installed
+  vagrant plugin list | grep libvirt >/dev/null
+  (($?==0)) && return
 
-  install_git_fedora
-  install_kvm_fedora
-  vagrantfiles_fedora
+  sudo dnf install -y vagrant-libvirt
+  (($?!=0)) && output -e 'Libvirt plugin for vagrant installation has failed'
+}
+
+# git install
+install_git() {
+  # test if git is already installed
+  [[ -x /usr/bin/git ]] && return
+
+  output -q "Git Installation ..."
+  sudo dnf install -y git
+  (($?!=0)) && output -e 'Git installation has failed'
+}
+
+# kvm install
+install_kvm() {
+  # test if kvm is already installed
+  lsmod | grep kvm_intel >/dev/null
+  (($?==0)) && return
+
+  output -q "Kvm Installation ..."
+  sudo dnf install -y qemu-kvm
+  (($?!=0)) && output -e 'Kvm installation has failed'
+
+  # reload kvm modules for avoid permission issue
+  sudo modprobe -r kvm_intel
+  sudo modprobe -r kvm
+  (($?!=0)) && output -w 'Kvm reload is on error. Please reload kvm later and restart nova (uosnv) node after.'
+  # kvm_amd ?
+  sudo /bin/bash -c 'echo "options kvm_intel nested=1" > /etc/modprobe.d/kvm-intel.conf'
+  sudo modprobe kvm
+  sudo modprobe kvm_intel
+  (($?!=0)) && output -w 'Kvm reload is on error. Please reload kvm later and restart nova (uosnv) node after.'
+}
+
+# nfs install
+install_nfs() {
+  rpm -q nfs-utils >/dev/null
+  (($?==0)) && return
+
+  output -q "Nfs installation"
+  sudo dnf install -y nfs-utils
+  (($?!=0)) && output -e 'Nfs installation has failed'
+}
+
+# enable ip forward
+ip_forward() {
+  # check if it's already enabled
+  [[ "$(cat /proc/sys/net/ipv4/ip_forward)" = "1" ]] && return
+
+  # Enable ip forwarding on linux host
+  output -q "Enable ip forwarding"
+  sudo /bin/bash -c 'echo 1 > /proc/sys/net/ipv4/ip_forward'
+  sudo /bin/bash -c 'echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf'
+}
+
+# libmysqlclient
+install_libmysqlclient() {
+  # Install some needed packages
+  sudo dnf install -y community-mysql-devel
+  (($?!=0)) && output -w 'community-mysql-devel installation is on error. This library is needed by rails application'
+}
+
+# get rvm gpg key
+rvm_key() {
+  # Install rvm gpg key
+  curl -sSL https://rvm.io/mpapis.asc | gpg --import -
+}
+
+# stop firewalld, not used
+stop_firewalld() {
+  output -q -l "We need to stop firewalld for avoid vagrant freeze ? (y/n)"
+  if ((YES==1)); then
+    response="y"
+  else
+    read response
+  fi
+
+  if [[ "$response" = "y" ]]; then
+    sudo systemctl stop firewalld
+    (($?!=0)) && output -e 'Stop firewall failed'
+  else
+    output -q "firewalld is still running"
+  fi
+  
+}
+
+# add some rules on firewalld for nfs share, not used
+rules_firewalld() {
+  sudo firewall-cmd --zone=internal --add-interface=vboxnet0
+  sudo firewall-cmd --zone=internal --add-interface=vboxnet1
+  sudo firewall-cmd --zone=internal --add-interface=vboxnet2
+  sudo firewall-cmd --zone=internal --add-interface=vboxnet3
+  sudo firewall-cmd --zone=internal --add-interface=vboxnet4
+  sudo firewall-cmd --zone=internal --add-interface=virbr0
+  sudo firewall-cmd --zone=internal --add-interface=virbr1
+  sudo firewall-cmd --zone=internal --add-interface=virbr2
+  sudo firewall-cmd --zone=internal --add-interface=virbr3
+  sudo firewall-cmd --zone=internal --add-interface=virbr4
+  sudo firewall-cmd --permanent --zone internal --add-service mountd
+  sudo firewall-cmd --permanent --zone internal --add-service rpc-bind
+  sudo firewall-cmd --permanent --zone internal --add-service nfs
+  sudo firewall-cmd --permanent --zone internal --add-port=2049/udp
+  sudo firewall-cmd --reload
+}
+
+# specific linux installs
+install_specific_os() {
+  install_nfs
 }

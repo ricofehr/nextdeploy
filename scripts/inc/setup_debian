@@ -4,14 +4,15 @@
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
 
 # virtualbox install
-install_vbox_debian() {
+install_vbox() {
+  [[ -f /usr/bin/VBox ]] && return
   output -q "Virtualbox Installation ..."
   sudo apt-get install -y --force-yes virtualbox
   (($?!=0)) && output -e 'Virtualbox installation has failed'
 }
 
 # vagrant install
-install_vagrant_debian() {
+install_vagrant() {
   # check if vagrant 1.7 is already installed
   vagrant version 2>/dev/null | grep "Installed Version: 1.7.4" >/dev/null
   if (($?!=0)); then
@@ -27,7 +28,7 @@ install_vagrant_debian() {
 }
 
 # libvirt install
-install_libvirt_debian() {
+install_libvirt() {
   # test if libvirt is already installed
   [[ -x /usr/bin/virt-manager ]] && return
 
@@ -46,7 +47,7 @@ install_libvirt_debian() {
 }
 
 # libvirt plugin for vagrant install
-install_vagrantlibvirt_debian() {
+install_vagrantlibvirt() {
   # test if plugin is already installed
   vagrant plugin list | grep libvirt >/dev/null
   (($?==0)) && return
@@ -58,14 +59,14 @@ install_vagrantlibvirt_debian() {
 }
 
 # git install
-install_git_debian() {
+install_git() {
   output -q "Git Installation ..."
   sudo apt-get install -y --force-yes git
   (($?!=0)) && output -e 'Git installation has failed'
 }
 
 # kvm install
-install_kvm_debian() {
+install_kvm() {
   # test if kvm is already installed
   lsmod | grep kvm_intel >/dev/null
   (($?==0)) && return
@@ -86,7 +87,7 @@ install_kvm_debian() {
 }
 
 # nfs install
-install_nfs_debian() {
+install_nfs() {
   output -q "Nfs installation"
   sudo apt-get -y --force-yes install nfs-kernel-server nfs-common
   (($?!=0)) && output -e 'Nfs installation has failed'
@@ -100,7 +101,7 @@ install_nfs_debian() {
 }
 
 # enable ip forward
-ip_forward_debian() {
+ip_forward() {
   # check if it's already enabled
   [[ "$(cat /proc/sys/net/ipv4/ip_forward)" = "1" ]] && return
 
@@ -110,21 +111,20 @@ ip_forward_debian() {
   sudo /bin/bash -c 'echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf'
 }
 
-# debian prerequisites install
-install_debian() {
-  output -l "Your system is a Debian or Ubuntu"
-  output -l "Some prerequisite must be installed"
-  sleep 5
 
-  # Install some needed packages
+# libmysql install
+install_libmysqlclient() {
   sudo apt-get -y --force-yes install libmysqlclient-dev
   (($?!=0)) && output -w 'libmysqlclient-dev installation is on error. This library is needed by rails application'
+}
+
+# get rvm gpg key
+rvm_key() {
   # Install rvm gpg key
   curl -sSL https://rvm.io/mpapis.asc | gpg --import -
+}
 
-  install_git_debian
-  install_kvm_debian
-  install_vagrant_debian
-  install_nfs_debian
-  ip_forward_debian
+# specific linux installs
+install_specific_os() {
+  install_nfs
 }

@@ -4,7 +4,7 @@
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
 
 # Cmdline xcode tools install
-install_xcode_osx() {
+install_xcode() {
   output -q "CommandLineTools Installation ..."
   if [[ ! -d /Library/Developer/CommandLineTools ]]; then
     echo "CommandLineTools Installation ..."
@@ -21,7 +21,7 @@ install_xcode_osx() {
 }
 
 # brew install
-install_brew_osx() {
+install_brew() {
   output -q "Brew Installation ..."
   rvm use ruby-2.1.0@rails410
 
@@ -36,7 +36,7 @@ install_brew_osx() {
 }
 
 # virtualbox install
-install_vbox_osx() {
+install_vbox() {
   output -q "VirtualBox Installation ..."
   # Install virtualbox only it isnt yes installed
   if [[ ! -e /usr/bin/VBoxManage ]] && [[ ! -e /usr/local/bin/VBoxManage ]]; then
@@ -55,7 +55,7 @@ install_vbox_osx() {
 }
 
 # vagrant install
-install_vagrant_osx() {
+install_vagrant() {
   output -q "Vagrant Installation ..."
   curl -OsSL "https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.4.dmg"
   hdiutil mount vagrant_1.7.4.dmg
@@ -66,7 +66,7 @@ install_vagrant_osx() {
 }
 
 # git install
-install_git_osx() {
+install_git() {
   output -q "Git Installation ..."
   curl -OsSL "http://downloads.sourceforge.net/project/git-osx-installer/git-2.2.1-intel-universal-mavericks.dmg"
   hdiutil mount git-2.2.1-intel-universal-mavericks.dmg
@@ -76,28 +76,20 @@ install_git_osx() {
   rm -f git-2.2.1-intel-universal-mavericks.dmg
 }
 
-# install osx prerequisites
-install_osx() {
-  output -q -l "Your system is Mac-osx"
-  output -q -l "Now we are installing brew, gsed, git, vagrant and virtualbox"
-  output -q -l "If you have already this commands installed on your system, you can avoid this step"
-  output -q -l "Install prerequisites on your System ? (y/n)"
-  if ((YES==1)); then
-    echo "y"
-    response="y"
-  else
-    read response
-  fi
-
-  if [[ "$response" = "y" ]]; then
-    install_xcode_osx
-    install_git_osx
-    install_brew_osx
-    install_vbox_osx
-    install_vagrant_osx
-  fi
-
+# enable ip_forward
+ip_forward() {
   # Enable ip_forwarding on macos
   sudo sysctl -w net.inet.ip.forwarding=1
+}
+
+# avoid kvm install on mac os
+install_kvm() {
+  output -e 'No kvm install on macos x'
+}
+
+# install osx prerequisites
+install_specific_os() {
+    install_xcode
+    install_brew
 }
 
