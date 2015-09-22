@@ -7,8 +7,8 @@ The project is an ongoing deployment system virtualized development environment 
 The project uses a cloud to host vms. The api is working actually with openstack. In the future, HP and AWS cloud will also be taken into account. Installation templates are defined for the puppet tool. Git is used for versioning developments on projects and Gitlab manager is installed for these deposits. A REST API (in ruby on rails) is the intermediary between these systems and can manage user authentication, project creation, adding users, and of course the launch of vms.
 
 The REST api can be reached with 3 different ways
-* a local client (ruby script) to be use with commandline (/client folder into the repository)
-* an WebUI developped with EMBER (/public folder into the repository)
+* a local client (ruby script) to be use with commandline (Repository here: https://github.com/ricofehr/mvmc-cli)
+* an WebUI developped with EMBER (Repository here: https://github.com/ricofehr/mvmc-webui)
 * an android application (Repository here: https://github.com/ricofehr/mvmc-android)
 
 ## Features
@@ -50,10 +50,25 @@ For the installation of the project on the computer for testing or development
 ```
 ./scripts/./setup
 ```
+Some extra options are available with this command
+```
+Usage: ./scripts/./setup [options]
 
+-h           this is some help text.
+-c           no destroy vm already created
+-q           quieter mode
+-y           ask yes to all questions
+-g xxxx      gitlaburi (default is gitlab.local)
+-hv          hypervisor: vbox or kvm (default is vbox)
+-p xxxx      subnet prefix for vms (default is 192.168.171)
+-n xxxx      dns server for vms (default is 192.168.171.60)
+-m xxxx      mvmc webui URI (default is mvmc.local)
+-s xxxx      mvmc dns suffixes (default is os.mvmc)
+-r           avoid change resolv.conf file
+```
 Installation requires a large amount of RAM, a computer with 8GB of RAM minimum is required. Indeed, the OpenStack cloud is then implemented using vagrant through the creation of four virtual machines (controller, neutron, glance, nova) and another virtual machine is created to launch the rest app and hosts the gitlab and templates puppet installation. The script requires "curl" and "sudo" as a prerequisite.
 
-The setup script has been tested on mac os x and debian. The hypervisor for mvmc installation is virtualbox (mac osx) or kvm (debian, ubuntu, fedora). Knowing that the performance of virtual machines deployed on OpenStack will be much better if mvmc is virtualized through kvm. Indeed, kvm can then itself be used as a hypervisor-level cloud. Otherwise (mvmc installation on virtualbox on macosx), it uses qemu.
+The setup script has been tested on mac os x, debian, ubuntu and fedora. The hypervisor for mvmc installation is virtualbox (mac osx) or kvm (debian, ubuntu, fedora). Knowing that the performance of virtual machines deployed on OpenStack will be much better if mvmc is virtualized through kvm. Indeed, kvm can then itself be used as a hypervisor-level cloud. Otherwise (mvmc installation on virtualbox on macosx), it uses qemu.
 
 A set of groups, users and projects are created during installation.
 
@@ -218,6 +233,7 @@ cd ror && yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
 * Improve the logging task for rest api
 * Add elements of monitoring and supervision
 * Improve usability of the UI
+* Implement some extra functionnalities for the vms: security test, code quality parser, ..
 
 
 ## Contributing
