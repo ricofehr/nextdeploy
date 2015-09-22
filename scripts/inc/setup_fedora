@@ -158,5 +158,6 @@ rules_firewalld() {
 
 # specific linux installs
 install_specific_os() {
+  rvm_key
   install_nfs
 }
