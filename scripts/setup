@@ -141,11 +141,14 @@ install_submodules() {
 # Make ruby install
 install_ruby() {
   # test if rvm and ruby are already installed
-  rvm list 2>/dev/null | grep 2.1.0 >/dev/null
-  (($?==0)) && return
+  rvm gemset list 2>/dev/null | grep mvmc >/dev/null
+  if (($?==0)); then
+    rvm use ruby-2.1.0@mvmc
+    return
+  fi
 
   output -q 'Ruby Installation ...'
-  curl -sSL https://get.rvm.io | bash
+  curl -sSL https://get.rvm.io | bash -s stable
   (($?!=0)) && output -e 'Rvm installation has failed'
 
   source ~/.rvm/scripts/rvm
@@ -154,28 +157,16 @@ install_ruby() {
   rvm install 2.1.0
   (($?!=0)) && output -e 'Ruby installation has failed'
 
-  rvm use ruby-2.1.0
+  rvm gemset create mvmc
+  rvm use ruby-2.1.0@mvmc
   gem install bundler
   (($?!=0)) && output -e 'Bundler installation has failed'
-}
-
-# nodejs install
-install_nodejs() {
-  output -q 'Nodejs Installation ...'
-  curl https://raw.githubusercontent.com/creationix/nvm/v0.23.3/install.sh | bash
-  (($?!=0)) && output -w 'Nvm installation has failed or was already done before'
-
-  source ~/.nvm/nvm.sh
-  nvm install 0.10.33
-  (($?!=0)) && output -w 'Node installation has failed'
-  nvm use 0.10.33
 }
 
 # setup ruby-client with default values
 install_client() {
   output -q "Ruby Client Installation ..."
-  install_ruby
-  rvm use ruby-2.1.0
+  rvm use ruby-2.1.0@mvmc
   pushd client > /dev/null
   bundle install
   (($?!=0)) && output -w 'Client installation has failed'
@@ -230,6 +221,7 @@ check_os() {
   output -q 'Operating System is ok'
 }
 
+# install some prerequisites for the local operating system
 install_prerequisites() {
   output -q -l "Install prerequisites on your System ? (y/n)"
   if ((YES==1)); then
@@ -260,8 +252,10 @@ install_prerequisites() {
 
   # some specific os packages
   install_specific_os
-  # install_ruby
+  # install_ruby and git
+  install_ruby
   install_git
+  # install hypervisor
   if [[ "$HVISOR" = "virtualbox" ]]; then
     install_vbox
   else
