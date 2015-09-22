@@ -59,7 +59,7 @@ Usage: ./scripts/./setup [options]
 -q           quieter mode
 -y           ask yes to all questions
 -g xxxx      gitlaburi (default is gitlab.local)
--hv          hypervisor: vbox or kvm (default is vbox)
+-hv xxxx     hypervisor: vbox or kvm (default is vbox)
 -p xxxx      subnet prefix for vms (default is 192.168.171)
 -n xxxx      dns server for vms (default is 192.168.171.60)
 -m xxxx      mvmc webui URI (default is mvmc.local)
@@ -88,7 +88,7 @@ For a remote installation, you must have 5 physical machines availabes: 4 for th
 * Pm: Only rights to edit their profile or launch vms
 * Guest: Only rights to recover access to urls vms
 
-When local mvmc facility (see above INSTALL), the following users are created:
+When local mvmc facility (see above Local Installation), the following users are created:
 * usera@os.mvmc (password: word123123 and admin group)
 * userl@os.mvmc (password: word123123 and lead dev group)
 * userd@os.mvmc (password: word123123 and dev group)
