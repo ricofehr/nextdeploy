@@ -42,7 +42,7 @@ module VmsHelper
         f.puts classes.join("\n")
         f.puts templates.join("\n")
         # varnish3 for old linux, v4 for newer
-        if systemimage.name == "Debian7"
+        if systemimage.name == "Debian7" || systemimage.name == "Ubuntu1404"
           f.puts "varnish_version: 3\n"
           if project.login && project.login.length > 0
             f.puts 'varnish_auth: "if (! req.http.Authorization ~ \"Basic ' + Base64.strict_encode64(project.login + ":" + project.password) +'\") { error 401 ;}"' + "\n"
