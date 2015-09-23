@@ -173,6 +173,11 @@ class pm::postinstall::mvmc {
     owner => 'modem',
     mode => '0700'
   } ->
+  # generate doc
+  exec { 'yardoc_ror':
+    command => 'bundle exec yardoc lib/**/*.rb app/**/*.rb config/**/*.rb',
+    timeout => 120
+  } ->
   # Nginx settings
   file { '/var/opt/gitlab/nginx/conf/os-http.conf':
     ensure =>  file,
