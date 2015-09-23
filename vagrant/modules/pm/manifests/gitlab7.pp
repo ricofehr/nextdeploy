@@ -12,6 +12,13 @@ class pm::gitlab7 {
 
   class { 'gitlab': }
   ->
+  exec { 'gitlab_reconfigure_fixweirdbug':
+    command     => '/usr/bin/gitlab-ctl reconfigure',
+    timeout     => 1800,
+    logoutput   => true,
+    tries       => 5,
+    require => Exec['gitlab_reconfigure']
+  } ->
   file_line { 'gitlab_servername':
     path => '/var/opt/gitlab/nginx/conf/gitlab-http.conf',
     line => "server_name ${server_name};",
