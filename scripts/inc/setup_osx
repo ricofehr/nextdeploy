@@ -87,6 +87,10 @@ install_kvm() {
   output -e 'No kvm install on macos x'
 }
 
+kvm_reload() {
+  output -e 'No kvm install on macos x'
+}
+
 # install osx prerequisites
 install_specific_os() {
     install_xcode

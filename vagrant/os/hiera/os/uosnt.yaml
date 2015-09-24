@@ -4,19 +4,19 @@ classes:
   - roles::os::uosnt
 
 # external interface who must binding on the bridge
-externaldev: eth2
+externaldev: "%{hiera('global::neutron_extdev')}"
 
 # gateway ip for public network
 gateway_ip: "%{hiera('global::pubprefix')}.10"
 
 # masquerade dev
-masqdev: eth0
+masqdev: "%{hiera('global::neutron_pubdev')}"
 
 # keystone setting
 keystone::enabled: false
 keystone::verbose: false
 keystone::catalog_type: 'sql'
-keystone::admin_bind_host: '172.16.170.70'
+keystone::admin_bind_host: "%{hiera('global::managementprefix')}.70"
 keystone::admin_token: 'token123'
 keystone::database_connection: 'mysql://keystone:oskeystone@controller-m/keystonedb'
 
@@ -31,8 +31,6 @@ neutron::allow_overlapping_ips: true
 neutron::core_plugin: 'neutron.plugins.ml2.plugin.Ml2Plugin'
 neutron::service_plugins:
   - 'neutron.services.l3_router.l3_router_plugin.L3RouterPlugin'
-#  - 'neutron.services.loadbalancer.plugin.LoadBalancerPlugin'
-#  - 'neutron.services.vpn.plugin.VPNDriverPlugin'
   - 'neutron.services.firewall.fwaas_plugin.FirewallPlugin'
   - 'neutron.services.metering.metering_plugin.MeteringPlugin'
 neutron::server::auth_uri: 'http://keystone-m:5000/v2.0/'
@@ -49,7 +47,7 @@ neutron::server::notifications::nova_admin_password: 'osnova'
 neutron::server::notifications::nova_region_name: 'RegionOne'
 
 neutron::agents::ml2::ovs::enable_tunneling: true
-neutron::agents::ml2::ovs::local_ip: '172.16.171.71'
+neutron::agents::ml2::ovs::local_ip: "%{hiera('global::dataprefix')}.71"
 neutron::agents::ml2::ovs::enabled: true
 neutron::agents::ml2::ovs::tunnel_types:
   - 'gre'
@@ -75,10 +73,6 @@ neutron::agents::metadata::debug: false
 neutron::agents::metadata::auth_region: 'RegionOne'
 neutron::agents::metadata::metadata_ip: 'controller-m'
 neutron::agents::metadata::enabled: true
-
-#neutron::agents::lbaas::debug: false
-#neutron::agents::lbaas::enabled: true
-#neutron::agents::vpnaas::enabled: true
 neutron::agents::metering::enabled: true
 neutron::services::fwaas::enabled: true
 
@@ -138,10 +132,3 @@ vs_port:
     bridge: 'brex'
 
 is_cron: no
-#cron_cmd:
-#  if2disable:
-#    command: '/sbin/ifconfig eth2 0.0.0.0'
-#    user:  'root'
-#    minute: '*'
-#    hour: '*'
-#    weekday: '*'

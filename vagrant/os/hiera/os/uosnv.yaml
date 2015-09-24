@@ -7,7 +7,7 @@ classes:
 keystone::enabled: false
 keystone::verbose: false
 keystone::catalog_type: 'sql'
-keystone::admin_bind_host: '172.16.170.70'
+keystone::admin_bind_host: "%{hiera('global::managementprefix')}.70"
 keystone::admin_token: 'token123'
 keystone::database_connecion: 'mysql://keystone:oskeystone@controller-m/keystonedb'
 
@@ -25,10 +25,10 @@ neutron::service_plugins:
   - 'neutron.services.firewall.fwaas_plugin.FirewallPlugin'
   - 'neutron.services.metering.metering_plugin.MeteringPlugin'
 #neutron::server class
-neutron::server::auth_uri: 'http://keystone-m:5000/v2.0/'
-neutron::server::identity_uri: 'http://keystone-m:35357'
 neutron::server::auth_user: 'neutron'
 neutron::server::auth_password: 'osneutron'
+neutron::server::auth_uri: 'http://keystone-m:5000/v2.0/'
+neutron::server::identity_uri: 'http://keystone-m:35357'
 neutron::server::database_connection: 'mysql://neutron:osneutron@controller-m/neutrondb?charset=utf8'
 neutron::server::enabled: false
 neutron::server::sync_db: false
@@ -41,7 +41,7 @@ neutron::server::notifications::nova_region_name: 'RegionOne'
 
 #neutron::agents
 neutron::agents::ml2::ovs::enable_tunneling: true
-neutron::agents::ml2::ovs::local_ip: '172.16.171.75'
+neutron::agents::ml2::ovs::local_ip: "%{hiera('global::dataprefix')}.75"
 neutron::agents::ml2::ovs::enabled: true
 neutron::agents::ml2::ovs::tunnel_types:
   - 'gre'
@@ -68,14 +68,14 @@ nova::rabbit_password: 'useros'
 nova::verbose:  false
 
 #nova::compute class
-nova::compute::vncserver_proxyclient_address: '172.16.170.75'
-nova::compute::vncproxy_host: '192.168.170.70'
+nova::compute::vncserver_proxyclient_address: "%{hiera('global::managementprefix')}.75"
+nova::compute::vncproxy_host: "%{hiera('global::apiprefix')}.70"
 nova::compute::enabled: true
 nova::compute::vnc_enabled: true
 
 #nova::compute::libvirt setting
 nova::compute::libvirt::migration_support: true
-nova::compute::libvirt::libvirt_virt_type: 'qemu'
+nova::compute::libvirt::libvirt_virt_type: "%{hiera('global::nova_hv')}"
 nova::compute::libvirt::vncserver_listen: '0.0.0.0'
 
 #nova::network class

@@ -40,7 +40,7 @@ techno_apache = Techno.create!(name: "apache", puppetclass: "pm::http", ordering
 hiera: "docroot: %{docroot}
 apache_vhost:
   %{vhost}:
-    vhost_name: '*'
+    vhost_name: '*' 
     port: %{portA}
     override:
       - 'None'
@@ -173,7 +173,7 @@ glance_id_t.strip!
 
 
 #debian7 = Systemimage.create!(name: 'Debian7', glance_id: glance_id_w, enabled: true, systemimagetype: linux)
-debian8 = Systemimage.create!(name: 'Debian8', glance_id: glance_id_j, enabled: true, systemimagetype: linux)
 ubuntu14 = Systemimage.create!(name: 'Ubuntu1404', glance_id: glance_id_t, enabled: true, systemimagetype: linux)
+debian8 = Systemimage.create!(name: 'Debian8', glance_id: glance_id_j, enabled: true, systemimagetype: linux)
 
 puts "Create #{Systemimage.count} system image"

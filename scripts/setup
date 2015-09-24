@@ -3,23 +3,30 @@
 # Setup script for install mvmc platform into local computer
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
 
-EMAIL='admin@mvmc-openstack.local'
-PASSWORD='wordpass123123'
-DOMAIN=''
-DEBUG=1
-BINSED='/bin/sed'
-OUT="$(pwd)/out/setup.log"
-YES=0
-MVMCSUF='os.mvmc'
-MVMCURI='mvmc.local'
-GITLABURI='gitlab.local'
-PUBPREFIX='192.168.171'
-HOSTOS=""
-DNSIP="${PUBPREFIX}.60"
-HVISOR=""
-DESTROYVM=1
-CHANGEDNS=1
-
+CLIEMAIL='usera@os.mvmc' # user for mvmc client cli
+CLIPASSWORD='word123123' # password for mvmc client cli
+DOMAIN='' # local domain for dhcp zone. DEPRECATED
+DEBUG=1 # debug level
+BINSED='/bin/sed' # path for gnu sed command
+OUT="$(pwd)/out/setup.log" # path for output log
+YES=0 # set yes to all questions
+MVMCSUF='os.mvmc' # suffix for mvmc dns endpoints
+MVMCURI='mvmc.local' # endpoint for mvmc webui
+GITLABURI='gitlab.local' # endpoint for gitlab webui
+PUBPREFIX='192.168.171' # subnet prefix for external network
+MANAGEMENTPREFIX='172.16.170' # subnet prefix for manaegment network into openstack cloud
+APIPREFIX='192.168.170' # subnet prefix for api netwok into openstack cloud
+DATAPREFIX='172.16.171' # subnet prefix for data netwok into openstack cloud
+HOSTOS="" # local operating system (debian / fedora / macos)
+DNSIP="${PUBPREFIX}.60" # dns server for openstack virtual machines
+HVISOR="" # hypervisor type
+DESTROYVM=1 # destroy all vm before reinstall them
+CHANGEDNS=1 # change local resolv.conf file for match mvmc dns zones
+NESTED=0 # enable nested virtualization for nova node
+NEUTRONEXTDEV='eth2' # neutron interface who set the external network ip
+NEUTRONPUBDEV='eth0' # neutron interface who set the public IP
+FILESHARETYPE='nfs' # define which sharing strategy for rails app between host computer and mvmc virtual node
+STARTVM=0 # start a test vm after build complete
 
 # display help
 mvmchelp() {
@@ -29,14 +36,24 @@ Usage: $0 [options]
 -h           this is some help text.
 -c           no destroy vm already created
 -q           quieter mode
--y           ask yes to all questions
--g           gitlaburi (default is gitlab.local)
--hv          hypervisor: vbox or kvm (default is vbox)
--p           subnet prefix for vms (default is 192.168.171)
--n           dns server for vms (default is 192.168.171.60)
--m           mvmc webui URI (default is mvmc.local)
--s           mvmc dns suffixes (default is os.mvmc)
--r           avoid change resolv.conf file
+-y           ask yes to all question
+-fs xxxx     fileshare strategy for rails app source between host and mvmc node, nfs/rsync (Default is nfs)
+-cu xxxx     cli username (default is usera@os.mvmc)
+-cp xxxx     cli password (default is word123123)
+-g xxxx      gitlaburi (default is gitlab.local)
+-hv xxxx     hypervisor: virtualbox or libvirt (default is virtualbox)
+-nv          enable nested virtualisation for nova (default is off), EXPERIMENTAL
+-ne xxxx     set the neutron external interface (for the public openstack subnet, default is eth2)
+-np xxxx     set the neutron public interface (default is eth0)
+-p xxxx      subnet prefix (external network) for vms (default is 192.168.171)
+-a xxxx      subnet prefix for api network (default is 192.168.170)
+-d xxxx      subnet prefix for data network (default is 172.16.171)
+-e xxxx      subnet prefix for management network (default is 172.16.170)
+-n xxxx      dns server for vms (default is 192.168.171.60)
+-m xxxx      mvmc webui URI (default is mvmc.local)
+-s xxxx      mvmc dns suffixes (default is os.mvmc)
+-r           avoid change resolv.conf and hosts files
+-vm          start a vm after build is complete
 EOF
 
 exit 0
@@ -46,6 +63,44 @@ exit 0
 # Parse cmd options
 while (($# > 0)); do
   case "$1" in
+    -cp)
+      shift
+      CLIPASSWORD="$1"
+      shift
+      ;;
+    -cu)
+      shift
+      CLIEMAIL="$1"
+      shift
+      ;;
+    -fs)
+      shift
+      FILESHARETYPE="$1"
+      shift
+      ;;
+    -hv)
+      shift
+      HVISOR="$1"
+      shift
+      ;;
+    -ne)
+      shift
+      NEUTRONEXTDEV="$1"
+      shift
+      ;;
+    -np)
+      shift
+      NEUTRONPUBDEV="$1"
+      shift
+      ;;
+    -nv)
+      shift
+      NESTED=1
+      ;;
+    -vm)
+      shift
+      STARTVM=1
+      ;;
     -c)
       shift
       DESTROYVM=0
@@ -67,11 +122,6 @@ while (($# > 0)); do
       GITLABURI="$1"
       shift
       ;;
-    -hv)
-      shift
-      HVISOR="$1"
-      shift
-      ;;
     -h)
       shift
       mvmchelp
@@ -80,6 +130,21 @@ while (($# > 0)); do
       shift
       PUBPREFIX="$1"
       DNSIP="${PUBPREFIX}.60"
+      shift
+      ;;
+    -a)
+      shift
+      APIPREFIX="$1"
+      shift
+      ;;
+    -d)
+      shift
+      DATAPREFIX="$1"
+      shift
+      ;;
+    -e)
+      shift
+      MANAGEMENTPREFIX="$1"
       shift
       ;;
     -n)
@@ -165,17 +230,21 @@ install_ruby() {
 
 # setup ruby-client with default values
 install_client() {
-  output -q "Ruby Client Installation ..."
+  output -q "Mvmc Client Installation ..."
   rvm use ruby-2.1.0@mvmc
   pushd client > /dev/null
-  bundle install
+  ./install.sh
   (($?!=0)) && output -w 'Client installation has failed'
   popd > /dev/null
 
-  output -l "Client Setting File /etc/mvmc.conf"
-  sudo /bin/bash -c "echo \"email: ${EMAIL}\" > /etc/mvmc.conf"
-  sudo /bin/bash -c "echo \"password: ${PASSWORD}\" >> /etc/mvmc.conf"
-  sudo /bin/bash -c "echo \"endpoint: ${MVMCURI}\" >> /etc/mvmc.conf"
+  output -l "Client Setting File ~/.mvmc.conf"
+  mvmc config ${MVMCURI} ${CLIEMAIL} ${CLIPASSWORD}
+}
+
+# start a vm on the first project into list
+start_vm() {
+  mvmc launch "$(mvmc projects | head -n 1 | tr -d "\n")"
+  (($?!=0)) && output -e 'Vm start has failed'
 }
 
 # Add mvmc platform uris into hosts file
@@ -214,6 +283,7 @@ check_os() {
     source scripts/inc/setup_fedora
     output -l "Your system is a Fedora"
     HOSTOS="fedora"
+    FILESHARETYPE="rsync"
   else
     output -e 'Needs macos, debian-like or fedora operating system'
   fi
@@ -234,21 +304,16 @@ install_prerequisites() {
 
   # init HVISOR var
   if [[ -z "$HVISOR" ]]; then
-    output -q -l "Which targeted hypervisor on your system ? (kvm/virtualbox)"
+    output -q -l "Which targeted hypervisor on your system ? (libvirt/virtualbox)"
     if ((YES==1)); then
-      echo "virtualbox"
       HVISOR="virtualbox"
     else
       read HVISOR
     fi
   fi
 
-  # if wrong HVISOR, set to vbox
-  if [[ "$HVISOR" = "kvm" ]]; then
-    HVISOR="libvirt"
-  else
-    HVISOR="virtualbox"
-  fi
+  # force virtualbox if other than libvirt
+  [[ "$HVISOR" != "libvirt" ]] && HVISOR="virtualbox"
 
   # some specific os packages
   install_specific_os
@@ -274,6 +339,17 @@ preparefiles() {
   (($?!=0)) && output -e 'Cant create Vagrantfile for openstack nodes'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" Vagrantfile
   $BINSED -i "s;%%OSPUBSUF%%;${PUBPREFIX##*.};" Vagrantfile
+  $BINSED -i "s;%%DATAPREFIX%%;${DATAPREFIX};" Vagrantfile
+  $BINSED -i "s;%%OSDATASUF%%;${DATAPREFIX##*.};" Vagrantfile
+  $BINSED -i "s;%%APIPREFIX%%;${APIPREFIX};" Vagrantfile
+  $BINSED -i "s;%%OSAPISUF%%;${APIPREFIX##*.};" Vagrantfile
+  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${MANAGEMENTPREFIX};" Vagrantfile
+  $BINSED -i "s;%%OSMANAGEMENTSUF%%;${MANAGEMENTPREFIX##*.};" Vagrantfile
+  if ((NESTED==1)); then
+    $BINSED -i "s;%%NESTED%%;true;" Vagrantfile
+  else
+    $BINSED -i "s;%%NESTED%%;false;" Vagrantfile
+  fi
   popd > /dev/null
 
   output -q "Prepare vagrantfile for manager node"
@@ -283,13 +359,16 @@ preparefiles() {
   (($?!=0)) && output -e 'Cant create Vagrantfile for mvmc node'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" Vagrantfile
   $BINSED -i "s;%%OSPUBSUF%%;${PUBPREFIX##*.};" Vagrantfile
+  $BINSED -i "s;%%DATAPREFIX%%;${DATAPREFIX};" Vagrantfile
+  $BINSED -i "s;%%OSDATASUF%%;${DATAPREFIX##*.};" Vagrantfile
+  $BINSED -i "s;%%APIPREFIX%%;${APIPREFIX};" Vagrantfile
+  $BINSED -i "s;%%OSAPISUF%%;${APIPREFIX##*.};" Vagrantfile
+  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${MANAGEMENTPREFIX};" Vagrantfile
+  $BINSED -i "s;%%OSMANAGEMENTSUF%%;${MANAGEMENTPREFIX##*.};" Vagrantfile
   # on fedora, we set rsync type for avoir firewalld issue
-  if [[ "$HOSTOS" = "fedora" ]]; then
-    $BINSED -i "s;%%FILESHARETYPE%%;rsync;" Vagrantfile
-    rm -f puppet/pm/files/sshkeys
-  else
-    $BINSED -i "s;%%FILESHARETYPE%%;nfs;" Vagrantfile
-  fi
+  $BINSED -i "s;%%FILESHARETYPE%%;${FILESHARETYPE};" Vagrantfile
+  # fix an issue when rsync share
+  rm -f puppet/pm/files/sshkeys
   popd > /dev/null
 
   output -q "Prepare hiera global.yml for openstack nodes"
@@ -298,6 +377,16 @@ preparefiles() {
   cp global.yaml.dist global.yaml
   (($?!=0)) && output -e 'Cant create global.yml for openstack nodes'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" global.yaml
+  $BINSED -i "s;%%DATAPREFIX%%;${DATAPREFIX};" global.yaml
+  $BINSED -i "s;%%APIPREFIX%%;${APIPREFIX};" global.yaml
+  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${MANAGEMENTPREFIX};" global.yaml
+  $BINSED -i "s;%%EXTDEV%%;${NEUTRONEXTDEV};" global.yaml
+  $BINSED -i "s;%%PUBDEV%%;${NEUTRONPUBDEV};" global.yaml
+  if ((NESTED==1)); then
+    $BINSED -i "s;%%NOVAHV%%;kvm;" global.yaml
+  else
+    $BINSED -i "s;%%NOVAHV%%;qemu;" global.yaml
+  fi
   $BINSED -i "s;%%MVMCURI%%;${MVMCURI};" global.yaml
   $BINSED -i "s;%%MVMCSUF%%;${MVMCSUF};" global.yaml
   $BINSED -i "s;%%GITLABURI%%;${GITLABURI};" global.yaml
@@ -310,6 +399,12 @@ preparefiles() {
   cp global.yaml.dist global.yaml
   (($?!=0)) && output -e 'Cant create global.yml for mvmc nodes'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" global.yaml
+  $BINSED -i "s;%%DATAPREFIX%%;${DATAPREFIX};" global.yaml
+  $BINSED -i "s;%%APIPREFIX%%;${APIPREFIX};" global.yaml
+  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${MANAGEMENTPREFIX};" global.yaml
+  $BINSED -i "s;%%DATAPREFIX%%;${DATAPREFIX};" global.yaml
+  $BINSED -i "s;%%APIPREFIX%%;${APIPREFIX};" global.yaml
+  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${MANAGEMENTPREFIX};" global.yaml
   $BINSED -i "s;%%MVMCURI%%;${MVMCURI};" global.yaml
   $BINSED -i "s;%%MVMCSUF%%;${MVMCSUF};" global.yaml
   $BINSED -i "s;%%GITLABURI%%;${GITLABURI};" global.yaml
@@ -329,7 +424,7 @@ preparefiles() {
 }
 
 # Start vms for create mvmc platform
-start_vms() {
+install_mvmc() {
   output -q "Start vagrant vms"
 
   preparefiles
@@ -342,7 +437,7 @@ start_vms() {
   pushd vagrant/os/hiera > /dev/null
   rm -f uos*
   ln -s os/uosc.yaml uosc${DOMAIN}.yaml
-  ln -s os/uosnv_${HVISOR}.yaml uosnv${DOMAIN}.yaml
+  ln -s os/uosnv.yaml uosnv${DOMAIN}.yaml
   ln -s os/uosnt.yaml uosnt${DOMAIN}.yaml
   ln -s os/uosst.yaml uosst${DOMAIN}.yaml
   popd > /dev/null
@@ -361,6 +456,13 @@ start_vms() {
       (($?!=0)) && output -w 'Destroy openstack nodes has failed'
       rm -rf .vagrant
     fi
+  fi
+
+  # reload kvm module for avoid permission issue and ensure that nested virt is enable
+  if [[ "$HVISOR" = "libvirt" ]]; then
+    # wait than vm are well detroyed
+    sleep 10
+    kvm_reload
   fi
 
   output -q "Creating openstack controller vm, please wait a moment..."
@@ -419,14 +521,17 @@ start_vms() {
 
   # init HVISOR var
   if ((CHANGEDNS==1)); then
-    output -q -l "Change your dns server to the manager mvmc node (for resolve $MVMCSUF uri) ? (y/n)"
+    output -q -l "Change your dns server to the manager mvmc node (for resolve $MVMCSUF uri) and the hosts file for manage local endpoint ? (y/n)"
     if ((YES==1)); then
       response="y"
     else
       read response
     fi
 
-    [[ "$response" = "y" ]] && set_dnsserver "$DNSIP"
+    if [[ "$response" = "y" ]]; then
+      set_dnsserver "$DNSIP"
+      file_hosts
+    fi
   fi
 }
 
@@ -445,7 +550,7 @@ welcome_step
 install_submodules
 check_os
 install_prerequisites
-start_vms
-file_hosts
+install_mvmc
 install_client
+((STARTVM==1)) && start_vm
 complete_step

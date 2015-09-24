@@ -17,8 +17,10 @@ install_vagrant() {
   vagrant version >/dev/null 2>&1
   if (($?!=0)); then
     output -q "Vagrant Installation ..."
-    sudo dnf install -y vagrant
+    curl -OsSL "https://dl.bintray.com/mitchellh/vagrant/vagrant_1.6.5_x86_64.rpm"
+    sudo dnf install -y vagrant_1.6.5_x86_64.rpm
     (($?!=0)) && output -e 'Vagrant installation has failed'
+    rm -f vagrant_1.6.5_x86_64.rpm
   fi
 
   install_libvirt
@@ -50,7 +52,10 @@ install_vagrantlibvirt() {
   vagrant plugin list | grep libvirt >/dev/null
   (($?==0)) && return
 
-  sudo dnf install -y vagrant-libvirt
+  #sudo dnf install -y vagrant-libvirt
+  output -q "Libvirt Vagrant Plugin Installation ..."
+  sudo dnf install -y libxml2-devel libxslt-devel libvirt-devel
+  vagrant plugin install vagrant-libvirt
   (($?!=0)) && output -e 'Libvirt plugin for vagrant installation has failed'
 }
 
@@ -69,10 +74,17 @@ install_kvm() {
   # test if kvm is already installed
   lsmod | grep kvm_intel >/dev/null
   (($?==0)) && return
-
+  
   output -q "Kvm Installation ..."
   sudo dnf install -y qemu-kvm
   (($?!=0)) && output -e 'Kvm installation has failed'
+}
+
+# reload kvm module
+kvm_reload() {
+  # test if we can avoid reload module
+  cat /sys/module/kvm_intel/parameters/nested | grep Y >/dev/null
+  (($?==0)) && return
 
   # reload kvm modules for avoid permission issue
   sudo modprobe -r kvm_intel
@@ -116,7 +128,7 @@ install_libmysqlclient() {
 # get rvm gpg key
 rvm_key() {
   # Install rvm gpg key
-  curl -sSL https://rvm.io/mpapis.asc | gpg --import -
+  curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -
 }
 
 # stop firewalld, not used
