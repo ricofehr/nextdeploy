@@ -23,8 +23,8 @@ install_vagrant() {
     rm -f vagrant_1.7.4_x86_64.deb
   fi
 
-  install_libvirt_debian
-  install_vagrantlibvirt_debian
+  install_libvirt
+  install_vagrantlibvirt
 }
 
 # libvirt install
@@ -74,7 +74,10 @@ install_kvm() {
   output -q "Kvm Installation ..."
   sudo apt-get install -y --force-yes qemu-kvm
   (($?!=0)) && output -e 'Kvm installation has failed'
+}
 
+# reload kvm module
+kvm_reload() {
   # reload kvm modules for avoid permission issue
   sudo modprobe -r kvm_intel
   sudo modprobe -r kvm
@@ -121,7 +124,7 @@ install_libmysqlclient() {
 # get rvm gpg key
 rvm_key() {
   # Install rvm gpg key
-  curl -sSL https://rvm.io/mpapis.asc | gpg --import -
+  curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -
 }
 
 # specific linux installs

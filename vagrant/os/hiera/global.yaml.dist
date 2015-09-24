@@ -1,6 +1,12 @@
 apt::always_apt_update: true
 global::pubprefix: %%PUBPREFIX%%
+global::managementprefix: %%MANAGEMENTPREFIX%%
+global::apiprefix: %%APIPREFIX%%
+global::dataprefix: %%DATAPREFIX%%
 global::mvmcuri: %%MVMCURI%%
 global::gitlaburi: %%GITLABURI%%
 global::gitlabns: %%GITLABNS%%
 global::mvmcsuf: %%MVMCSUF%%
+global::nova_hv: %%NOVAHV%%
+global::neutron_extdev: %%EXTDEV%%
+global::neutron_pubdev: %%PUBDEV%%

@@ -157,7 +157,7 @@ class pm::postinstall::mvmc {
   } ->
   # puma setting
   file { '/var/run/puma':
-    ensure            =>  directory,
+    ensure =>  directory,
     owner => 'root',
     mode => '0777'
   } ->
@@ -219,12 +219,12 @@ class pm::postinstall::mvmc {
   exec { 'restart_nginx2':
     command => '/opt/gitlab/embedded/sbin/nginx -c /var/opt/gitlab/nginx/conf/nginx.conf -p /var/opt/gitlab/nginx/ -s reload',
    user => 'root'
-  }
-  #exec { 'restart_nginx2':
-  #  command => '/usr/bin/service nginx restart',
-  #  user => 'root'
-  #}
-  ->
+  } ->
+  file { '/hiera':
+    ensure => 'link',
+    target => '/ror/hiera',
+    owner => 'root',
+  } ->
   # restart dnsmasq script
   file { '/root/rdnsmasq.sh':
     ensure => 'file',

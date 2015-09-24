@@ -57,14 +57,24 @@ Usage: ./scripts/./setup [options]
 -h           this is some help text.
 -c           no destroy vm already created
 -q           quieter mode
--y           ask yes to all questions
+-y           ask yes to all question
+-fs xxxx     fileshare strategy for rails app source between host and mvmc node, nfs/rsync (Default is nfs)
+-cu xxxx     cli username (default is usera@os.mvmc)
+-cp xxxx     cli password (default is word123123)
 -g xxxx      gitlaburi (default is gitlab.local)
--hv xxxx     hypervisor: vbox or kvm (default is vbox)
--p xxxx      subnet prefix for vms (default is 192.168.171)
+-hv xxxx     hypervisor: virtualbox or libvirt (default is virtualbox)
+-nv          enable nested virtualisation for nova (default is off), EXPERIMENTAL
+-ne xxxx     set the neutron external interface (for the public openstack subnet, default is eth2)
+-np xxxx     set the neutron public interface (default is eth0)
+-p xxxx      subnet prefix (external network) for vms (default is 192.168.171)
+-a xxxx      subnet prefix for api network (default is 192.168.170)
+-d xxxx      subnet prefix for data network (default is 172.16.171)
+-e xxxx      subnet prefix for management network (default is 172.16.170)
 -n xxxx      dns server for vms (default is 192.168.171.60)
 -m xxxx      mvmc webui URI (default is mvmc.local)
 -s xxxx      mvmc dns suffixes (default is os.mvmc)
--r           avoid change resolv.conf file
+-r           avoid change resolv.conf and hosts files
+-vm          start a vm after build is complete
 ```
 Installation requires a large amount of RAM, a computer with 8GB of RAM minimum is required. Indeed, the OpenStack cloud is then implemented using vagrant through the creation of four virtual machines (controller, neutron, glance, nova) and another virtual machine is created to launch the rest app and hosts the gitlab and templates puppet installation. The script requires "curl" and "sudo" as a prerequisite.
 
