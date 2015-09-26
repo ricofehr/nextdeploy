@@ -78,6 +78,10 @@ install_kvm() {
 
 # reload kvm module
 kvm_reload() {
+  # test if we can avoid reload module
+  cat /sys/module/kvm_intel/parameters/nested | grep Y >/dev/null
+  (($?==0)) && return
+
   # reload kvm modules for avoid permission issue
   sudo modprobe -r kvm_intel
   sudo modprobe -r kvm
