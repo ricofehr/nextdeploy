@@ -243,6 +243,7 @@ install_client() {
 
 # start a vm on the first project into list
 start_vm() {
+  output -l "Start a vm for project $(mvmc projects | head -n 1 | tr -d "\n")"
   mvmc launch "$(mvmc projects | head -n 1 | tr -d "\n")"
   (($?!=0)) && output -e 'Vm start has failed'
 }

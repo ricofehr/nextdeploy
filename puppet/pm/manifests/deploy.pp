@@ -10,7 +10,7 @@
 class pm::deploy::vhost {
   Exec {
     path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
-    unless => 'test -f /root/.deploygit'
+    unless => 'test -f /home/modem/.deploygit'
   }
 
   $docroot = hiera('docrootgit', '/var/www/html')
@@ -50,7 +50,8 @@ class pm::deploy::vhost {
   }
   ->
   exec { 'touchdeploygit':
-    command => 'touch /root/.deploygit'
+    command => 'touch /home/modem/.deploygit',
+    user => 'modem'
   }
 
 }
