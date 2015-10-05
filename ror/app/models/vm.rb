@@ -105,7 +105,7 @@ class Vm < ActiveRecord::Base
     begin
       @osapi.delete_vm(self.nova_id)
     rescue Exceptions::MvmcException => me
-      me.log_e
+      me.log
     end
     system("rm -f hiera/#{self.name}.openstack.local.yaml")
   end

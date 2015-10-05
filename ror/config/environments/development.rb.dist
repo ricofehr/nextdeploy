@@ -41,9 +41,9 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
-  config.gitlab_endpoint       = 'http://%%GITLABURI%%/api/v3' # API endpoint URL, default: ENV['GITLAB_API_ENDPOINT']
-  config.gitlab_endpoint0       = 'http://%%GITLABURI%%' # API endpoint URL, default: ENV['GITLAB_API_ENDPOINT']
-  config.gitlab_prefix       = 'git@mvmc:root/'
+  config.gitlab_endpoint       = 'http://%%GITLABNS%%/api/v3' # API endpoint URL, default: ENV['GITLAB_API_ENDPOINT']
+  config.gitlab_endpoint0       = 'http://%%GITLABNS%%' # API endpoint URL, default: ENV['GITLAB_API_ENDPOINT']
+  config.gitlab_prefix       = 'git@%%GITLABNS%%:root/'
   config.mvmcip = '%%PUBPREFIX%%.60'
   config.ovpnip = '%%PUBPREFIX%%.60'
   config.mvmcuri = '%%MVMCURI%%'

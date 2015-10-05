@@ -9,6 +9,9 @@
 #
 class pm::hosts {
   $pubprefix = hiera('global::pubprefix', '192.168.171')
+  $apiprefix = hiera('global::apiprefix', '192.168.170')
+  $managementprefix = hiera('global::managementprefix', '172.16.170')
+  $dataprefix = hiera('global::dataprefix', '172.16.171')
   $gitlabns = hiera('global::gitlabns', 'gitlab.local')
 
   file { '/etc/hosts':
@@ -24,6 +27,9 @@ class pm::hosts {
     command => "/bin/sed -i 's;%%HOSTNAME%%;${clientcert};' /etc/hosts"
   } ->
   exec { 'hostnametolocalhost3':
-    command => "/bin/sed -i 's;%%PUBPREFIX%%;${pubprefix};g' /etc/hosts"
+    command => "/bin/sed -i 's/%%PUBPREFIX%%/${pubprefix}/g;s/%%APIPREFIX%%/${apiprefix}/g;' /etc/hosts"
+  } ->
+  exec { 'hostnametolocalhost4':
+    command => "/bin/sed -i 's/%%MANAGEMENTPREFIX%%/${managementprefix}/g;s/%%DATAPREFIX%%/${dataprefix}/g;' /etc/hosts"
   }
 }

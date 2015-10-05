@@ -100,7 +100,7 @@ neutron_subnet:
     network_name: 'public'
     tenant_name: 'services'
     allocation_pools:
-      - "start=%{hiera('global::pubprefix')}.80,end=%{hiera('global::pubprefix')}.254"
+      - "start=%{hiera('global::pubprefix')}.80,end=%{hiera('global::pubprefix')}.250"
     dns_nameservers:
       - "%{hiera('global::pubprefix')}.60"
   '10.0.170.0/24':
@@ -127,7 +127,7 @@ vs_bridge:
     ensure: present
 
 vs_port:
-  eth2:
+  "%{hiera('global::neutron_extdev')}":
     ensure: present
     bridge: 'brex'
 

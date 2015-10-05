@@ -403,13 +403,11 @@ preparefiles() {
   $BINSED -i "s;%%DATAPREFIX%%;${DATAPREFIX};" global.yaml
   $BINSED -i "s;%%APIPREFIX%%;${APIPREFIX};" global.yaml
   $BINSED -i "s;%%MANAGEMENTPREFIX%%;${MANAGEMENTPREFIX};" global.yaml
-  $BINSED -i "s;%%DATAPREFIX%%;${DATAPREFIX};" global.yaml
-  $BINSED -i "s;%%APIPREFIX%%;${APIPREFIX};" global.yaml
-  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${MANAGEMENTPREFIX};" global.yaml
   $BINSED -i "s;%%MVMCURI%%;${MVMCURI};" global.yaml
   $BINSED -i "s;%%MVMCSUF%%;${MVMCSUF};" global.yaml
   $BINSED -i "s;%%GITLABURI%%;${GITLABURI};" global.yaml
   $BINSED -i "s;%%GITLABNS%%;${GITLABURI%%/*};" global.yaml
+  $BINSED -i "s;%%RAILSENV%%;development;" global.yaml
   popd > /dev/null
 
   output -q "Prepare rails development.rb settings file"
@@ -420,7 +418,7 @@ preparefiles() {
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" development.rb
   $BINSED -i "s;%%MVMCSUF%%;${MVMCSUF};" development.rb
   $BINSED -i "s;%%MVMCURI%%;${MVMCURI};" development.rb
-  $BINSED -i "s;%%GITLABURI%%;${GITLABURI};" development.rb
+  $BINSED -i "s;%%GITLABNS%%;${GITLABURI%%/*};" development.rb
   popd > /dev/null
 }
 
