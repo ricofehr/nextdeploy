@@ -8,7 +8,7 @@
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::postinstall::mvmc {
-  $railsenv = hiera('railsenv', 'development')
+  $railsenv = hiera('global::railsenv', 'development')
   $mvmcuri = hiera('global::mvmcuri', 'mvmc.local')
   $mvmcsuf = hiera('global::mvmcsuf', 'os.mvmc')
 
@@ -166,6 +166,9 @@ class pm::postinstall::mvmc {
     source => ['puppet:///modules/pm/scripts/puma.sh'],
     owner => 'modem',
     mode => '0700'
+  } ->
+  exec { 'pumaenv':
+    command => "/bin/sed -i 's;%%RAILSENV%%;${railsenv};' /home/modem/puma.sh", 
   } ->
   file { '/home/modem/ember.sh':
     ensure => file,

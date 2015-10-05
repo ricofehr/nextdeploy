@@ -23,7 +23,6 @@ class pm::os::memcached_c {
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::os::keystone {
-  #class { '::keystone::params': }
 
   class { '::keystone':
     require => [ Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
@@ -51,6 +50,7 @@ class pm::os::keystone {
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::os::nv_c {
+
   class { '::nova':
     require => [ Class['pm::os::memcached_c'], Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
   }
@@ -160,7 +160,7 @@ class pm::os::nv {
 class pm::os::nv_postinstall {
   Exec {
       path => '/usr/bin:/usr/sbin:/bin:/sbin',
-      user => 'root'
+      user => 'root',
   }
 
   # move nova folder into home filesystem (ensure that we have large disk space)
@@ -180,7 +180,7 @@ class pm::os::nv_postinstall {
   exec { 'restartcompute':
     command => 'service nova-compute restart'
   } ->
-  # post install stuff
+  # post install stuff: flavors and quotas
   exec { 'nova-secgroup-rule22':
     command => 'nova --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 secgroup-add-rule default tcp 22 22 0.0.0.0/0',
   } ->
@@ -201,6 +201,39 @@ class pm::os::nv_postinstall {
   } ->
   exec { 'nova-recreate-small':
     command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 flavor-create m1.small 2 1024 15 2',
+  } ->
+  exec { 'nova-quota-instances':
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --instances 170 default',
+  } ->
+  exec { 'nova-quota-keypairs':
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --key-pairs 1700 default',
+  } ->
+  exec { 'nova-quota-floatingips':
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --floating-ips 170 default',
+  } ->
+  exec { 'nova-quota-cores':
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --cores 416 default',
+  } ->
+  exec { 'nova-quota-ram':
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --ram 122880 default',
+  } ->
+  exec { 'nova-quota-meta':
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --metadata-items 1280 default',
+  } ->
+  exec { 'nova-quota-servergroups':
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --server-groups 170 default',
+  } ->
+  exec { 'nova-quota-servergroupmembers':
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --server-group-members 170 default',
+  } ->
+  exec { 'cinder-quota-gb':
+    command => 'cinder --os-username cinder --os-password oscinder --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --gigabytes 4000 default',
+  } ->
+  exec { 'cinder-quota-volumes':
+    command => 'cinder --os-username cinder --os-password oscinder --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --volumes 170 default',
+  } ->
+  exec { 'cinder-quota-snapshots':
+    command => 'cinder --os-username cinder --os-password oscinder --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --snapshots 170 default',
   }
 }
 
@@ -215,6 +248,7 @@ class pm::os::nv_postinstall {
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::os::gl {
+
   class { '::glance::api':
     require => [ File['/etc/hosts'] ],
   } ->
@@ -251,6 +285,7 @@ class pm::os::gl {
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::os::nt_c {
+
   # enable the neutron service
   class { '::neutron':
     require => [ Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
@@ -300,6 +335,7 @@ class pm::os::nt_c {
 class pm::os::nt {
   Exec {
       path => '/usr/bin:/usr/sbin:/bin:/sbin',
+      timeout => 0
   }
 
   # some hiera variable
@@ -418,6 +454,7 @@ class pm::os::nt_postinstall {
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::os::cder_c {
+  
   class { 'cinder':
     require => [ Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
   }
@@ -442,6 +479,7 @@ class pm::os::cder_c {
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::os::cder {
+  
   class { '::keystone':
     require => [ File['/etc/hosts'] ],
   }
@@ -472,6 +510,7 @@ class pm::os::cder {
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::os::hz {
+  
   exec {'loghorizon':
      command => '/bin/mkdir -p /var/log/horizon'
   } ->

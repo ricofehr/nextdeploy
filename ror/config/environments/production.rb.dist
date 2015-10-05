@@ -83,19 +83,20 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  config.gitlab_endpoint       = 'http://gitlab.remote/api/v3' # API endpoint URL, default: ENV['GITLAB_API_ENDPOINT']
-  config.gitlab_endpoint0       = 'http://gitlab.remote' # API endpoint URL, default: ENV['GITLAB_API_ENDPOINT']
-  config.gitlab_prefix = 'git@mvmc.remote:root/'
+  config.gitlab_endpoint       = 'http://%%GITLABNS%%/api/v3'
+  config.gitlab_endpoint0       = 'http://%%GITLABNS%%'
+  config.gitlab_prefix = 'git@%%GITLABNS%%:root/'
   config.mvmcip = '%%PUBPREFIX%%.60'
-  config.mvmcip = '%%PUBPREFIX%%.60'
+  config.ovpnip = '%%MVMCIP%%'
+  config.mvmcuri = '%%MVMCURI%%'
   config.ovpnport = '1194'
 
   config.gitlab_token = ''
   config.gitlab_rootpath = '/var/opt/gitlab/git-data/repositories/root'
   config.project_initpath = '/home/modem/www'
-  config.limit_vm = 10
+  config.limit_vm = 170
 
-  config.os_suffix = ".os.local"
+  config.os_suffix = ".%%MVMCSUF%%"
   config.os_endpoint = 'http://controller-m:35357'
   config.os_endpoint_neutron = 'http://controller-a:9696'
   config.os_endpoint_nova = 'http://controller-a:8774'

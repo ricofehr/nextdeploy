@@ -1,6 +1,6 @@
 # Mvmc
 
-[![Build Status](http://mvmc.publicis-modem.fr:9292/buildStatus/icon?job=mvmc)](http://mvmc.publicis-modem.fr:9292/job/mvmc/)
+[![Build Status](http://build.mvmc.services-pm.fr:9292/buildStatus/icon?job=mvmc)](http://build.mvmc.services-pm.fr:9292/job/mvmc/)
 
 The project is an ongoing deployment system virtualized development environment in the cloud. Generic installation templates are defined for different frameworks or cms. When creating a project, a git repository is associated with this installation template. Thus, virtual machines can be run on demand by deploying the site on a preinstalled system following prerequisites specified in the template.
 

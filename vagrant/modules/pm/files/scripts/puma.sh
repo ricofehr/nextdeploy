@@ -11,5 +11,5 @@ sudo mkdir -p /var/run/puma
 sudo chown modem: /var/run/puma
 pushd /ror > /dev/null
 export SECRET_KEY_BASE="$(rake secret)"
-nohup /usr/local/rvm/gems/ruby-2.1.0/bin/bundle exec puma -e development -b unix:///var/run/puma/my_app.sock &
+nohup /usr/local/rvm/gems/ruby-2.1.0/bin/bundle exec puma -e %%RAILSENV%% -b unix:///var/run/puma/my_app.sock &
 popd > /dev/null
