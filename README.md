@@ -23,16 +23,17 @@ The REST api can be reached with 3 different ways
 
 ## Folders
 
-* /client The Ruby client for exchange with the rest api thanks to commandline
+* /client The Ruby client for exchange with the rest api thanks to commandline ([submodule](https://github.com/ricofehr/mvmc-cli))
 * /out Some logs, specially during the setup of the platform
-* /puppet Installation templates for the vms into the cloud. Customs class are included into puppet/pm folder, others are taken from puppetforge catalog.
-* /ror The rails application who serves the rest api. The Webui developped on EmberJs is included into /ror/public folder.
+* /puppet Installation templates for the vms into the cloud. Customs class are included into puppet/pm folder, others are taken from puppetforge catalog. ([submodule](https://github.com/ricofehr/mvmc-puppet))
+* /ror The rails application who serves the rest api. 
+* /ror/public The Webui developped on EmberJs ([submodule](https://github.com/ricofehr/mvmc-webui))
 * /scripts Some jobs for setup completely the project in local workstation, start or stop mvmc
 * /tmp Temporary folder
 * /vagrant Definitions for create the 4 openstack nodes and the manager node
 
 ## Submodules and Clone
-The cli application (client folder) and the puppet modules of the community are included in the project in the form of Submodules git.
+The cli application (client folder), the webui (ror/public folder), the vm installation templates (/puppet folder) and some puppet modules of the community used by installation and setting of mvmc, are included in the project in the form of Submodules git.
 
 To retrieve, use this clone cmd.
 ```
@@ -41,7 +42,7 @@ git clone --recursive git@github.com:ricofehr/mvmc
 
 If the clone has already been done, execute this command.
 ```
-git submodule update --init
+git submodule update --init --recursive
 ```
 
 ## Local Installation
@@ -109,6 +110,8 @@ When local mvmc facility (see above Local Installation), the following users are
 ## Vm installation pattern
 
 The tool used for managing templates facilities associated with the project is puppet. Currently supported technologies are mainly directed php with Symfony2, drupal and wordpress. It is also possible to start a vm "php" without involving a framework or cms. To follow, support for Java technology (ame), windows (sitecore), ...
+
+The git repository for this templates: https://github.com/ricofehr/mvmc-puppet
 
 ## Android Application
 
@@ -205,9 +208,12 @@ The ruby client manages the following commands
 ```
 `mvmc help` will print help about this command
 `mvmc up` launch current commit into vm
+`mvmc launch [projectname] [branch] [commit]` launch [commit] (default is head) on the [branch] (default is master) for [projectname] into remote mvmc
 `mvmc destroy` destroy current vm associated to this project
 `mvmc ssh` ssh into current vm
 `mvmc projects` list projects for current user
+`mvmc clone [project-name]` clone project in current folder
+`mvmc config [endpoint] [username] [password]` get/set properties settings for mvmc
 ```
 
 The git repository for cli application: https://github.com/ricofehr/mvmc-cli

@@ -111,63 +111,12 @@
 [submodule "vagrant/modules/gnupg"]
 	path = vagrant/modules/gnupg
 	url = https://github.com/n1tr0g/golja-gnupg.git
-[submodule "puppet/apache"]
-	path = puppet/apache
-	url = https://github.com/puppetlabs/puppetlabs-apache
-[submodule "puppet/apt"]
-	path = puppet/apt
-	url = https://github.com/puppetlabs/puppetlabs-apt.git
-[submodule "puppet/concat"]
-	path = puppet/concat
-	url = https://github.com/puppetlabs/puppetlabs-concat.git
-[submodule "puppet/elasticsearch"]
-	path = puppet/elasticsearch
-	url = https://github.com/elastic/puppet-elasticsearch.git
-[submodule "puppet/gcc"]
-	path = puppet/gcc
-	url = https://github.com/puppetlabs/puppetlabs-gcc.git
-[submodule "puppet/inifile"]
-	path = puppet/inifile
-	url = https://github.com/puppetlabs/puppetlabs-inifile.git
-[submodule "puppet/memcached"]
-	path = puppet/memcached
-	url = https://github.com/saz/puppet-memcached
-[submodule "puppet/mongodb"]
-	path = puppet/mongodb
-	url = https://github.com/puppetlabs/puppetlabs-mongodb.git
-[submodule "puppet/mysql"]
-	path = puppet/mysql
-	url = https://github.com/puppetlabs/puppetlabs-mysql.git
-[submodule "puppet/ntp"]
-	path = puppet/ntp
-	url = https://github.com/puppetlabs/puppetlabs-ntp.git
-[submodule "puppet/php"]
-	path = puppet/php
-	url = https://github.com/thias/puppet-php.git
-[submodule "puppet/rabbitmq"]
-	path = puppet/rabbitmq
-	url = https://github.com/puppetlabs/puppetlabs-rabbitmq.git
-[submodule "puppet/redis"]
-	path = puppet/redis
-	url = https://github.com/thomasvandoren/puppet-redis.git
-[submodule "puppet/staging"]
-	path = puppet/staging
-	url = https://github.com/nanliu/puppet-staging.git
-[submodule "puppet/stdlib"]
-	path = puppet/stdlib
-	url = https://github.com/puppetlabs/puppetlabs-stdlib.git
-[submodule "puppet/sysctl"]
-	path = puppet/sysctl
-	url = https://github.com/duritong/puppet-sysctl.git
-[submodule "puppet/wget"]
-	path = puppet/wget
-	url = https://github.com/maestrodev/puppet-wget.git
-[submodule "puppet/nodejs"]
-	path = puppet/nodejs
-	url = https://github.com/puppetlabs/puppetlabs-nodejs.git
 [submodule "client"]
 	path = client
 	url = git@github.com:ricofehr/mvmc-cli
 [submodule "ror/public"]
 	path = ror/public
 	url = git@github.com:ricofehr/mvmc-webui
+[submodule "puppet"]
+	path = puppet
+	url = git@github.com:ricofehr/mvmc-puppet
