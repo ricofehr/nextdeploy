@@ -200,7 +200,7 @@ install_submodules() {
     rmdir ror/public/javascripts
     rmdir ror/public
   fi
-  git submodule update --init
+  git submodule update --init --recursive
 }
 
 # Make ruby install
