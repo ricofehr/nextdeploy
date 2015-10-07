@@ -125,7 +125,7 @@ module Apiexternal
     def delete_vm(nova_id)
       begin
         floating_ip = get_floatingip(nova_id)
-        remove_floatingip(nova_id, floating_ip[:ip]) if floating_ip
+        delete_floatingip(floating_ip[:id]) if floating_ip
         delete_port(get_port_uuid(nova_id))
       rescue Exceptions::OSApiException => oe
         oe.log
@@ -381,7 +381,7 @@ module Apiexternal
         req.headers = self.headers
       end
 
-      raise Exceptions::OSApiException.new("Delete request on /v2.0/floatingips/#{floatingip_id}: #{response.status}") if response.status != 202
+      raise Exceptions::OSApiException.new("Delete request on /v2/#{@tenant}/os-floating-ips/#{floatingip_id}: #{response.status}") if response.status != 202
     end
 
     # Helper function for parse json call
