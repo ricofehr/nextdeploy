@@ -73,6 +73,14 @@ class User < ActiveRecord::Base
     self.group.lead?
   end
 
+  # Return true if guest
+  #
+  # No param
+  # @return [Boolean] if guest
+  def guest?
+    self.group.access_level == 10
+  end
+
   private
 
   # Set gitlabapi object

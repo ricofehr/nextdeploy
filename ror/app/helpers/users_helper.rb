@@ -19,9 +19,27 @@ module UsersHelper
     system('mkdir -p sshkeys')
     system("rm -f sshkeys/#{self.email}.authorized_keys")
     system("touch sshkeys/#{self.email}.authorized_keys")
+    # add server mvmc public key to authorized_keys
+    system("cat ~/.ssh/id_rsa.pub > sshkeys/#{self.email}.authorized_keys")
     Sshkey.admins.each { |k| system("echo #{k.key} >> sshkeys/#{self.email}.authorized_keys") }
     self.sshkeys.each { |k| system("echo #{k.key} >> sshkeys/#{self.email}.authorized_keys") }
     system("chmod 777 sshkeys/*")
+  end
+
+  # Generate again all authorized_keys (trigerred after change with admin ssh keys)
+  #
+  # No param
+  # No return
+  def generate_all_authorizedkeys
+    User.all.each { |k| k.generate_authorizedkeys }
+  end
+
+  # Upload authorized_keys updated to the active vm for the user
+  #
+  # No param
+  # No return
+  def upload_authorizedkeys
+    self.vms.each { |k| system("scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null sshkeys/#{self.email}.authorized_keys modem@#{k.floating_ip}:~/.ssh/authorized_keys") }
   end
 
   # Generate own openvpn key
@@ -87,6 +105,17 @@ module UsersHelper
     system("ssh-keygen -f sshkeys/#{self.email} -N ''")
     system("chmod 777 sshkeys/*")
     @gitlabapi.add_sshkey(gitlab_user, "modemsshkey", public_sshkey_modem)
+  end
+
+  # Copy modem ssh key
+  #
+  # @param emailsrc (String): user from which we copy modemkeys
+  # No return
+  def copy_sshkey_modem(emailsrc)
+    system("mkdir -p sshkeys")
+    system("cp -f sshkeys/#{emailsrc} sshkeys/#{self.email}")
+    system("cp -f sshkeys/#{emailsrc}.pub sshkeys/#{self.email}.pub")
+    system("chmod 777 sshkeys/*")
   end
 
   # Get private own modem ssh key
