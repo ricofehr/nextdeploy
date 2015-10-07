@@ -107,7 +107,7 @@ class Vm < ActiveRecord::Base
     rescue Exceptions::MvmcException => me
       me.log
     end
-    system("rm -f hiera/#{self.name}.openstack.local.yaml")
+    system("rm -f hiera/#{self.name}#{Rails.application.config.os_suffix}.yaml")
   end
 
 end
