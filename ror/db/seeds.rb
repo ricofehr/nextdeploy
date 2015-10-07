@@ -20,8 +20,8 @@ puts "destroy flavors"
 #flavor import rows
 flavor_tiny = Vmsize.create!(title: 'm1.tiny', description: '1cpu/512M/15G') ;
 flavor_small = Vmsize.create!(title: 'm1.small', description: '2cpu/1024M/15G') ;
-#flavor_medium = Flavor.create!(title: 'm1.medium', description: '2cpu/4096M/40G') ;
-#flavor_large = Flavor.create!(title: 'm1.large', description: '4cpu/8192M/80G') ;
+flavor_medium = Vmsize.create!(title: 'm1.medium', description: '2cpu/4096M/40G') ;
+flavor_large = Vmsize.create!(title: 'm1.large', description: '4cpu/8192M/80G') ;
 
 #Framework import rows
 framework_sf2 = Framework.create!(name: 'Symfony2', publicfolder: 'web/',
@@ -43,11 +43,13 @@ apache_vhost:
     vhost_name: '*' 
     port: %{portA}
     override:
-      - 'None'
+      - 'All'
     options:
       - 'Indexes'
       - 'FollowSymLinks'
     aliases:
+      - alias: '/pm_tools/'
+        path: '/var/www/pm_tools/'
       - alias: '/robots.txt'
         path: '/var/www/robots.txt'
     ensure: present
@@ -55,8 +57,13 @@ apache_vhost:
     docroot_group: 'www-data'
     docroot: %{docroot}
     directories:
-      path: %{docroot}
-      custom_fragment: \"%{rewrites}\"")
+      - path: /var/www/pm_tools
+        allow_override:
+        - 'All'
+      - path: %{docroot}
+        allow_override:
+        - 'All'
+        custom_fragment: \"%{rewrites}\"")
 
 techno_mongodb = Techno.create!(name: "mongodb", puppetclass: "pm::nosql::mongo", ordering: 80,
                                 hiera: "is_mongo: yes")

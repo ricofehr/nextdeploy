@@ -7,7 +7,8 @@ module ProjectsHelper
   # No param
   # No return
   def create_rootfolder
-    %x(/bin/bash /ror/sbin/newproject -n #{self.name} -f #{self.framework.name} -g #{self.gitpath})
+    Rails.logger.warn "/bin/bash /ror/sbin/newproject -n #{self.name} -f #{self.framework.name} -g #{self.gitpath}"
+    system("/bin/bash /ror/sbin/newproject -n #{self.name} -f #{self.framework.name} -g #{self.gitpath}")
   end
 
   # Remove gitfolder

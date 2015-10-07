@@ -44,14 +44,15 @@ module VmsHelper
         # varnish3 for old linux, v4 for newer
         if systemimage.name == "Debian7" || systemimage.name == "Ubuntu1404"
           f.puts "varnish_version: 3\n"
-          if project.login && project.login.length > 0
-            f.puts 'varnish_auth: "if (! req.http.Authorization ~ \"Basic ' + Base64.strict_encode64(project.login + ":" + project.password) +'\") { error 401 ;}"' + "\n"
-          end
         else
           f.puts "varnish_version: 4\n"
-          if project.login && project.login.length > 0
-            f.puts 'varnish_auth: "if (! req.http.Authorization ~ \"Basic ' + Base64.strict_encode64(project.login + ":" + project.password) +'\") { return (synth(401, \"Error 401\")) ;}"' + "\n"
-          end
+        end
+
+        if project.login && project.login.length > 0
+          f.puts 'varnish_auth: ' + Base64.strict_encode64(project.login + ':' + project.password)
+          f.puts "is_auth: 'yes'"
+        else
+          f.puts "is_auth: 'no'"
         end
 
         f.puts "commit: #{commit.commit_hash}\n"
@@ -80,9 +81,9 @@ module VmsHelper
     begin
       pattern = IO.read(template)
       pattern.gsub!('%{vmreplace}', vm_replace)
-      pattern.gsub!('%{os_suffix}',Rails.application.config.os_suffix)
-      pattern.gsub!('%{mvmcip}',Rails.application.config.mvmcip)
-      pattern.gsub!('%{mvmchost}',Rails.application.config.mvmcuri)
+      pattern.gsub!('%{os_suffix}', Rails.application.config.os_suffix)
+      pattern.gsub!('%{mvmcip}', Rails.application.config.mvmcip)
+      pattern.gsub!('%{mvmchost}', Rails.application.config.mvmcuri)
       # ft = File.open(template, "rb")
       # pattern = ft.read
       # ft.close()
