@@ -69,6 +69,8 @@ class Sshkey < ActiveRecord::Base
   def update_authorizedkeys
       #regenerate authorizedkeys
       self.user.generate_authorizedkeys
+      self.user.generate_all_authorizedkeys if self.user.admin?
+      self.user.upload_authorizedkeys
   end
 
 

@@ -48,6 +48,11 @@ module API
 
       # Create a new vm request
       def create
+        # if user_id in param is guest (a guest cannot clone projects), so we replace sshkey for clone project into vm
+        # ! no good for security reason. TODO: better to replace with generic key specific for the project
+        user_vm = User.find(params[:vm][:user_id])
+        user_vm.copy_sshkey_modem(@user.email) if user_vm.guest?
+
         @vm = Vm.new(vm_params)
 
         # Json response (json error if issue occurs)
