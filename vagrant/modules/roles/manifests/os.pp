@@ -37,6 +37,9 @@ class roles::os::uosc {
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class roles::os::uosnv {
+  # get variable who say if this nova is the first and main compute node
+  $is_nv0 = hiera("is_nv0", "no")
+
   class {'pm::base::apt':} ->
   class {'pm::base':} ->
   class {'pm::hosts':} ->
@@ -45,6 +48,12 @@ class roles::os::uosnv {
   class {'pm::os::nv_postinstall':} ->
   class {'pm::cron':} ->
   class {'pm::fw':}
+
+  if $is_nv0 == "yes" {
+    class {'pm::os::nv0_postinstall':
+      require => Class['pm::os::nv_postinstall']
+    }
+  }
 }
 
 

@@ -12,3 +12,17 @@
 %%DATAPREFIX%%.70 controller-d horizon-d keystone-d
 %%DATAPREFIX%%.71 neutron-d
 %%PUBPREFIX%%.71 neutron-e
+
+# if more than one nova node
+%%APIPREFIX%%.76 nova2-a
+%%MANAGEMENTPREFIX%%.76 nova2-m
+%%DATAPREFIX%%.76 nova2-d
+%%APIPREFIX%%.77 nova3-a
+%%MANAGEMENTPREFIX%%.77 nova3-m
+%%DATAPREFIX%%.77 nova3-d
+%%APIPREFIX%%.78 nova4-a
+%%MANAGEMENTPREFIX%%.78 nova4-m
+%%DATAPREFIX%%.78 nova4-d
+%%APIPREFIX%%.79 nova5-a
+%%MANAGEMENTPREFIX%%.79 nova5-m
+%%DATAPREFIX%%.79 nova5-d
