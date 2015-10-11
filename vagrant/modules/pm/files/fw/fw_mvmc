@@ -38,9 +38,6 @@ do_stop()
 
 do_start()
 {
-        $IPTABLES -F
-        $IPTABLES -X
-
         $IPTABLES -P INPUT DROP
         $IPTABLES -P OUTPUT DROP
         #for openvpn, accept all forward packet
@@ -51,6 +48,10 @@ do_start()
         $IPTABLES -A INPUT -d 127.0.0.1 -j ACCEPT
         $IPTABLES -A OUTPUT -s 127.0.0.1 -j ACCEPT
         $IPTABLES -A OUTPUT -d 127.0.0.1 -j ACCEPT
+
+        # public ip
+        ###PUBLICIP $IPTABLES -A INPUT -s %%PUBLICIP%% -j ACCEPT
+        ###PUBLICIP $IPTABLES -A OUTPUT -d %%PUBLICIP%% -j ACCEPT
 
         # private networks
         $IPTABLES -A INPUT -s 172.16.0.0/16 -j ACCEPT
@@ -96,6 +97,10 @@ do_start()
 	      # SSH
 	      $IPTABLES -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
 	      $IPTABLES -A OUTPUT -p tcp -m tcp --dport 22 -j ACCEPT
+
+       # PUPPET
+       $IPTABLES -A OUTPUT -p tcp -m tcp --dport 8080 -j ACCEPT
+       $IPTABLES -A OUTPUT -p tcp -m tcp --dport 8140 -j ACCEPT
 
         # Port 123 (NTP)
         $IPTABLES -A OUTPUT -m state --state NEW -p udp --dport 123 -j ACCEPT
