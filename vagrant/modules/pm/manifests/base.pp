@@ -8,6 +8,11 @@
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::base::apt {
+  Exec {
+    path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
+    unless => 'test -f /root/.baseapt'
+  }
+
   class { '::apt': }
 
   exec { 'ubuntu-cloud-keyring':
@@ -18,14 +23,17 @@ class pm::base::apt {
     ensure => file,
     content => "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/kilo main"
   } ->
-  exec { "apt-update":
+  exec { 'apt-update':
     command => "/usr/bin/apt-get update",
     timeout => 1800
   } ->
-  exec { "apt-upgrade":
+  exec { 'apt-upgrade':
     command => '/usr/bin/apt-get dist-upgrade --yes --force-yes',
     timeout => 1800,
     environment => 'DEBIAN_FRONTEND=noninteractive'
+  } ->
+  exec { 'touchbaseapt':
+    command => 'touch /root/.baseapt'
   }
 
   Class['pm::base::apt'] -> Package<| |>
@@ -55,7 +63,8 @@ class pm::base {
         'ifstat',
         'links',
         'git-core',
-        'ethtool'
+        'ethtool',
+        'mailutils'
         ]:
         ensure => installed,
   }

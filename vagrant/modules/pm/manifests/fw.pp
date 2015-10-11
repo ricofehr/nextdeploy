@@ -13,7 +13,7 @@ class pm::fw {
     mode => '700',
     source => [ "puppet:///modules/pm/fw/fw_${clientcert}" ]
   } ->
-  file_line { 'fw':
+  file_line { 'fwrclocal':
     path => '/etc/rc.local',
     line => '/etc/init.d/firewall start; exit 0',
     match => 'exit 0$',
@@ -21,6 +21,7 @@ class pm::fw {
   } ->
   exec { 'fw_exec':
     command => '/etc/init.d/firewall start',
-    path => '/usr/bin:/usr/sbin:/bin:/sbin'
+    path => '/usr/bin:/usr/sbin:/bin:/sbin',
+    unless => '/sbin/iptables-save | grep "dport 8140"'
   }
 }

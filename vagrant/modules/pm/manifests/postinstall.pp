@@ -31,7 +31,8 @@ class pm::postinstall::mvmc {
           'GEM_PATH=/usr/local/rvm/gems/ruby-2.1.0:/usr/local/rvm/gems/ruby-2.1.0@global',
           'RUBY_VERSION=ruby-2.1.0'
       ],
-      cwd => '/ror'
+      cwd => '/ror',
+      unless => 'test -f /home/modem/.installmvmc'
   }
 
   # enable ip forwarding
@@ -140,7 +141,7 @@ class pm::postinstall::mvmc {
   exec { 'bundle-ror':
     command => 'bundle install --path vendor/bundle > /out/logbundle.log 2>&1',
     timeout => 0,
-    require => Package['libmysqlclient-dev']
+    require => [ Package['libmysqlclient-dev'], Class['rvm'], Class['memcached'] ]
   } ->
   exec { 'db-schema':
     command => 'rake db:schema:load > /out/logdbschema.log 2>&1',
@@ -236,6 +237,9 @@ class pm::postinstall::mvmc {
     [[ -n $hostsmin ]] && /etc/init.d/dnsmasq restart',
     owner => 'root',
     mode => '0700'
+  } ->
+  exec { 'touchinstallmvmc':
+    command => 'touch /home/modem/.installmvmc'
   }
 
   # nodejs and ember_build prerequisites

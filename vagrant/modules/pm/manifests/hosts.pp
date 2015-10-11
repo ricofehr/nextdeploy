@@ -17,19 +17,24 @@ class pm::hosts {
   file { '/etc/hosts':
     ensure => file,
     source => [
+      "puppet:///modules/pm/hosts/hosts_${clientcert}",
       "puppet:///modules/pm/hosts/hosts"
       ]
   } ->
   exec { 'hostnametolocalhost':
-    command => "/bin/sed -i 's;%%GITLABNS%%;${gitlabns};' /etc/hosts"
+    command => "/bin/sed -i 's;%%GITLABNS%%;${gitlabns};' /etc/hosts",
+    onlyif => '/bin/grep GITLABNS /etc/hosts'
   } ->
- exec { 'hostnametolocalhost2':
-    command => "/bin/sed -i 's;%%HOSTNAME%%;${clientcert};' /etc/hosts"
+  exec { 'hostnametolocalhost2':
+    command => "/bin/sed -i 's;%%HOSTNAME%%;${clientcert};' /etc/hosts",
+    onlyif => '/bin/grep HOSTNAME /etc/hosts'
   } ->
   exec { 'hostnametolocalhost3':
-    command => "/bin/sed -i 's/%%PUBPREFIX%%/${pubprefix}/g;s/%%APIPREFIX%%/${apiprefix}/g;' /etc/hosts"
+    command => "/bin/sed -i 's/%%PUBPREFIX%%/${pubprefix}/g;s/%%APIPREFIX%%/${apiprefix}/g;' /etc/hosts",
+    onlyif => '/bin/grep PUBPREFIX /etc/hosts'
   } ->
   exec { 'hostnametolocalhost4':
-    command => "/bin/sed -i 's/%%MANAGEMENTPREFIX%%/${managementprefix}/g;s/%%DATAPREFIX%%/${dataprefix}/g;' /etc/hosts"
+    command => "/bin/sed -i 's/%%MANAGEMENTPREFIX%%/${managementprefix}/g;s/%%DATAPREFIX%%/${dataprefix}/g;' /etc/hosts",
+    onlyif => '/bin/grep MANAGEMENTPREFIX /etc/hosts'
   }
 }
