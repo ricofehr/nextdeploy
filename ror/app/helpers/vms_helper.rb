@@ -61,6 +61,8 @@ module VmsHelper
         f.puts "email: #{user.email}\n"
         f.puts "docrootgit: /var/www/#{vhost}\n"
         f.puts "weburi: #{vm_url}\n"
+        f.puts "project: #{project.name}\n"
+        f.puts "mvmcuri: #{Rails.application.config.mvmcuri}\n"
       }
     rescue
       raise Exceptions::MvmcException.new("Create hiera file for #{name} failed")

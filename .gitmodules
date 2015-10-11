@@ -120,3 +120,6 @@
 [submodule "puppet"]
 	path = puppet
 	url = git@github.com:ricofehr/mvmc-puppet
+[submodule "vagrant/modules/pureftpd"]
+	path = vagrant/modules/pureftpd
+	url = https://github.com/saz/puppet-pureftpd
