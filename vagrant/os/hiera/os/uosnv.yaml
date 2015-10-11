@@ -86,4 +86,5 @@ nova::network::neutron::neutron_url: 'http://controller-m:9696'
 nova::network::neutron::vif_plugging_is_fatal: false
 nova::network::neutron::vif_plugging_timeout: '0'
 
-is_cron: "no"
+is_cron: 'no'
+is_nv0: 'yes'
