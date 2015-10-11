@@ -160,14 +160,14 @@ confirm() {
   fi
 
   #confirm statement
-  echo -en '\033[1;36m' 1>&2
+  echo -en '\033[1;42m' 1>&2
   echo -en "[CONFIRM] " 1>&2
   echo -en "$* (y/n): " 1>&2
+  echo -en '\033[0m' 1>&2
 
   #if "yes to all" enabled, reply yes and return 0
   if [[ "$YES" = "1" ]]; then
     echo " y" 1>&2
-    echo -en '\033[0m' 1>&2
 
     # enable again log output
     if [[ -n "$OUT" ]]; then
@@ -180,7 +180,6 @@ confirm() {
   #read to stdin
   read a
   echo "$a" 1>&2
-  echo -en '\033[0m' 1>&2
   if [[ "$a" != "y" ]]; then
     #unset local var before exit
     unset -v a

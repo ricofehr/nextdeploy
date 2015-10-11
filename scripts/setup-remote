@@ -57,6 +57,14 @@ prerequisites() {
   cp vagrant/mvmc/hiera/global.yaml.dist tmp/remote/mvmc/global.yaml
   cp vagrant/modules/pm/files/hosts/hosts tmp/remote/
 
+  # prepare until 5 compute node hiera files
+  pushd tmp/remote/os/ > /dev/null
+  cp uosnv.yaml uosnv2.yaml && $BINSED -i "s/75/76/;s/is_nv0: 'yes'/is_nv0: 'no'/" uosnv2.yaml
+  cp uosnv.yaml uosnv3.yaml && $BINSED -i "s/75/77/;s/is_nv0: 'yes'/is_nv0: 'no'/" uosnv3.yaml
+  cp uosnv.yaml uosnv4.yaml && $BINSED -i "s/75/78/;s/is_nv0: 'yes'/is_nv0: 'no'/" uosnv4.yaml
+  cp uosnv.yaml uosnv5.yaml && $BINSED -i "s/75/79/;s/is_nv0: 'yes'/is_nv0: 'no'/" uosnv5.yaml
+  popd > /dev/null
+
   # get the publicprefix
   output -q -l "The openstack public network (default is 192.168.71) ?"
   read publicprefix
@@ -117,12 +125,10 @@ prerequisites() {
   output -q -l "Puppet-master port ?"
   read PUPPETPORT
 
-  # add extra line into hosts file
-  echo "${PUPPETIP} ${PUPPETFQDN}" >> tmp/remote/hosts
-
   # create puppet.conf file
   cat > tmp/remote/puppet.conf << EOF
 [main]
+dns_alt_names=%%FQDNS%%
 logdir=/var/log/puppet
 vardir=/var/lib/puppet
 ssldir=/var/lib/puppet/ssl
@@ -179,7 +185,15 @@ EOF
   $BINSED -i "s;%%MVMCSUF%%;${mvmcsuf};" tmp/remote/mvmc/production.rb
   $BINSED -i "s;%%MVMCURI%%;${mvmcuri};" tmp/remote/mvmc/production.rb
   $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/mvmc/production.rb
-  
+
+  # prepare hosts file
+  $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/hosts
+  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/hosts
+  $BINSED -i "s;%%APIPREFIX%%;${apiprefix};" tmp/remote/hosts
+  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${managementprefix};" tmp/remote/hosts
+  $BINSED -i "s;%%DATAPREFIX%%;${dataprefix};" tmp/remote/hosts
+  echo "${PUPPETIP} ${PUPPETFQDN}" >> tmp/remote/hosts
+
   output -l -q "On controller openstack node, please configure this 3 private ips: ${managementprefix}.70, ${dataprefix}.70, ${apiprefix}.70"
   output -l -q "On neutron openstack node, please configure this 4 private ips: ${publicprefix}.71, ${managementprefix}.71, ${dataprefix}.71, ${apiprefix}.71"
   output -l -q "On glance openstack node, please configure this 2 private ips: ${managementprefix}.72, ${apiprefix}.72"
@@ -189,6 +203,29 @@ EOF
   echo -en "\n\n"
 }
 
+# update puppet modules
+update_puppet_modules() {
+  # backup actual fw files and puppet files
+  rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw tmp/remote/
+  rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet tmp/remote/
+
+  # clean puppet master
+  ssh root@${PUPPETIP} 'rm -rf /etc/puppet/modules'
+
+  # rsync puppet modules (rsync here but a git clone into puppet node should be better)
+  rsync -avzPessh vagrant/modules root@${PUPPETIP}:/etc/puppet/
+  # upload fw folder
+  [[ -d tmp/remote/fw ]] && rsync -avzPessh tmp/remote/fw root@${PUPPETIP}:/etc/puppet/modules/pm/files/
+  [[ -d tmp/remote/puppet ]] && rsync -avzPessh tmp/remote/puppet root@${PUPPETIP}:/etc/puppet/modules/pm/files/
+
+  # rsync default hosts file
+  rsync -avzPessh tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/
+  # change owner of puppet modules folder
+  ssh root@${PUPPETIP} 'chown -R puppet: /etc/puppet/modules'
+  # restart the puppet master daemon
+  ssh root@${PUPPETIP} 'service puppetmaster restart'
+}
+
 # Upload puppet templates for openstack and manager install
 remote_puppet() {
   
@@ -196,12 +233,9 @@ remote_puppet() {
   # install puppetmaster if we are on debian / ubuntu
   ssh root@${PUPPETIP} '[[ -x /etc/debian_version ]] && apt-get install puppetmaster'
   # clean puppet master
-  ssh root@${PUPPETIP} 'rm -rf /etc/puppet/modules'
   ssh root@${PUPPETIP} 'rm -rf /var/lib/hiera && mkdir /var/lib/hiera'
   ssh root@${PUPPETIP} 'puppet cert clean --all'
 
-  # rsync puppet modules (rsync here but a git clone into puppet node should be better)
-  rsync -avzPessh vagrant/modules root@${PUPPETIP}:/etc/puppet/
   # create site.pp on remote puppet
   echo 'hiera_include("classes")' > tmp/remote/site.pp
   rsync -avzPessh tmp/remote/site.pp root@${PUPPETIP}:/etc/puppet/manifests/site.pp
@@ -221,12 +255,7 @@ EOF
   rsync -avzPessh tmp/remote/hiera.yaml root@${PUPPETIP}:/etc/puppet/hiera.yaml
   scp tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
   
-  # rsync default hosts file
-  rsync -avzPessh tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/
-  # change owner of puppet modules folder
-  ssh root@${PUPPETIP} 'chown -R puppet: /etc/puppet/modules'
-  # restart the puppet master daemon
-  ssh root@${PUPPETIP} 'service puppetmaster restart'
+  update_puppet_modules
 }
 
 prepare_node() {
@@ -234,11 +263,18 @@ prepare_node() {
   local remote_ip="$1"
   local fqdn="$2"
 
+  local fqdns=${fqdn%%\.*}
+  local fwnodename="$fqdns"
+  [[ "$fwnodename" = "uosnv"* ]] && fwnodename='uosnv'
+  # if long fqdn exists, adding this to fqdns string
+  [[ -n "$DOMAIN" ]] && fqdns="${fqdns},${fqdn}"
+
   output -q "Working on $fqdn node"
 
   # set the fqdn
   ssh root@${remote_ip} "hostname ${fqdn}; echo '127.0.0.1 ${fqdn}' > /etc/hosts; echo ${fqdn} > /etc/hostname"
   ssh root@${remote_ip} 'sed -i "s/^domain.*//;s/^search.*//" /etc/resolv.conf'
+  [[ -n "$DOMAIN" ]] && ssh root@${remote_ip} "echo 'search $DOMAIN' >> /etc/resolv.conf"
 
   # set locale
   ssh root@${remote_ip} 'echo LANG=en_US.UTF-8 > /etc/default/locale'
@@ -256,19 +292,54 @@ prepare_node() {
   # apt-get update
   ssh root@${remote_ip} "apt-get update"
 
+  # clean old cert
+  ssh root@${remote_ip} "rm -rf /var/lib/puppet/sslagent"
+
   # install puppet agent
   ssh root@${remote_ip} "apt-get install -y --force-yes puppet"
 
+  # allow puppet to start
+  ssh root@${remote_ip} '[[ -f /etc/default/puppet ]] && sed -i "s;START=no;START=yes;" /etc/default/puppet'
+
   # puppet.conf file
   rsync -avzPessh tmp/remote/puppet.conf root@${remote_ip}:/etc/puppet/
+  ssh root@${remote_ip} "/bin/sed -i 's/%%FQDNS%%/${fqdns}/' /etc/puppet/puppet.conf"
+
+  # synchro fw and hosts file
+  rsync -avzPessh vagrant/modules/pm/files/fw/fw_${fwnodename} root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw/fw_${fqdn}
+  ssh root@${PUPPETIP} "/bin/sed -i 's/%%PUBLICIP%%/${remote_ip}/;s/###PUBLICIP//' /etc/puppet/modules/pm/files/fw/fw_${fqdn}"
+  rsync -avzPessh tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/hosts_${fqdn}
+  ssh root@${PUPPETIP} "/bin/sed -i 's;%%HOSTNAME%%;${fqdn};' /etc/puppet/modules/pm/files/hosts/hosts_${fqdn}"
+}
+
+# launch puppet agent on remote host
+launch_puppetagent() {
+  # ip is the first parameter, fqdn the second
+  local remote_ip="$1"
+  local fqdn="$2"
+
+  # clean old cert if needed
+  ssh root@${PUPPETIP} "puppet cert clean ${fqdn}"
+  # enable puppet on the remote node and validate on puppetmaster
+  ssh root@${remote_ip} 'puppet agent --test'
+  sleep 3
+  ssh root@${PUPPETIP} "puppet cert --allow-dns-alt-names sign ${fqdn}"
+  ssh root@${remote_ip} 'puppet agent --enable'
+  ssh root@${remote_ip} 'service puppet restart'
+
+  output -q -l "Installation on $fqdn node begins, check the puppet-agent actions and continue after his work."
+
+  confirm "Continue ?"
 }
 
 # make install process for one node
 install_osnode() {
   # fqdn the function parameter
   local nodename="$1"
+  local fwnodename="$1"
   local fqdn="$1"
   [[ -n "$DOMAIN" ]] && fqdn="${fqdn}.${DOMAIN}"
+  [[ "$nodename" = "uosnv"* ]] && fwnodename='uosnv'
 
   # get the ip
   output -q -l "The ip for $fqdn controller node ?"
@@ -279,25 +350,15 @@ install_osnode() {
 
   # synchro hiera file
   scp tmp/remote/os/${nodename}.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
-
-  # synchro fw and hosts file
-  rsync -avzPessh vagrant/modules/pm/files/fw/fw_${nodename} root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw/fw_${fqdn}
   
-  # enable puppet on the remote node and validate on puppetmaster
-  ssh root@${remote_ip} 'puppet agent --test'
-  sleep 3
-  ssh root@${PUPPETIP} 'puppet cert sign --all'
-  ssh root@${remote_ip} 'puppet agent --enable'
-  output -q "Installation on progress for $fqdn node, please waiting (>20min, press enter if nothing happend after this time) ..."
-  ssh root@${remote_ip} 'puppet agent --test; service puppet stop;'
-
-  output -q "Installation is done for $fqdn node."
-  confirm "Continue ?"
+  # launch puppet-agent for start the installation
+  launch_puppetagent $remote_ip $fqdn
 }
 
 # Install mvmc manager node
 install_mvmc() {
   local fqdn='mvmc'
+  local fqdnshort="$fqdn"
   [[ -n "$DOMAIN" ]] && fqdn="${fqdn}.${DOMAIN}"
 
   # get the ip
@@ -307,33 +368,9 @@ install_mvmc() {
   # update MVMCIP into production.rb
   $BINSED -i "s;%%MVMCIP%%;${remote_ip};" tmp/remote/mvmc/production.rb
 
-  # prepare puppet.conf for master node on mvmc
-  # create puppet.conf file
-  cat > tmp/remote/puppet_mvmc.conf << EOF
-[main]
-dns_alt_names = mvmc
-logdir=/var/log/puppet
-vardir=/var/lib/puppet
-ssldir=/var/lib/puppet/ssl
-rundir=/var/run/puppet
-factpath=$vardir/lib/facter
-user=modem
-group=modem
-ordering=manifest
-hiera_config=/etc/hiera.yaml
-
-[master]
-ssl_client_header = SSL_CLIENT_S_DN
-ssl_client_verify_header = SSL_CLIENT_VERIFY
-
-[agent]
-server=${PUPPETFQDN}
-masterport=${PUPPETPORT}
-report=true
-pluginsync=true
-ssldir=/var/lib/puppet/sslagent
-EOF
-  rsync -avzPessh tmp/remote/puppet_mvmc.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet/puppet.conf
+  # copy puppet.conf onto puppetmaster files repository
+  rsync -avzPessh tmp/remote/puppet.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet/puppet.conf_${fqdn}
+  ssh root@${PUPPETIP} "/bin/sed -i 's/%%FQDNSHORT%%/${fqdnshort}/' /etc/puppet/modules/pm/files/puppet/puppet.conf_${fqdn}"
 
   # setting local, hosts and install puppet
   prepare_node $remote_ip $fqdn
@@ -357,19 +394,8 @@ EOF
   # synchro hiera file
   scp tmp/remote/mvmc/mvmc.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
 
-  # synchro fw and hosts file
-  rsync -avzPessh vagrant/modules/pm/files/fw/fw_mvmc root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw/fw_${fqdn}
-  
-  # enable puppet on the remote node and validate on puppetmaster
-  ssh root@${remote_ip} 'puppet agent --test'
-  sleep 3
-  ssh root@${PUPPETIP} 'puppet cert sign --all'
-  ssh root@${remote_ip} 'puppet agent --enable'
-  output -q "Installation on progress for $fqdn node, please waiting (>20min, press enter if nothing happend after this time) ..."
-  ssh root@${remote_ip} 'puppet agent --test; service puppet stop'
-
-  output -q "Installation is done for $fqdn node."
-  confirm "Continue ?"
+  # launch puppet-agent for start the installation
+  launch_puppetagent $remote_ip $fqdn
 }
 
 welcome_step
@@ -377,7 +403,13 @@ prerequisites
 
 output -l -q 'Remote puppet installation ? (y/n)'
 read response
-[[ "$response" = "y" ]] && remote_puppet
+if [[ "$response" = "y" ]]; then
+  remote_puppet
+else
+  output -l -q 'Update puppet modules ? (y/n)'
+  read response
+  [[ "$response" = "y" ]] && update_puppet_modules
+fi
 
 output -l -q 'Openstack controller installation ? (y/n)'
 read response
@@ -394,6 +426,27 @@ read response
 output -l -q 'Openstack compute installation ? (y/n)'
 read response
 [[ "$response" = "y" ]] && install_osnode uosnv
+
+
+output -l -q 'Other(s) compute installation ? (y/n)'
+read response
+if [[ "$response" = "y" ]]; then
+  output -l -q 'A second compute ? (y/n)'
+  read response
+  [[ "$response" = "y" ]] && install_osnode uosnv2
+
+  output -l -q 'A third compute ? (y/n)'
+  read response
+  [[ "$response" = "y" ]] && install_osnode uosnv3
+
+  output -l -q 'A fourth compute ? (y/n)'
+  read response
+  [[ "$response" = "y" ]] && install_osnode uosnv4
+
+  output -l -q 'A fifth compute ? (y/n)'
+  read response
+  [[ "$response" = "y" ]] && install_osnode uosnv5
+fi
 
 output -l -q 'Mvmc manager installation ? (y/n)'
 read response
