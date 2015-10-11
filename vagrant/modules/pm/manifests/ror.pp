@@ -17,4 +17,5 @@ class pm::ror {
   $gems = hiera('rvm::gem', [])
   create_resources('rvm_gem', $gems)
   package { ['libmysqlclient-dev']: ensure => installed }
+  class { '::memcached': }
 }
