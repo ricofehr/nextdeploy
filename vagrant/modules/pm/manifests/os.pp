@@ -59,8 +59,6 @@ class pm::os::nv_c {
 
   class { '::nova::api': }
 
-  #class { '::nova::vncproxy': }
-
   class { '::nova::network::neutron':
     require => [ File['/etc/hosts'] ],
   }
@@ -148,7 +146,7 @@ class pm::os::nv {
 }
 
 
-# == Class: pm::os::postinstall_nv
+# == Class: pm::os::nv_postinstall
 #
 # Some commands who must be executed at the end of compute node creation
 #
@@ -161,6 +159,7 @@ class pm::os::nv_postinstall {
   Exec {
       path => '/usr/bin:/usr/sbin:/bin:/sbin',
       user => 'root',
+      unless => 'test -f /home/modem/.novapostinstall'
   }
 
   # move nova folder into home filesystem (ensure that we have large disk space)
@@ -180,6 +179,28 @@ class pm::os::nv_postinstall {
   exec { 'restartcompute':
     command => 'service nova-compute restart'
   } ->
+  exec { 'touchnovapostinstall':
+    command => 'touch /home/modem/.novapostinstall',
+    user => 'modem'
+  }
+}
+
+# == Class: pm::os::nv0_postinstall
+#
+# Some commands who must be executed at the end of main and first compute node creation
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::os::nv0_postinstall {
+  Exec {
+      path => '/usr/bin:/usr/sbin:/bin:/sbin',
+      user => 'modem',
+      unless => 'test -f /home/modem/.novapostinstall0'
+  }
+
   # post install stuff: flavors and quotas
   exec { 'nova-secgroup-rule22':
     command => 'nova --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 secgroup-add-rule default tcp 22 22 0.0.0.0/0',
@@ -234,6 +255,9 @@ class pm::os::nv_postinstall {
   } ->
   exec { 'cinder-quota-snapshots':
     command => 'cinder --os-username cinder --os-password oscinder --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --snapshots 170 default',
+  } ->
+  exec { 'touchnovapostinstall0':
+    command => 'touch /home/modem/.novapostinstall0',
   }
 }
 
@@ -305,21 +329,6 @@ class pm::os::nt_c {
   }
 
   class  { '::neutron::plugins::ml2': }
-
-  Exec {
-      path => '/usr/bin:/usr/sbin:/bin:/sbin',
-  }
-
-  #file_line { 'database_ml2_step1':
-  #  path => '/etc/neutron/plugin.ini',
-  #  line => '[database]'
-  #} ->
-  #file_line { 'database_ml2_step2':
-  #  path => '/etc/neutron/plugin.ini',
-  #  line => 'connection = mysql://neutron:osneutron@controller-m/neutrondb?charset=utf8'
-  #}
-
-  #File_line['database_ml2_step2'] -> Exec['neutron-db-sync']
 }
 
 
@@ -335,7 +344,8 @@ class pm::os::nt_c {
 class pm::os::nt {
   Exec {
       path => '/usr/bin:/usr/sbin:/bin:/sbin',
-      timeout => 0
+      timeout => 0,
+      unless => 'test /home/modem/.neutronconfig'
   }
 
   # some hiera variable
@@ -386,10 +396,6 @@ class pm::os::nt {
     require => [ File['/etc/hosts'] ],
   }
 
-  #class { '::neutron::agents::lbaas': }
-
-  #class { '::neutron::agents::vpnaas': }
-
   class { '::neutron::agents::metering': }
 
   class { '::neutron::services::fwaas': }
@@ -422,6 +428,9 @@ class pm::os::nt {
 /root/./ethtobr.sh ${ext_dev}
 iptables -t nat -A POSTROUTING -o ${masquerade_dev} -j MASQUERADE
 exit 0"
+  } ->
+  exec { 'touchneutronconfig':
+    command => 'touch /home/modem/.neutronconfig',
   }
 }
 

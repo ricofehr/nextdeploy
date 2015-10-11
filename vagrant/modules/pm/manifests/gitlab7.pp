@@ -31,7 +31,7 @@ class pm::gitlab7 {
     logoutput   => true,
     tries       => 5,
     require => Exec['gitlab_reconfigure'],
-    unless => 'test -f /home/modem/.gitlabconfig',
+    unless => '/usr/bin/test -f /home/modem/.gitlabconfig',
   } ->
   file_line { 'gitlab_servername':
     path => '/var/opt/gitlab/nginx/conf/gitlab-http.conf',
@@ -41,7 +41,7 @@ class pm::gitlab7 {
   exec { 'restart_nginx':
     command => '/opt/gitlab/embedded/sbin/nginx -c /var/opt/gitlab/nginx/conf/nginx.conf -p /var/opt/gitlab/nginx/ -s reload',
     user => 'root',
-    unless => 'test -f /home/modem/.gitlabconfig',
+    unless => '/usr/bin/test -f /home/modem/.gitlabconfig',
   } ->
   exec { 'touch_gitlabconfig':
     command => '/bin/touch /home/modem/.gitlabconfig',
