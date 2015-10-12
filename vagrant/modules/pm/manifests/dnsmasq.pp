@@ -18,12 +18,14 @@ class pm::dnsmasq {
 
   file { '/etc/default/dnsmasq':
     ensure => file,
-    source => [ "puppet:///modules/pm/dnsmasq/dnsmasq_default.conf" ]
+    source => [ "puppet:///modules/pm/dnsmasq/dnsmasq_default.conf" ],
+    owner => 'root'
   } ->
 
   file { '/etc/dnsmasq.conf':
     ensure => file,
-    source => [ "puppet:///modules/pm/dnsmasq/dnsmasq.conf" ]
+    source => [ "puppet:///modules/pm/dnsmasq/dnsmasq.conf" ],
+    owner => 'root'
   } ->
 
   exec { 'restart-dnsmasq':

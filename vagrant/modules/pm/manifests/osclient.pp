@@ -28,27 +28,32 @@ class pm::osclient {
 
   file { '/root/user-openrc.sh':
     ensure => file,
-    source => [ "puppet:///modules/pm/osenv/user-openrc.sh" ]
+    source => [ "puppet:///modules/pm/osenv/user-openrc.sh" ],
+    owner => 'root'
   } ->
 
   file { '/root/nova-openrc.sh':
     ensure => file,
-    source => [ "puppet:///modules/pm/osenv/nova-openrc.sh" ]
+    source => [ "puppet:///modules/pm/osenv/nova-openrc.sh" ],
+    owner => 'root'
   } ->
 
   file { '/root/neutron-openrc.sh':
     ensure => file,
-    source => [ "puppet:///modules/pm/osenv/neutron-openrc.sh" ]
+    source => [ "puppet:///modules/pm/osenv/neutron-openrc.sh" ],
+    owner => 'root'
   } ->
 
   file { '/root/glance-openrc.sh':
     ensure => file,
-    source => [ "puppet:///modules/pm/osenv/glance-openrc.sh" ]
+    source => [ "puppet:///modules/pm/osenv/glance-openrc.sh" ],
+    owner => 'root'
   } ->
 
   file { '/root/cinder-openrc.sh':
     ensure => file,
-    source => [ "puppet:///modules/pm/osenv/cinder-openrc.sh" ]
+    source => [ "puppet:///modules/pm/osenv/cinder-openrc.sh" ],
+    owner => 'root'
   }
 
 }

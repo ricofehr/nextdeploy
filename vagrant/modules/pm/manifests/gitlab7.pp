@@ -8,30 +8,30 @@
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::gitlab7 {
+  Exec {
+      path => '/usr/bin:/usr/sbin:/bin:/sbin',
+      timeout => 0,
+      unless => 'test -f /home/modem/.gitlabconfig'
+  }
+
   $server_name = hiera('global::gitlabns', 'gitlab.local')
 
   # prepare folders for git-data and backups
   file { '/home/git-data':
     ensure => directory,
-  } ->
-  exec { 'gitdatachown':
-    command => '/bin/chown git: /home/git-data',
+    owner => 'git'
   } ->
   file { '/home/gitlab-backups':
     ensure => directory,
-  } ->
-  exec { 'gitbackupschown':
-    command => '/bin/chown git: /home/gitlab-backups',
+    owner => 'git'
   } ->
   class { 'gitlab': }
   ->
   exec { 'gitlab_reconfigure_fixweirdbug':
     command     => '/usr/bin/gitlab-ctl reconfigure',
-    timeout     => 1800,
     logoutput   => true,
     tries       => 5,
-    require => Exec['gitlab_reconfigure'],
-    unless => '/usr/bin/test -f /home/modem/.gitlabconfig',
+    require => Exec['gitlab_reconfigure']
   } ->
   file_line { 'gitlab_servername':
     path => '/var/opt/gitlab/nginx/conf/gitlab-http.conf',
@@ -40,11 +40,10 @@ class pm::gitlab7 {
   } ->
   exec { 'restart_nginx':
     command => '/opt/gitlab/embedded/sbin/nginx -c /var/opt/gitlab/nginx/conf/nginx.conf -p /var/opt/gitlab/nginx/ -s reload',
-    user => 'root',
-    unless => '/usr/bin/test -f /home/modem/.gitlabconfig',
+    user => 'root'
   } ->
   exec { 'touch_gitlabconfig':
-    command => '/bin/touch /home/modem/.gitlabconfig',
+    command => 'touch /home/modem/.gitlabconfig',
     user => 'modem'
   }
 }
