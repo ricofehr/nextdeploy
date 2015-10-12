@@ -11,21 +11,15 @@ class pm::gitlab7 {
   Exec {
       path => '/usr/bin:/usr/sbin:/bin:/sbin',
       timeout => 0,
-      unless => 'test -f /home/modem/.gitlabconfig'
+      unless => 'test -f /root/.gitlabconfig'
   }
 
   $server_name = hiera('global::gitlabns', 'gitlab.local')
 
-  # prepare folders for git-data and backups
-  file { '/home/git-data':
-    ensure => directory,
-    owner => 'git'
-  } ->
-  file { '/home/gitlab-backups':
-    ensure => directory,
-    owner => 'git'
-  } ->
-  class { 'gitlab': }
+
+  class { 'gitlab':
+    before => [ Class['::rvm'], Class['::memcached'], Class['::mysql::server'] ]
+  }
   ->
   exec { 'gitlab_reconfigure_fixweirdbug':
     command     => '/usr/bin/gitlab-ctl reconfigure',
@@ -43,7 +37,6 @@ class pm::gitlab7 {
     user => 'root'
   } ->
   exec { 'touch_gitlabconfig':
-    command => 'touch /home/modem/.gitlabconfig',
-    user => 'modem'
+    command => 'touch /root/.gitlabconfig',
   }
 }

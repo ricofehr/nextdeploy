@@ -20,7 +20,7 @@ mysql::server::override_options:
     skip-external-locking: true
     skip-name-resolve: true
     character_set_server: utf8
-    key_buffer: 1024M
+    key_buffer: 256M
     max_allowed_packet: 64M
     table_cache: 1536
     open_files_limit: 30720
@@ -45,16 +45,12 @@ mysql::server::override_options:
     innodb: true
     innodb_data_home_dir: /var/lib/mysql/
     innodb_log_group_home_dir: /var/lib/mysql/
-    innodb_buffer_pool_size: 1024M
+    innodb_buffer_pool_size: 256M
     innodb_additional_mem_pool_size: 40M
     innodb_flush_log_at_trx_commit: 1
     innodb_lock_wait_timeout: 50
     innodb_file_per_table: true
-    innodb_thread_concurrency: 128
-
-# jenkins parametes
-jenkins::port: 9292
-#jenkins::repo: false
+    innodb_thread_concurrency: 24
 
 # gitlab parameters
 gitlab::ensure: installed
@@ -93,7 +89,7 @@ rvm::gem:
   bundler:
     name: 'bundler'
     ruby_version: 'ruby-2.1.0'
-    ensure: 'latest'
+    ensure: '1.10.6'
   rake:
     name: 'rake'
     ruby_version: 'ruby-2.1.0'

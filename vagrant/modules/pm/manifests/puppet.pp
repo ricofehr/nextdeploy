@@ -47,7 +47,8 @@ class pm::puppet {
     ensure => file,
     source => [ "puppet:///modules/pm/puppet/puppet.conf_${clientcert}",
                 "puppet:///modules/pm/puppet/puppet.conf" ],
-    owner => 'puppet'
+    owner => 'puppet',
+    group => 'puppet'
   } ->
   file { '/etc/puppet/manifests/site.pp':
     ensure => file,
@@ -57,7 +58,8 @@ class pm::puppet {
   file { '/etc/hiera.yaml':
     ensure => file,
     source => [ "puppet:///modules/pm/puppet/hiera.yaml" ],
-    owner => 'root'
+    owner => 'root',
+    group => 'root'
   } ->
   exec { 'chownpuppet':
     command => 'chown -R modem:modem /var/lib/puppet'

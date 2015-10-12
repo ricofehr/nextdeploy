@@ -8,10 +8,12 @@
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class roles::mvmc {
+  # for avoid aptupdate dependency issue,
+  # start with gitlab
+  class {'pm::gitlab7':} ->
   class {'pm::base::apt':} ->
   class {'pm::base':} ->
   class {'pm::hosts':} ->
-  class {'pm::gitlab7':} ->
   class {'pm::ror':} ->
   class {'pm::puppet':} ->
   class {'pm::sql':} ->
