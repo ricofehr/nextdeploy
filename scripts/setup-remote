@@ -4,6 +4,7 @@
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
 
 PUPPETIP=''
+PUPPETIP2=''
 PUPPETFQDN=''
 PUPPETPORT=8114
 OUT='out/remote.log'
@@ -116,14 +117,19 @@ prerequisites() {
   [[ -z "$mvmcsuf" ]] && mvmcsuf="os.${DOMAIN}" 
 
   # get from input the puppetmaster ip
-  output -q -l "Puppet-master ip ?"
+  output -q -l "Puppet-master public ip (for rsync modules and settings) ?"
   read PUPPETIP
+
+  output -q -l "Puppet-master ip for agents network traffic (default is $PUPPETIP) ?"
+  read PUPPETIP2
+  [[ -z "$PUPPETIP2" ]] && PUPPETIP2="$PUPPETIP"
 
   output -q -l "Puppet-master fqdn ?"
   read PUPPETFQDN
 
-  output -q -l "Puppet-master port ?"
+  output -q -l "Puppet-master port (default is 8140) ?"
   read PUPPETPORT
+  [[ -z "$PUPPETPORT" ]] && PUPPETPORT="8140"
 
   # create puppet.conf file
   cat > tmp/remote/puppet.conf << EOF
@@ -134,6 +140,7 @@ vardir=/var/lib/puppet
 ssldir=/var/lib/puppet/ssl
 rundir=/var/run/puppet
 factpath=$vardir/lib/facter
+hiera_config=/etc/hiera.yaml
 ordering=manifest
 
 [master]
@@ -192,7 +199,7 @@ EOF
   $BINSED -i "s;%%APIPREFIX%%;${apiprefix};" tmp/remote/hosts
   $BINSED -i "s;%%MANAGEMENTPREFIX%%;${managementprefix};" tmp/remote/hosts
   $BINSED -i "s;%%DATAPREFIX%%;${dataprefix};" tmp/remote/hosts
-  echo "${PUPPETIP} ${PUPPETFQDN}" >> tmp/remote/hosts
+  echo "${PUPPETIP2} ${PUPPETFQDN}" >> tmp/remote/hosts
 
   output -l -q "On controller openstack node, please configure this 3 private ips: ${managementprefix}.70, ${dataprefix}.70, ${apiprefix}.70"
   output -l -q "On neutron openstack node, please configure this 4 private ips: ${publicprefix}.71, ${managementprefix}.71, ${dataprefix}.71, ${apiprefix}.71"
@@ -231,7 +238,7 @@ remote_puppet() {
   
   output -q 'Working on remote puppet master'
   # install puppetmaster if we are on debian / ubuntu
-  ssh root@${PUPPETIP} '[[ -x /etc/debian_version ]] && apt-get install puppetmaster'
+  ssh root@${PUPPETIP} '[[ -f /etc/debian_version ]] && apt-get install puppetmaster'
   # clean puppet master
   ssh root@${PUPPETIP} 'rm -rf /var/lib/hiera && mkdir /var/lib/hiera'
   ssh root@${PUPPETIP} 'puppet cert clean --all'
@@ -281,7 +288,7 @@ prepare_node() {
   ssh root@${remote_ip} 'echo LC_ALL=en_US.UTF-8 >> /etc/default/locale'
 
   # add puppetmaster into hosts file
-  ssh root@${remote_ip} "echo '${PUPPETIP} ${PUPPETFQDN}' >> /etc/hosts"
+  ssh root@${remote_ip} "echo '${PUPPETIP2} ${PUPPETFQDN}' >> /etc/hosts"
   
   # reboot remote uosc
   ssh root@${remote_ip} "reboot"
