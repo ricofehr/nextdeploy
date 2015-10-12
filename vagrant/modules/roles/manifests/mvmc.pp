@@ -21,6 +21,5 @@ class roles::mvmc {
   class {'pm::openvpn':} ->
   class {'pm::postinstall::mvmc':} ->
   class {'pm::cron':} ->
-  class {'pureftpd':} ->
   class {'pm::fw':}
 }

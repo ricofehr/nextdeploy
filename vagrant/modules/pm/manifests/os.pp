@@ -133,7 +133,8 @@ class pm::os::nv {
     ensure => present,
     mode   => '0644',
     source => [ "puppet:///modules/pm/qemu/qemu.conf" ],
-    notify => Service['libvirt']
+    notify => Service['libvirt'],
+    owner => 'root'
   }
 
   Package['libvirt'] -> File['/etc/libvirt/qemu.conf']
@@ -345,7 +346,7 @@ class pm::os::nt {
   Exec {
       path => '/usr/bin:/usr/sbin:/bin:/sbin',
       timeout => 0,
-      unless => 'test /home/modem/.neutronconfig'
+      unless => 'test -f /home/modem/.neutronconfig'
   }
 
   # some hiera variable

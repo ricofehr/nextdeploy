@@ -19,7 +19,8 @@ class pm::hosts {
     source => [
       "puppet:///modules/pm/hosts/hosts_${clientcert}",
       "puppet:///modules/pm/hosts/hosts"
-      ]
+      ],
+    owner => 'root'
   } ->
   exec { 'hostnametolocalhost':
     command => "/bin/sed -i 's;%%GITLABNS%%;${gitlabns};' /etc/hosts",

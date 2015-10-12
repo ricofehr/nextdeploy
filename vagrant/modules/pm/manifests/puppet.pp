@@ -46,15 +46,18 @@ class pm::puppet {
   file { '/etc/puppet/puppet.conf':
     ensure => file,
     source => [ "puppet:///modules/pm/puppet/puppet.conf_${clientcert}",
-                "puppet:///modules/pm/puppet/puppet.conf" ]
+                "puppet:///modules/pm/puppet/puppet.conf" ],
+    owner => 'puppet'
   } ->
   file { '/etc/puppet/manifests/site.pp':
     ensure => file,
-    source => [ "puppet:///modules/pm/puppet/site.pp" ]
+    source => [ "puppet:///modules/pm/puppet/site.pp" ],
+    owner => 'puppet'
   } ->
   file { '/etc/hiera.yaml':
     ensure => file,
-    source => [ "puppet:///modules/pm/puppet/hiera.yaml" ]
+    source => [ "puppet:///modules/pm/puppet/hiera.yaml" ],
+    owner => 'root'
   } ->
   exec { 'chownpuppet':
     command => 'chown -R modem:modem /var/lib/puppet'
