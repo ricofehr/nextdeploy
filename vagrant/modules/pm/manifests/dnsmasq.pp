@@ -8,7 +8,9 @@
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::dnsmasq {
-  Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ] }
+  Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
+      unless => 'test -f /root/.dnsmasqconfig'
+  }
 
   package { [
           'dnsmasq',
@@ -19,13 +21,15 @@ class pm::dnsmasq {
   file { '/etc/default/dnsmasq':
     ensure => file,
     source => [ "puppet:///modules/pm/dnsmasq/dnsmasq_default.conf" ],
-    owner => 'root'
+    owner => 'root',
+    group => 'root'
   } ->
 
   file { '/etc/dnsmasq.conf':
     ensure => file,
     source => [ "puppet:///modules/pm/dnsmasq/dnsmasq.conf" ],
-    owner => 'root'
+    owner => 'root',
+    group => 'root'
   } ->
 
   exec { 'restart-dnsmasq':
@@ -38,5 +42,8 @@ class pm::dnsmasq {
 
   exec { 'chmodhosts':
     command => 'chmod 777 /etc/hosts.mvmc'
+  }  ->
+  exec { 'touch_dnsmasqconfig':
+    command => 'touch /root/.dnsmasqconfig',
   }
 }

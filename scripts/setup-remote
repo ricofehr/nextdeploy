@@ -4,7 +4,6 @@
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
 
 PUPPETIP=''
-PUPPETIP2=''
 PUPPETFQDN=''
 PUPPETPORT=8114
 OUT='out/remote.log'
@@ -51,12 +50,15 @@ prerequisites() {
   mkdir tmp/remote/os
   mkdir tmp/remote/mvmc
 
-  # duplicate yaml for remote setting
+  # duplicate yaml and specific puppet files for remote setting
   cp vagrant/os/hiera/os/uos* tmp/remote/os/
   cp vagrant/mvmc/hiera/mvmc/mvmc* tmp/remote/mvmc/
   cp vagrant/os/hiera/global.yaml.dist tmp/remote/os/global.yaml
   cp vagrant/mvmc/hiera/global.yaml.dist tmp/remote/mvmc/global.yaml
-  cp vagrant/modules/pm/files/hosts/hosts tmp/remote/
+  cp vagrant/modules/pm/files/hosts/hosts tmp/remote/hosts_global
+  cp vagrant/modules/pm/files/nginx/os-doc.conf tmp/remote/mvmc/
+  cp vagrant/modules/pm/files/nginx/os-http.conf tmp/remote/mvmc/
+  cp vagrant/modules/pm/files/scripts/puma.sh tmp/remote/mvmc/
 
   # prepare until 5 compute node hiera files
   pushd tmp/remote/os/ > /dev/null
@@ -117,12 +119,8 @@ prerequisites() {
   [[ -z "$mvmcsuf" ]] && mvmcsuf="os.${DOMAIN}" 
 
   # get from input the puppetmaster ip
-  output -q -l "Puppet-master public ip (for rsync modules and settings) ?"
+  output -q -l "Puppet-master ip ?"
   read PUPPETIP
-
-  output -q -l "Puppet-master ip for agents network traffic (default is $PUPPETIP) ?"
-  read PUPPETIP2
-  [[ -z "$PUPPETIP2" ]] && PUPPETIP2="$PUPPETIP"
 
   output -q -l "Puppet-master fqdn ?"
   read PUPPETFQDN
@@ -194,13 +192,22 @@ EOF
   $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/mvmc/production.rb
 
   # prepare hosts file
-  $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/hosts
-  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/hosts
-  $BINSED -i "s;%%APIPREFIX%%;${apiprefix};" tmp/remote/hosts
-  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${managementprefix};" tmp/remote/hosts
-  $BINSED -i "s;%%DATAPREFIX%%;${dataprefix};" tmp/remote/hosts
-  echo "${PUPPETIP2} ${PUPPETFQDN}" >> tmp/remote/hosts
+  $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/hosts_global
+  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/hosts_global
+  $BINSED -i "s;%%APIPREFIX%%;${apiprefix};" tmp/remote/hosts_global
+  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${managementprefix};" tmp/remote/hosts_global
+  $BINSED -i "s;%%DATAPREFIX%%;${dataprefix};" tmp/remote/hosts_global
+  echo "${PUPPETIP} ${PUPPETFQDN}" >> tmp/remote/hosts_global
 
+  # prepare nginx mvmc files
+  $BINSED -i "s;%%MVMCSUF%%;${mvmcsuf};" tmp/remote/mvmc/os-http.conf
+  $BINSED -i "s;%%MVMCURI%%;${mvmcuri};" tmp/remote/mvmc/os-http.conf
+  $BINSED -i "s;%%MVMCURI%%;${mvmcuri};" tmp/remote/mvmc/os-doc.conf
+
+  #prepare puma.sh
+  $BINSED -i "s;%%RAILSENV%%;production;" tmp/remote/mvmc/puma.sh
+
+  # ask to configure vlans on remote servers
   output -l -q "On controller openstack node, please configure this 3 private ips: ${managementprefix}.70, ${dataprefix}.70, ${apiprefix}.70"
   output -l -q "On neutron openstack node, please configure this 4 private ips: ${publicprefix}.71, ${managementprefix}.71, ${dataprefix}.71, ${apiprefix}.71"
   output -l -q "On glance openstack node, please configure this 2 private ips: ${managementprefix}.72, ${apiprefix}.72"
@@ -212,21 +219,34 @@ EOF
 
 # update puppet modules
 update_puppet_modules() {
-  # backup actual fw files and puppet files
+  # prepare remote folder
+  mkdir -p tmp/remote
+  rm -rf tmp/remote/fw
+  rm -rf tmp/remote/puppet
+  rm -rf tmp/remote/hosts
+  rm -rf tmp/remote/nginx
+
+  # backup actual fw files, puppet files, hosts and nginx conf
   rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw tmp/remote/
   rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet tmp/remote/
+  rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts tmp/remote/
+  rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx tmp/remote/
 
   # clean puppet master
   ssh root@${PUPPETIP} 'rm -rf /etc/puppet/modules'
 
   # rsync puppet modules (rsync here but a git clone into puppet node should be better)
   rsync -avzPessh vagrant/modules root@${PUPPETIP}:/etc/puppet/
-  # upload fw folder
+  
+  # upload specific folders
   [[ -d tmp/remote/fw ]] && rsync -avzPessh tmp/remote/fw root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   [[ -d tmp/remote/puppet ]] && rsync -avzPessh tmp/remote/puppet root@${PUPPETIP}:/etc/puppet/modules/pm/files/
+  [[ -d tmp/remote/hosts ]] && rsync -avzPessh tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/
+  [[ -d tmp/remote/nginx ]] && rsync -avzPessh tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/
 
-  # rsync default hosts file
-  rsync -avzPessh tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/
+  # a second time to ensure that default hosts / puppet / fw / nginx files are updated
+  rsync -avzPessh vagrant/modules root@${PUPPETIP}:/etc/puppet/
+
   # change owner of puppet modules folder
   ssh root@${PUPPETIP} 'chown -R puppet: /etc/puppet/modules'
   # restart the puppet master daemon
@@ -263,6 +283,9 @@ EOF
   scp tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
   
   update_puppet_modules
+
+  # copy default hosts file
+  scp tmp/remote/hosts_global root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/hosts
 }
 
 prepare_node() {
@@ -288,7 +311,7 @@ prepare_node() {
   ssh root@${remote_ip} 'echo LC_ALL=en_US.UTF-8 >> /etc/default/locale'
 
   # add puppetmaster into hosts file
-  ssh root@${remote_ip} "echo '${PUPPETIP2} ${PUPPETFQDN}' >> /etc/hosts"
+  ssh root@${remote_ip} "echo '${PUPPETIP} ${PUPPETFQDN}' >> /etc/hosts"
   
   # reboot remote uosc
   ssh root@${remote_ip} "reboot"
@@ -315,7 +338,7 @@ prepare_node() {
   # synchro fw and hosts file
   rsync -avzPessh vagrant/modules/pm/files/fw/fw_${fwnodename} root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw/fw_${fqdn}
   ssh root@${PUPPETIP} "/bin/sed -i 's/%%PUBLICIP%%/${remote_ip}/;s/###PUBLICIP//' /etc/puppet/modules/pm/files/fw/fw_${fqdn}"
-  rsync -avzPessh tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/hosts_${fqdn}
+  rsync -avzPessh tmp/remote/hosts_global root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/hosts_${fqdn}
   ssh root@${PUPPETIP} "/bin/sed -i 's;%%HOSTNAME%%;${fqdn};' /etc/puppet/modules/pm/files/hosts/hosts_${fqdn}"
 }
 
@@ -375,6 +398,13 @@ install_mvmc() {
   # update MVMCIP into production.rb
   $BINSED -i "s;%%MVMCIP%%;${remote_ip};" tmp/remote/mvmc/production.rb
 
+  # copy nginx templates file onto puppetmaster
+  rsync -avzPessh tmp/remote/mvmc/os-doc.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx/os-doc.conf_${fqdn}
+  rsync -avzPessh tmp/remote/mvmc/os-http.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx/os-http.conf_${fqdn}
+
+  # copy puma script onto puppetmaster
+  rsync -avzPessh tmp/remote/mvmc/puma.sh root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma.sh_${fqdn}
+
   # copy puppet.conf onto puppetmaster files repository
   rsync -avzPessh tmp/remote/puppet.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet/puppet.conf_${fqdn}
   ssh root@${PUPPETIP} "/bin/sed -i 's/%%FQDNSHORT%%/${fqdnshort}/' /etc/puppet/modules/pm/files/puppet/puppet.conf_${fqdn}"
@@ -403,7 +433,20 @@ install_mvmc() {
 
   # launch puppet-agent for start the installation
   launch_puppetagent $remote_ip $fqdn
+
+  # allow puppetmaster to start at boot
+  ssh root@${remote_ip} '[[ -f /etc/default/puppet ]] && sed -i "s;START=no;START=yes;" /etc/default/puppet'
 }
+
+
+# if -u parameter, so we only update module
+if [[ "$1" == "-u" ]]; then
+  # if no puppetip setted, exit
+  [[ -z "$2" ]] && exit 1
+  PUPPETIP="$2"
+  update_puppet_modules
+  exit $?
+fi
 
 welcome_step
 prerequisites

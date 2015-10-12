@@ -50,5 +50,8 @@ gem 'gitlab'
 # faraday restful library
 gem 'faraday'
 
+# gem for memcache store
+gem 'dalli'
+
 #yard for document code
 gem 'yard'

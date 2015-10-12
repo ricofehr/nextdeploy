@@ -276,16 +276,10 @@ class pm::os::gl {
 
   class { '::glance::api':
     require => [ File['/etc/hosts'] ],
-  } ->
-  exec { 'waitglance':
-    command => '/bin/sleep 10'
   }
 
   class { '::glance::registry':
     require => [ File['/etc/hosts'] ],
-  } ->
-  exec { 'waitglance2':
-    command => '/bin/sleep 10'
   }
 
   class { '::glance::backend::file':
@@ -520,18 +514,7 @@ class pm::os::cder {
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::os::hz {
-  
-  exec {'loghorizon':
-     command => '/bin/mkdir -p /var/log/horizon'
-  } ->
-  exec {'loghorizon2':
-     command => '/bin/touch /var/log/horizon/horizon.log'
-  } ->
-  exec {'loghorizon3':
-     command => '/bin/chmod -R 777 /var/log/horizon'
-  }
-
   class { '::horizon':
-    require => [ Class ['pm::sql'], Class ['pm::rabbit'], Exec['loghorizon'], File['/etc/hosts'] ],
+    require => [ Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
   }
 }

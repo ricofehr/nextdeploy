@@ -8,7 +8,10 @@
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::phpcli {
-  Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ] }
+  Exec { 
+    path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ], 
+    unless => 'test -f /root/.installphpcli'
+  }
 
   #list of pkgs
   package { [
@@ -45,5 +48,8 @@ class pm::phpcli {
   } ->
   exec {'wpcli-mv':
     command => 'mv -f /tmp/wp-cli.phar /usr/bin/wp'
+  } ->
+  exec { 'touchinstallphpcli':
+    command => 'touch /root/.installphpcli'
   }
 }

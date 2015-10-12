@@ -23,37 +23,44 @@ class pm::osclient {
       Class['neutron::client'],
       Class['glance::client'],
       Class['cinder::client'],
-    ]
+    ],
+    owner => 'root',
+    group => 'root'
   } ->
 
   file { '/root/user-openrc.sh':
     ensure => file,
     source => [ "puppet:///modules/pm/osenv/user-openrc.sh" ],
-    owner => 'root'
+    owner => 'root',
+    group => 'root'
   } ->
 
   file { '/root/nova-openrc.sh':
     ensure => file,
     source => [ "puppet:///modules/pm/osenv/nova-openrc.sh" ],
-    owner => 'root'
+    owner => 'root',
+    group => 'root'
   } ->
 
   file { '/root/neutron-openrc.sh':
     ensure => file,
     source => [ "puppet:///modules/pm/osenv/neutron-openrc.sh" ],
-    owner => 'root'
+    owner => 'root',
+    group => 'root'
   } ->
 
   file { '/root/glance-openrc.sh':
     ensure => file,
     source => [ "puppet:///modules/pm/osenv/glance-openrc.sh" ],
-    owner => 'root'
+    owner => 'root',
+    group => 'root'
   } ->
 
   file { '/root/cinder-openrc.sh':
     ensure => file,
     source => [ "puppet:///modules/pm/osenv/cinder-openrc.sh" ],
-    owner => 'root'
+    owner => 'root',
+    group => 'root'
   }
 
 }

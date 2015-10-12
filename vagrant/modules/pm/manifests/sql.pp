@@ -8,7 +8,6 @@
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::sql {
-  #mysql setting
   class { '::mysql::server':
    notify => Exec['restart-mysql'],
   }
@@ -21,7 +20,8 @@ class pm::sql {
   ->
   exec { 'touchsqlrestart':
     path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
-    command => 'touch /root/.sqlrestart'
+    command => 'touch /root/.sqlrestart',
+    unless => 'test -f /root/.sqlrestart'
   }
 
   create_resources ('mysql::db', hiera('mysql_db', []))

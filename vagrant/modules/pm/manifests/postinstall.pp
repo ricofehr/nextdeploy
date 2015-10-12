@@ -31,8 +31,7 @@ class pm::postinstall::mvmc {
           'GEM_PATH=/usr/local/rvm/gems/ruby-2.1.0:/usr/local/rvm/gems/ruby-2.1.0@global',
           'RUBY_VERSION=ruby-2.1.0'
       ],
-      cwd => '/ror',
-      unless => 'test -f /home/modem/.installmvmc'
+      cwd => '/ror'
   }
 
   # enable ip forwarding
@@ -41,47 +40,58 @@ class pm::postinstall::mvmc {
   # prepare vpnkeys folder
   exec { 'copyindextxt':
     command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/index.txt /ror/vpnkeys/index.txt',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'copyserial':
     command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/serial /ror/vpnkeys/serial',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'copycakey':
     command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/ca.key /ror/vpnkeys/ca.key',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'copycacrt':
     command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/ca.crt /ror/vpnkeys/ca.crt',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'copywhichopenssl':
     command => 'cp -f /etc/openvpn/mvmc/easy-rsa/whichopensslcnf /ror/vpnkeys/bin/whichopensslcnf',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'copyopenssl098':
     command => 'cp -f /etc/openvpn/mvmc/easy-rsa/openssl-0.9.8.cnf /ror/vpnkeys/bin/openssl-0.9.8.cnf',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'copyopenssl100':
     command => 'cp -f /etc/openvpn/mvmc/easy-rsa/openssl-1.0.0.cnf /ror/vpnkeys/bin/openssl-1.0.0.cnf',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'copyopenssl096':
     command => 'cp -f /etc/openvpn/mvmc/easy-rsa/openssl-0.9.6.cnf /ror/vpnkeys/bin/openssl-0.9.6.cnf',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'copyopenssl':
     command => 'cp -f /etc/openvpn/mvmc/easy-rsa/openssl.cnf /ror/vpnkeys/bin/openssl.cnf',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'copypkitool':
     command => 'cp -f /etc/openvpn/mvmc/easy-rsa/pkitool /ror/vpnkeys/bin/pkitool',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'chownmodemvpnkeys':
     command => 'chown -R modem: /ror/vpnkeys',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   # patch gitlab for auto-confirm users
   file { '/opt/gitlab/embedded/service/gitlab-rails/lib/api/users.rb':
@@ -94,14 +104,16 @@ class pm::postinstall::mvmc {
   # restart gitlab
   exec { 'restartgitalb':
     command => '/usr/bin/gitlab-ctl restart',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   # ensure that ror and out folders is on modem owner
   # temporary before git repo will be public
   exec { 'chownmodem':
     command => 'chown -R modem: /home/mvmc',
     onlyif => 'test -d /home/mvmc',
-    user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   # disable hostkey verification on mvmc
   file_line { 'disable_hostchecking_ssh':
@@ -120,41 +132,50 @@ class pm::postinstall::mvmc {
   } ->
   # git config email
   exec { 'gitconfig1':
-    command => 'git config --global user.email usera@os.mvmc'
+    command => 'git config --global user.email usera@os.mvmc',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   # git config username
   exec { 'gitconfig2':
-    command => 'git config --global user.name admin'
+    command => 'git config --global user.name admin',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   # prepare ror website
   exec { 'bundle-clean':
-    command => 'rm -rf vendor/bundle/*'
+    command => 'rm -rf vendor/bundle/*',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   # clean sshkeys
   exec { 'sshkeys-clean':
-    command => 'rm -f sshkeys/*'
+    command => 'rm -f sshkeys/*',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   # clean privatetoken
   exec { 'token-clean':
-    command => 'rm -f tmp/private_token'
+    command => 'rm -f tmp/private_token',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'bundle-ror':
     command => 'bundle install --path vendor/bundle > /out/logbundle.log 2>&1',
     timeout => 0,
+    unless => 'test -f /home/modem/.installmvmc',
     require => [ Package['libmysqlclient-dev'], Class['rvm'], Class['memcached'] ]
   } ->
   exec { 'db-schema':
     command => 'rake db:schema:load > /out/logdbschema.log 2>&1',
-    timeout => 0
+    timeout => 0,
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'db-migrate':
     command => 'rake db:migrate > /out/logdbmigrate.log 2>&1',
-    timeout => 0
+    timeout => 0,
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   exec { 'db-seed':
     command => 'rake db:seed > /out/logdbseed.log 2>&1',
     timeout => 0,
-    require => Exec['bashdefaultshell']
+    unless => 'test -f /home/modem/.installmvmc',
+    require => File['/bin/sh']
   } ->
   # puma setting
   file { '/var/run/puma':
@@ -164,45 +185,57 @@ class pm::postinstall::mvmc {
   } ->
   file { '/home/modem/puma.sh':
     ensure => file,
-    source => ['puppet:///modules/pm/scripts/puma.sh'],
+    source => ["puppet:///modules/pm/scripts/puma.sh_${clientcert}",
+      'puppet:///modules/pm/scripts/puma.sh'],
     owner => 'modem',
-    mode => '0700'
+    mode => '0700',
+    group => 'modem'
   } ->
   exec { 'pumaenv':
-    command => "/bin/sed -i 's;%%RAILSENV%%;${railsenv};' /home/modem/puma.sh", 
+    command => "/bin/sed -i 's;%%RAILSENV%%;${railsenv};' /home/modem/puma.sh",
+    onlyif => 'grep RAILSENV /home/modem/puma.sh', 
   } ->
   file { '/home/modem/ember.sh':
     ensure => file,
     source => ['puppet:///modules/pm/scripts/ember.sh'],
     owner => 'modem',
-    mode => '0700'
+    mode => '0700',
+    group => 'modem'
   } ->
   # generate doc
   exec { 'yardoc_ror':
     command => 'bundle exec yardoc lib/**/*.rb app/**/*.rb config/**/*.rb',
-    timeout => 120
+    timeout => 120,
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   # Nginx settings
   file { '/var/opt/gitlab/nginx/conf/os-http.conf':
     ensure =>  file,
-    source => ['puppet:///modules/pm/nginx/os-http.conf'],
-    owner => 'root'
+    source => ["puppet:///modules/pm/nginx/os-http.conf_${clientcert}",
+      'puppet:///modules/pm/nginx/os-http.conf'],
+    owner => 'root',
+    group => 'root'
   } ->
   file { '/var/opt/gitlab/nginx/conf/os-doc.conf':
     ensure =>  file,
-    source => ['puppet:///modules/pm/nginx/os-doc.conf'],
-    owner => 'root'
+    source => ["puppet:///modules/pm/nginx/os-doc.conf_${clientcert}",
+      'puppet:///modules/pm/nginx/os-doc.conf'],
+    owner => 'root',
+    group => 'root'
   } ->
   exec { 'mvmcsuffix':
     command => "/bin/sed -i 's;%%MVMCSUF%%;${mvmcsuf};' /var/opt/gitlab/nginx/conf/os-http.conf",
+    onlyif => 'grep MVMCSUF /var/opt/gitlab/nginx/conf/os-http.conf',
     user => 'root'
   } ->
   exec { 'mvmcuri':
     command => "/bin/sed -i 's;%%MVMCURI%%;${mvmcuri};' /var/opt/gitlab/nginx/conf/os-http.conf",
+    onlyif => 'grep MVMCURI /var/opt/gitlab/nginx/conf/os-http.conf',
     user => 'root'
   } ->
   exec { 'mvmcuri2':
     command => "/bin/sed -i 's;%%MVMCURI%%;${mvmcuri};' /var/opt/gitlab/nginx/conf/os-doc.conf",
+    onlyif => 'grep MVMCURI /var/opt/gitlab/nginx/conf/os-doc.conf',
     user => 'root'
   } ->
   file_line { 'os-http':
@@ -222,7 +255,8 @@ class pm::postinstall::mvmc {
   } ->
   exec { 'restart_nginx2':
     command => '/opt/gitlab/embedded/sbin/nginx -c /var/opt/gitlab/nginx/conf/nginx.conf -p /var/opt/gitlab/nginx/ -s reload',
-   user => 'root'
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
   } ->
   file { '/hiera':
     ensure => 'link',
@@ -236,10 +270,12 @@ class pm::postinstall::mvmc {
     hostsmin=$(find /etc/hosts.mvmc -mmin -1)
     [[ -n $hostsmin ]] && /etc/init.d/dnsmasq restart',
     owner => 'root',
-    mode => '0700'
+    mode => '0700',
+    group => 'root'
   } ->
   exec { 'touchinstallmvmc':
-    command => 'touch /home/modem/.installmvmc'
+    command => 'touch /home/modem/.installmvmc',
+    unless => 'test -f /home/modem/.installmvmc'
   }
 
   # nodejs and ember_build prerequisites

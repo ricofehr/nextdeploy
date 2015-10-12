@@ -11,7 +11,8 @@ class pm::fw {
   file { '/etc/init.d/firewall':
     owner => 'root',
     mode => '700',
-    source => [ "puppet:///modules/pm/fw/fw_${clientcert}" ]
+    source => [ "puppet:///modules/pm/fw/fw_${clientcert}" ],
+    group => 'root'
   } ->
   file_line { 'fwrclocal':
     path => '/etc/rc.local',

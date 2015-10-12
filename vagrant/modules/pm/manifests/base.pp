@@ -15,6 +15,7 @@ class pm::base::apt {
 
   class { '::apt': }
 
+  # upgrade ubuntu with kilo repo
   exec { 'ubuntu-cloud-keyring':
     command => '/usr/bin/apt-get install --yes --force-yes ubuntu-cloud-keyring',
     environment => 'DEBIAN_FRONTEND=noninteractive'
@@ -36,7 +37,6 @@ class pm::base::apt {
     command => 'touch /root/.baseapt'
   }
 
-  Class['pm::base::apt'] -> Package<| |>
 }
 
 # == Class: pm::base
@@ -89,7 +89,6 @@ LC_ALL=en_US.UTF-8",
   sysctl::value { "net.core.somaxconn": value => "2048"}
   sysctl::value { "net.ipv4.tcp_syncookies": value => "1"}
   sysctl::value { "vm.overcommit_memory": value => "1"}
-  #sysctl::value { "net.nf_conntrack_max": value => "262144"}
 
   #ntp class
   include ntp
@@ -105,7 +104,8 @@ LC_ALL=en_US.UTF-8",
   }
 
   # make bash default shell
-  exec { 'bashdefaultshell':
-    command => 'ln -sf /bin/bash /bin/sh'
+  file { '/bin/sh':
+    ensure => link,
+    target => '/bin/bash'
   }
 }
