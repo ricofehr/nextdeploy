@@ -16,11 +16,8 @@ module ProjectsHelper
   # No param
   # No return
   def remove_gitpath
-    if self.gitpath && self.gitpath.length > 0
-      system("sudo -u git rm -rf #{Rails.application.config.gitlab_rootpath}/#{self.gitpath}.git")
-      system("sudo -u git rm -rf #{Rails.application.config.gitlab_rootpath}/#{self.gitpath}.wiki.git")
-    end
-
+    # temporary folder for init the project
+    # it must be cleared during the creation process
     if self.name && self.name.length > 0
       system("rm -rf #{Rails.application.config.project_initpath}/#{self.name}")
     end

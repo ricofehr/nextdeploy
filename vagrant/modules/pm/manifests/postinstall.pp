@@ -120,16 +120,6 @@ class pm::postinstall::mvmc {
     path => '/etc/ssh/ssh_config',
     line => 'StrictHostKeyChecking no'
   } ->
-  # add mode into sudo users
-  file_line { 'sudo_rule':
-    path => '/etc/sudoers',
-    line => 'modem ALL=(ALL) NOPASSWD: ALL',
-  } ->
-  file_line { 'sudo_env':
-    path => '/etc/sudoers',
-    line => 'Defaults env_reset,always_set_home',
-    match => '.*env_reset.*'
-  } ->
   # git config email
   exec { 'gitconfig1':
     command => 'git config --global user.email usera@os.mvmc',
