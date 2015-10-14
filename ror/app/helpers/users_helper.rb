@@ -17,6 +17,7 @@ module UsersHelper
   # No param
   # No return
   def generate_authorizedkeys
+    # todo: avoid bash cmd
     system('mkdir -p sshkeys')
     system("rm -f sshkeys/#{self.email}.authorized_keys")
     system("touch sshkeys/#{self.email}.authorized_keys")
@@ -40,6 +41,7 @@ module UsersHelper
   # No param
   # No return
   def upload_authorizedkeys
+    # todo: avoid bash cmd
     self.vms.each { |k|
       Rails.logger.warn "rsync -avzPe \"ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" sshkeys/#{self.email}.authorized_keys modem@#{k.floating_ip}:~/.ssh/authorized_keys"
       system("rsync -avzPe \"ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" sshkeys/#{self.email}.authorized_keys modem@#{k.floating_ip}:~/.ssh/authorized_keys") 
@@ -51,6 +53,7 @@ module UsersHelper
   # No param
   # No return
   def generate_openvpn_keys
+    # todo: avoid bash cmd
     system("cd vpnkeys/bin && source ./vars && KEY_EMAIL=#{self.email} ./build-key #{self.email}")
   end
 
@@ -103,6 +106,7 @@ module UsersHelper
   # No param
   # No return
   def generate_sshkey_modem
+    # todo: avoid bash cmd
     system("mkdir -p sshkeys")
     system("rm -f sshkeys/#{self.email}")
     system("rm -f sshkeys/#{self.email}.pub")
@@ -117,6 +121,7 @@ module UsersHelper
   # @param emailsrc (String): user from which we copy modemkeys
   # No return
   def copy_sshkey_modem(emailsrc)
+    # todo: avoid bash cmd
     system("mkdir -p sshkeys")
     system("cp -f sshkeys/#{emailsrc} sshkeys/#{self.email}")
     system("cp -f sshkeys/#{emailsrc}.pub sshkeys/#{self.email}.pub")

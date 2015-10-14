@@ -64,6 +64,7 @@ class Vm < ActiveRecord::Base
     begin
       self.name = vm_name
       generate_hiera
+      generate_vcl
       user_data = generate_userdata
       sshname = user.sshkeys.first ? user.sshkeys.first.name : ''
       self.nova_id = @osapi.boot_vm(self.name, systemimage.glance_id, sshname, self.vmsize.title, user_data)
@@ -107,7 +108,9 @@ class Vm < ActiveRecord::Base
     rescue Exceptions::MvmcException => me
       me.log
     end
-    system("rm -f hiera/#{self.name}#{Rails.application.config.os_suffix}.yaml")
+    
+    # delete hiera and vcl files
+    clear_vmfiles
   end
 
 end

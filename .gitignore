@@ -62,6 +62,11 @@ nohup.out
 /ror/sshkeys/*
 !/ror/sshkeys/.keep
 
+# Ignore vcls
+/ror/vcls/auth/*
+!/ror/vcls/auth/auth.vcl.3
+!/ror/vcls/auth/auth.vcl.4
+
 # Ignore openvpn keys and duplicated conf
 /ror/vpnkeys/*
 !/ror/vpnkeys/.keep

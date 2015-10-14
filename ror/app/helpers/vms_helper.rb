@@ -41,18 +41,19 @@ module VmsHelper
         f.puts "---\n\nclasses:\n"
         f.puts classes.join("\n")
         f.puts templates.join("\n")
-        # varnish3 for old linux, v4 for newer
+
+        # tools are disabled without auth
+        if project.login && project.login.length > 0
+          f.puts "is_auth: 'yes'"
+        else
+          f.puts "is_auth: 'no'"
+        end
+
+        # varnish3 for older linux
         if systemimage.name == "Debian7" || systemimage.name == "Ubuntu1404"
           f.puts "varnish_version: 3\n"
         else
           f.puts "varnish_version: 4\n"
-        end
-
-        if project.login && project.login.length > 0
-          f.puts 'varnish_auth: ' + Base64.strict_encode64(project.login + ':' + project.password)
-          f.puts "is_auth: 'yes'"
-        else
-          f.puts "is_auth: 'no'"
         end
 
         f.puts "commit: #{commit.commit_hash}\n"
@@ -68,6 +69,30 @@ module VmsHelper
       raise Exceptions::MvmcException.new("Create hiera file for #{name} failed")
     end
 
+  end
+
+  # Generate varnish auth vcl
+  #
+  # No param
+  # @raise an exception if errors occurs during file writing
+  # No return
+  def generate_vcl
+    basicAuth = ''
+    vclV = 4
+    vclName = "auth.vcl_#{self.name}#{Rails.application.config.os_suffix}"
+
+    # varnish3 for older linux
+    if systemimage.name == "Debian7" || systemimage.name == "Ubuntu1404"
+      vclV = 3
+    end
+
+    # prepare vcl file for current vm
+    # todo: avoid bash cmd
+    if project.login && project.login.length > 0
+      basicAuth = Base64.strict_encode64(project.login + ':' + project.password)
+      Rails.logger.warn "/bin/cat vcls/auth/auth.vcl.#{vclV} | /bin/sed 's,###AUTH###,,;s,%%BASICAUTH%%,#{basicAuth},' > vcls/auth/#{vclName}"
+      system("/bin/cat vcls/auth/auth.vcl.#{vclV} | /bin/sed 's,###AUTH###,,;s,%%BASICAUTH%%,#{basicAuth},' > vcls/auth/#{vclName}")
+    end
   end
 
   # Generate user-data files for cloud-init service, using after booting the vm
@@ -143,6 +168,15 @@ module VmsHelper
     else
       self.status = 2 if self.status == 1 || (self.updated_at && self.updated_at < (Time.now - 120.minutes))
     end
+  end
+
+  # Clear vcls and hiera files
+  #
+  # No param
+  # No return
+  def clear_vmfiles
+    system("rm -f vcls/auth/auth.vcl_#{self.name}#{Rails.application.config.os_suffix}")
+    system("rm -f hiera/#{self.name}#{Rails.application.config.os_suffix}.yaml")
   end
 
 end
