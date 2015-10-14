@@ -1,0 +1,15 @@
+#!/bin/bash
+
+FTPUSER="$1"
+FTPPASSWD="$2"
+[[ -z "$FTPUSER" ]] && exit 1
+[[ -z "$FTPPASSWD" ]] && exit 1
+
+htpasswd -p -b /etc/ftpd.passwd $FTPUSER $(openssl passwd -1 -noverify $FTPPASSWD) 
+mkdir /srv/ftp/$FTPUSER
+chown ftp:ftp /srv/ftp/$FTPUSER
+sudo -u ftp mkdir /srv/ftp/$FTPUSER/assets
+sudo -u ftp mkdir /srv/ftp/$FTPUSER/dump
+chmod 500 /srv/ftp/$FTPUSER
+chmod 700 /srv/ftp/$FTPUSER/assets
+chmod 700 /srv/ftp/$FTPUSER/dump

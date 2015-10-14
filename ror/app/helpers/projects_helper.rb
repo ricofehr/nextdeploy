@@ -24,4 +24,32 @@ module ProjectsHelper
       system("rm -rf #{Rails.application.config.project_initpath}/#{self.name}")
     end
   end
+
+  # Lauch bash script for create ftp user for assets and dump
+  #
+  # No param
+  # No return
+  def create_ftp
+    ftppasswd = ''
+
+    if self.password && self.password.length > 0
+      ftppasswd = self.password[0..7]
+    else
+      ftppasswd = 'mvmc'
+    end
+
+    # todo: avoid bash cmd
+    Rails.logger.warn "sudo /usr/local/bin/./mvmc-addftp #{self.gitpath} #{ftppasswd}"
+    system("sudo /usr/local/bin/./mvmc-addftp #{self.gitpath} #{ftppasswd}")
+  end
+
+  # Lauch bash script for delete ftp user for assets and dump
+  #
+  # No param
+  # No return
+  def remove_ftp
+    # todo: avoid bash cmd
+    Rails.logger.warn "sudo /usr/local/bin/./mvmc-rmftp #{self.gitpath}"
+    system("sudo /usr/local/bin/./mvmc-rmftp #{self.gitpath}")
+  end
 end

@@ -253,7 +253,7 @@ file_hosts() {
   output -q "Added 2 lines in /etc/hosts file"
   sudo $BINSED -i "s;^192.168.170.60.*;;" /etc/hosts
   sudo $BINSED -i "s;^192.168.170.70.*;;" /etc/hosts
-  sudo /bin/bash -c "echo \"192.168.170.60 mvmc.local gitlab.local doc.mvmc.local\" >> /etc/hosts"
+  sudo /bin/bash -c "echo \"192.168.170.60 mvmc.local gitlab.local doc.mvmc.local f.mvmc.local\" >> /etc/hosts"
   sudo /bin/bash -c "echo \"192.168.170.70 uosc${DOMAIN}\" >> /etc/hosts"
 }
 
@@ -542,6 +542,7 @@ complete_step() {
   output -q -l "Openstack WebUI: http://uosc${DOMAIN}/"
   output -q -l "Gitlab WebUI: http://${GITLABURI}/"
   output -q -l "Rails Documentation: http://doc.${MVMCURI}/"
+  output -q -l "Assets Ftp: f.${MVMCURI}"
 }
 
 

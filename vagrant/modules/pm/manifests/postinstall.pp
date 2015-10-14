@@ -145,12 +145,14 @@ class pm::postinstall::mvmc {
     command => 'rm -f tmp/private_token',
     unless => 'test -f /home/modem/.installmvmc'
   } ->
+  # install ruby bundles
   exec { 'bundle-ror':
     command => 'bundle install --path vendor/bundle > /out/logbundle.log 2>&1',
     timeout => 0,
     unless => 'test -f /home/modem/.installmvmc',
     require => [ Package['libmysqlclient-dev'], Class['rvm'], Class['memcached'] ]
   } ->
+  # database installation
   exec { 'db-schema':
     command => 'rake db:schema:load > /out/logdbschema.log 2>&1',
     timeout => 0,
@@ -170,7 +172,7 @@ class pm::postinstall::mvmc {
   # puma setting
   file { '/var/run/puma':
     ensure =>  directory,
-    owner => 'root',
+    owner => 'modem',
     mode => '0777'
   } ->
   file { '/home/modem/puma.sh':
@@ -262,6 +264,11 @@ class pm::postinstall::mvmc {
     owner => 'root',
     mode => '0700',
     group => 'root'
+  } ->
+  # need sudo for manage ftp users
+  file_line { 'sudo_rule':
+    path => '/etc/sudoers',
+    line => 'modem ALL=(root) NOPASSWD: /usr/local/bin/./mvmc-*',
   } ->
   exec { 'touchinstallmvmc':
     command => 'touch /home/modem/.installmvmc',

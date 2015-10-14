@@ -70,7 +70,7 @@ class Vm < ActiveRecord::Base
       self.nova_id = @osapi.boot_vm(self.name, systemimage.glance_id, sshname, self.vmsize.title, user_data)
       self.status = 0
     rescue Exceptions::MvmcException => me
-      me.log
+      me.log_e
     end
   end
 

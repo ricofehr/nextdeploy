@@ -1,0 +1,7 @@
+#!/bin/bash
+
+FTPUSER="$1"
+[[ -z "$FTPUSER" ]] && exit 1
+
+htpasswd -D /etc/ftpd.passwd $FTPUSER
+rm -rf /srv/ftp/$FTPUSER

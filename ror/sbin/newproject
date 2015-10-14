@@ -153,16 +153,15 @@ newproject() {
   #make init commit
   pushd ${DOCONLINE} > /dev/null
   git clone "${gitpath}" .
-  mkdir -p html flash client nodejs server scripts
-  touch html/emptyfile
-  touch flash/emptyfile
-  touch client/emptyfile
-  touch nodejs/emptyfile
+  mkdir -p html client nodejs server scripts
+  touch html/.keep
+  touch client/.keep
+  touch nodejs/.keep
   cp "${RORSBIN}/files/app.js" nodejs/
-  touch server/emptyfile
-  touch scripts/postinstall.sh
+  touch server/.keep
   cp "${RORSBIN}/files/gitignore_other" .gitignore
-  git add html flash client nodejs server scripts .gitignore
+  cp "${RORSBIN}/files/postinstall.sh" scripts/
+  git add html client nodejs server scripts .gitignore
   git commit -m "Init project"
   git push origin master
   popd > /dev/null
