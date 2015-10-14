@@ -15,7 +15,7 @@ mysql::server::override_options:
   mysqld_safe:
     log_error: /var/log/mysql/mysql.err
   mysqld:
-    bind_address: 0.0.0.0
+    bind_address: 127.0.0.1
     datadir: /var/lib/mysql
     skip-external-locking: true
     skip-name-resolve: true
@@ -77,6 +77,28 @@ vpnserver:
     server: '10.0.171.0 255.255.255.0'
     push:
       - "route %{hiera('global::pubprefix')}.0 255.255.255.0"
+
+
+vsftpd::template: 'vsftpd/empty.conf.erb'
+vsftpd::directives:
+    listen_address: "%{hiera('global::pubprefix')}.60"
+    listen: 'YES'
+    anonymous_enable: 'NO'
+    local_enable: 'YES'
+    write_enable: 'YES'
+    local_umask: '022'
+    user_sub_token: '$USER'
+    local_root: '/srv/ftp/$USER'
+    chroot_local_user: 'YES'
+    chroot_list_enable: 'NO'
+    allow_writeable_chroot: 'YES'
+    hide_ids: 'YES'
+    guest_enable: 'YES'
+    virtual_use_local_privs: 'YES'
+    pam_service_name: 'vsftpd'
+    nopriv_user: 'ftp'
+    guest_username: 'ftp'
+    ftpd_banner: 'Mvmc Assets FTP Server'
 
 rvm::system_rubies:
   '2.1.0':

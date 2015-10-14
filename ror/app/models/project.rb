@@ -26,8 +26,8 @@ class Project < ActiveRecord::Base
   validates :brand_id, :framework_id, numericality: {only_integer: true, greater_than: 0}
 
   # Git repository dependence
-  before_create :create_git
-  before_destroy :delete_git
+  before_create :create_git, :create_ftp
+  before_destroy :delete_git, :remove_ftp
 
   # Init gitlab api object
   after_initialize :init_gitlabapi

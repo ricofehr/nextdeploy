@@ -18,6 +18,9 @@ module VmsHelper
     templates = Array.new
     technos = project.technos
     technos = technos.sort_by {|t| t.ordering}
+    ftppasswd = ''
+    (project.password && project.password.length > 0) ? 
+      (ftppasswd = project.password) : (ftppasswd = 'mvmc')
 
     #add base puppet class
     classes << '  - pm::base::apt'
@@ -33,7 +36,7 @@ module VmsHelper
       templates << template
     }
     classes << "  - #{project.framework.puppetclass}" if project.framework.puppetclass && project.framework.puppetclass.length > 0
-    classes << "  - pm::deploy::nodejs" if project.technos.any? { |t| t.name == 'nodejs' }
+    classes << "  - pm::deploy::nodejs" if project.technos.any? { |t| t.name.include?('nodejs') }
     classes << '  - pm::deploy::postinstall'
 
     begin
@@ -44,9 +47,9 @@ module VmsHelper
 
         # tools are disabled without auth
         if project.login && project.login.length > 0
-          f.puts "is_auth: 'yes'"
+          f.puts "is_auth: 'yes'\n"
         else
-          f.puts "is_auth: 'no'"
+          f.puts "is_auth: 'no'\n"
         end
 
         # varnish3 for older linux
@@ -64,9 +67,14 @@ module VmsHelper
         f.puts "weburi: #{vm_url}\n"
         f.puts "project: #{project.name}\n"
         f.puts "mvmcuri: #{Rails.application.config.mvmcuri}\n"
+        f.puts "ftpuser: #{project.gitpath}\n"
+        f.puts "ftppasswd: #{ftppasswd}\n"
+        f.puts "framework: #{project.framework.name.downcase}\n"
+        f.puts "ismysql: 1\n" if project.technos.any? { |t| t.name.include? 'mysql' }
+        f.puts "ismongo: 1\n" if project.technos.any? { |t| t.name.include? 'mongo' }
       }
-    rescue
-      raise Exceptions::MvmcException.new("Create hiera file for #{name} failed")
+    rescue Exception => me
+      raise Exceptions::MvmcException.new("Create hiera file for #{name} failed, #{me.message}")
     end
 
   end
