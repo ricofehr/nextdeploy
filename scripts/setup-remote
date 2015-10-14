@@ -10,12 +10,240 @@ OUT='out/remote.log'
 BINSED='/bin/sed'
 YES=0
 DEBUG=1
+TIMETOREBOOT=220
 DOMAIN=''
+
+NEUTRONPUBDEV=''
+NEUTRONEXTDEV=''
+GITLABURI=''
+PUBPREFIX=''
+APIPREFIX=''
+DATAPREFIX=''
+MVMCSUF=''
+MVMCURI=''
+MANAGEMENTPREFIX=''
+ISOTHERNOVA=0
+ISINSTALLPUPPETMASTER=0
+ISUPDATEPUPPETMASTER=0
+CONTROLLERIP=''
+NEUTRONIP=''
+GLANCEIP=''
+MVMCIP=''
+NOVAIP=''
+NOVA2IP=''
+NOVA3IP=''
+NOVA4IP=''
+NOVA5IP=''
 
 # use gsed if macosx
 [[ -f /usr/bin/sw_vers ]] && BINSED='/usr/local/bin/gsed'
 
 source scripts/inc/utils
+
+# display help
+mvmchelp() {
+  cat <<EOF
+Usage: $0 [options]
+
+-h                          this is some help text.
+-q                          quieter mode
+-y                          non-interactive mode, take default value when no setted
+-fs xxxx                    fileshare strategy for rails app source between host and mvmc node, nfs/rsync (Default is nfs)
+-cu xxxx                    cli username (default is usera@os.mvmc)
+-cp xxxx                    cli password (default is word123123)
+-g xxxx                     gitlaburi (default is gitlab.local)
+-ne xxxx                    set the neutron external interface (for the public openstack subnet, default is eth2)
+-np xxxx                    set the neutron public interface (default is eth0)
+-p xxxx                     subnet prefix (external network) for vms (default is 192.168.171)
+-a xxxx                     subnet prefix for api network (default is 192.168.170)
+-d xxxx                     subnet prefix for data network (default is 172.16.171)
+-e xxxx                     subnet prefix for management network (default is 172.16.170)
+-n xxxx                     dns server for vms (default is 192.168.171.60)
+-m xxxx                     mvmc webui URI (default is mvmc.local)
+-s xxxx                     mvmc dns suffixes (default is os.mvmc)
+-t xxxx                     set the time needed to reboot a node (default is 220)
+--domain xxxx               global domain for the mvmc nodes (default is none)
+--puppetmaster-ip   xxxx    ip for puppetmaster service
+--puppetmaster-fqdn xxxx    fqdn for puppetmaster service
+--install-puppetmaster      install the puppet master service
+--update-puppetmaster       update the puppet master service with lastest modules and hiera files
+--controller-ip xxxx        install the controller node (ip needed)
+--neutron-ip xxxx           install the neutron node (ip needed)
+--glance-ip xxxx            install the glance node (ip needed)
+--nova-ip xxxx              install the nova node (ip needed)
+--nova2-ip xxxx             install a second nova node (ip needed)
+--nova3-ip xxxx             install a third nova node (ip needed)
+--nova4-ip xxxx             install a fourth nova node (ip needed)
+--nova5-ip xxxx             install a fifth nova node (ip needed)
+--mvmc-ip xxxx              install the mvmc manager node (ip needed)
+EOF
+
+exit 0
+}
+
+
+# Parse cmd options
+while (($# > 0)); do
+  case "$1" in
+    -ne)
+      shift
+      NEUTRONEXTDEV="$1"
+      shift
+      ;;
+    -np)
+      shift
+      NEUTRONPUBDEV="$1"
+      shift
+      ;;
+    -d)
+      shift
+      DEBUG=2
+      ;;
+    -q)
+      shift
+      DEBUG=0
+      ;;
+    -y)
+      shift
+      YES=1
+      ;;
+    -g)
+      shift
+      GITLABURI="$1"
+      shift
+      ;;
+    -h)
+      shift
+      mvmchelp
+      ;;
+    -p)
+      shift
+      PUBPREFIX="$1"
+      DNSIP="${PUBPREFIX}.60"
+      shift
+      ;;
+    -a)
+      shift
+      APIPREFIX="$1"
+      shift
+      ;;
+    -d)
+      shift
+      DATAPREFIX="$1"
+      shift
+      ;;
+    -e)
+      shift
+      MANAGEMENTPREFIX="$1"
+      shift
+      ;;
+    -n)
+      shift
+      DNSIP="$1"
+      shift
+      ;;
+    -m)
+      shift
+      MVMCURI="$1"
+      shift
+      ;;
+    -s)
+      shift
+      MVMCSUF="$1"
+      shift
+      ;;
+    -t)
+      shift
+      TIMETOREBOOT="$1"
+      shift
+      ;;
+    --domain)
+      shift
+      DOMAIN="$1"
+      shift
+      ;;
+    --puppetmaster-ip)
+      shift
+      PUPPETIP="$1"
+      shift
+      ;;
+    --puppetmaster-fqdn)
+      shift
+      PUPPETFQDN="$1"
+      shift
+      ;;
+    --install-puppetmaster)
+      shift
+      ISINSTALLPUPPETMASTER=1
+      ;;
+    --update-puppetmaster)
+      shift
+      ISUPDATEPUPPETMASTER=1
+      ;;
+    --controller-ip)
+      shift
+      CONTROLLERIP="$1"
+      shift
+      ;;
+    --neutron-ip)
+      shift
+      NEUTRONIP="$1"
+      shift
+      ;;
+    --glance-ip)
+      shift
+      GLANCEIP="$1"
+      shift
+      ;;
+    --nova-ip)
+      shift
+      NOVAIP="$1"
+      shift
+      ;;
+    --nova2-ip)
+      shift
+      NOVA2IP="$1"
+      ISOTHERNOVA=1
+      shift
+      ;;
+    --nova3-ip)
+      shift
+      NOVA3IP="$1"
+      ISOTHERNOVA=1
+      shift
+      ;;
+    --nova4-ip)
+      shift
+      NOVA4IP="$1"
+      ISOTHERNOVA=1
+      shift
+      ;;
+    --nova5-ip)
+      shift
+      NOVAI5P="$1"
+      ISOTHERNOVA=1
+      shift
+      ;;
+    --mvmc-ip)
+      shift
+      MVMCIP="$1"
+      shift
+      ;;
+    *)
+      mvmchelp
+      shift
+      ;;
+  esac
+done
+
+# ensure minimum requirement with non-interactive mode
+if (( YES == 1 )); then
+  [[ -z "PUPPETIP" ]] && output -e "Parameter --puppetmaster-ip is missing"
+  [[ -z "PUPPETFQDN" ]] && output -e "Parameter --puppetmaster-fqdn is missing"
+fi
+
+# Clean log file
+rm -f "${OUT}"
 
 # Redirect output to log file
 if [[ -n "$OUT" ]]; then
@@ -34,15 +262,30 @@ welcome_step() {
 
 # Prerequisites
 prerequisites() {
-  local exteth=''
-  local masqeth=''
-  local publicnetwork=''
-  local gateway_ip=''
-  local startip=''
-  local endip=''
-  local mvmcuri=''
-  local mvmcsuf=''
-  local gitlaburi=''
+  # init local var with global ones
+  local publicprefix="$PUBPREFIX"
+  local dataprefix="$DATAPREFIX"
+  local apiprefix="$APIPREFIX"
+  local managementprefix="$MANAGEMENTPREFIX"
+  local exteth="$NEUTRONEXTDEV"
+  local masqeth="$NEUTRONPUBDEV"
+  local mvmcuri="$MVMCURI"
+  local gitlaburi="$GITLABURI"
+  local mvmcsuf="$MVMCSUF"
+
+  # if non-interactive mode, preset with default values when variable is empty
+  if (( YES == 1 )); then
+    [[ -z "$publicprefix" ]] && publicprefix='192.168.71'
+    [[ -z "$dataprefix" ]] && dataprefix='172.16.71'
+    [[ -z "$apiprefix" ]] && apiprefix='192.168.70'
+    [[ -z "$managementprefix" ]] && managementprefix='172.16.70'
+    [[ -z "$exteth" ]] && exteth='eth1'
+    [[ -z "$masqeth" ]] && masqeth='eth0'
+    [[ -z "$mvmcuri" ]] && mvmcuri="mvmc.$DOMAIN"
+    [[ -z "$gitlaburi" ]] && gitlaburi="gitlab.${DOMAIN}"
+    [[ -z "$mvmcsuf" ]] && mvmcsuf="os.${DOMAIN}"
+    [[ -z "$PUPPETPORT" ]] && PUPPETPORT="8140"
+  fi
 
   # temporary folder used by remote install
   rm -rf tmp/remote
@@ -69,65 +312,91 @@ prerequisites() {
   popd > /dev/null
 
   # get the publicprefix
-  output -q -l "The openstack public network (default is 192.168.71) ?"
-  read publicprefix
-  [[ -z "$publicprefix" ]] && publicprefix='192.168.71'
+  if [[ -z "$publicprefix" ]]; then 
+    output -q -l "The openstack public network (default is 192.168.71) ?"
+    read publicprefix
+    [[ -z "$publicprefix" ]] && publicprefix='192.168.71'
+  fi
 
   # get the data prefix
-  output -q -l "The openstack data network (default is 172.16.71) ?"
-  read dataprefix
-  [[ -z "$dataprefix" ]] && dataprefix='172.16.71'
+  if [[ -z "$dataprefix" ]]; then
+    output -q -l "The openstack data network (default is 172.16.71) ?"
+    read dataprefix
+    [[ -z "$dataprefix" ]] && dataprefix='172.16.71'
+  fi
 
   # get the api prefix
-  output -q -l "The openstack api network (default is 192.168.70) ?"
-  read apiprefix
-  [[ -z "$apiprefix" ]] && apiprefix='192.168.70'
+  if [[ -z "$apiprefix" ]]; then
+    output -q -l "The openstack api network (default is 192.168.70) ?"
+    read apiprefix
+    [[ -z "$apiprefix" ]] && apiprefix='192.168.70'
+  fi
 
   # get the management prefix
-  output -q -l "The openstack management network (default is 172.16.70) ?"
-  read managementprefix
-  [[ -z "$managementprefix" ]] && managementprefix='172.16.70'
+  if [[ -z "$managementprefix" ]]; then
+    output -q -l "The openstack management network (default is 172.16.70) ?"
+    read managementprefix
+    [[ -z "$managementprefix" ]] && managementprefix='172.16.70'
+  fi
 
   # the public network device
-  output -q -l "The ethernet device associated on neutron to the openstack public network (default is eth1) ?"
-  read exteth
-  [[ -z "$exteth" ]] && exteth='eth1'
+  if [[ -z "$exteth" ]]; then
+    output -q -l "The ethernet device associated on neutron to the openstack public network (default is eth1) ?"
+    read exteth
+    [[ -z "$exteth" ]] && exteth='eth1'
+  fi
 
   # the external device
-  output -q -l "The ethernet device associated to the default route on neutron ? (default is eth0)"
-  read masqeth
-  [[ -z "$masqeth" ]] && masqeth='eth0'
+  if [[ -z "$masqeth" ]]; then
+    output -q -l "The ethernet device associated to the default route on neutron ? (default is eth0)"
+    read masqeth
+    [[ -z "$masqeth" ]] && masqeth='eth0'
+  fi
 
   # the local domain for the 5 mvmc servers
-  output -q -l "The local domain for the 5 mvmc servers ? (default is nothing)"
-  read DOMAIN
-  [[ -z "$DOMAIN" ]] && DOMAIN='' 
+  if [[ -z "$DOMAIN" ]] && [[ "$YES" = "0" ]]; then
+    output -q -l "The local domain for the 5 mvmc servers ? (default is nothing)"
+    read DOMAIN
+    [[ -z "$DOMAIN" ]] && DOMAIN='' 
+  fi
 
   # the mvmc webui
-  output -q -l "The manager mvmc uri ? (default is mvmc.${DOMAIN})"
-  read mvmcuri
-  [[ -z "$mvmcuri" ]] && mvmcuri="mvmc.$DOMAIN"
+  if [[ -z "$mvmcuri" ]]; then
+    output -q -l "The manager mvmc uri ? (default is mvmc.${DOMAIN})"
+    read mvmcuri
+    [[ -z "$mvmcuri" ]] && mvmcuri="mvmc.$DOMAIN"
+  fi
 
   # the gitlab webui
-  output -q -l "The gitlab uri ? (default is gitlab.${DOMAIN})"
-  read gitlaburi
-  [[ -z "$gitlaburi" ]] && gitlaburi="gitlab.${DOMAIN}"
+  if [[ -z "$gitlaburi" ]]; then
+    output -q -l "The gitlab uri ? (default is gitlab.${DOMAIN})"
+    read gitlaburi
+    [[ -z "$gitlaburi" ]] && gitlaburi="gitlab.${DOMAIN}"
+  fi
 
   # the common subdomain for vm endpoint
-  output -q -l "The common wildcard subdomain for the vms ? (default is os.${DOMAIN})"
-  read mvmcsuf
-  [[ -z "$mvmcsuf" ]] && mvmcsuf="os.${DOMAIN}" 
+  if [[ -z "$mvmcsuf" ]]; then
+    output -q -l "The common wildcard subdomain for the vms ? (default is os.${DOMAIN})"
+    read mvmcsuf
+    [[ -z "$mvmcsuf" ]] && mvmcsuf="os.${DOMAIN}" 
+  fi
 
   # get from input the puppetmaster ip
-  output -q -l "Puppet-master ip ?"
-  read PUPPETIP
+  if [[ -z "$PUPPETIP" ]]; then
+    output -q -l "Puppet-master ip ?"
+    read PUPPETIP
+  fi
 
-  output -q -l "Puppet-master fqdn ?"
-  read PUPPETFQDN
+  if [[ -z "$PUPPETFQDN" ]]; then
+    output -q -l "Puppet-master fqdn ?"
+    read PUPPETFQDN
+  fi
 
-  output -q -l "Puppet-master port (default is 8140) ?"
-  read PUPPETPORT
-  [[ -z "$PUPPETPORT" ]] && PUPPETPORT="8140"
+  if [[ -z "$PUPPETPORT" ]]; then
+    output -q -l "Puppet-master port (default is 8140) ?"
+    read PUPPETPORT
+    [[ -z "$PUPPETPORT" ]] && PUPPETPORT="8140"
+  fi
 
   # create puppet.conf file
   cat > tmp/remote/puppet.conf << EOF
@@ -180,7 +449,6 @@ EOF
 
   # merge the 2 global files
   cat tmp/remote/os/global.yaml tmp/remote/mvmc/global.yaml | sort | uniq > tmp/remote/global.yaml
-  scp tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
 
   # prepare rails production config file
   cp ror/config/environments/production.rb.dist tmp/remote/mvmc/production.rb
@@ -225,12 +493,14 @@ update_puppet_modules() {
   rm -rf tmp/remote/puppet
   rm -rf tmp/remote/hosts
   rm -rf tmp/remote/nginx
+  rm -f tmp/remote/puma.sh_*
 
   # backup actual fw files, puppet files, hosts and nginx conf
   rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw tmp/remote/
   rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet tmp/remote/
   rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts tmp/remote/
   rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx tmp/remote/
+  rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma.sh_* tmp/remote/
 
   # clean puppet master
   ssh root@${PUPPETIP} 'rm -rf /etc/puppet/modules'
@@ -242,7 +512,8 @@ update_puppet_modules() {
   [[ -d tmp/remote/fw ]] && rsync -avzPessh tmp/remote/fw root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   [[ -d tmp/remote/puppet ]] && rsync -avzPessh tmp/remote/puppet root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   [[ -d tmp/remote/hosts ]] && rsync -avzPessh tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/
-  [[ -d tmp/remote/nginx ]] && rsync -avzPessh tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/
+  [[ -d tmp/remote/nginx ]] && rsync -avzPessh tmp/remote/nginx root@${PUPPETIP}:/etc/puppet/modules/pm/files/
+  test -f tmp/remote/puma.sh_* && rsync -avzPessh tmp/remote/puma.sh_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
 
   # a second time to ensure that default hosts / puppet / fw / nginx files are updated
   rsync -avzPessh vagrant/modules root@${PUPPETIP}:/etc/puppet/
@@ -280,7 +551,6 @@ remote_puppet() {
   - global
 EOF
   rsync -avzPessh tmp/remote/hiera.yaml root@${PUPPETIP}:/etc/puppet/hiera.yaml
-  scp tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
   
   update_puppet_modules
 
@@ -292,6 +562,7 @@ prepare_node() {
   # ip is the first parameter, fqdn the second
   local remote_ip="$1"
   local fqdn="$2"
+  local rtries=0
 
   local fqdns=${fqdn%%\.*}
   local fwnodename="$fqdns"
@@ -318,6 +589,15 @@ prepare_node() {
 
   # reboot and get puppet repo
   confirm 'Server is going to reboot. Please waiting that he is up again and continue with puppet install'
+  # if non-interactive, sleep wiating remote_ip is up
+  if (( YES == 1 )); then
+    while (( rtries++ < 3)); do
+      sleep $TIMETOREBOOT
+      ssh root@${remote_ip} "pwd"
+      (( $? == 0 )) && break  
+    done
+    (( rtries == 3 )) && output -e "The node $fqdn is not rebooted at time during install process"
+  fi
 
   # apt-get update
   ssh root@${remote_ip} "apt-get update"
@@ -368,17 +648,21 @@ install_osnode() {
   local nodename="$1"
   local fwnodename="$1"
   local fqdn="$1"
+  local remote_ip="$2"
   [[ -n "$DOMAIN" ]] && fqdn="${fqdn}.${DOMAIN}"
   [[ "$nodename" = "uosnv"* ]] && fwnodename='uosnv'
 
   # get the ip
-  output -q -l "The ip for $fqdn controller node ?"
-  read remote_ip
-  
+  if [[ -z "$remote_ip" ]]; then
+    output -q -l "The ip for $fqdn controller node ?"
+    read remote_ip
+  fi
+
   # set local, hosts and install puppet
   prepare_node $remote_ip $fqdn
 
-  # synchro hiera file
+  # synchro hiera files
+  scp tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
   scp tmp/remote/os/${nodename}.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
   
   # launch puppet-agent for start the installation
@@ -387,13 +671,18 @@ install_osnode() {
 
 # Install mvmc manager node
 install_mvmc() {
+  # init local variables
   local fqdn='mvmc'
   local fqdnshort="$fqdn"
+  local remote_ip
   [[ -n "$DOMAIN" ]] && fqdn="${fqdn}.${DOMAIN}"
+  [[ -n "$MVMCIP" ]] && remote_ip="$MVMCIP"
 
   # get the ip
-  output -q -l 'The ip for mvmc manager node ?'
-  read remote_ip
+  if [[ -z "$remote_ip" ]]; then
+    output -q -l 'The ip for mvmc manager node ?'
+    read remote_ip
+  fi
 
   # update MVMCIP into production.rb
   $BINSED -i "s;%%MVMCIP%%;${remote_ip};" tmp/remote/mvmc/production.rb
@@ -428,7 +717,8 @@ install_mvmc() {
   # rsync rails app (git clone on remote server should be better)
   rsync -avzPessh tmp/remote/mvmc/production.rb root@${remote_ip}:/ror/config/environments/
 
-  # synchro hiera file
+  # synchro hiera files
+  scp tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
   scp tmp/remote/mvmc/mvmc.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
 
   # launch puppet-agent for start the installation
@@ -439,65 +729,135 @@ install_mvmc() {
 }
 
 
-# if -u parameter, so we only update module
-if [[ "$1" == "-u" ]]; then
-  # if no puppetip setted, exit
-  [[ -z "$2" ]] && exit 1
-  PUPPETIP="$2"
-  update_puppet_modules
-  exit $?
-fi
-
 welcome_step
 prerequisites
 
+# puppetmaster part, ask update if no install
 output -l -q 'Remote puppet installation ? (y/n)'
-read response
+if (( ISINSTALLPUPPETMASTER ==  1 )); then
+  response="y"
+elif (( YES == 0 )); then
+  read response
+else
+  response="n"
+fi
+
 if [[ "$response" = "y" ]]; then
   remote_puppet
 else
   output -l -q 'Update puppet modules ? (y/n)'
-  read response
+  if (( ISUPDATEPUPPETMASTER ==  1 )); then
+    response="y"
+  elif (( YES == 0 )); then
+    read response
+  else
+    response="n"
+  fi
   [[ "$response" = "y" ]] && update_puppet_modules
 fi
 
+# controller part
 output -l -q 'Openstack controller installation ? (y/n)'
-read response
-[[ "$response" = "y" ]] && install_osnode uosc
+if [[ -n "$CONTROLLERIP" ]]; then
+  response="y"
+elif (( YES == 0 )); then
+  read response
+else
+  response="n"
+fi
+[[ "$response" = "y" ]] && install_osnode uosc $CONTROLLERIP
 
+# neutron part
 output -l -q 'Openstack neutron installation ? (y/n)'
-read response
-[[ "$response" = "y" ]] && install_osnode uosnt
+if [[ -n "$NEUTRONIP" ]]; then
+  response="y"
+elif (( YES == 0 )); then
+  read response
+else
+  response="n"
+fi
+[[ "$response" = "y" ]] && install_osnode uosnt $NEUTRONIP
 
+# glance part
 output -l -q 'Openstack glance installation ? (y/n)'
-read response
-[[ "$response" = "y" ]] && install_osnode uosst
+if [[ -n "$GLANCEIP" ]]; then
+  response="y"
+elif (( YES == 0 )); then
+  read response
+else
+  response="n"
+fi
+[[ "$response" = "y" ]] && install_osnode uosst $GLANCEIP
 
+# first compute part
 output -l -q 'Openstack compute installation ? (y/n)'
-read response
-[[ "$response" = "y" ]] && install_osnode uosnv
+if [[ -n "$NOVAIP" ]]; then
+  response="y"
+elif (( YES == 0 )); then
+  read response
+else
+  response="n"
+fi
+[[ "$response" = "y" ]] && install_osnode uosnv $NOVAIP
 
-
+# others compute
 output -l -q 'Other(s) compute installation ? (y/n)'
-read response
+if (( ISOTHERNOVA ==  1 )); then
+  response="y"
+elif (( YES == 0 )); then
+  read response
+else
+  response="n"
+fi
 if [[ "$response" = "y" ]]; then
   output -l -q 'A second compute ? (y/n)'
-  read response
-  [[ "$response" = "y" ]] && install_osnode uosnv2
+  if [[ -n "$NOVA2IP" ]]; then
+    response="y"
+  elif (( YES == 0 )); then
+    read response
+  else
+    response="n"
+  fi
+  [[ "$response" = "y" ]] && install_osnode uosnv2 $NOVA2IP
 
   output -l -q 'A third compute ? (y/n)'
-  read response
-  [[ "$response" = "y" ]] && install_osnode uosnv3
+  if [[ -n "$NOVA3IP" ]]; then
+    response="y"
+  elif (( YES == 0 )); then
+    read response
+  else
+    response="n"
+  fi
+  [[ "$response" = "y" ]] && install_osnode uosnv3 $NOVA3IP
 
   output -l -q 'A fourth compute ? (y/n)'
-  read response
-  [[ "$response" = "y" ]] && install_osnode uosnv4
+  if [[ -n "$NOVA4IP" ]]; then
+    response="y"
+  elif (( YES == 0 )); then
+    read response
+  else
+    response="n"
+  fi
+  [[ "$response" = "y" ]] && install_osnode uosnv4 $NOVA4IP
 
   output -l -q 'A fifth compute ? (y/n)'
-  read response
-  [[ "$response" = "y" ]] && install_osnode uosnv5
+  if [[ -n "$NOVA5IP" ]]; then
+    response="y"
+  elif (( YES == 0 )); then
+    read response
+  else
+    response="n"
+  fi
+  [[ "$response" = "y" ]] && install_osnode uosnv5 $NOVA5IP
 fi
 
+# mabager part
 output -l -q 'Mvmc manager installation ? (y/n)'
-read response
+if [[ -n "$MVMCIP" ]]; then
+  response="y"
+elif (( YES == 0 )); then
+  read response
+else
+  response="n"
+fi
 [[ "$response" = "y" ]] && install_mvmc
