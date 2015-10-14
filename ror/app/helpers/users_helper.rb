@@ -24,7 +24,7 @@ module UsersHelper
     system("cat ~/.ssh/id_rsa.pub > sshkeys/#{self.email}.authorized_keys")
     Sshkey.admins.each { |k| system("echo #{k.key} >> sshkeys/#{self.email}.authorized_keys") }
     self.sshkeys.each { |k| system("echo #{k.key} >> sshkeys/#{self.email}.authorized_keys") }
-    system("chmod 777 sshkeys/*")
+    system("chmod 644 sshkeys/#{self.email}.authorized_keys")
   end
 
   # Generate again all authorized_keys (trigerred after change with admin ssh keys)
@@ -107,7 +107,8 @@ module UsersHelper
     system("rm -f sshkeys/#{self.email}")
     system("rm -f sshkeys/#{self.email}.pub")
     system("ssh-keygen -f sshkeys/#{self.email} -N ''")
-    system("chmod 777 sshkeys/*")
+    system("chmod 644 sshkeys/#{self.email}")
+    system("chmod 644 sshkeys/#{self.email}.pub")
     @gitlabapi.add_sshkey(gitlab_user, "modemsshkey", public_sshkey_modem)
   end
 
@@ -119,7 +120,8 @@ module UsersHelper
     system("mkdir -p sshkeys")
     system("cp -f sshkeys/#{emailsrc} sshkeys/#{self.email}")
     system("cp -f sshkeys/#{emailsrc}.pub sshkeys/#{self.email}.pub")
-    system("chmod 777 sshkeys/*")
+    system("chmod 644 sshkeys/#{self.email}")
+    system("chmod 644 sshkeys/#{self.email}.pub")
   end
 
   # Get private own modem ssh key
