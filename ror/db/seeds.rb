@@ -52,6 +52,8 @@ apache_vhost:
         path: '/var/www/pm_tools/'
       - alias: '/robots.txt'
         path: '/var/www/robots.txt'
+      - alias: '/status_ok'
+        path: '/var/www/status_ok'
     ensure: present
     docroot_owner: 'modem'
     docroot_group: 'www-data'
