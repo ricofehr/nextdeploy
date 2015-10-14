@@ -40,7 +40,10 @@ module UsersHelper
   # No param
   # No return
   def upload_authorizedkeys
-    self.vms.each { |k| %x("rsync -avzPe "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" sshkeys/#{self.email}.authorized_keys modem@#{k.floating_ip}:~/.ssh/authorized_keys") }
+    self.vms.each { |k|
+      Rails.logger.warn "rsync -avzPe \"ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" sshkeys/#{self.email}.authorized_keys modem@#{k.floating_ip}:~/.ssh/authorized_keys"
+      system("rsync -avzPe \"ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" sshkeys/#{self.email}.authorized_keys modem@#{k.floating_ip}:~/.ssh/authorized_keys") 
+    }
   end
 
   # Generate own openvpn key
