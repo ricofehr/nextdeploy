@@ -486,7 +486,7 @@ EOF
 }
 
 # update puppet modules
-update_puppet_modules() {
+update_puppet() {
   # prepare remote folder
   mkdir -p tmp/remote
   rm -rf tmp/remote/fw
@@ -520,8 +520,28 @@ update_puppet_modules() {
 
   # change owner of puppet modules folder
   ssh root@${PUPPETIP} 'chown -R puppet: /etc/puppet/modules'
+  # update all hiera files
+  update_hierafiles
   # restart the puppet master daemon
   ssh root@${PUPPETIP} 'service puppetmaster restart'
+}
+
+# update hiera files
+update_hierafiles() {
+  local nodenames=('uosc' 'uosnt' 'uosst' 'uosnv' 'mvmc' 'uosnv2' 'uosnv3' 'uosnv4' 'uosnv5')
+  local nodename=''
+  local fqdn=''
+
+  # synchro global hiera file
+  scp tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
+  # synchro hiera node files
+  for nodename in "${nodenames[@]}"; do
+    fqdn="$nodename"
+    pathyaml="tmp/remote/os/"
+    [[ "$nodename" = "mvmc" ]] && pathyaml="tmp/remote/mvmc/"
+    [[ -n "$DOMAIN" ]] && fqdn="${fqdn}.${DOMAIN}"
+    scp ${pathyaml}${nodename}.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
+  done
 }
 
 # Upload puppet templates for openstack and manager install
@@ -552,12 +572,13 @@ remote_puppet() {
 EOF
   rsync -avzPessh tmp/remote/hiera.yaml root@${PUPPETIP}:/etc/puppet/hiera.yaml
   
-  update_puppet_modules
+  update_puppet
 
   # copy default hosts file
   scp tmp/remote/hosts_global root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/hosts
 }
 
+# ensure puppet installation on the remote node
 prepare_node() {
   # ip is the first parameter, fqdn the second
   local remote_ip="$1"
@@ -753,7 +774,7 @@ else
   else
     response="n"
   fi
-  [[ "$response" = "y" ]] && update_puppet_modules
+  [[ "$response" = "y" ]] && update_puppet
 fi
 
 # controller part
