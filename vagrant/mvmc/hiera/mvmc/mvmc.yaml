@@ -64,6 +64,17 @@ gitlab::gitlab_rails:
   gitlab_email_display_name: 'Gitlab'
   backup_keep_time: 604800
   backup_path: '/home/gitlab-backups'
+  gitlab_default_can_create_group: false
+  gitlab_username_changing_enabled: false
+  gitlab_restricted_visibility_levels: ['private']
+  webhook_timeout: 30
+  rate_limit_requests_per_period: 500
+  rate_limit_period: 10
+gitlab::unicorn:
+  somaxconn: 2048
+  worker_timeout: 120
+
+
 gitlab::sidekiq:
   shutdown_timeout: 5
 
