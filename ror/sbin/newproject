@@ -4,7 +4,7 @@
 DEBUG=2
 PROJROOT="/home/modem/www/"
 RORSBIN="/ror/sbin"
-GITPATH="git@127.0.0.1:root/"
+GITLABPREFIX="git@127.0.0.1:root/"
 DOCROOT="/directorydontexist"
 DOCONLINE="/directorydontexist"
 EXITSOP=0
@@ -115,7 +115,6 @@ newproject() {
   local projname=""
   local gitpath=""
   local framework=""
-  local branchs=('develop', 'release', 'hotfixes')
 
   # We want sure that gitlab has well created project
   sleep 5
@@ -128,9 +127,14 @@ newproject() {
         projname="$1"
         shift
         ;;
+      -u)
+        shift
+        GITLABPREFIX="$1"
+        shift
+        ;;
       -g)
         shift
-        gitpath="${GITPATH}$1"
+        gitpath="${GITLABPREFIX}$1"
         shift
         ;;
       -f)

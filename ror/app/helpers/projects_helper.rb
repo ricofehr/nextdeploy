@@ -8,8 +8,8 @@ module ProjectsHelper
   # No return
   def create_rootfolder
     # todo: avoid bash cmd
-    Rails.logger.warn "/bin/bash /ror/sbin/newproject -n #{self.name} -f #{self.framework.name} -g #{self.gitpath}"
-    system("/bin/bash /ror/sbin/newproject -n #{self.name} -f #{self.framework.name} -g #{self.gitpath}")
+    Rails.logger.warn "/bin/bash /ror/sbin/newproject -u #{Rails.application.config.gitlab_prefix} -n #{self.name} -f #{self.framework.name} -g #{self.gitpath}"
+    system("/bin/bash /ror/sbin/newproject -u #{Rails.application.config.gitlab_prefix} -n #{self.name} -f #{self.framework.name} -g #{self.gitpath}")
   end
 
   # Remove gitfolder

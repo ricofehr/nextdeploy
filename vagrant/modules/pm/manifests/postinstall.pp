@@ -122,12 +122,12 @@ class pm::postinstall::mvmc {
   } ->
   # git config email
   exec { 'gitconfig1':
-    command => 'git config --global user.email usera@os.mvmc',
+    command => 'git config --global user.email admin@example.com',
     unless => 'test -f /home/modem/.installmvmc'
   } ->
   # git config username
   exec { 'gitconfig2':
-    command => 'git config --global user.name admin',
+    command => 'git config --global user.name root',
     unless => 'test -f /home/modem/.installmvmc'
   } ->
   # prepare ror website
