@@ -230,6 +230,11 @@ class pm::postinstall::mvmc {
     onlyif => 'grep MVMCURI /var/opt/gitlab/nginx/conf/os-doc.conf',
     user => 'root'
   } ->
+  exec { 'gitlabusersetting':
+    command => 'echo "UPDATE application_settings SET signup_enabled=\'f\',max_attachment_size=60, default_projects_limit=0;" | sudo -u gitlab-psql /opt/gitlab/embedded/bin/psql -h /var/opt/gitlab/postgresql -d gitlabhq_production',
+    user => 'root',
+    unless => 'test -f /home/modem/.installmvmc'
+  } ->
   file_line { 'os-http':
     path => '/var/opt/gitlab/nginx/conf/nginx.conf',
     line => 'include /var/opt/gitlab/nginx/conf/os-http.conf;',
@@ -246,7 +251,7 @@ class pm::postinstall::mvmc {
     after => 'include /var/opt/gitlab/nginx/conf/gitlab-http.conf;'
   } ->
   exec { 'restart_nginx2':
-    command => '/opt/gitlab/embedded/sbin/nginx -c /var/opt/gitlab/nginx/conf/nginx.conf -p /var/opt/gitlab/nginx/ -s reload',
+    command => '/opt/gitlab/bin/gitlab-ctl restart nginx',
     user => 'root',
     unless => 'test -f /home/modem/.installmvmc'
   } ->
