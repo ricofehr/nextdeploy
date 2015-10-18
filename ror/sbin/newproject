@@ -194,6 +194,12 @@ newproject() {
       # ;;
     *)
       echo "NoFrameWork"
+      pushd ${DOCONLINE} > /dev/null
+      touch server/index.html
+      git add .
+      git commit -m "init website"
+      git push origin master
+      popd > /dev/null
       # newother -n "$projname"
       ;;
   esac
