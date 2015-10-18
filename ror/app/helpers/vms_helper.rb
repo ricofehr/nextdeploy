@@ -59,6 +59,7 @@ module VmsHelper
           f.puts "varnish_version: 4\n"
         end
 
+        f.puts "name: #{self.name}\n"
         f.puts "commit: #{commit.commit_hash}\n"
         f.puts "branch: #{commit.branche.name}\n"
         f.puts "gitpath: #{Rails.application.config.gitlab_prefix}#{project.gitpath}\n"
@@ -162,19 +163,31 @@ module VmsHelper
       faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
     end
 
+    return if (self.status == 0 && self.created_at > (Time.now - 120.minutes))
+
     begin
       response = conn_status.get do |req|
         req.url "/status_ok"
       end
     rescue
-      self.status = 2 if self.status == 1 || (self.updated_at && self.updated_at < (Time.now - 120.minutes))
       return
     end
 
-    if response.status == 200
-      self.status = 1
-    else
-      self.status = 2 if self.status == 1 || (self.updated_at && self.updated_at < (Time.now - 120.minutes))
+    if response.status != 200
+      # try a second time
+      begin
+        sleep(1)
+        response = conn_status.get do |req|
+          req.url "/status_ok"
+        end
+      rescue
+        return
+      end
+
+      if response.status != 200
+        Rails.logger.warn "http://#{vm_url}/status_ok"
+        self.status = 1
+      end
     end
   end
 

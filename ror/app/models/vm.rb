@@ -11,9 +11,10 @@ class Vm < ActiveRecord::Base
   belongs_to :user
   belongs_to :systemimage
 
-  # Some scope for find vms objects by commit or by project
+  # Some scope for find vms objects by commit, by project or by name
   scope :find_by_user_commit, ->(user_id, commit){ where("user_id=#{user_id} AND commit_id like '%#{commit}'") }
   scope :find_by_user_project, ->(user_id, project_id){ where(user_id: user_id, project_id: project_id) }
+  scope :find_by_name, ->(name){ where(name: name).first }
 
   attr_accessor :floating_ip, :commit
 
@@ -26,6 +27,28 @@ class Vm < ActiveRecord::Base
   after_initialize :init_osapi, :init_extra_attr
 
   @osapi = nil
+
+  # Update status field with time build
+  #
+  # No param
+  # No return
+  def setupcomplete
+    self.status = (Time.now - self.created_at).to_i
+    save
+  end
+
+  # Get build time (=status if vm is running)
+  # builtime is > 0 if vm is running, else is negative
+  #
+  # No param
+  # No return
+  def buildtime
+    return self.status if self.status != 0
+    
+    ret = (Time.now - self.created_at).to_i
+    # more 2hours into setup status is equal to error status
+    (ret > 7200) ? (1) : (-ret)
+  end
 
   protected
 

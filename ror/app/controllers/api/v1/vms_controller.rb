@@ -4,8 +4,11 @@ module API
     #
     # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
     class API::V1::VmsController < ApplicationController
+      # except setupcomplet to rest auth
+      before_filter :authenticate_user_from_token!, :except => [:setupcomplete]
+      before_filter :authenticate_api_v1_user!, :except => [:setupcomplete]
       # Hook who set vm object
-      before_action :set_vm, only: [:show, :update, :destroy]
+      before_action :set_vm, only: [:show, :update, :destroy, :check_status]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
       # Check user right for avoid no-authorized access
@@ -101,6 +104,19 @@ module API
         respond_to do |format|
           format.json { head :no_content }
         end
+      end
+
+      # Compute build time and update status field
+      def setupcomplete
+        @vm = Vm.find_by_name(params[:name])
+        @vm.setupcomplete
+        render nothing: true
+      end
+
+      # Check status, get 200 if vm is running
+      def check_status
+        (@vm.status > 1) ? (codestatus = 200) : (codestatus = 410)
+        render plain: @vm.buildtime, status: codestatus    
       end
 
       private
