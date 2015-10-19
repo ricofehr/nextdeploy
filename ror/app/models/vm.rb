@@ -26,7 +26,8 @@ class Vm < ActiveRecord::Base
   # Init external api objects and extra attributes
   after_initialize :init_osapi, :init_extra_attr
 
-  @osapi = nil
+  # openstack api connector, static object
+  @@osapi = nil
 
   # Update status field with time build
   #
@@ -90,7 +91,7 @@ class Vm < ActiveRecord::Base
       generate_vcl
       user_data = generate_userdata
       sshname = user.sshkeys.first ? user.sshkeys.first.name : ''
-      self.nova_id = @osapi.boot_vm(self.name, systemimage.glance_id, sshname, self.vmsize.title, user_data)
+      self.nova_id = @@osapi.boot_vm(self.name, systemimage.glance_id, sshname, self.vmsize.title, user_data)
       self.status = 0
     rescue Exceptions::MvmcException => me
       me.log_e
@@ -102,7 +103,7 @@ class Vm < ActiveRecord::Base
   # No param
   # No return
   def init_osapi
-    @osapi = Apiexternal::Osapi.new
+    @@osapi = Apiexternal::Osapi.new if @@osapi == nil
   end
 
   # Init extra attributes
@@ -113,7 +114,7 @@ class Vm < ActiveRecord::Base
     @floating_ip = nil
 
     if self.nova_id
-      ret = @osapi.get_floatingip(self.nova_id)
+      ret = @@osapi.get_floatingip(self.nova_id)
       @floating_ip = ret[:ip] if ret
     end
 
@@ -127,7 +128,7 @@ class Vm < ActiveRecord::Base
   # No return
   def delete_vm
     begin
-      @osapi.delete_vm(self.nova_id)
+      @@osapi.delete_vm(self.nova_id)
     rescue Exceptions::MvmcException => me
       me.log
     end

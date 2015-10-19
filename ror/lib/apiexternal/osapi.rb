@@ -331,7 +331,7 @@ module Apiexternal
         req.body = port_req.to_json
       end
 
-      raise Exceptions::OSApiException.new("create new port on #{net_id} for #{vm_name} failed, error code: #{response.status}") if response.status != 201
+      raise Exceptions::OSApiException.new("create new port on #{net_id} for #{vm_name} failed, error code: #{response.status}, #{response.body}") if response.status != 201
 
       json(response.body)[:port][:id]
     end
