@@ -8,13 +8,17 @@ class Commit
   # get on attributes
   attr_reader :id, :commit_hash, :project_id, :branche_id, :short_id, :title, :author_name, :author_email, :message, :created_at
 
+  # gitlab api connector
+  @@gitlabapi = nil
+
   # Constructor
   #
   # @param commit_hash [String] hash id of the commit
   # @param branche_id [String] projectid-branchname id of the branch where the commit is coming from
   # @param options [Array[String]] optional parameters associated with a commit: author, date, message, ...
   def initialize(commit_hash, branche_id, options={})
-    init_gitlabapi
+    @@gitlabapi = Apiexternal::Gitlabapi.new if @@gitlabapi == nil
+
     @id = "#{branche_id}-#{commit_hash}"
     @commit_hash = commit_hash
     @branche_id = branche_id
@@ -24,7 +28,7 @@ class Commit
       project = Project.find(@project_id)
 
       begin
-        commit = @gitlabapi.get_commit(project.gitlab_id, commit_hash)
+        commit = @@gitlabapi.get_commit(project.gitlab_id, commit_hash)
         options[:short_id] = commit.short_id
         options[:title] = commit.title
         options[:author_name] = commit.author_name
@@ -61,7 +65,7 @@ class Commit
   # @param branche_id [String] id of the branch
   # @return [Array[Commit]]
   def self.all(branche_id)
-    gitlabapi = Apiexternal::Gitlabapi.new
+    @@gitlabapi = Apiexternal::Gitlabapi.new if @@gitlabapi == nil
 
     tab = branche_id.split('-')
     project_id = tab.shift
@@ -70,7 +74,7 @@ class Commit
     project = Project.find(project_id)
 
     begin
-      commits = gitlabapi.get_commits(project.gitlab_id, branchname)
+      commits = @@gitlabapi.get_commits(project.gitlab_id, branchname)
     rescue Exceptions::MvmcException => me
       me.log
     end
@@ -92,16 +96,6 @@ class Commit
   # @return [Array[Vm]]
   def vms
     Vm.where(commit_id: @id)
-  end
-
-  private
-
-  # Init gitlabapi object
-  #
-  # No param
-  # No return
-  def init_gitlabapi
-    @gitlabapi = Apiexternal::Gitlabapi.new
   end
 
 end

@@ -25,8 +25,8 @@ class Sshkey < ActiveRecord::Base
   scope :admins, ->(){ joins(:user => :group).where('groups.access_level' => 50) }
 
   # Api objecs init to nil
-  @osapi = nil
-  @gitlabapi = nil
+  @@osapi = nil
+  @@gitlabapi = nil
 
   private
 
@@ -35,7 +35,7 @@ class Sshkey < ActiveRecord::Base
   # No param
   # No return
   def init_osapi
-    @osapi = Apiexternal::Osapi.new
+    @@osapi = Apiexternal::Osapi.new if @@osapi == nil
   end
 
   # Init gitlab api object
@@ -43,7 +43,7 @@ class Sshkey < ActiveRecord::Base
   # No param
   # No return
   def init_gitlabapi
-    @gitlabapi = Apiexternal::Gitlabapi.new
+    @@gitlabapi = Apiexternal::Gitlabapi.new if @@gitlabapi == nil
   end
 
   # add sshkey to openstack and gitlab
@@ -53,10 +53,10 @@ class Sshkey < ActiveRecord::Base
   def init_sshkey
     begin
       #openstack side
-      @osapi.add_sshkey(self.name, self.key)
+      @@osapi.add_sshkey(self.name, self.key)
 
       #gitlab side
-      self.gitlab_id = @gitlabapi.add_sshkey(user.gitlab_user, self.name, self.key)
+      self.gitlab_id = @@gitlabapi.add_sshkey(user.gitlab_user, self.name, self.key)
     rescue Exceptions::MvmcException => me
       me.log
     end
@@ -81,12 +81,12 @@ class Sshkey < ActiveRecord::Base
   def reset_sshkey
     begin
       #openstack side
-      @osapi.delete_sshkey(self.name)
-      @osapi.add_sshkey(self.name, self.key)
+      @@osapi.delete_sshkey(self.name)
+      @@osapi.add_sshkey(self.name, self.key)
 
       #gitlab side
-      @gitlabapi.delete_sshkey(user.gitlab_user, self.gitlab_id)
-      self.gitlab_id = @gitlabapi.add_sshkey(user.gitlab_user, self.name, self.key)
+      @@gitlabapi.delete_sshkey(user.gitlab_user, self.gitlab_id)
+      self.gitlab_id = @@gitlabapi.add_sshkey(user.gitlab_user, self.name, self.key)
     rescue Exceptions::MvmcException => me
       me.log
     end
@@ -99,10 +99,10 @@ class Sshkey < ActiveRecord::Base
   def purge_sshkey
     begin
       #openstack side
-      @osapi.delete_sshkey(self.name)
+      @@osapi.delete_sshkey(self.name)
 
       #gitlab side
-      @gitlabapi.delete_sshkey(user.gitlab_user, self.gitlab_id)
+      @@gitlabapi.delete_sshkey(user.gitlab_user, self.gitlab_id)
     rescue Exceptions::MvmcException => me
       me.log
     end
