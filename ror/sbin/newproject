@@ -165,6 +165,7 @@ newproject() {
   touch server/.keep
   cp "${RORSBIN}/files/gitignore_other" .gitignore
   cp "${RORSBIN}/files/postinstall.sh" scripts/
+  touch scripts/crontab
   git add html client nodejs server scripts .gitignore
   git commit -m "Init project"
   git push origin master
