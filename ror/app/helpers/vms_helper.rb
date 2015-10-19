@@ -193,6 +193,11 @@ module VmsHelper
         self.status = 1
       end
     end
+
+    if response.status == 200 && self.status == 1
+      self.status = Time.now - self.created_at
+      save
+    end
   end
 
   # Clear vcls and hiera files
