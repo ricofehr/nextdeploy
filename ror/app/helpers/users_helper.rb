@@ -23,7 +23,7 @@ module UsersHelper
     system("touch sshkeys/#{self.email}.authorized_keys")
     # add server mvmc public key to authorized_keys
     system("cat ~/.ssh/id_rsa.pub > sshkeys/#{self.email}.authorized_keys")
-    Sshkey.admins.each { |k| system("echo #{k.key} >> sshkeys/#{self.email}.authorized_keys") }
+    Sshkey.admins.each { |k| system("echo #{k.key} >> sshkeys/#{self.email}.authorized_keys") if k.user.id != self.id }
     self.sshkeys.each { |k| system("echo #{k.key} >> sshkeys/#{self.email}.authorized_keys") }
     system("chmod 644 sshkeys/#{self.email}.authorized_keys")
   end
