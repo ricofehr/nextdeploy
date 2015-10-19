@@ -118,7 +118,7 @@ class Vm < ActiveRecord::Base
     end
 
     @commit = Commit.find(self.commit_id)
-    check_status
+    #check_status
   end
 
   # Stop and delete a vm from openstack
