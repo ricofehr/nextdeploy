@@ -168,6 +168,8 @@ module VmsHelper
     begin
       response = conn_status.get do |req|
         req.url "/status_ok"
+        req.options[:timeout] = 15
+        req.options[:open_timeout] = 10
       end
     rescue
       return
@@ -179,6 +181,8 @@ module VmsHelper
         sleep(1)
         response = conn_status.get do |req|
           req.url "/status_ok"
+          req.options[:timeout] = 15
+          req.options[:open_timeout] = 10
         end
       rescue
         return
