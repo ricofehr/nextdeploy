@@ -115,6 +115,7 @@ module API
 
       # Check status, get 200 if vm is running
       def check_status
+        @vm.check_status
         (@vm.status > 1) ? (codestatus = 200) : (codestatus = 410)
         render plain: @vm.buildtime, status: codestatus    
       end
