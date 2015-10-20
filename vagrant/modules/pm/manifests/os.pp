@@ -257,6 +257,12 @@ class pm::os::nv0_postinstall {
   exec { 'cinder-quota-snapshots':
     command => 'cinder --os-username cinder --os-password oscinder --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --snapshots 170 default',
   } ->
+  exec { 'neutron-quota-port':
+    command => 'neutron --os-username neutron --os-password osneutron --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --port 170 --tenant-id "$(openstack --os-username neutron --os-password osneutron --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 project show -f value tenant0 -c id | tr -d "\n")"',
+  } ->
+  exec { 'neutron-quota-floatingip':
+    command => 'neutron --os-username neutron --os-password osneutron --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --floatingip 170 --tenant-id "$(openstack --os-username neutron --os-password osneutron --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 project show -f value tenant0 -c id | tr -d "\n")"',
+  } ->
   exec { 'touchnovapostinstall0':
     command => 'touch /home/modem/.novapostinstall0',
   }
