@@ -205,6 +205,8 @@ module VmsHelper
   # No param
   # No return
   def clear_vmfiles
+    Rails.logger.warn "rm -f vcls/auth/auth.vcl_#{self.name}#{Rails.application.config.os_suffix}"
+    Rails.logger.warn "rm -f hiera/#{self.name}#{Rails.application.config.os_suffix}.yaml"
     system("rm -f vcls/auth/auth.vcl_#{self.name}#{Rails.application.config.os_suffix}")
     system("rm -f hiera/#{self.name}#{Rails.application.config.os_suffix}.yaml")
   end
