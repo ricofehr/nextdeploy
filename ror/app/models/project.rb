@@ -26,13 +26,10 @@ class Project < ActiveRecord::Base
   validates :brand_id, :framework_id, numericality: {only_integer: true, greater_than: 0}
 
   # Git repository dependence
-  before_create :create_git, :create_ftp
-  before_destroy :delete_git, :remove_ftp
+  before_create :init_gitlabapi, :create_git, :create_ftp
+  before_destroy :init_gitlabapi, :delete_git, :remove_ftp
 
-  # Init gitlab api object
-  after_initialize :init_gitlabapi
-
-  @@gitlabapi = nil
+  @gitlabapi = nil
 
   private
 
@@ -41,7 +38,7 @@ class Project < ActiveRecord::Base
   # No param
   # No return
   def init_gitlabapi
-    @@gitlabapi = Apiexternal::Gitlabapi.new if @@gitlabapi == nil
+    @gitlabapi = Apiexternal::Gitlabapi.new
   end
 
   # Init branchs array
@@ -64,11 +61,11 @@ class Project < ActiveRecord::Base
     branchs = ['develop', 'hotfixes', 'release']
 
     begin
-      self.gitlab_id = @@gitlabapi.create_project(self.name, self.gitpath)
+      self.gitlab_id = @gitlabapi.create_project(self.name, self.gitpath)
       create_rootfolder
-      branchs.each {|branch| @@gitlabapi.create_branch(self.gitlab_id, branch, 'master')}
-      @@gitlabapi.protect_branch(self.gitlab_id, 'master')
-      self.users.each {|user| @@gitlabapi.add_user_to_project(self.gitlab_id, user.gitlab_id, user.access_level)}
+      branchs.each {|branch| @gitlabapi.create_branch(self.gitlab_id, branch, 'master')}
+      @gitlabapi.protect_branch(self.gitlab_id, 'master')
+      self.users.each {|user| @gitlabapi.add_user_to_project(self.gitlab_id, user.gitlab_id, user.access_level)}
     rescue Exceptions::MvmcException => me
       me.log
     end
@@ -80,7 +77,7 @@ class Project < ActiveRecord::Base
   # No return
   def delete_git
     begin
-      @@gitlabapi.delete_project(self.gitlab_id)
+      @gitlabapi.delete_project(self.gitlab_id)
     rescue Exceptions::MvmcException => me
       me.log
     end

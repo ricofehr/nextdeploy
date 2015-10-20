@@ -192,7 +192,7 @@ module Apiexternal
       tenant_name = ENV['OS_TENANT_NAME']
 
       conn_auth = Faraday.new(:url => "#{Rails.application.config.os_endpoint}") do |faraday|
-        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+        faraday.adapter  :net_http_persistent  # make requests with persistent adapter
       end
 
       auth_req = { auth:
@@ -221,7 +221,7 @@ module Apiexternal
     # No return
     def init_conn_neutron
       @conn[:neutron] = Faraday.new(:url => "#{Rails.application.config.os_endpoint_neutron}") do |faraday|
-        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+        faraday.adapter  :net_http_persistent  # make requests with persistent adapter
       end
     end
 
@@ -231,7 +231,7 @@ module Apiexternal
     # No return
     def init_conn_nova
       @conn[:nova] = Faraday.new(:url => "#{Rails.application.config.os_endpoint_nova}") do |faraday|
-        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+        faraday.adapter  :net_http_persistent  # make requests with persistent adapter
       end
     end
 
@@ -242,7 +242,7 @@ module Apiexternal
     # No return
     def init_conn_cinder
       @conn[:cinder] = Faraday.new(:url => "#{Rails.application.config.os_endpoint_cinder}") do |faraday|
-        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+        faraday.adapter  :net_http_persistent  # make requests with persistent adapter
       end
     end
 
