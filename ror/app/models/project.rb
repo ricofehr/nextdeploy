@@ -50,7 +50,7 @@ class Project < ActiveRecord::Base
   # No return
   def branches
     # cache branches array during 10 min
-    Rails.cache.fetch("projects/#{cache_key}/branchs", expires_in: 10.minutes) do
+    Rails.cache.fetch("projects/#{cache_key}/branchs", expires_in: 1.minute) do
       Branche.all(self.id)          
     end
   end
