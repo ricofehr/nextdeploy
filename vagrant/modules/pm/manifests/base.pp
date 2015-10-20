@@ -39,6 +39,60 @@ class pm::base::apt {
 
 }
 
+# == Class: pm::base::gitlab
+#
+# Ensure that we create this custom nginx files before installing gitlab
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::base::gitlab {
+  Exec {
+    path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ]
+  }
+
+  $mvmcuri = hiera('global::mvmcuri', 'mvmc.local')
+  $mvmcsuf = hiera('global::mvmcsuf', 'os.mvmc')
+
+  # Nginx settings
+  file { '/etc/os-http.conf':
+    ensure =>  file,
+    source => ["puppet:///modules/pm/nginx/os-http.conf_${clientcert}",
+      'puppet:///modules/pm/nginx/os-http.conf'],
+    owner => 'root',
+    group => 'root',
+    before => Class['::gitlab']
+  } ->
+  file { '/etc/os-doc.conf':
+    ensure =>  file,
+    source => ["puppet:///modules/pm/nginx/os-doc.conf_${clientcert}",
+      'puppet:///modules/pm/nginx/os-doc.conf'],
+    owner => 'root',
+    group => 'root',
+    before => Class['::gitlab']
+  } ->
+  exec { 'mvmcsuffix':
+    command => "/bin/sed -i 's;%%MVMCSUF%%;${mvmcsuf};' /etc/os-http.conf",
+    onlyif => 'grep MVMCSUF /etc/os-http.conf',
+    user => 'root',
+    before => Class['::gitlab']
+  } ->
+  exec { 'mvmcuri':
+    command => "/bin/sed -i 's;%%MVMCURI%%;${mvmcuri};' /etc/os-http.conf",
+    onlyif => 'grep MVMCURI /etc/os-http.conf',
+    user => 'root',
+    before => Class['::gitlab']
+  } ->
+  exec { 'mvmcuri2':
+    command => "/bin/sed -i 's;%%MVMCURI%%;${mvmcuri};' /etc/os-doc.conf",
+    onlyif => 'grep MVMCURI /etc/os-doc.conf',
+    user => 'root',
+    before => Class['::gitlab']
+  }
+}
+
 # == Class: pm::base
 #
 # Install some common packages and make some standard settings

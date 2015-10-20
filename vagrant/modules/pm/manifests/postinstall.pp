@@ -9,8 +9,6 @@
 #
 class pm::postinstall::mvmc {
   $railsenv = hiera('global::railsenv', 'development')
-  $mvmcuri = hiera('global::mvmcuri', 'mvmc.local')
-  $mvmcsuf = hiera('global::mvmcsuf', 'os.mvmc')
 
   Exec {
       path => '/usr/local/rvm/gems/ruby-2.1.0/bin:/usr/local/rvm/gems/ruby-2.1.0@global/bin:/usr/local/rvm/rubies/ruby-2.1.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/rvm/bin:/opt/ruby/bin/',
@@ -200,58 +198,8 @@ class pm::postinstall::mvmc {
     timeout => 120,
     unless => 'test -f /home/modem/.installmvmc'
   } ->
-  # Nginx settings
-  file { '/var/opt/gitlab/nginx/conf/os-http.conf':
-    ensure =>  file,
-    source => ["puppet:///modules/pm/nginx/os-http.conf_${clientcert}",
-      'puppet:///modules/pm/nginx/os-http.conf'],
-    owner => 'root',
-    group => 'root'
-  } ->
-  file { '/var/opt/gitlab/nginx/conf/os-doc.conf':
-    ensure =>  file,
-    source => ["puppet:///modules/pm/nginx/os-doc.conf_${clientcert}",
-      'puppet:///modules/pm/nginx/os-doc.conf'],
-    owner => 'root',
-    group => 'root'
-  } ->
-  exec { 'mvmcsuffix':
-    command => "/bin/sed -i 's;%%MVMCSUF%%;${mvmcsuf};' /var/opt/gitlab/nginx/conf/os-http.conf",
-    onlyif => 'grep MVMCSUF /var/opt/gitlab/nginx/conf/os-http.conf',
-    user => 'root'
-  } ->
-  exec { 'mvmcuri':
-    command => "/bin/sed -i 's;%%MVMCURI%%;${mvmcuri};' /var/opt/gitlab/nginx/conf/os-http.conf",
-    onlyif => 'grep MVMCURI /var/opt/gitlab/nginx/conf/os-http.conf',
-    user => 'root'
-  } ->
-  exec { 'mvmcuri2':
-    command => "/bin/sed -i 's;%%MVMCURI%%;${mvmcuri};' /var/opt/gitlab/nginx/conf/os-doc.conf",
-    onlyif => 'grep MVMCURI /var/opt/gitlab/nginx/conf/os-doc.conf',
-    user => 'root'
-  } ->
   exec { 'gitlabusersetting':
     command => 'echo "UPDATE application_settings SET signup_enabled=\'f\',max_attachment_size=60, default_projects_limit=0;" | sudo -u gitlab-psql /opt/gitlab/embedded/bin/psql -h /var/opt/gitlab/postgresql -d gitlabhq_production',
-    user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
-  } ->
-  file_line { 'os-http':
-    path => '/var/opt/gitlab/nginx/conf/nginx.conf',
-    line => 'include /var/opt/gitlab/nginx/conf/os-http.conf;',
-    after => 'include /var/opt/gitlab/nginx/conf/gitlab-http.conf;'
-  } ->
-  file_line { 'os-doc':
-    path => '/var/opt/gitlab/nginx/conf/nginx.conf',
-    line => 'include /var/opt/gitlab/nginx/conf/os-doc.conf;',
-    after => 'include /var/opt/gitlab/nginx/conf/gitlab-http.conf;'
-  } ->
-  file_line { 'servernamehash':
-    path => '/var/opt/gitlab/nginx/conf/nginx.conf',
-    line => 'server_names_hash_bucket_size 128;',
-    after => 'include /var/opt/gitlab/nginx/conf/gitlab-http.conf;'
-  } ->
-  exec { 'restart_nginx2':
-    command => '/opt/gitlab/bin/gitlab-ctl restart nginx',
     user => 'root',
     unless => 'test -f /home/modem/.installmvmc'
   } ->
