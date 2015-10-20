@@ -251,7 +251,7 @@ newdrupal() {
   drupalfolder="$(ls | grep "drupal")"
   if [[ -d "$drupalfolder" ]]; then
     mv ${PROJROOT}${projname}/_online/server/${drupalfolder}/* .
-    rm "${drupalfolder}/.htaccess"
+    mv "${drupalfolder}/.htaccess" .
     rm "${drupalfolder}/.gitignore"
     rmdir "$drupalfolder"
 
@@ -259,6 +259,7 @@ newdrupal() {
     cp "${RORSBIN}/files/gitignore_drupal" .gitignore
     git add .
     git add .gitignore
+    git add .htaccess
     git commit -m "init drupal"
     git push origin master
     popd > /dev/null
