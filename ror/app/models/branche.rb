@@ -23,7 +23,7 @@ class Branche
 
     # cache commits array during 10min
     @commits = 
-      Rails.cache.fetch("branches/#{@id}/commits", expires_in: 10.minutes) do
+      Rails.cache.fetch("branches/#{@id}/commits", expires_in: 1.minute) do
         Rails.logger.warn "cache branches/#{@id}/commits"
         Commit.all(@id)          
       end

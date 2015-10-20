@@ -8,6 +8,8 @@ module UsersHelper
   # No param
   # No return
   def delete_keyfiles
+    Rails.logger.warn "rm -f sshkeys/#{self.email}*"
+    Rails.logger.warn "rm -f vpnkeys/#{self.email}*"
     system("rm -f sshkeys/#{self.email}*")
     system("rm -f vpnkeys/#{self.email}*")
   end

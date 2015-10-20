@@ -60,7 +60,7 @@ class Commit
     branche_id = tab.join('-')
     
     # cache commit object during 10min    
-    Rails.cache.fetch("commits/#{@id}", expires_in: 10.minutes) do
+    Rails.cache.fetch("commits/#{@id}", expires_in: 1.minute) do
       Rails.logger.warn "cache commits/#{@id}"
       new(commit_hash, branche_id)          
     end
