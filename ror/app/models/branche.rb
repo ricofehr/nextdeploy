@@ -9,7 +9,7 @@ class Branche
 
 
   # gitlab api connector
-  @@gitlabapi = nil
+  @gitlabapi = nil
 
   # Constructor
   #
@@ -24,7 +24,6 @@ class Branche
     # cache commits array during 10min
     @commits = 
       Rails.cache.fetch("branches/#{@id}/commits", expires_in: 1.minute) do
-        Rails.logger.warn "cache branches/#{@id}/commits"
         Commit.all(@id)          
       end
   end
@@ -48,14 +47,13 @@ class Branche
   # @return [Array[Branche]]
   def self.all(project_id)
     # Init gitlab external api
-    Rails.logger.warn "gitlabapibranche" if @@gitlabapi == nil
-    @@gitlabapi = Apiexternal::Gitlabapi.new if @@gitlabapi == nil
+    @gitlabapi = Apiexternal::Gitlabapi.new
 
     # get project from project_id
     project = Project.find(project_id)
 
     begin
-      branches = @@gitlabapi.get_branches(project.gitlab_id)
+      branches = @gitlabapi.get_branches(project.gitlab_id)
     rescue Exceptions::MvmcException => me
       me.log
     end

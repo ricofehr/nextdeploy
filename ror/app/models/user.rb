@@ -24,14 +24,12 @@ class User < ActiveRecord::Base
   # Some hooks before chnages on user object
   before_save :ensure_authentication_token
 
-  before_create :init_user, :generate_sshkey_modem, :generate_authorizedkeys, :generate_authentication_token, :generate_openvpn_keys
-  before_update :update_user
-  before_destroy :purge_user
-
-  after_initialize :init_gitlabapi
+  before_create :init_gitlabapi, :init_user, :generate_sshkey_modem, :generate_authorizedkeys, :generate_authentication_token, :generate_openvpn_keys
+  before_update :init_gitlabapi, :update_user
+  before_destroy :init_gitlabapi, :purge_user
 
   # gitlabapi object
-  @@gitlabapi = nil
+  @gitlabapi = nil
 
   # Return current token and generates one before it if needed
   #
@@ -88,8 +86,7 @@ class User < ActiveRecord::Base
   # No param
   # No return
   def init_gitlabapi
-    Rails.logger.warn "gitlabapiuser" if @@gitlabapi == nil
-    @@gitlabapi = Apiexternal::Gitlabapi.new if @@gitlabapi == nil
+    @gitlabapi = Apiexternal::Gitlabapi.new
   end
 
   # Create the user to gitlab, set gitlab_id attribute
@@ -98,8 +95,8 @@ class User < ActiveRecord::Base
   # No return
   def init_user
     begin
-      self.gitlab_id = @@gitlabapi.create_user(self.email, self.password, self.gitlab_user)
-      self.projects.each {|project| @@gitlabapi.add_user_to_project(project.gitlab_id, self.gitlab_id, self.access_level)}
+      self.gitlab_id = @gitlabapi.create_user(self.email, self.password, self.gitlab_user)
+      self.projects.each {|project| @gitlabapi.add_user_to_project(project.gitlab_id, self.gitlab_id, self.access_level)}
     rescue Exceptions::MvmcException => me
       me.log
     end
@@ -111,8 +108,8 @@ class User < ActiveRecord::Base
   # No return
   def update_user
     begin
-      @@gitlabapi.update_user(self.gitlab_id, self.email, self.password, self.gitlab_user)
-      self.projects.each {|project| @@gitlabapi.add_user_to_project(project.gitlab_id, self.gitlab_id, self.access_level)}
+      @gitlabapi.update_user(self.gitlab_id, self.email, self.password, self.gitlab_user)
+      self.projects.each {|project| @gitlabapi.add_user_to_project(project.gitlab_id, self.gitlab_id, self.access_level)}
     rescue Exceptions::MvmcException => me
       me.log
     end
@@ -124,7 +121,7 @@ class User < ActiveRecord::Base
   # No return
   def purge_user
     begin
-      @@gitlabapi.delete_user(self.gitlab_id)
+      @gitlabapi.delete_user(self.gitlab_id)
     rescue Exceptions::MvmcException => me
       me.log
     end

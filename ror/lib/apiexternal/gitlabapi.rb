@@ -342,7 +342,7 @@ module Apiexternal
       end
 
       @conn = Faraday.new(:url => "#{Rails.application.config.gitlab_endpoint0}") do |faraday|
-        faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+        faraday.adapter  :net_http_persistent  # make requests with persistent adapter
       end
     end
 

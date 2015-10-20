@@ -19,15 +19,15 @@ class Vm < ActiveRecord::Base
   attr_accessor :floating_ip, :commit
 
   # Some hooks before vm changes
-  before_create :boot_os
+  before_create :init_osapi, :boot_os
   after_create :generate_host_all
-  before_destroy :delete_vm
+  before_destroy :init_osapi, :delete_vm
 
   # Init external api objects and extra attributes
-  after_initialize :init_osapi, :init_extra_attr
+  after_initialize :init_extra_attr
 
   # openstack api connector, static object
-  @@osapi = nil
+  @osapi = nil
 
   # Update status field with time build
   #
@@ -85,13 +85,16 @@ class Vm < ActiveRecord::Base
     # Raise an exception if the limit of vms is reachable
     raise Exceptions::MvmcException.new("Vms limit is reachable") if Vm.all.length > Rails.application.config.limit_vm
 
+    # init api object
+    init_osapi
+
     begin
       self.name = vm_name
       generate_hiera
       generate_vcl
       user_data = generate_userdata
       sshname = user.sshkeys.first ? user.sshkeys.first.name : ''
-      self.nova_id = @@osapi.boot_vm(self.name, systemimage.glance_id, sshname, self.vmsize.title, user_data)
+      self.nova_id = @osapi.boot_vm(self.name, systemimage.glance_id, sshname, self.vmsize.title, user_data)
       self.status = 0
     rescue Exceptions::MvmcException => me
       me.log_e
@@ -103,8 +106,7 @@ class Vm < ActiveRecord::Base
   # No param
   # No return
   def init_osapi
-    Rails.logger.warn "osapivm" if @@osapi == nil
-    @@osapi = Apiexternal::Osapi.new if @@osapi == nil
+    @osapi = Apiexternal::Osapi.new
   end
 
   # Init extra attributes
@@ -118,12 +120,11 @@ class Vm < ActiveRecord::Base
       # store floating_ip in rails cache
       @floating_ip = 
         Rails.cache.fetch("vms/#{cache_key}/floating_ip", expires_in: 144.hours) do
-          ret = @@osapi.get_floatingip(self.nova_id)
-          if ret 
-            ret[:ip]
-          else
-            nil
-          end
+          # init api object
+          init_osapi
+          # get floatingip from openstack
+          ret = @osapi.get_floatingip(self.nova_id)
+          (ret) ? (ret[:ip]) : nil
         end
     end
 
@@ -141,7 +142,7 @@ class Vm < ActiveRecord::Base
   # No return
   def delete_vm
     begin
-      @@osapi.delete_vm(self.nova_id)
+      @osapi.delete_vm(self.nova_id)
     rescue Exceptions::MvmcException => me
       me.log
     end
