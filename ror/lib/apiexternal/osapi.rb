@@ -81,7 +81,7 @@ module Apiexternal
         req.headers = self.headers
       end
 
-      raise Exceptions::OSApiException.new("Get Api request on /v2.0/floatingips: #{response.status}") if response.status != 200
+      raise Exceptions::OSApiException.new("Get Api request on /v2.0/floatingips: #{response.status}, #{response.body}") if response.status != 200
 
       begin
         floatingip_id = json(response.body)[:floating_ips].detect { |net| net[:instance_id] == nova_id }
@@ -114,7 +114,7 @@ module Apiexternal
         req.body = ssh_req.to_json
       end
 
-      raise Exceptions::OSApiException.new("add ssh_key post request failed for #{name}, error code: #{response.status}") if response.status != 200
+      raise Exceptions::OSApiException.new("add ssh_key post request failed for #{name}, error code: #{response.status}, #{response.body}") if response.status != 200
     end
 
     # Make a rest call to openstack for delete virtual machine
@@ -136,7 +136,7 @@ module Apiexternal
         req.headers = self.headers
       end
 
-      raise Exceptions::OSApiException.new("Delete Api request on /v2/#{@tenant}/servers/#{nova_id}: #{response.status}") if response.status != 204
+      raise Exceptions::OSApiException.new("Delete Api request on /v2/#{@tenant}/servers/#{nova_id}: #{response.status}, #{response.body}") if response.status != 204
     end
 
     # Make a rest call to openstack for delete an ssh-key
@@ -150,7 +150,7 @@ module Apiexternal
         req.headers = self.headers
       end
 
-      raise Exceptions::OSApiException.new("Delete request on /v2/#{@tenant}/os-keypairs/#{name}: #{response.status}") if response.status != 202
+      raise Exceptions::OSApiException.new("Delete request on /v2/#{@tenant}/os-keypairs/#{name}: #{response.status}, #{response.body}") if response.status != 202
     end
 
     protected
@@ -209,7 +209,7 @@ module Apiexternal
         req.body = auth_req.to_json
       end
 
-      raise Exceptions::OSApiException.new("Auth failed with username #{username}") if response.status != 200
+      raise Exceptions::OSApiException.new("Auth failed with username #{username}, #{response.body}") if response.status != 200
 
       @token = json(response.body)[:access][:token][:id]
       @tenant = json(response.body)[:access][:token][:tenant][:id]
@@ -256,7 +256,7 @@ module Apiexternal
         req.headers = self.headers
       end
 
-      raise Exceptions::OSApiException.new("/v2.0/networks failed, error code: #{response.status}") if response.status != 200
+      raise Exceptions::OSApiException.new("/v2.0/networks failed, error code: #{response.status}, #{response.body}") if response.status != 200
 
       begin
         @nets[:private] = json(response.body)[:networks].detect { |net| net[:name] == "private" }[:id]
@@ -279,7 +279,7 @@ module Apiexternal
         req.headers = self.headers
       end
 
-      raise Exceptions::OSApiException.new("Get flavors request failed, error code: #{response.status}") if response.status != 200
+      raise Exceptions::OSApiException.new("Get flavors request failed, error code: #{response.status}, #{response.body}") if response.status != 200
 
       begin
         flav = json(response.body)[:flavors].detect { |net| net[:name] == name }
@@ -302,7 +302,7 @@ module Apiexternal
         req.headers = self.headers
       end
 
-      raise Exceptions::OSApiException.new("Get Api request failed on /v2.0/ports: #{response.status}") if response.status != 200
+      raise Exceptions::OSApiException.new("Get Api request failed on /v2.0/ports: #{response.status}, #{response.body}") if response.status != 200
 
       begin
         port_uuid = json(response.body)[:ports].detect { |net| net[:device_id] == nova_id }
@@ -353,7 +353,7 @@ module Apiexternal
         req.body = floating_req.to_json
       end
 
-      raise Exceptions::OSApiException.new("add floatingip (on #{port_uuid}) failed, error code: #{response.status}") if response.status != 201
+      raise Exceptions::OSApiException.new("add floatingip (on #{port_uuid}) failed, error code: #{response.status}, #{response.body}") if response.status != 201
     end
 
     # Rest call to openstack for delete an ip port
@@ -367,7 +367,7 @@ module Apiexternal
         req.headers = self.headers
       end
 
-      raise Exceptions::OSApiException.new("Delete Api request failed on /v2.0/ports/#{port_uuid}: #{response.status}") if response.status != 204
+      raise Exceptions::OSApiException.new("Delete Api request failed on /v2.0/ports/#{port_uuid}: #{response.status}, #{response.body}") if response.status != 204
     end
 
     # Rest call to openstack for delete an floatingip
@@ -381,7 +381,7 @@ module Apiexternal
         req.headers = self.headers
       end
 
-      raise Exceptions::OSApiException.new("Delete request on /v2/#{@tenant}/os-floating-ips/#{floatingip_id}: #{response.status}") if response.status != 202
+      raise Exceptions::OSApiException.new("Delete request on /v2/#{@tenant}/os-floating-ips/#{floatingip_id}: #{response.status}, #{response.body}") if response.status != 202
     end
 
     # Helper function for parse json call
