@@ -28,7 +28,8 @@ class Commit
       project = Project.find(@project_id)
 
       begin
-        commit = @@gitlabapi.get_commit(project.gitlab_id, commit_hash)
+        commit = @@gitlabapi.get_commit(project.gitlab_id, commit_hash)          
+    
         options[:short_id] = commit.short_id
         options[:title] = commit.title
         options[:author_name] = commit.author_name
@@ -57,7 +58,12 @@ class Commit
     tab = id.split('-')
     commit_hash = tab.pop
     branche_id = tab.join('-')
-    new(commit_hash, branche_id)
+    
+    # cache commit object during 10min    
+    Rails.cache.fetch("commits/#{@id}", expires_in: 10.minutes) do
+      Rails.logger.warn "cache commits/#{@id}"
+      new(commit_hash, branche_id)          
+    end
   end
 
   # Return all commits for a branch
