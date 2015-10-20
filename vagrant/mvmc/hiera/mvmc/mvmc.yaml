@@ -73,8 +73,9 @@ gitlab::gitlab_rails:
 gitlab::unicorn:
   somaxconn: 2048
   worker_timeout: 120
-
-
+gitlab::nginx:
+  gzip: 'on'
+  custom_nginx_config: 'server_names_hash_bucket_size 128;large_client_header_buffers 4 64k;include /etc/os-doc.conf;include /etc/os-http.conf;'
 gitlab::sidekiq:
   shutdown_timeout: 5
 

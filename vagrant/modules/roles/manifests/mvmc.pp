@@ -10,6 +10,7 @@
 class roles::mvmc {
   # for avoid aptupdate dependency issue,
   # start with gitlab
+  class {'pm::base::gitlab':} ->
   class {'pm::gitlab7':} ->
   class {'pm::base::apt':} ->
   class {'pm::base':} ->

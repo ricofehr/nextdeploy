@@ -16,7 +16,6 @@ class pm::gitlab7 {
 
   $server_name = hiera('global::gitlabns', 'gitlab.local')
 
-
   class { 'gitlab':
     before => [ Class['::rvm'], Class['::memcached'], Class['::mysql::server'] ]
   }
