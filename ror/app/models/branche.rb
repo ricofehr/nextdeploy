@@ -42,6 +42,7 @@ class Branche
   # @return [Array[Branche]]
   def self.all(project_id)
     # Init gitlab external api
+    Rails.logger.warn "gitlabapibranche" if @@gitlabapi == nil
     @@gitlabapi = Apiexternal::Gitlabapi.new if @@gitlabapi == nil
 
     # get project from project_id

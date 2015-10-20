@@ -88,6 +88,7 @@ class User < ActiveRecord::Base
   # No param
   # No return
   def init_gitlabapi
+    Rails.logger.warn "gitlabapiuser" if @@gitlabapi == nil
     @@gitlabapi = Apiexternal::Gitlabapi.new if @@gitlabapi == nil
   end
 

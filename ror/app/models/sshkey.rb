@@ -35,6 +35,7 @@ class Sshkey < ActiveRecord::Base
   # No param
   # No return
   def init_osapi
+    Rails.logger.warn "osapisshk" if @@osapi == nil
     @@osapi = Apiexternal::Osapi.new if @@osapi == nil
   end
 
@@ -43,6 +44,7 @@ class Sshkey < ActiveRecord::Base
   # No param
   # No return
   def init_gitlabapi
+    Rails.logger.warn "gitlabapisshk" if @@gitlabapi == nil
     @@gitlabapi = Apiexternal::Gitlabapi.new if @@gitlabapi == nil
   end
 
