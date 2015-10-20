@@ -103,6 +103,7 @@ class Vm < ActiveRecord::Base
   # No param
   # No return
   def init_osapi
+    Rails.logger.warn "osapivm" if @@osapi == nil
     @@osapi = Apiexternal::Osapi.new if @@osapi == nil
   end
 
@@ -116,7 +117,7 @@ class Vm < ActiveRecord::Base
     if self.nova_id
       # store floating_ip in rails cache
       @floating_ip = 
-        Rails.cache.fetch("vms/#{cache_key}/floating_ip", expires_in: 72.hours) do
+        Rails.cache.fetch("vms/#{cache_key}/floating_ip", expires_in: 144.hours) do
           ret = @@osapi.get_floatingip(self.nova_id)
           if ret 
             ret[:ip]
@@ -126,7 +127,11 @@ class Vm < ActiveRecord::Base
         end
     end
 
-    @commit = Commit.find(self.commit_id)
+    @commit = 
+      Rails.cache.fetch("vms/#{cache_key}/commit_object", expires_in: 144.hours) do
+        Commit.find(self.commit_id)      
+      end
+
     #check_status
   end
 
