@@ -114,8 +114,16 @@ class Vm < ActiveRecord::Base
     @floating_ip = nil
 
     if self.nova_id
-      ret = @@osapi.get_floatingip(self.nova_id)
-      @floating_ip = ret[:ip] if ret
+      # store floating_ip in rails cache
+      @floating_ip = 
+        Rails.cache.fetch("vms/#{cache_key}/floating_ip", expires_in: 72.hours) do
+          ret = @@osapi.get_floatingip(self.nova_id)
+          if ret 
+            ret[:ip]
+          else
+            nil
+          end
+        end
     end
 
     @commit = Commit.find(self.commit_id)
