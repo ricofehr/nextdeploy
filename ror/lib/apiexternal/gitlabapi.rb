@@ -82,8 +82,8 @@ module Apiexternal
     def create_user(email, password, username)
       #begin
         gituser = Gitlab.create_user(email, password, {username: username})
-      #rescue
-      #  raise Exceptions::GitlabApiException.new("create user #{email} failed")
+      #rescue Exceptions => e
+      #  raise Exceptions::GitlabApiException.new("create user #{email} failed, #{e}")
       #end
 
       return gituser.id
@@ -100,8 +100,8 @@ module Apiexternal
       sudo(username)
       begin
         gitlab_id = Gitlab.create_ssh_key(name, key).id
-      rescue
-        raise Exceptions::GitlabApiException.new("add ssh_key #{name} for #{username} failed")
+      rescue Exceptions => e
+        raise Exceptions::GitlabApiException.new("add ssh_key #{name} for #{username} failed, #{e}")
       end
       nosudo
 
@@ -154,7 +154,7 @@ module Apiexternal
       begin
         Gitlab.protect_branch(project_id, branch)
       rescue Exceptions => e
-        raise Exceptions::GitlabApiException.new("protect_branch (#{project_id}, #{branch}) failed:  #{e}")
+        raise Exceptions::GitlabApiException.new("protect_branch (#{project_id}, #{branch}) failed: #{e}")
       end
     end
 
@@ -169,8 +169,8 @@ module Apiexternal
     def update_user(gitlab_id, email, password, username)
       #begin
         gituser = Gitlab.edit_user(gitlab_id, {email: email, password: password, username: username})
-      #rescue
-      # raise Exceptions::GitlabApiException.new("create user #{email} failed")
+      #rescue Exceptions => e
+      # raise Exceptions::GitlabApiException.new("create user #{email} failed, #{e}")
       #end
     end
 
@@ -188,8 +188,8 @@ module Apiexternal
 
       begin
         Gitlab.add_team_member(project_id, user_id, access_level)
-      rescue
-        raise Exceptions::GitlabApiException.new("add_user_to_project failed")
+      rescue Exceptions => e
+        raise Exceptions::GitlabApiException.new("add_user_to_project failed, #{e}")
       end
     end
 
@@ -202,8 +202,8 @@ module Apiexternal
     def get_commits(id, branchname)
       begin
         commits = Gitlab.commits(id, ref_name: branchname)
-      rescue
-        raise Exceptions::GitlabApiException.new("get_commits #{id} failed")
+      rescue Exceptions => e
+        raise Exceptions::GitlabApiException.new("get_commits #{id} failed, #{e}")
       end
 
       return commits
@@ -218,8 +218,8 @@ module Apiexternal
     def get_commit(id, commithash)
       begin
         commit = Gitlab.commit(id, commithash)
-      rescue
-        raise Exceptions::GitlabApiException.new("get_commit #{commithash} failed")
+      rescue Exceptions => e
+        raise Exceptions::GitlabApiException.new("get_commit #{commithash} failed, #{e}")
       end
 
       return commit
@@ -233,8 +233,8 @@ module Apiexternal
     def get_branches(id)
       begin
         branchs = Gitlab.branches(id)
-      rescue
-        raise Exceptions::GitlabApiException.new("get_branchs #{id} failed")
+      rescue Exceptions => e
+        raise Exceptions::GitlabApiException.new("get_branchs #{id} failed, #{e}")
       end
 
       return branchs
@@ -248,8 +248,8 @@ module Apiexternal
     def get_branche(id, branchname)
       begin
         branch = Gitlab.branche(id, branchname)
-      rescue
-        raise Exceptions::GitlabApiException.new("get_branch #{id} (#{branchname}) failed")
+      rescue Exceptions => e
+        raise Exceptions::GitlabApiException.new("get_branch #{id} (#{branchname}) failed, #{e}")
       end
 
       return branch
@@ -268,7 +268,7 @@ module Apiexternal
         req.headers = self.headers
       end
 
-      raise Exceptions::GitlabApiException.new("delete user #{gitlab_id} failed") if response.status != 200
+      raise Exceptions::GitlabApiException.new("delete user #{gitlab_id} failed, #{response.body}") if response.status != 200
     end
 
     # Delete a sshkey
@@ -281,8 +281,8 @@ module Apiexternal
       sudo(username)
       begin
         Gitlab.delete_ssh_key(gitlab_id)
-      rescue
-        raise Exceptions::GitlabApiException.new("delete ssh_key #{gitlab_id} failed")
+      rescue Exceptions => e
+        raise Exceptions::GitlabApiException.new("delete ssh_key #{gitlab_id} failed, #{e}")
       end
       nosudo
     end
@@ -295,8 +295,8 @@ module Apiexternal
     def delete_project(gitlab_id)
       begin
         Gitlab.delete_project(gitlab_id)
-      rescue
-        Exceptions::GitlabApiException.new("delete project #{gitlab_id} failed")
+      rescue Exceptions => e
+        Exceptions::GitlabApiException.new("delete project #{gitlab_id} failed, #{e}")
       end
     end
 
