@@ -413,6 +413,7 @@ rundir=/var/run/puppet
 factpath=$vardir/lib/facter
 hiera_config=/etc/hiera.yaml
 ordering=manifest
+reports=none
 
 [master]
 ssl_client_header = SSL_CLIENT_S_DN
