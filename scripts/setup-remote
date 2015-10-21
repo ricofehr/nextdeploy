@@ -5,12 +5,12 @@
 
 PUPPETIP=''
 PUPPETFQDN=''
-PUPPETPORT=8114
+PUPPETPORT=8140
 OUT='out/remote.log'
 BINSED='/bin/sed'
 YES=0
 DEBUG=1
-TIMETOREBOOT=220
+TIMETOREBOOT=180
 DOMAIN=''
 
 NEUTRONPUBDEV=''
@@ -25,6 +25,7 @@ MANAGEMENTPREFIX=''
 ISOTHERNOVA=0
 ISINSTALLPUPPETMASTER=0
 ISUPDATEPUPPETMASTER=0
+PUPPETSSHPORT=22
 CONTROLLERIP=''
 NEUTRONIP=''
 GLANCEIP=''
@@ -48,22 +49,20 @@ Usage: $0 [options]
 -h                          this is some help text.
 -q                          quieter mode
 -y                          non-interactive mode, take default value when no setted
--fs xxxx                    fileshare strategy for rails app source between host and mvmc node, nfs/rsync (Default is nfs)
--cu xxxx                    cli username (default is usera@os.mvmc)
--cp xxxx                    cli password (default is word123123)
--g xxxx                     gitlaburi (default is gitlab.local)
--ne xxxx                    set the neutron external interface (for the public openstack subnet, default is eth2)
+-g xxxx                     gitlaburi (default is gitlab.domain)
+-ne xxxx                    set the neutron external interface (for the public openstack subnet, default is eth1)
 -np xxxx                    set the neutron public interface (default is eth0)
 -p xxxx                     subnet prefix (external network) for vms (default is 192.168.171)
 -a xxxx                     subnet prefix for api network (default is 192.168.170)
 -d xxxx                     subnet prefix for data network (default is 172.16.171)
 -e xxxx                     subnet prefix for management network (default is 172.16.170)
 -n xxxx                     dns server for vms (default is 192.168.171.60)
--m xxxx                     mvmc webui URI (default is mvmc.local)
--s xxxx                     mvmc dns suffixes (default is os.mvmc)
+-m xxxx                     mvmc webui URI (default is mvmc.domain)
+-s xxxx                     mvmc dns suffixes (default is os.domain)
 -t xxxx                     set the time needed to reboot a node (default is 220)
 --domain xxxx               global domain for the mvmc nodes (default is none)
 --puppetmaster-ip   xxxx    ip for puppetmaster service
+--puppetmaster-sshport xxxx port for ssh to puppermaster node (default is 22)
 --puppetmaster-fqdn xxxx    fqdn for puppetmaster service
 --install-puppetmaster      install the puppet master service
 --update-puppetmaster       update the puppet master service with lastest modules and hiera files
@@ -165,6 +164,11 @@ while (($# > 0)); do
     --puppetmaster-ip)
       shift
       PUPPETIP="$1"
+      shift
+      ;;
+    --puppetmaster-sshport)
+      shift
+      PUPPETSSHPORT="$1"
       shift
       ;;
     --puppetmaster-fqdn)
@@ -496,34 +500,34 @@ update_puppet() {
   rm -f tmp/remote/puma.sh_*
 
   # backup actual fw files, puppet files, hosts and nginx conf
-  rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw tmp/remote/
-  rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet tmp/remote/
-  rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts tmp/remote/
-  rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx tmp/remote/
-  rsync -avzPessh root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma.sh_* tmp/remote/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw tmp/remote/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet tmp/remote/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts tmp/remote/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx tmp/remote/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma.sh_* tmp/remote/
 
   # clean puppet master
-  ssh root@${PUPPETIP} 'rm -rf /etc/puppet/modules'
+  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} 'rm -rf /etc/puppet/modules'
 
   # rsync puppet modules (rsync here but a git clone into puppet node should be better)
-  rsync -avzPessh vagrant/modules root@${PUPPETIP}:/etc/puppet/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" vagrant/modules root@${PUPPETIP}:/etc/puppet/
   
   # upload specific folders
-  [[ -d tmp/remote/fw ]] && rsync -avzPessh tmp/remote/fw root@${PUPPETIP}:/etc/puppet/modules/pm/files/
-  [[ -d tmp/remote/puppet ]] && rsync -avzPessh tmp/remote/puppet root@${PUPPETIP}:/etc/puppet/modules/pm/files/
-  [[ -d tmp/remote/hosts ]] && rsync -avzPessh tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/
-  [[ -d tmp/remote/nginx ]] && rsync -avzPessh tmp/remote/nginx root@${PUPPETIP}:/etc/puppet/modules/pm/files/
-  test -f tmp/remote/puma.sh_* && rsync -avzPessh tmp/remote/puma.sh_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
+  [[ -d tmp/remote/fw ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/fw root@${PUPPETIP}:/etc/puppet/modules/pm/files/
+  [[ -d tmp/remote/puppet ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puppet root@${PUPPETIP}:/etc/puppet/modules/pm/files/
+  [[ -d tmp/remote/hosts ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/
+  [[ -d tmp/remote/nginx ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nginx root@${PUPPETIP}:/etc/puppet/modules/pm/files/
+  test -f tmp/remote/puma.sh_* && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puma.sh_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
 
   # a second time to ensure that default hosts / puppet / fw / nginx files are updated
-  rsync -avzPessh vagrant/modules root@${PUPPETIP}:/etc/puppet/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" vagrant/modules root@${PUPPETIP}:/etc/puppet/
 
   # change owner of puppet modules folder
-  ssh root@${PUPPETIP} 'chown -R puppet: /etc/puppet/modules'
+  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} 'chown -R puppet: /etc/puppet/modules'
   # update all hiera files
   update_hierafiles
   # restart the puppet master daemon
-  ssh root@${PUPPETIP} 'service puppetmaster restart'
+  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} 'service puppetmaster restart'
 }
 
 # update hiera files
@@ -533,14 +537,14 @@ update_hierafiles() {
   local fqdn=''
 
   # synchro global hiera file
-  scp tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
+  scp -P ${PUPPETSSHPORT} tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
   # synchro hiera node files
   for nodename in "${nodenames[@]}"; do
     fqdn="$nodename"
     pathyaml="tmp/remote/os/"
     [[ "$nodename" = "mvmc" ]] && pathyaml="tmp/remote/mvmc/"
     [[ -n "$DOMAIN" ]] && fqdn="${fqdn}.${DOMAIN}"
-    scp ${pathyaml}${nodename}.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
+    scp -P ${PUPPETSSHPORT} ${pathyaml}${nodename}.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
   done
 }
 
@@ -549,14 +553,14 @@ remote_puppet() {
   
   output -q 'Working on remote puppet master'
   # install puppetmaster if we are on debian / ubuntu
-  ssh root@${PUPPETIP} '[[ -f /etc/debian_version ]] && apt-get install puppetmaster'
+  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} '[[ -f /etc/debian_version ]] && apt-get install puppetmaster'
   # clean puppet master
-  ssh root@${PUPPETIP} 'rm -rf /var/lib/hiera && mkdir /var/lib/hiera'
-  ssh root@${PUPPETIP} 'puppet cert clean --all'
+  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} 'rm -rf /var/lib/hiera && mkdir /var/lib/hiera'
+  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} 'puppet cert clean --all'
 
   # create site.pp on remote puppet
   echo 'hiera_include("classes")' > tmp/remote/site.pp
-  rsync -avzPessh tmp/remote/site.pp root@${PUPPETIP}:/etc/puppet/manifests/site.pp
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/site.pp root@${PUPPETIP}:/etc/puppet/manifests/site.pp
 
   # create hiera.yml file
   cat > tmp/remote/hiera.yaml << EOF
@@ -570,12 +574,12 @@ remote_puppet() {
   - "%{environment}"
   - global
 EOF
-  rsync -avzPessh tmp/remote/hiera.yaml root@${PUPPETIP}:/etc/puppet/hiera.yaml
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/hiera.yaml root@${PUPPETIP}:/etc/puppet/hiera.yaml
   
   update_puppet
 
   # copy default hosts file
-  scp tmp/remote/hosts_global root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/hosts
+  scp -P ${PUPPETSSHPORT} tmp/remote/hosts_global root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/hosts
 }
 
 # ensure puppet installation on the remote node
@@ -612,7 +616,7 @@ prepare_node() {
   confirm 'Server is going to reboot. Please waiting that he is up again and continue with puppet install'
   # if non-interactive, sleep wiating remote_ip is up
   if (( YES == 1 )); then
-    while (( rtries++ < 3)); do
+    while (( rtries++ < 3 )); do
       sleep $TIMETOREBOOT
       ssh root@${remote_ip} "pwd"
       (( $? == 0 )) && break  
@@ -629,6 +633,9 @@ prepare_node() {
   # install puppet agent
   ssh root@${remote_ip} "apt-get install -y --force-yes puppet"
 
+  # ensure that puppet agent is stopped
+  ssh root@${remote_ip} "service puppet stop"
+
   # allow puppet to start
   ssh root@${remote_ip} '[[ -f /etc/default/puppet ]] && sed -i "s;START=no;START=yes;" /etc/default/puppet'
 
@@ -637,10 +644,10 @@ prepare_node() {
   ssh root@${remote_ip} "/bin/sed -i 's/%%FQDNS%%/${fqdns}/' /etc/puppet/puppet.conf"
 
   # synchro fw and hosts file
-  rsync -avzPessh vagrant/modules/pm/files/fw/fw_${fwnodename} root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw/fw_${fqdn}
-  ssh root@${PUPPETIP} "/bin/sed -i 's/%%PUBLICIP%%/${remote_ip}/;s/###PUBLICIP//' /etc/puppet/modules/pm/files/fw/fw_${fqdn}"
-  rsync -avzPessh tmp/remote/hosts_global root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/hosts_${fqdn}
-  ssh root@${PUPPETIP} "/bin/sed -i 's;%%HOSTNAME%%;${fqdn};' /etc/puppet/modules/pm/files/hosts/hosts_${fqdn}"
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" vagrant/modules/pm/files/fw/fw_${fwnodename} root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw/fw_${fqdn}
+  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} "/bin/sed -i 's/%%PUBLICIP%%/${remote_ip}/;s/###PUBLICIP//' /etc/puppet/modules/pm/files/fw/fw_${fqdn}"
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/hosts_global root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/hosts_${fqdn}
+  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} "/bin/sed -i 's;%%HOSTNAME%%;${fqdn};' /etc/puppet/modules/pm/files/hosts/hosts_${fqdn}"
 }
 
 # launch puppet agent on remote host
@@ -650,11 +657,13 @@ launch_puppetagent() {
   local fqdn="$2"
 
   # clean old cert if needed
-  ssh root@${PUPPETIP} "puppet cert clean ${fqdn}"
+  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} "puppet cert clean ${fqdn}"
   # enable puppet on the remote node and validate on puppetmaster
   ssh root@${remote_ip} 'puppet agent --test'
   sleep 3
-  ssh root@${PUPPETIP} "puppet cert --allow-dns-alt-names sign ${fqdn}"
+  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} "puppet cert --allow-dns-alt-names sign ${fqdn}"
+  # if non interactive, start puppet agent --test in foreground
+  (( YES == 1 )) && ssh root@${remote_ip} 'puppet agent --test'
   ssh root@${remote_ip} 'puppet agent --enable'
   ssh root@${remote_ip} 'service puppet restart'
 
@@ -683,8 +692,8 @@ install_osnode() {
   prepare_node $remote_ip $fqdn
 
   # synchro hiera files
-  scp tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
-  scp tmp/remote/os/${nodename}.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
+  scp -P ${PUPPETSSHPORT} tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
+  scp -P ${PUPPETSSHPORT} tmp/remote/os/${nodename}.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
   
   # launch puppet-agent for start the installation
   launch_puppetagent $remote_ip $fqdn
@@ -709,15 +718,15 @@ install_mvmc() {
   $BINSED -i "s;%%MVMCIP%%;${remote_ip};" tmp/remote/mvmc/production.rb
 
   # copy nginx templates file onto puppetmaster
-  rsync -avzPessh tmp/remote/mvmc/os-doc.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx/os-doc.conf_${fqdn}
-  rsync -avzPessh tmp/remote/mvmc/os-http.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx/os-http.conf_${fqdn}
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/mvmc/os-doc.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx/os-doc.conf_${fqdn}
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/mvmc/os-http.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx/os-http.conf_${fqdn}
 
   # copy puma script onto puppetmaster
-  rsync -avzPessh tmp/remote/mvmc/puma.sh root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma.sh_${fqdn}
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/mvmc/puma.sh root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma.sh_${fqdn}
 
   # copy puppet.conf onto puppetmaster files repository
-  rsync -avzPessh tmp/remote/puppet.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet/puppet.conf_${fqdn}
-  ssh root@${PUPPETIP} "/bin/sed -i 's/%%FQDNSHORT%%/${fqdnshort}/' /etc/puppet/modules/pm/files/puppet/puppet.conf_${fqdn}"
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puppet.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet/puppet.conf_${fqdn}
+  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} "/bin/sed -i 's/%%FQDNSHORT%%/${fqdnshort}/' /etc/puppet/modules/pm/files/puppet/puppet.conf_${fqdn}"
 
   # setting local, hosts and install puppet
   prepare_node $remote_ip $fqdn
@@ -739,8 +748,8 @@ install_mvmc() {
   rsync -avzPessh tmp/remote/mvmc/production.rb root@${remote_ip}:/ror/config/environments/
 
   # synchro hiera files
-  scp tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
-  scp tmp/remote/mvmc/mvmc.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
+  scp -P ${PUPPETSSHPORT} tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
+  scp -P ${PUPPETSSHPORT} tmp/remote/mvmc/mvmc.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
 
   # launch puppet-agent for start the installation
   launch_puppetagent $remote_ip $fqdn
@@ -882,3 +891,5 @@ else
   response="n"
 fi
 [[ "$response" = "y" ]] && install_mvmc
+
+exit 0
