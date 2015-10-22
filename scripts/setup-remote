@@ -664,9 +664,15 @@ launch_puppetagent() {
   sleep 3
   ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} "puppet cert --allow-dns-alt-names sign ${fqdn}"
   # if non interactive, start puppet agent --test in foreground
-  (( YES == 1 )) && ssh root@${remote_ip} 'puppet agent --test'
   ssh root@${remote_ip} 'puppet agent --enable'
   ssh root@${remote_ip} 'service puppet restart'
+
+  # look when the installation is finish on the remote node
+  while ((1)); do
+    sleep 60
+    ssh root@${remote_ip} 'test -e /var/lib/puppet/state/agent_catalog_run.lock'
+    (( $? != 0 )) && break
+  done
 
   output -q -l "Installation on $fqdn node begins, check the puppet-agent actions and continue after his work."
 
