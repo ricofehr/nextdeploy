@@ -143,6 +143,11 @@ class pm::postinstall::mvmc {
     command => 'rm -f tmp/private_token',
     unless => 'test -f /home/modem/.installmvmc'
   } ->
+  # need sudo for manage ftp users
+  file_line { 'sudo_rule':
+    path => '/etc/sudoers',
+    line => 'modem ALL=(root) NOPASSWD: /usr/local/bin/./mvmc-*',
+  } ->
   # install ruby bundles
   exec { 'bundle-ror':
     command => 'bundle install --path vendor/bundle > /out/logbundle.log 2>&1',
@@ -217,11 +222,6 @@ class pm::postinstall::mvmc {
     owner => 'root',
     mode => '0700',
     group => 'root'
-  } ->
-  # need sudo for manage ftp users
-  file_line { 'sudo_rule':
-    path => '/etc/sudoers',
-    line => 'modem ALL=(root) NOPASSWD: /usr/local/bin/./mvmc-*',
   } ->
   exec { 'touchinstallmvmc':
     command => 'touch /home/modem/.installmvmc',
