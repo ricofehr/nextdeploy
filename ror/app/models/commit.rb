@@ -26,12 +26,11 @@ class Commit
       project = Project.find(@project_id)
 
       begin
-        commit = 
           # cache commit object during 1min    
-          Rails.cache.fetch("commits/#{@id}", expires_in: 1.minute) do
+          #Rails.cache.fetch("commits/#{@id}", expires_in: 1.minute) do
             @gitlabapi = Apiexternal::Gitlabapi.new
-            @gitlabapi.get_commit(project.gitlab_id, commit_hash)          
-          end
+            commit = @gitlabapi.get_commit(project.gitlab_id, commit_hash)          
+          #end
 
         options[:short_id] = commit.short_id
         options[:title] = commit.title
