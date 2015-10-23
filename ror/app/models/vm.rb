@@ -119,7 +119,7 @@ class Vm < ActiveRecord::Base
     if self.nova_id
       # store floating_ip in rails cache
       @floating_ip = 
-        Rails.cache.fetch("vms/#{cache_key}/floating_ip", expires_in: 144.hours) do
+        Rails.cache.fetch("vms/#{self.nova_id}/floating_ip", expires_in: 144.hours) do
           # init api object
           init_osapi
           # get floatingip from openstack
@@ -129,7 +129,7 @@ class Vm < ActiveRecord::Base
     end
 
     @commit = 
-      Rails.cache.fetch("vms/#{cache_key}/commit_object", expires_in: 144.hours) do
+      Rails.cache.fetch("vms/#{self.commit_id}/commit_object", expires_in: 144.hours) do
         Commit.find(self.commit_id)      
       end
 
