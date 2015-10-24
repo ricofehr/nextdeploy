@@ -18,7 +18,7 @@ module Apiexternal
     # Get private_token
     #
     # @param username [String] the admin username (default is root)
-    # @param username [String] the admin password (default is 5iveL!fe)
+    # @param password [String] the admin password (default is 5iveL!fe)
     # @raise Exceptions::GitlabApiException if errors occurs
     # No return
     def get_private_token(username='root', password='5iveL!fe')
