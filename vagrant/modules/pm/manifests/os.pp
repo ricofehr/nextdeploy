@@ -279,13 +279,32 @@ class pm::os::nv0_postinstall {
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
 class pm::os::gl {
-
-  class { '::glance::api':
-    require => [ File['/etc/hosts'] ],
+  Exec {
+      path => '/usr/bin:/usr/sbin:/bin:/sbin',
+      user => 'modem',
+      unless => 'test -f /home/modem/.glancesleep'
   }
 
+  # add a sleep to avoid a bug during an install of glance into virtualbox
+  class { '::glance::api':
+    require => [ File['/etc/hosts'] ],
+  } ->
+  exec { 'waitglance':
+    command => '/bin/sleep 60'
+  }
+
+  # add a sleep to avoid a bug during an install of glance into virtualbox
   class { '::glance::registry':
     require => [ File['/etc/hosts'] ],
+  } ->
+  exec { 'waitglance2':
+    command => '/bin/sleep 60'
+  }
+
+  # make a lock to avoid other sleep execution
+  exec { 'touchglancesleep':
+    command => 'touch /home/modem/.glancesleep',
+    require => [ Exec['waitglance'], Exec['waitglance'] ]
   }
 
   class { '::glance::backend::file':
@@ -296,7 +315,7 @@ class pm::os::gl {
     require => [ File['/etc/hosts'] ],
   }
 
-  create_resources('glance_image', hiera('glance_image', []))
+  create_resources('glance_image', hiera('glance_image', []), { require => File['/etc/hosts'] })
 }
 
 
