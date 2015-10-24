@@ -164,6 +164,7 @@ newproject() {
   cp "${RORSBIN}/files/app.js" nodejs/
   touch server/.keep
   cp "${RORSBIN}/files/gitignore_other" .gitignore
+  cp "${RORSBIN}/files/import.sh" scripts/
   cp "${RORSBIN}/files/postinstall.sh" scripts/
   touch scripts/crontab
   git add html client nodejs server scripts .gitignore
