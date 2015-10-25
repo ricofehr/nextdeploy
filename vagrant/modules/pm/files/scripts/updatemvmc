@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# if we are root, exit
+(( $UID == 0 )) && echo "please execute with modem user, not root" && exit 1
+
+TAG="HEAD"
+
+# if parameter, update TAG variable
+[[ -n $1 ]] && TAG="$1"
+
+pushd /home/mvmc >/dev/null
+git pull --rebase
+(( $? != 0 )) && exit 1
+git fetch --all --tags
+(( $? != 0 )) && exit 1
+git reset --hard $TAG
+(( $? != 0 )) && exit 1
+git submodule update --init
+(( $? != 0 )) && exit 1
+popd >/dev/null
+
+exit 0

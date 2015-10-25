@@ -23,6 +23,7 @@ class roles::mvmc {
   class {'pm::dnsmasq':} ->
   class {'pm::openvpn':} ->
   class {'pm::ftp':} ->
+  class {'pm::postinstall::exploitation':} ->
   class {'pm::postinstall::mvmc':} ->
   class {'pm::cron':} ->
   class {'pm::fw':}

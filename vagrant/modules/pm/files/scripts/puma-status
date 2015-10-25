@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# if we are root, exit
+(( $UID == 0 )) && echo "please execute with modem user, not root" && exit 1
+
+# check pidfile
+ps -p $(cat /var/run/puma/puma.pid) >/dev/null 2>&1
+if (( $? != 0 )); then
+  lsof /var/run/puma/my_app.sock >/dev/null 2>&1
+  # kill zombie puma process
+  if (( $? == 0 )); then
+    pidz="$(lsof /var/run/puma/my_app.sock | sed "s; [ ]*; ;g" | cut -d' ' -f2 | tail -n +2 | head -n 1 | tr -d "\n")"
+    while [[ -n "$pidz" ]]; do
+      pushd /ror >/dev/null
+      /usr/local/rvm/gems/ruby-2.1.0/bin/bundle exec pumactl -p "${pidz}" stop
+      popd >/dev/null
+      pidz="$(lsof /var/run/puma/my_app.sock | sed "s; [ ]*; ;g" | cut -d' ' -f2 | tail -n +2 | head -n 1 | tr -d "\n")"
+    done
+  fi
+
+  # start puma service
+  rm -f /var/run/puma/my_app.sock
+  puma-start
+  sleep 5
+fi
+
+cat /var/run/puma/puma.pid | tr -d "\n"

@@ -138,19 +138,19 @@ cron_cmd:
     hour: '*'
     weekday: '*'
   rdnsmasq:
-    command: "/root/./rdnsmasq.sh"
+    command: "rdnsmasq"
     user: 'root'
     minute: '*'
     hour: '*'
     weekday: '*'
   puma:
-    command: 'cd /home/modem && ./puma.sh'
+    command: 'puma-status'
     user: 'modem'
     minute: '*/2'
     hour: '*'
     weekday: '*'
   emberbuild:
-    command: '/home/modem/./ember.sh'
+    command: 'rebuildember'
     user: 'modem'
     minute: '*'
     hour: '*'

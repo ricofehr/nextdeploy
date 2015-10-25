@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# if we are root, exit
+(( $UID == 0 )) && echo "please execute with modem user, not root" && exit 1
+
+export PATH=/usr/local/rvm/gems/ruby-2.1.0/bin:/usr/local/rvm/gems/ruby-2.1.0@global/bin:/usr/local/rvm/rubies/ruby-2.1.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/rvm/bin:/opt/ruby/bin/
+export GEM_HOME=/usr/local/rvm/gems/ruby-2.1.0
+export MY_RUBY_HOME=/usr/local/rvm/rubies/ruby-2.1.0
+export GEM_PATH=/usr/local/rvm/gems/ruby-2.1.0:/usr/local/rvm/gems/ruby-2.1.0@global
+export RUBY_VERSION=ruby-2.1.0
+
+pushd /ror >/dev/null
+bundle exec yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
+(( $? != 0 )) && exit 1
+popd >/dev/null
