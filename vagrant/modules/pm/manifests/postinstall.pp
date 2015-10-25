@@ -1,3 +1,117 @@
+# == Class: pm::postinstall::exploitation
+#
+# Some commands creation for make exploitation easier
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::postinstall::exploitation {
+  $railsenv = hiera('global::railsenv', 'development')
+
+  Exec {
+      path => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/rvm/bin:/opt/ruby/bin/',
+      user => 'root',
+  }
+
+  # puma service management
+  file { '/usr/local/bin/puma-status':
+    ensure => file,
+    source => ['puppet:///modules/pm/scripts/puma-status'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+
+  file { '/usr/local/bin/puma-stop':
+    ensure => file,
+    source => ['puppet:///modules/pm/scripts/puma-stop'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+
+  file { '/usr/local/bin/puma-restart':
+    ensure => file,
+    source => ['puppet:///modules/pm/scripts/puma-restart'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+
+  file { '/usr/local/bin/puma-start':
+    ensure => file,
+    source => ["puppet:///modules/pm/scripts/puma-start_${clientcert}",
+      'puppet:///modules/pm/scripts/puma-start'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  } ->
+  exec { 'pumaenv':
+    command => "/bin/sed -i 's;%%RAILSENV%%;${railsenv};' /usr/local/bin/puma-start",
+    onlyif => 'grep RAILSENV /usr/local/bin/puma-start',
+    user => 'root' 
+  }
+
+  # genera application ember file
+  file { '/usr/local/bin/rebuildember':
+    ensure => file,
+    source => ['puppet:///modules/pm/scripts/rebuildember'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+
+  # restart dnsmasq script
+  file { '/usr/local/bin/rdnsmasq':
+    ensure => 'file',
+    content => '#!/bin/bash
+hostsmin=$(find /etc/hosts.mvmc -mmin -1)
+[[ -n $hostsmin ]] && /etc/init.d/dnsmasq restart',
+    owner => 'root',
+    mode => '0700',
+    group => 'root'
+  }
+
+  # update mvmc project from github repository
+  file { '/usr/local/bin/updatemvmc':
+    ensure => 'file',
+    source => ['puppet:///modules/pm/scripts/updatemvmc'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+
+  # execute rake:migrate command on the ror rest project
+  file { '/usr/local/bin/migratemvmc':
+    ensure => 'file',
+    source => ['puppet:///modules/pm/scripts/migratemvmc'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+
+  # generate ror documentation
+  file { '/usr/local/bin/yardoc':
+    ensure => 'file',
+    source => ['puppet:///modules/pm/scripts/yardoc'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+  
+  # backup mvmc
+  file { '/usr/local/bin/backupmvmc':
+    ensure => 'file',
+    source => ['puppet:///modules/pm/scripts/backupmvmc'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+
+}
+
 # == Class: pm::postinstall::mvmc
 #
 # Some commands and setting for finalize installation of manager node for mvmc platform
@@ -172,30 +286,11 @@ class pm::postinstall::mvmc {
     unless => 'test -f /home/modem/.installmvmc',
     require => File['/bin/sh']
   } ->
-  # puma setting
+  # ensure puma folder is here for create socket
   file { '/var/run/puma':
     ensure =>  directory,
     owner => 'modem',
     mode => '0777'
-  } ->
-  file { '/home/modem/puma.sh':
-    ensure => file,
-    source => ["puppet:///modules/pm/scripts/puma.sh_${clientcert}",
-      'puppet:///modules/pm/scripts/puma.sh'],
-    owner => 'modem',
-    mode => '0700',
-    group => 'modem'
-  } ->
-  exec { 'pumaenv':
-    command => "/bin/sed -i 's;%%RAILSENV%%;${railsenv};' /home/modem/puma.sh",
-    onlyif => 'grep RAILSENV /home/modem/puma.sh', 
-  } ->
-  file { '/home/modem/ember.sh':
-    ensure => file,
-    source => ['puppet:///modules/pm/scripts/ember.sh'],
-    owner => 'modem',
-    mode => '0700',
-    group => 'modem'
   } ->
   # generate doc
   exec { 'yardoc_ror':
@@ -212,16 +307,6 @@ class pm::postinstall::mvmc {
     ensure => 'link',
     target => '/ror/hiera',
     owner => 'root',
-  } ->
-  # restart dnsmasq script
-  file { '/root/rdnsmasq.sh':
-    ensure => 'file',
-    content => '#!/bin/bash
-    hostsmin=$(find /etc/hosts.mvmc -mmin -1)
-    [[ -n $hostsmin ]] && /etc/init.d/dnsmasq restart',
-    owner => 'root',
-    mode => '0700',
-    group => 'root'
   } ->
   exec { 'touchinstallmvmc':
     command => 'touch /home/modem/.installmvmc',
