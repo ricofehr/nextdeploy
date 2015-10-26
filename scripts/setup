@@ -25,7 +25,7 @@ CHANGEDNS=1 # change local resolv.conf file for match mvmc dns zones
 NESTED=0 # enable nested virtualization for nova node
 NEUTRONEXTDEV='eth2' # neutron interface who set the external network ip
 NEUTRONPUBDEV='eth0' # neutron interface who set the public IP
-FILESHARETYPE='nfs' # define which sharing strategy for rails app between host computer and mvmc virtual node
+FILESHARETYPE='virtualbox' # define which sharing strategy for rails app between host computer and mvmc virtual node
 STARTVM=0 # start a test vm after build complete
 
 # display help
@@ -37,7 +37,7 @@ Usage: $0 [options]
 -c           no destroy vm already created
 -q           quieter mode
 -y           ask yes to all question
--fs xxxx     fileshare strategy for rails app source between host and mvmc node, nfs/rsync (Default is nfs)
+-fs xxxx     fileshare strategy for rails app source between host and mvmc node, nfs/rsync (Default is nfs for libvirt and virtualbox for vbox)
 -cu xxxx     cli username (default is usera@os.mvmc)
 -cp xxxx     cli password (default is word123123)
 -g xxxx      gitlaburi (default is gitlab.local)
@@ -81,6 +81,8 @@ while (($# > 0)); do
     -hv)
       shift
       HVISOR="$1"
+      # make nfs default filesharetype for libvirt hvisor
+      [[ $HVISOR != "virtualbox" ]] && [[ $FILESHARETYPE = "virtualbox" ]] && FILESHARETYPE="nfs"
       shift
       ;;
     -ne)
