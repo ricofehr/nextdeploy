@@ -159,18 +159,24 @@ module VmsHelper
   # No param
   # No return
   def check_status
-    conn_status = Faraday.new(:url => "http://#{vm_url}") do |faraday|
-      faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
-    end
-
+    # dont check status if we are on setup process
     return if (self.status == 0 && self.created_at > (Time.now - 120.minutes))
 
+    conn_status = nil
+
     begin
-      response = conn_status.get do |req|
-        req.url "/status_ok"
-        req.options[:timeout] = 15
-        req.options[:open_timeout] = 10
-      end
+        response =
+          Rails.cache.fetch("vms/#{self.nova_id}/status_ok", expires_in: 30.minutes) do
+            conn_status = Faraday.new(:url => "http://#{vm_url}") do |faraday|
+              faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+            end
+
+            conn_status.get do |req|
+              req.url "/status_ok"
+              req.options[:timeout] = 15
+              req.options[:open_timeout] = 10
+            end
+          end
     rescue
       return
     end
@@ -179,6 +185,13 @@ module VmsHelper
       # try a second time
       begin
         sleep(1)
+
+        if conn_status.nil?
+          conn_status = Faraday.new(:url => "http://#{vm_url}") do |faraday|
+            faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
+          end
+        end
+
         response = conn_status.get do |req|
           req.url "/status_ok"
           req.options[:timeout] = 15
