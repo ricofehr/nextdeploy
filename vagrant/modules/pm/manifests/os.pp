@@ -122,6 +122,7 @@ class pm::os::nv {
   }
 
   nova_config { 'DEFAULT/default_floating_pool': value => 'public' }
+  nova_config { 'DEFAULT/resume_guests_state_on_host_boot': value => true }
 
   class { '::nova::compute':
     require => [ File['/etc/hosts'] ],
