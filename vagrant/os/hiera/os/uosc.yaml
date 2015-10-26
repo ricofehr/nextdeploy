@@ -17,10 +17,10 @@ keystone::admin_token: 'token123'
 keystone::token_expiration: 14400
 keystone::database_connection: 'mysql://keystone:oskeystone@controller-m/keystonedb'
 
-keystone::endpoint::public_url: 'http://keystone-a:5000/v2.0'
-keystone::endpoint::admin_url: 'http://keystone-m:35357/v2.0'
-keystone::endpoint::internal_url: 'http://keystone-m:5000/v2.0'
-#keystone::endpoint::version: 'v2.0'
+keystone::endpoint::public_url: 'http://keystone-a:5000'
+keystone::endpoint::admin_url: 'http://keystone-m:35357'
+keystone::endpoint::internal_url: 'http://keystone-m:5000'
+keystone::endpoint::version: 'v2.0'
 keystone::endpoint::region: 'RegionOne'
 
 #keystone tenant resources
@@ -258,7 +258,7 @@ horizon::swift: false
 horizon::django_debug: True
 horizon::api_result_limit: 2000
 horizon::compress_offline: false
-horizon::keystone_url: 'https://keystone-m:5000/v2.0'
+horizon::keystone_url: 'http://keystone-m:5000/v2.0'
 
 #rabbitmq settigns
 rabbitmq::port: '5672'
