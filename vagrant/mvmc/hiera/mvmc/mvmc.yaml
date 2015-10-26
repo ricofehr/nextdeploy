@@ -155,3 +155,9 @@ cron_cmd:
     minute: '*'
     hour: '*'
     weekday: '*'
+  gitlabbackup:
+    command: '/opt/gitlab/bin/gitlab-rake gitlab:backup:create >>/home/gitlab-backups/backup.log 2>&1'
+    user: 'root'
+    minute: '10'
+    hour: '03'
+    weekday: '*'
