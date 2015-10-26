@@ -43,6 +43,11 @@ class pm::dnsmasq {
   exec { 'chmodhosts':
     command => 'chmod 777 /etc/hosts.mvmc'
   }  ->
+
+  exec { 'localhostresolvconf':
+    command => 'sed -i "s;nameserver .*$;nameserver 127.0.0.1;" /etc/resolv.conf'
+  } ->
+
   exec { 'touch_dnsmasqconfig':
     command => 'touch /root/.dnsmasqconfig',
   }
