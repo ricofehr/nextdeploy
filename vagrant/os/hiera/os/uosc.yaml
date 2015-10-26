@@ -10,7 +10,7 @@ memcached::udp_port: '11211'
 
 #keystone setting
 keystone::enabled: true
-keystone::verbose: true
+keystone::verbose: false
 keystone::catalog_type: 'sql'
 keystone::admin_bind_host: "%{hiera('global::managementprefix')}.70"
 keystone::admin_token: 'token123'
@@ -255,7 +255,7 @@ horizon::cache_server_ip: 'controller-m'
 horizon::cache_server_port: '11211'
 horizon::secret_key: 'oshorizon'
 horizon::swift: false
-horizon::django_debug: True
+horizon::django_debug: False
 horizon::api_result_limit: 2000
 horizon::compress_offline: false
 horizon::keystone_url: 'http://keystone-m:5000/v2.0'

@@ -4,7 +4,7 @@ classes:
   - roles::os::uosst
 
 #glance classes
-glance::api::verbose: true
+glance::api::verbose: false
 glance::api::keystone_tenant: 'services'
 glance::api::keystone_user: 'glance'
 glance::api::keystone_password: 'osglance'
@@ -16,7 +16,7 @@ glance::api::rabbit_host: 'controller-m'
 glance::api::rabbit_user: 'osuser'
 glance::api::rabbit_password: 'useros'
 
-glance::registry::verbose: true
+glance::registry::verbose: false
 glance::registry::auth_uri: 'http://keystone-m:5000/v2.0/'
 glance::registry::identity_uri: 'http://keystone-m:35357'
 glance::registry::keystone_tenant: 'services'
@@ -46,20 +46,6 @@ glance_image:
     container_format: 'bare'
     disk_format: 'qcow2'
     source: 'http://imgs.mvmc.services-pm.fr:8383/os/osvm-trusty.img'
-  # osvm-wheezy:
-  #   ensure: present
-  #   name: 'osvm-wheezy'
-  #   is_public: 'yes'
-  #   container_format: 'bare'
-  #   disk_format: 'qcow2'
-  #   source: 'http://imgs.mvmc.services-pm.fr/os/osvm-wheezy.img'
-  # osvm-trusty:
-  #   ensure: present
-  #   name: 'osvm-trusty'
-  #   is_public: 'yes'
-  #   container_format: 'bare'
-  #   disk_format: 'qcow2'
-  #   source: 'http://imgs.mvmc.services-pm.fr/os/osvm-trusty.img'
 
 #keystone setting
 keystone::enabled: false
@@ -74,7 +60,7 @@ cinder::database_connection: 'mysql://cinder:oscinder@controller-m/cinderdb'
 cinder::rabbit_userid: 'osuser'
 cinder::rabbit_password: 'useros'
 cinder::rabbit_host: 'controller-m'
-cinder::verbose: true
+cinder::verbose: false
 cinder::glance::glance_api_servers: 'glance-a:9292'
 cinder::setup_test_volume::volume_name: 'cinder-volumes'
 cinder::setup_test_volume::size: '30G'
