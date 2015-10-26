@@ -22,10 +22,7 @@ class Branche
     @id = "#{project_id}-#{name}"
 
     # cache commits array during 10min
-    @commits = Commit.all(@id)    
-      Rails.cache.fetch("branches/#{@id}/commits", expires_in: 1.minute) do
-        Commit.all(@id)          
-      end
+    @commits = Commit.all(@id)
   end
 
   # Find function. Return a branch object from his id
