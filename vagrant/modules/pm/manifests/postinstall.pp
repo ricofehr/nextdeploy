@@ -68,7 +68,7 @@ class pm::postinstall::exploitation {
     ensure => 'file',
     content => '#!/bin/bash
 hostsmin=$(find /etc/hosts.mvmc -mmin -1)
-[[ -n $hostsmin ]] && /etc/init.d/dnsmasq restart',
+[[ -n $hostsmin ]] && service dnsmasq force-reload',
     owner => 'root',
     mode => '0700',
     group => 'root'
