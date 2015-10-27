@@ -119,6 +119,9 @@ module API
           params_p[:systemimagetype_id] = params_p[:systemimagetype]
           params_p[:vmsize_ids] = params_p[:vmsizes]
 
+          # permit empty user_ids array if we want disable all users
+          params_p[:user_ids] ||= []
+
           params_p.delete(:created_at)
           params_p.delete(:technos)
           params_p.delete(:users)

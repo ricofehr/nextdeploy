@@ -179,6 +179,9 @@ module API
           params_p.delete(:password_confirmation)
         end
 
+        # permit empty project_ids array if we want remove all projects from this user
+        params_p[:project_ids] ||= []
+
         params_p.delete(:created_at)
         params_p.delete(:authentication_token)
         params_p.delete(:group)
