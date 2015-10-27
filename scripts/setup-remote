@@ -475,6 +475,7 @@ EOF
   # prepare nginx mvmc files
   $BINSED -i "s;%%MVMCSUF%%;${mvmcsuf};" tmp/remote/mvmc/os-http.conf
   $BINSED -i "s;%%MVMCURI%%;${mvmcuri};" tmp/remote/mvmc/os-http.conf
+  $BINSED -i "s;%%GITLABURI%%;${gitlaburi};" tmp/remote/mvmc/os-http.conf
   $BINSED -i "s;%%MVMCURI%%;${mvmcuri};" tmp/remote/mvmc/os-doc.conf
 
   #prepare puma.sh
@@ -598,31 +599,34 @@ prepare_node() {
 
   output -q "Working on $fqdn node"
 
-  # set the fqdn
-  ssh -t -t root@${remote_ip} "hostname ${fqdn}; echo '127.0.0.1 ${fqdn}' > /etc/hosts; echo ${fqdn} > /etc/hostname"
-  ssh root@${remote_ip} 'sed -i "s/^domain.*//;s/^search.*//" /etc/resolv.conf'
-  [[ -n "$DOMAIN" ]] && ssh root@${remote_ip} "echo 'search $DOMAIN' >> /etc/resolv.conf"
+  # set hostname if needed
+  if [[ "$(ssh root@${remote_ip} "hostname")" != "$fqdn" ]]; then
+    # set the fqdn
+    ssh -t -t root@${remote_ip} "hostname ${fqdn}; echo '127.0.0.1 ${fqdn}' > /etc/hosts; echo ${fqdn} > /etc/hostname"
+    ssh root@${remote_ip} 'sed -i "s/^domain.*//;s/^search.*//" /etc/resolv.conf'
+    [[ -n "$DOMAIN" ]] && ssh root@${remote_ip} "echo 'search $DOMAIN' >> /etc/resolv.conf"
 
-  # set locale
-  ssh root@${remote_ip} 'echo LANG=en_US.UTF-8 > /etc/default/locale'
-  ssh root@${remote_ip} 'echo LC_ALL=en_US.UTF-8 >> /etc/default/locale'
+    # set locale
+    ssh root@${remote_ip} 'echo LANG=en_US.UTF-8 > /etc/default/locale'
+    ssh root@${remote_ip} 'echo LC_ALL=en_US.UTF-8 >> /etc/default/locale'
 
-  # add puppetmaster into hosts file
-  ssh root@${remote_ip} "echo '${PUPPETIP} ${PUPPETFQDN}' >> /etc/hosts"
+    # add puppetmaster into hosts file
+    ssh root@${remote_ip} "echo '${PUPPETIP} ${PUPPETFQDN}' >> /etc/hosts"
   
-  # reboot remote uosc
-  ssh -t -t root@${remote_ip} "reboot"
+    # reboot remote uosc
+    ssh -t -t root@${remote_ip} "reboot"
 
-  # reboot and get puppet repo
-  confirm 'Server is going to reboot. Please waiting that he is up again and continue with puppet install'
-  # if non-interactive, sleep wiating remote_ip is up
-  if (( YES == 1 )); then
-    while (( rtries++ < 3 )); do
-      sleep $TIMETOREBOOT
-      ssh root@${remote_ip} "pwd"
-      (( $? == 0 )) && break  
-    done
-    (( rtries == 3 )) && output -e "The node $fqdn is not rebooted at time during install process"
+    # reboot and get puppet repo
+    confirm 'Server is going to reboot. Please waiting that he is up again and continue with puppet install'
+    # if non-interactive, sleep wiating remote_ip is up
+    if (( YES == 1 )); then
+      while (( rtries++ < 3 )); do
+        sleep $TIMETOREBOOT
+        ssh root@${remote_ip} "pwd"
+        (( $? == 0 )) && break  
+      done
+      (( rtries == 3 )) && output -e "The node $fqdn is not rebooted at time during install process"
+    fi
   fi
 
   # apt-get update
