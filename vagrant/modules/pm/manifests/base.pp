@@ -54,6 +54,7 @@ class pm::base::gitlab {
   }
 
   $mvmcuri = hiera('global::mvmcuri', 'mvmc.local')
+  $gitlaburi = hiera('global::gitlaburi', 'gitlab.local')
   $mvmcsuf = hiera('global::mvmcsuf', 'os.mvmc')
 
   # Nginx settings
@@ -82,6 +83,12 @@ class pm::base::gitlab {
   exec { 'mvmcuri':
     command => "/bin/sed -i 's;%%MVMCURI%%;${mvmcuri};' /etc/os-http.conf",
     onlyif => 'grep MVMCURI /etc/os-http.conf',
+    user => 'root',
+    before => Class['::gitlab']
+  } ->
+  exec { 'gitlaburi':
+    command => "/bin/sed -i 's;%%GITLABURI%%;${gitlaburi};' /etc/os-http.conf",
+    onlyif => 'grep GITLABURI /etc/os-http.conf',
     user => 'root',
     before => Class['::gitlab']
   } ->
