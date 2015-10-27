@@ -1,0 +1,2 @@
+# drupal cron, once a hour
+10 * * * * cd %%DOCROOT%% && drush core-cron -y
