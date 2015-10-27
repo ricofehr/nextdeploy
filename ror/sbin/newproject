@@ -258,6 +258,8 @@ newdrupal() {
 
     pushd "${DOCONLINE}" > /dev/null
     cp "${RORSBIN}/files/gitignore_drupal" .gitignore
+    cp "${RORSBIN}/files/crontab_drupal" server/scripts/crontab
+    sed -i "s;%%DOCROOT%%;${DOCROOT};" server/scripts/crontab
     git add .
     git add .gitignore
     git add .htaccess
