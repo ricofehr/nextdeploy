@@ -9,6 +9,8 @@ TAG="HEAD"
 [[ -n $1 ]] && TAG="$1"
 
 pushd /home/mvmc >/dev/null
+git reset --hard HEAD
+(( $? != 0 )) && exit 1
 git pull --rebase
 (( $? != 0 )) && exit 1
 git fetch --all --tags
