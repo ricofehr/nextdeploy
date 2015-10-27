@@ -2,7 +2,7 @@
 #
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :email, :authentication_token, :company, :quotavm, :created_at
+  attributes :id, :email, :authentication_token, :company, :quotavm, :firstname, :lastname, :created_at
   delegate :current_user, to: :scope
 
   has_many :vms, key: :vms
