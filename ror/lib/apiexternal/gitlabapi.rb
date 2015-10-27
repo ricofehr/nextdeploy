@@ -255,6 +255,26 @@ module Apiexternal
       return branch
     end
 
+    # Return gitlab projects binding to username user
+    #
+    # @param username [String] the gitlab username
+    # @returns [Array] projects list
+    def get_projects(username)
+      sudo(username)
+      projects = Gitlab.projects
+      nosudo
+
+      projects
+    end
+
+    # Return gitlab users binding to gitlab_id project
+    #
+    # @param gitlab_id [Integer] the project id
+    # @returns [Array] users list
+    def get_project_users(gitlab_id)
+      Gitlab.team_members(gitlab_id)
+    end
+
     # Delete a gitlab user
     #
     # @param gitlab_id [Integer] the user id
@@ -307,6 +327,21 @@ module Apiexternal
       #rescue Exceptions => e
       #  Exceptions::GitlabApiException.new("delete project #{gitlab_id} failed, #{e}")
       #end
+    end
+
+    # Delete user to a project team
+    #
+    # @param project_id [integer] gitlab project id
+    # @param user_id [integer] gitlab user id to add
+    # @raise Exceptions::GitlabApiException if errors occurs
+    # @return nothing
+    def delete_user_to_project(project_id, user_id)
+
+      begin
+        Gitlab.remove_team_member(project_id, user_id)
+      rescue Exceptions => e
+        raise Exceptions::GitlabApiException.new("delete_user_to_project failed, #{e}")
+      end
     end
 
     protected
