@@ -137,6 +137,7 @@ module API
         # Json output (return error if issue occurs)
         respond_to do |format|
           if @user_c.update(user_params)
+            @user_c.update_gitlabuser
             format.json { render json: @user_c, status: 200 }
           else
             format.json { render json: @user_c.errors, status: :unprocessable_entity }
