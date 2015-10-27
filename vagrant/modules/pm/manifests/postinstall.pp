@@ -213,6 +213,12 @@ class pm::postinstall::mvmc {
     mode => '0664',
     require => Exec['gitlab_reconfigure']
   } ->
+  # some custom settings for gitlab
+  exec { 'gitlabusersetting':
+    command => '/opt/gitlab/embedded/bin/psql -h /var/opt/gitlab/postgresql -d gitlabhq_production -c "UPDATE application_settings SET signup_enabled=\'f\',max_attachment_size=60, default_projects_limit=0;"',
+    user => 'gitlab-psql',
+    unless => 'test -f /home/modem/.installmvmc'
+  } ->
   # restart gitlab
   exec { 'restartgitalb':
     command => '/usr/bin/gitlab-ctl restart',
@@ -296,11 +302,6 @@ class pm::postinstall::mvmc {
   exec { 'yardoc_ror':
     command => 'bundle exec yardoc lib/**/*.rb app/**/*.rb config/**/*.rb',
     timeout => 120,
-    unless => 'test -f /home/modem/.installmvmc'
-  } ->
-  exec { 'gitlabusersetting':
-    command => 'echo "UPDATE application_settings SET signup_enabled=\'f\',max_attachment_size=60, default_projects_limit=0;" | sudo -u gitlab-psql /opt/gitlab/embedded/bin/psql -h /var/opt/gitlab/postgresql -d gitlabhq_production',
-    user => 'root',
     unless => 'test -f /home/modem/.installmvmc'
   } ->
   file { '/hiera':
