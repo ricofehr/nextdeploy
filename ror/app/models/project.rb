@@ -27,6 +27,7 @@ class Project < ActiveRecord::Base
 
   # Git repository dependence
   before_create :init_gitlabapi, :create_git, :create_ftp
+  before_update :init_gitlabapi, :update_git
   before_destroy :init_gitlabapi, :delete_git, :remove_ftp
 
   @gitlabapi = nil
@@ -79,5 +80,30 @@ class Project < ActiveRecord::Base
       me.log
     end
     remove_gitpath
+  end
+
+  # Update the project-user association
+  #
+  # No param
+  # No return
+  def update_git
+    
+    begin
+      users_g = @gitlabapi.get_project_users(self.gitlab_id)
+      # remove user to project if needed
+      users_g.each do |user|
+        unless self.users.any? { |usr| usr.gitlab_id == user.id }
+          @gitlabapi.delete_user_to_project(self.gitlab_id, user.id)
+        end
+      end
+
+      self.users.each do |user| 
+        unless users_g.any? { |usr| usr.id == user.gitlab_id }
+          @gitlabapi.add_user_to_project(self.gitlab_id, user.gitlab_id, user.access_level)
+        end
+      end
+    rescue Exceptions::MvmcException => me
+      me.log
+    end
   end
 end

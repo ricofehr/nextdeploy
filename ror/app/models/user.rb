@@ -87,12 +87,23 @@ class User < ActiveRecord::Base
     
     begin
       @gitlabapi.update_user(self.gitlab_id, self.email, self.password, self.gitlab_user)
-      self.projects.each {|project| @gitlabapi.add_user_to_project(project.gitlab_id, self.gitlab_id, self.access_level)}
+      projects_g = @gitlabapi.get_projects(self.gitlab_user)
+      # remove user to project if needed
+      projects_g.each do |project|
+        unless self.projects.any? { |proj| proj.gitlab_id == project.id }
+          @gitlabapi.delete_user_to_project(project.id, self.gitlab_id)
+        end
+      end
+
+      self.projects.each do |project| 
+        unless projects_g.any? { |proj| proj.id == project.gitlab_id }
+          @gitlabapi.add_user_to_project(project.gitlab_id, self.gitlab_id, self.access_level)
+        end
+      end
+
     rescue Exceptions::MvmcException => me
       me.log
     end
-
-    Rails.info("update gitlabuser #{self.email}")
   end
 
   private
