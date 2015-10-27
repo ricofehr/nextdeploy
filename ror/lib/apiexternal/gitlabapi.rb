@@ -293,11 +293,20 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # No return
     def delete_project(gitlab_id)
-      begin
-        Gitlab.delete_project(gitlab_id)
-      rescue Exceptions => e
-        Exceptions::GitlabApiException.new("delete project #{gitlab_id} failed, #{e}")
+      return if !gitlab_id
+
+      response = @conn.delete do |req|
+        req.url "/api/v3/projects/#{gitlab_id}"
+        req.headers = self.headers
       end
+
+      raise Exceptions::GitlabApiException.new("delete project #{gitlab_id} failed, #{response.body}") if response.status != 200
+
+      #begin
+      #  Gitlab.delete_project(gitlab_id)
+      #rescue Exceptions => e
+      #  Exceptions::GitlabApiException.new("delete project #{gitlab_id} failed, #{e}")
+      #end
     end
 
     protected
