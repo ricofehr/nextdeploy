@@ -4,7 +4,7 @@ module API
     #
     # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
     class SessionsController < Devise::SessionsController
-      before_filter :authenticate_user!, :except => [:create]
+      before_filter :authenticate_api_v1_user!, :except => [:create]
       # Json output
       respond_to :json
 
@@ -16,7 +16,7 @@ module API
 
         # check password
         if resource.valid_password?(params[:password])
-          sign_in(:user, resource)
+          sign_in(:api_v1_user, resource)
           resource.ensure_authentication_token
           respond_to do |format|
             format.json { render json: resource, status: 200 }
