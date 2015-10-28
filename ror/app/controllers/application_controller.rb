@@ -73,7 +73,7 @@ class ApplicationController < ActionController::Base
       @user = user_token && User.find_by_authentication_token(user_token)
 
       if @user
-        sign_in @user, store: false
+        sign_in(:api_v1_user, @user)
       end
     end
   end
