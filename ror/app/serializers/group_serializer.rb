@@ -9,8 +9,12 @@ class GroupSerializer < ActiveModel::Serializer
 
   # avoid for no lead/admin users to see other users details
   def users
-    if current_user.lead?
-      object.users
+    if current_user.admin?
+      users_a = object.users.select { |u| u.id != current_user.id }
+      users_a.unshift(current_user)
+    elsif current_user.lead?
+      users_a = object.users.select { |u| u.id != current_user.id && u.projects.any? { |project| project.users.include?(current_user) } }
+      users_a.unshift(current_user)
     else
       [] << current_user
     end

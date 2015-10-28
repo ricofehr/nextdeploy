@@ -19,7 +19,7 @@ class ProjectSerializer < ActiveModel::Serializer
       users_a = object.users.select { |u| u.id != current_user.id }
       users_a.unshift(current_user)
     elsif current_user.lead?
-      users_a = object.users.select { |u| ! u.lead? && u.id != current_user.id }
+      users_a = object.users.select { |u| ! u.admin? && u.id != current_user.id }
       users_a.unshift(current_user)
     else
       [] << current_user

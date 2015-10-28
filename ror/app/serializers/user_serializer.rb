@@ -14,4 +14,8 @@ class UserSerializer < ActiveModel::Serializer
   def projects
     object.projects.select { |project| !current_user || project.users.include?(current_user) }
   end
+
+  def vms
+    object.vms.select { |vm| !current_user || vm.project.users.include?(current_user) }
+  end
 end

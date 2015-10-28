@@ -39,7 +39,7 @@ module API
             if projects
               @users = projects.map { |project| project.users }
               @users.flatten!.uniq!
-              @users.select! { |u| ! u.lead? || u.id == @user.id }
+              @users.select! { |u| ! u.admin? }
             end
           else
             @users = [] << User.includes(:projects).find(@user.id)
