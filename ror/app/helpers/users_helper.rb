@@ -131,6 +131,23 @@ module UsersHelper
     system("chmod 644 sshkeys/#{self.email}.pub")
   end
 
+  # Move ssh key
+  #
+  # @param emailsrc (String): old email from same user
+  # No return
+  def move_sshkey_modem(emailsrc)
+    # todo: avoid bash cmd
+    system("mkdir -p sshkeys")
+    system("mv sshkeys/#{emailsrc} sshkeys/#{self.email}")
+    system("mv sshkeys/#{emailsrc}.pub sshkeys/#{self.email}.pub")
+    system("rm -f sshkeys/#{emailsrc}")
+    system("rm -f sshkeys/#{emailsrc}.pub")
+    system("rm -f sshkeys/#{emailsrc}.authorized_keys")
+    system("chmod 644 sshkeys/#{self.email}")
+    system("chmod 644 sshkeys/#{self.email}.pub")
+    generate_authorizedkeys
+  end
+
   # Get private own modem ssh key
   #
   # No param
