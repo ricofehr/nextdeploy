@@ -22,7 +22,7 @@ class SystemimagetypeSerializer < ActiveModel::Serializer
     if current_user.admin?
       object.systemimages
     elsif current_user.lead?
-      object.systemimages.select { |systemimage| systemimage.vms.select { |vm| vm.project.users.include?(current_user) }.length > 0 }
+      object.systemimages.select { |systemimage| systemimage.vms.select { |vm| ! vm.user.admin? && vm.project.users.include?(current_user) }.length > 0 }
     else
       object.systemimages.select { |systemimage| systemimage.vms.select {|vm| vm.user.id == current_user.id }.length > 0 }
     end
