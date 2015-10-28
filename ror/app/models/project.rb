@@ -62,7 +62,7 @@ class Project < ActiveRecord::Base
       self.gitlab_id = @gitlabapi.create_project(self.name, self.gitpath)
       create_rootfolder
       branchs.each {|branch| @gitlabapi.create_branch(self.gitlab_id, branch, 'master')}
-      @gitlabapi.protect_branch(self.gitlab_id, 'master')
+      @gitlabapi.unprotect_branch(self.gitlab_id, 'master')
       self.users.each {|user| @gitlabapi.add_user_to_project(self.gitlab_id, user.gitlab_id, user.access_level)}
     rescue Exceptions::MvmcException => me
       me.log
