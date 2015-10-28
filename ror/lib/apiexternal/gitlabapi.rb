@@ -147,7 +147,7 @@ module Apiexternal
     # Protect branch to a project
     #
     # @param project_id [integer] gitlab project_id
-    # @param branch [String] name of the new branch
+    # @param branch [String] name of the branch
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return nothing
     def protect_branch(project_id, branch)
@@ -155,6 +155,20 @@ module Apiexternal
         Gitlab.protect_branch(project_id, branch)
       rescue Exceptions => e
         raise Exceptions::GitlabApiException.new("protect_branch (#{project_id}, #{branch}) failed: #{e}")
+      end
+    end
+
+    # Unprotect branch to a project
+    #
+    # @param project_id [integer] gitlab project_id
+    # @param branch [String] name of the branch
+    # @raise Exceptions::GitlabApiException if errors occurs
+    # @return nothing
+    def unprotect_branch(project_id, branch)
+      begin
+        Gitlab.unprotect_branch(project_id, branch)
+      rescue Exceptions => e
+        raise Exceptions::GitlabApiException.new("unprotect_branch (#{project_id}, #{branch}) failed: #{e}")
       end
     end
 
