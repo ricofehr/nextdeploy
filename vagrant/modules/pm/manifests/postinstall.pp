@@ -92,6 +92,15 @@ hostsmin=$(find /etc/hosts.mvmc -mmin -1)
     group => 'root'
   }
 
+  # execute bundle install command on the ror rest project
+  file { '/usr/local/bin/bundlemvmc':
+    ensure => 'file',
+    source => ['puppet:///modules/pm/scripts/bundlemvmc'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+
   # generate ror documentation
   file { '/usr/local/bin/yardoc':
     ensure => 'file',

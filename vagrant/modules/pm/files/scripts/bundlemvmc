@@ -11,6 +11,6 @@ export RUBY_VERSION=ruby-2.1.0
 [[ -z $RAILS_ENV ]] && export RAILS_ENV=development
 
 pushd /ror >/dev/null
-rake db:migrate
+bundle install --path vendor/bundle
 (( $? != 0 )) && exit 1
 popd >/dev/null

@@ -9,8 +9,33 @@ export MY_RUBY_HOME=/usr/local/rvm/rubies/ruby-2.1.0
 export GEM_PATH=/usr/local/rvm/gems/ruby-2.1.0:/usr/local/rvm/gems/ruby-2.1.0@global
 export RUBY_VERSION=ruby-2.1.0
 
+# test or create a lock file
+if [[ -f /tmp/.pumalock ]]; then
+  # prepare expirefile
+  EXPIRE=$(date -d "1970-01-01 UTC + $(($(date +%s) - 30)) seconds" '+%Y%m%d%H%M.%S')
+  touch -t ${EXPIRE} /tmp/.pumaexpire
+  # compre lock with expire
+  if [[ /tmp/.pumaexpire -nt /tmp/.pumalock ]]; then
+    rm -f /tmp/.pumalock
+    rm -f /tmp/.pumaexpire
+    # we prefer exit for avoid weird loop issue
+    # anyway, a job in crontab check that puma is well started each minute
+    echo "puma-start is running ? lock file is deleted because expire time is done"
+    exit 0
+  fi
+
+  # puma-start is already running, we exit
+  echo "puma-start is already running"
+  exit 0
+fi
+# lock the puma-start cmd
+touch /tmp/.pumalock
+
 pushd /ror > /dev/null
 export SECRET_KEY_BASE="$(rake secret)"
 /usr/local/rvm/gems/ruby-2.1.0/bin/bundle exec puma -e %%RAILSENV%% -b unix:///var/run/puma/my_app.sock --pidfile /var/run/puma/puma.pid -d
-(( $? != 0 )) && exit 1
+(( $? != 0 )) && rm -f /tmp/.pumalock && exit 1
 popd > /dev/null
+
+# remove lock
+rm -f /tmp/.pumalock
