@@ -48,6 +48,8 @@ apache_vhost:
       - 'Indexes'
       - 'FollowSymLinks'
     aliases:
+      - alias: '/_html/'
+        path: '/var/www/%{projectname}/html/'
       - alias: '/pm_tools/'
         path: '/var/www/pm_tools/'
       - alias: '/robots.txt'
@@ -59,6 +61,10 @@ apache_vhost:
     docroot_group: 'www-data'
     docroot: %{docroot}
     directories:
+      - path: '/var/www/%{projectname}/html/'
+        options:
+          - 'Indexes'
+          - 'FollowSymLinks'
       - path: /var/www/pm_tools
         allow_override:
         - 'All'
