@@ -32,7 +32,8 @@ module VmsHelper
                                  rewrites: rewrites, portV: portV,
                                  portA: portA, portT: portT,
                                  loginV: project.login,
-                                 passwordV: project.password}
+                                 passwordV: project.password,
+                                 projectname: project.name}
       templates << template
     }
     classes << "  - #{project.framework.puppetclass}" if project.framework.puppetclass && project.framework.puppetclass.length > 0
@@ -120,6 +121,7 @@ module VmsHelper
       pattern.gsub!('%{os_suffix}', Rails.application.config.os_suffix)
       pattern.gsub!('%{mvmcip}', Rails.application.config.mvmcip)
       pattern.gsub!('%{mvmchost}', Rails.application.config.mvmcuri)
+      pattern.gsub!('%{gitlabhost}', Rails.application.config.gitlab_endpoint0.sub('http://', ''))
       # ft = File.open(template, "rb")
       # pattern = ft.read
       # ft.close()
