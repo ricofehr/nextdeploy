@@ -40,6 +40,11 @@ pushd vagrant/mvmc > /dev/null
 vagrant up --provider=${HVISOR}
 popd > /dev/null
 
+# Start mc2 node
+pushd vagrant/mc2 > /dev/null
+vagrant up --provider=${HVISOR}
+popd > /dev/null
+
 # Wait that manager is up and target dns resolv to manger node
 sleep 30
 cp /etc/resolv.conf tmp/resolv.conf.mvmc

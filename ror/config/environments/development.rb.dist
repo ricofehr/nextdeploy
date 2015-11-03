@@ -46,6 +46,7 @@ Rails.application.configure do
   config.gitlab_prefix       = 'git@%%GITLABNS%%:root/'
   config.mvmcip = '%%PUBPREFIX%%.60'
   config.ovpnip = '%%PUBPREFIX%%.60'
+  config.mc2ip = '%%PUBPREFIX%%.50'
   config.mvmcuri = '%%MVMCURI%%'
   config.ovpnport = '1194'
 

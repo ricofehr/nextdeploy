@@ -3,6 +3,7 @@
 classes:
   - roles::mvmc
 
+# mysql parameters
 mysql_db:
   s_mvmc:
     user: s_mvmc
@@ -79,6 +80,7 @@ gitlab::nginx:
 gitlab::sidekiq:
   shutdown_timeout: 5
 
+# vpn parameters
 vpnserver:
   mvmc:
     country: FR
@@ -90,7 +92,7 @@ vpnserver:
     push:
       - "route %{hiera('global::pubprefix')}.0 255.255.255.0"
 
-
+# ftp server parameters
 vsftpd::template: 'vsftpd/empty.conf.erb'
 vsftpd::directives:
     listen_address: "%{hiera('global::pubprefix')}.60"
@@ -112,6 +114,7 @@ vsftpd::directives:
     guest_username: 'ftp'
     ftpd_banner: 'Mvmc Assets FTP Server'
 
+# rvm parameters
 rvm::system_rubies:
   '2.1.0':
     default_use: true
@@ -129,6 +132,7 @@ rvm::gem:
     ruby_version: 'ruby-2.1.0'
     ensure: '10.4.2'
 
+# cron commands
 is_cron: "yes"
 cron_cmd:
   puppetsign:

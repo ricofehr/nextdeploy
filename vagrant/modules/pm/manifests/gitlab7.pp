@@ -17,7 +17,7 @@ class pm::gitlab7 {
   $server_name = hiera('global::gitlabns', 'gitlab.local')
 
   class { 'gitlab':
-    before => [ Class['::rvm'], Class['::memcached'], Class['::mysql::server'] ]
+    before => [ Class['::rvm'], Class['::memcached'], Class['::mysql::server'], Package['collectd'] ]
   }
   ->
   exec { 'gitlab_reconfigure_fixweirdbug':

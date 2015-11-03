@@ -25,6 +25,8 @@ module VmsHelper
     #add base puppet class
     classes << '  - pm::base::apt'
     classes << '  - pm::base'
+    classes << '  - pm::monitor::collect'
+    classes << '  - pm::hids::agent'
     classes << '  - pm::deploy::vhost'
     technos.each { |techno|
       classes << "  - #{techno.puppetclass}"
@@ -74,6 +76,8 @@ module VmsHelper
         f.puts "framework: #{project.framework.name.downcase}\n"
         f.puts "ismysql: 1\n" if project.technos.any? { |t| t.name.include? 'mysql' }
         f.puts "ismongo: 1\n" if project.technos.any? { |t| t.name.include? 'mongo' }
+        f.puts "ossecip: #{Rails.application.config.mc2ip}\n"
+        f.puts "influxip: #{Rails.application.config.mc2ip}\n"
       }
     rescue Exception => me
       raise Exceptions::MvmcException.new("Create hiera file for #{name} failed, #{me.message}")

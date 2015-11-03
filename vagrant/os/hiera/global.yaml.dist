@@ -10,3 +10,5 @@ global::mvmcsuf: %%MVMCSUF%%
 global::nova_hv: %%NOVAHV%%
 global::neutron_extdev: %%EXTDEV%%
 global::neutron_pubdev: %%PUBDEV%%
+global::ossecip: %%PUBPREFIX%%.50
+global::influxip: %%PUBPREFIX%%.50

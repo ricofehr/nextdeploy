@@ -1,0 +1,8 @@
+---
+:hierarchy:
+    - "%{clientcert}"
+    - global
+:backends:
+    - yaml
+:yaml:
+    :datadir: '/vagrant/hiera'
