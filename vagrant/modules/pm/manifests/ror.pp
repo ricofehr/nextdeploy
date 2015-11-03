@@ -18,4 +18,6 @@ class pm::ror {
   create_resources('rvm_gem', $gems)
   package { ['libmysqlclient-dev']: ensure => installed }
   class { '::memcached': }
+
+  Exec['installcurl'] -> Exec['system-rvm']
 }

@@ -5,6 +5,8 @@
 
 CLIEMAIL='usera@os.mvmc' # user for mvmc client cli
 CLIPASSWORD='word123123' # password for mvmc client cli
+MAILADMIN='admin@example.com' # mailadmin used for some alerts purpose
+ADMINPASSWORD='admin' # admin password used for some webui (like grafana)
 DOMAIN='' # local domain for dhcp zone. DEPRECATED
 DEBUG=1 # debug level
 BINSED='/bin/sed' # path for gnu sed command
@@ -12,6 +14,7 @@ OUT="$(pwd)/out/setup.log" # path for output log
 YES=0 # set yes to all questions
 MVMCSUF='os.mvmc' # suffix for mvmc dns endpoints
 MVMCURI='mvmc.local' # endpoint for mvmc webui
+MC2URI='mc2.local' # endpoint for mc2 node
 GITLABURI='gitlab.local' # endpoint for gitlab webui
 PUBPREFIX='192.168.171' # subnet prefix for external network
 MANAGEMENTPREFIX='172.16.170' # subnet prefix for manaegment network into openstack cloud
@@ -51,6 +54,9 @@ Usage: $0 [options]
 -e xxxx      subnet prefix for management network (default is 172.16.170)
 -n xxxx      dns server for vms (default is 192.168.171.60)
 -m xxxx      mvmc webui URI (default is mvmc.local)
+-mc xxxx     mc2 default URI (default is mc2.local)
+-ma xxxx     an email for some alerts purpose (default is admin@example.com)
+-pa xxxx     admin password used for some webui (like grafana)
 -s xxxx      mvmc dns suffixes (default is os.mvmc)
 -r           avoid change resolv.conf and hosts files
 -vm          start a vm after build is complete
@@ -159,6 +165,21 @@ while (($# > 0)); do
       MVMCURI="$1"
       shift
       ;;
+    -mc)
+      shift
+      MC2URI="$1"
+      shift
+      ;;
+    -ma)
+      shift
+      MAILADMIN="$1"
+      shift
+      ;;
+    -pa)
+      shift
+      ADMINPASSWORD="$1"
+      shift
+      ;;
     -r)
       shift
       CHANGEDNS=0
@@ -175,11 +196,13 @@ while (($# > 0)); do
   esac
 done
 
-# Format MVMCURI and GITLABURI
+# Format MVMCURI and GITLABURI and MC2URI
 MVMCURI="${MVMCURI#http://}"
 MVMCURI="${MVMCURI%/}"
 GITLABURI="${GITLABURI#http://}"
 GITLABURI="${GITLABURI%/}"
+MC2URI="${MC2URI#http://}"
+MC2URI="${MC2URI%/}"
 
 # Clean log file
 rm -f "${OUT}"
@@ -252,10 +275,12 @@ start_vm() {
 
 # Add mvmc platform uris into hosts file
 file_hosts() {
-  output -q "Added 2 lines in /etc/hosts file"
+  output -q "Added 3 lines in /etc/hosts file"
+  sudo $BINSED -i "s;^192.168.170.50.*;;" /etc/hosts
   sudo $BINSED -i "s;^192.168.170.60.*;;" /etc/hosts
   sudo $BINSED -i "s;^192.168.170.70.*;;" /etc/hosts
-  sudo /bin/bash -c "echo \"192.168.170.60 mvmc.local gitlab.local doc.mvmc.local f.mvmc.local\" >> /etc/hosts"
+  sudo /bin/bash -c "echo \"192.168.170.50 grafana.${MVMCURI} ossec.${MVMCURI}\" >> /etc/hosts"
+  sudo /bin/bash -c "echo \"192.168.170.60 ${MVMCURI} ${GITLABURI} doc.${MVMCURI} f.${MVMCURI}\" >> /etc/hosts"
   sudo /bin/bash -c "echo \"192.168.170.70 uosc${DOMAIN}\" >> /etc/hosts"
 }
 
@@ -263,7 +288,7 @@ file_hosts() {
 welcome_step() {
   output -q -l "Welcome to setup process for mvmc platform in local environment"
   output -q -l "Remember, the project needs lot of ram for running in virtualisation mode on local workstation computer"
-  output -q -l "At least 8Go are needed and 12Go are recommended"
+  output -q -l "At least 12Go are needed and 16Go are recommended"
   output -q -l "The installation process needs long time (at least 90min), needs curl command and ask sometimes root password (assume that sudo command is installed)"
   confirm "Ok for continue"
   echo -en "\n\n"
@@ -374,6 +399,17 @@ preparefiles() {
   rm -f puppet/pm/files/sshkeys
   popd > /dev/null
 
+  output -q "Prepare vagrantfile for mc2 node"
+  pushd vagrant/mc2 > /dev/null
+  rm -f Vagrantfile
+  cp vagrantfiles/${HVISOR}.dist Vagrantfile
+  (($?!=0)) && output -e 'Cant create Vagrantfile for mc2 node'
+  $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" Vagrantfile
+  $BINSED -i "s;%%OSPUBSUF%%;${PUBPREFIX##*.};" Vagrantfile
+  # on fedora, we set rsync type for avoir firewalld issue
+  $BINSED -i "s;%%FILESHARETYPE%%;${FILESHARETYPE};" Vagrantfile
+  popd > /dev/null
+
   output -q "Prepare hiera global.yml for openstack nodes"
   pushd vagrant/os/hiera > /dev/null
   rm -f global.yaml
@@ -412,6 +448,24 @@ preparefiles() {
   $BINSED -i "s;%%RAILSENV%%;development;" global.yaml
   popd > /dev/null
 
+  output -q "Prepare hiera global.yml for mc2 node"
+  pushd vagrant/mc2/hiera > /dev/null
+  rm -f global.yaml
+  cp global.yaml.dist global.yaml
+  (($?!=0)) && output -e 'Cant create global.yml for mc2 nodes'
+  $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" global.yaml
+  $BINSED -i "s;%%MVMCURI%%;${MVMCURI};" global.yaml
+  $BINSED -i "s;%%MAILADMIN%%;${MAILADMIN};" global.yaml
+  $BINSED -i "s;%%ADMINPASSWORD%%;${ADMINPASSWORD};" global.yaml
+  popd > /dev/null
+
+  output -q "Prepare default.vcl for mc2 node"
+  pushd vagrant/modules/pm/files/varnish/custom > /dev/null
+  rm -f default.vcl.*
+  cp ../default.vcl.mc2 default.vcl_mc2
+  $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" default.vcl_mc2
+  popd > /dev/null
+
   output -q "Prepare rails development.rb settings file"
   pushd ror/config/environments > /dev/null
   rm -f  development.rb
@@ -434,6 +488,34 @@ install_mvmc() {
   cp /etc/resolv.conf tmp/resolv.conf.mvmc
   sudo $BINSED -i "s;search.*$;;" /etc/resolv.conf
   sudo $BINSED -i "s;domain.*$;;" /etc/resolv.conf
+
+  # Clean hiera symlinks
+  pushd vagrant/mc2/hiera > /dev/null
+  rm -f mc2.*
+  ln -s mc2/mc2.yaml mc2${DOMAIN}.yaml
+  popd > /dev/null
+
+  pushd vagrant/mc2 > /dev/null
+  if ((DESTROYVM==1)) && [[ -d .vagrant ]]; then
+    output -q -l "Do you want to Destroy old mc2 vm created ? (y/n)"
+    if ((YES==1)); then
+      response="y"
+    else
+      read response
+    fi
+
+    if [[ "$response" = "y" ]]; then
+      vagrant destroy -f
+      (($?!=0)) && output -w 'Destroy mc2 node has failed'
+      rm -rf .vagrant
+    fi
+  fi
+
+  output -q "Creating the mc2 vm, please wait a moment ..."
+  vagrant up --provider=${HVISOR}
+  (($?!=0)) && output -e 'Mc2 node creation has some error(s)'
+  output -q "The mc2 manager instance is up"
+  popd > /dev/null
 
   pushd vagrant/os/hiera > /dev/null
   rm -f uos*
@@ -515,8 +597,7 @@ install_mvmc() {
   output -q "Creating the manager vm, please wait a moment ..."
   vagrant up --provider=${HVISOR}
   (($?!=0)) && output -e 'Manager node creation has some error(s)'
-  # ensure that rails app is up
-  sleep 300
+  sleep 200
   output -q "The manager instance is up"
   popd > /dev/null
 
@@ -543,6 +624,8 @@ complete_step() {
   output -q -l "Manager: http://${MVMCURI}/"
   output -q -l "Openstack WebUI: http://uosc${DOMAIN}/"
   output -q -l "Gitlab WebUI: http://${GITLABURI}/"
+  output -q -l "Ossec WebUI: http://ossec.${MVMCURI}/"
+  output -q -l "Grafana WebUI: http://grafana.${MVMCURI}/"
   output -q -l "Rails Documentation: http://doc.${MVMCURI}/"
   output -q -l "Assets Ftp: f.${MVMCURI}"
 }

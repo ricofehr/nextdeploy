@@ -27,7 +27,8 @@ class pm::phpcli {
         'php5-xmlrpc',
         'php-pear'
         ]:
-        ensure => installed
+        ensure => installed,
+        require => Exec['apt-update']
   } ->
   exec {'pear-consoletable':
     command => 'pear install -f Console_Table'
@@ -41,7 +42,8 @@ class pm::phpcli {
     onlyif => 'test ! -f /usr/bin/drush',
   } ->
   exec {'wpcli-dl':
-    command => 'curl -sL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /tmp/wp-cli.phar'
+    command => 'curl -sL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /tmp/wp-cli.phar',
+    require => Exec['installcurl'],
   } ->
   exec {'wpcli-chmod':
     command => 'chmod +x /tmp/wp-cli.phar'

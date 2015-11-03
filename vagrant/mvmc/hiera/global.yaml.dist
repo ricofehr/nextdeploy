@@ -8,3 +8,5 @@ global::gitlaburi: %%GITLABURI%%
 global::gitlabns: %%GITLABNS%%
 global::mvmcsuf: %%MVMCSUF%%
 global::railsenv: %%RAILSENV%%
+global::ossecip: %%PUBPREFIX%%.50
+global::influxip: %%PUBPREFIX%%.50

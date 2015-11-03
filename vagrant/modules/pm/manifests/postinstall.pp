@@ -338,10 +338,12 @@ class pm::postinstall::mvmc {
   package { 'fsmonitor':
     ensure   => present,
     provider => 'npm',
+    require => Exec['apt-update']
   }
   ->
   package { 'ember-tools':
     ensure   => present,
     provider => 'npm',
+    require => Exec['apt-update']
   }
 }

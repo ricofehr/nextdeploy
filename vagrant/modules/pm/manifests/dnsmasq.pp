@@ -15,7 +15,8 @@ class pm::dnsmasq {
   package { [
           'dnsmasq',
           ]:
-          ensure => installed
+          ensure => installed,
+          require => Exec['apt-update']
           } ->
 
   file { '/etc/default/dnsmasq':

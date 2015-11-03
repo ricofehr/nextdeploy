@@ -14,7 +14,8 @@ class pm::ftp {
   }
 
   package { ['libpam-pwdfile', 'apache2-utils']:
-    ensure => installed
+    ensure => installed,
+    require => Exec['apt-update']
   } ->
   class { '::vsftpd':} 
   ->

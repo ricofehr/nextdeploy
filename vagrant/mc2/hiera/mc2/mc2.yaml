@@ -1,0 +1,29 @@
+---
+
+classes:
+  - roles::mc2
+
+# override apache parameters
+apache::user: www-data
+apache::group: ossec
+
+# monitoring services
+influxdb::server::collectd_enabled: true
+influxdb::server::collectd_bind_address: "%{hiera('global::pubprefix')}.50:2004"
+influxdb::server::collectd_database: 'collectd'
+influxdb::server::collectd_typesdb: '/usr/share/collectd/types.db'
+influxdb::server::data_dir: '/home/influxdb/data'
+influxdb::server::wal_dir: '/home/influxdb/wal'
+influxdb::server::admin_bind_address: "%{hiera('global::pubprefix')}.50:8083"
+influxdb::server::http_bind_address: "%{hiera('global::pubprefix')}.50:8086"
+
+grafana::install_dir: '/home/grafana/install'
+grafana::data_dir: '/home/grafana/data'
+grafana::install_method: 'package'
+grafana::cfg:
+  app_mode: 'production'
+  server:
+    http_port: 9080
+  security:
+    admin_user: admin
+    admin_password: "%{hiera('global::adminpassword')}"

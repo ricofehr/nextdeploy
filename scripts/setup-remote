@@ -30,6 +30,9 @@ CONTROLLERIP=''
 NEUTRONIP=''
 GLANCEIP=''
 MVMCIP=''
+MAILADMIN=''
+ADMINPASSWORD=''
+MC2IP=''
 NOVAIP=''
 NOVA2IP=''
 NOVA3IP=''
@@ -58,6 +61,8 @@ Usage: $0 [options]
 -e xxxx                     subnet prefix for management network (default is 172.16.170)
 -n xxxx                     dns server for vms (default is 192.168.171.60)
 -m xxxx                     mvmc webui URI (default is mvmc.domain)
+-ma xxxx                    an email for some alerts purpose (default is admin@example.com)
+-pa xxxx                    admin password used for some webui (like grafana)
 -s xxxx                     mvmc dns suffixes (default is os.domain)
 -t xxxx                     set the time needed to reboot a node (default is 220)
 --domain xxxx               global domain for the mvmc nodes (default is none)
@@ -75,6 +80,7 @@ Usage: $0 [options]
 --nova4-ip xxxx             install a fourth nova node (ip needed)
 --nova5-ip xxxx             install a fifth nova node (ip needed)
 --mvmc-ip xxxx              install the mvmc manager node (ip needed)
+--mc2-ip xxxx               install the mc2 node (ip needed)
 EOF
 
 exit 0
@@ -144,6 +150,16 @@ while (($# > 0)); do
     -m)
       shift
       MVMCURI="$1"
+      shift
+      ;;
+    -ma)
+      shift
+      MAILADMIN="$1"
+      shift
+      ;;
+    -pa)
+      shift
+      ADMINPASSWORD="$1"
       shift
       ;;
     -s)
@@ -233,6 +249,11 @@ while (($# > 0)); do
       MVMCIP="$1"
       shift
       ;;
+    --mc2-ip)
+      shift
+      MC2IP="$1"
+      shift
+      ;;
     *)
       mvmchelp
       shift
@@ -276,6 +297,8 @@ prerequisites() {
   local mvmcuri="$MVMCURI"
   local gitlaburi="$GITLABURI"
   local mvmcsuf="$MVMCSUF"
+  local mailadmin="$MAILADMIN"
+  local adminpassword="$ADMINPASSWORD"
 
   # if non-interactive mode, preset with default values when variable is empty
   if (( YES == 1 )); then
@@ -289,6 +312,8 @@ prerequisites() {
     [[ -z "$gitlaburi" ]] && gitlaburi="gitlab.${DOMAIN}"
     [[ -z "$mvmcsuf" ]] && mvmcsuf="os.${DOMAIN}"
     [[ -z "$PUPPETPORT" ]] && PUPPETPORT="8140"
+    [[ -z "$mailadmin" ]] && mailadmin="admin@example.com"
+    [[ -z "$adminpassword" ]] && adminpassword="admin"
   fi
 
   # temporary folder used by remote install
@@ -296,12 +321,16 @@ prerequisites() {
   mkdir tmp/remote
   mkdir tmp/remote/os
   mkdir tmp/remote/mvmc
+  mkdir tmp/remote/mc2
 
   # duplicate yaml and specific puppet files for remote setting
   cp vagrant/os/hiera/os/uos* tmp/remote/os/
   cp vagrant/mvmc/hiera/mvmc/mvmc* tmp/remote/mvmc/
+  cp vagrant/mc2/hiera/mc2/mc* tmp/remote/mc2/
   cp vagrant/os/hiera/global.yaml.dist tmp/remote/os/global.yaml
   cp vagrant/mvmc/hiera/global.yaml.dist tmp/remote/mvmc/global.yaml
+  cp vagrant/mc2/hiera/global.yaml.dist tmp/remote/mc2/global.yaml
+  cp vagrant/modules/pm/files/varnish/default.vcl.mc2 tmp/remote/mc2/
   cp vagrant/modules/pm/files/hosts/hosts tmp/remote/hosts_global
   cp vagrant/modules/pm/files/nginx/os-doc.conf tmp/remote/mvmc/
   cp vagrant/modules/pm/files/nginx/os-http.conf tmp/remote/mvmc/
@@ -385,6 +414,20 @@ prerequisites() {
     [[ -z "$mvmcsuf" ]] && mvmcsuf="os.${DOMAIN}" 
   fi
 
+  # an email for some alert purpose
+  if [[ -z "$mailadmin" ]]; then
+    output -q -l "The admin email for some alerts purpose ? (default is admin@example.com)"
+    read mailadmin
+    [[ -z "$mailadmin" ]] && mailadmin="admin@example.com"
+  fi
+
+  # an admin password for some webui purposes
+  if [[ -z "$adminpassword" ]]; then
+    output -q -l "The admin password for some webui (like grafana) ? (default is admin)"
+    read adminpassword
+    [[ -z "$adminpassword" ]] && adminpassword="admin"
+  fi
+
   # get from input the puppetmaster ip
   if [[ -z "$PUPPETIP" ]]; then
     output -q -l "Puppet-master ip ?"
@@ -451,9 +494,15 @@ EOF
   $BINSED -i "s;%%GITLABURI%%;${gitlaburi};" tmp/remote/mvmc/global.yaml
   $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/mvmc/global.yaml
   $BINSED -i "s;%%RAILSENV%%;production;" tmp/remote/mvmc/global.yaml  
+  # mc2 part
+  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/mc2/global.yaml
+  $BINSED -i "s;%%MVMCURI%%;${mvmcuri};" tmp/remote/mc2/global.yaml
+  $BINSED -i "s;%%MAILADMIN%%;${mailadmin};" tmp/remote/mc2/global.yaml
+  $BINSED -i "s;%%ADMINPASSWORD%%;${adminpassword};" tmp/remote/mc2/global.yaml
+  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/mc2/default.vcl.mc2
 
   # merge the 2 global files
-  cat tmp/remote/os/global.yaml tmp/remote/mvmc/global.yaml | sort | uniq > tmp/remote/global.yaml
+  cat tmp/remote/os/global.yaml tmp/remote/mvmc/global.yaml tmp/remote/mc2/global.yaml | sort | uniq > tmp/remote/global.yaml
 
   # prepare rails production config file
   cp ror/config/environments/production.rb.dist tmp/remote/mvmc/production.rb
@@ -487,6 +536,7 @@ EOF
   output -l -q "On glance openstack node, please configure this 2 private ips: ${managementprefix}.72, ${apiprefix}.72"
   output -l -q "On compute openstack node, please configure this 3 private ips: ${managementprefix}.75, ${dataprefix}.75, ${apiprefix}.75"
   output -l -q "On mvmc manager node, please configure this 3 private ips: ${publicprefix}.60, ${managementprefix}.60, ${apiprefix}.60"
+  output -l -q "On mc2 manager node, please configure this 1 private ip: ${publicprefix}.50"
   confirm "Waiting this installations are done ... Continue ?"
   echo -en "\n\n"
 }
@@ -500,6 +550,7 @@ update_puppet() {
   rm -rf tmp/remote/hosts
   rm -rf tmp/remote/nginx
   rm -f tmp/remote/puma-start_*
+  rm -f tmp/remote/default.vcl_*
 
   # backup actual fw files, puppet files, hosts and nginx conf
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw tmp/remote/
@@ -507,6 +558,7 @@ update_puppet() {
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma-start_* tmp/remote/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/default.vcl_* tmp/remote/
 
   # clean puppet master
   ssh -t -t -p ${PUPPETSSHPORT} root@${PUPPETIP} 'rm -rf /etc/puppet/modules'
@@ -520,6 +572,7 @@ update_puppet() {
   [[ -d tmp/remote/hosts ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   [[ -d tmp/remote/nginx ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nginx root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   test -f tmp/remote/puma-start_* && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puma-start_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
+  test -f tmp/remote/default.vcl_* && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/default.vcl_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/
 
   # a second time to ensure that default hosts / puppet / fw / nginx files are updated
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" vagrant/modules root@${PUPPETIP}:/etc/puppet/
@@ -534,7 +587,7 @@ update_puppet() {
 
 # update hiera files
 update_hierafiles() {
-  local nodenames=('uosc' 'uosnt' 'uosst' 'uosnv' 'mvmc' 'uosnv2' 'uosnv3' 'uosnv4' 'uosnv5')
+  local nodenames=('uosc' 'uosnt' 'uosst' 'uosnv' 'mvmc' 'mc2' 'uosnv2' 'uosnv3' 'uosnv4' 'uosnv5')
   local nodename=''
   local fqdn=''
 
@@ -545,6 +598,7 @@ update_hierafiles() {
     fqdn="$nodename"
     pathyaml="tmp/remote/os/"
     [[ "$nodename" = "mvmc" ]] && pathyaml="tmp/remote/mvmc/"
+    [[ "$nodename" = "mc2" ]] && pathyaml="tmp/remote/mc2/"
     [[ -n "$DOMAIN" ]] && fqdn="${fqdn}.${DOMAIN}"
     scp -P ${PUPPETSSHPORT} ${pathyaml}${nodename}.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
   done
@@ -649,10 +703,15 @@ prepare_node() {
   ssh root@${remote_ip} "/bin/sed -i 's/%%FQDNS%%/${fqdns}/' /etc/puppet/puppet.conf"
 
   # synchro fw and hosts file
-  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" vagrant/modules/pm/files/fw/fw_${fwnodename} root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw/fw_${fqdn}
-  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} "/bin/sed -i 's/%%PUBLICIP%%/${remote_ip}/;s/###PUBLICIP//' /etc/puppet/modules/pm/files/fw/fw_${fqdn}"
-  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/hosts_global root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/hosts_${fqdn}
-  ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} "/bin/sed -i 's;%%HOSTNAME%%;${fqdn};' /etc/puppet/modules/pm/files/hosts/hosts_${fqdn}"
+  if [[ -f vagrant/modules/pm/files/fw/fw_${fwnodename} ]]; then
+    rsync -avzPe "ssh -p ${PUPPETSSHPORT}" vagrant/modules/pm/files/fw/fw_${fwnodename} root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw/fw_${fqdn}
+    ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} "/bin/sed -i 's/%%PUBLICIP%%/${remote_ip}/;s/###PUBLICIP//' /etc/puppet/modules/pm/files/fw/fw_${fqdn}"
+  fi
+
+  if [[ -f tmp/remote/hosts_global ]]; then
+    rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/hosts_global root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts/hosts_${fqdn}
+    ssh -p ${PUPPETSSHPORT} root@${PUPPETIP} "/bin/sed -i 's;%%HOSTNAME%%;${fqdn};' /etc/puppet/modules/pm/files/hosts/hosts_${fqdn}"
+  fi
 }
 
 # launch puppet agent on remote host
@@ -661,8 +720,8 @@ launch_puppetagent() {
   local remote_ip="$1"
   local fqdn="$2"
 
-  # clean old cert if needed
-  ssh -t -t -p ${PUPPETSSHPORT} root@${PUPPETIP} "puppet cert clean ${fqdn}"
+  # clean old cert if needed (but not for mc2 node)
+  [[ $fqdn != "mc2"* ]] && ssh -t -t -p ${PUPPETSSHPORT} root@${PUPPETIP} "puppet cert clean ${fqdn}"
   # enable puppet on the remote node and validate on puppetmaster
   ssh -t -t root@${remote_ip} 'puppet agent --test'
   sleep 3
@@ -769,6 +828,37 @@ install_mvmc() {
   ssh root@${remote_ip} '[[ -f /etc/default/puppet ]] && sed -i "s;START=no;START=yes;" /etc/default/puppet'
 }
 
+# Install mc2 manager node
+install_mc2() {
+  # init local variables
+  local fqdn='mc2'
+  local fqdnshort="$fqdn"
+  local remote_ip
+  [[ -n "$DOMAIN" ]] && fqdn="${fqdn}.${DOMAIN}"
+  [[ -n "$MC2IP" ]] && remote_ip="$MC2IP"
+
+  # get the ip
+  if [[ -z "$remote_ip" ]]; then
+    output -q -l 'The ip for mc2 node ?'
+    read remote_ip
+  fi
+
+  # copy varnish vcl onto puppetmaster
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/mc2/default.vcl.mc2 root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/default.vcl_${fqdn}
+
+  # setting local, hosts and install puppet
+  prepare_node $remote_ip $fqdn
+
+  # synchro hiera files
+  scp -P ${PUPPETSSHPORT} tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
+  scp -P ${PUPPETSSHPORT} tmp/remote/mc2/mc2.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
+
+  # launch puppet-agent for start the installation
+  launch_puppetagent $remote_ip $fqdn
+
+  # allow puppetmaster to start at boot
+  ssh root@${remote_ip} '[[ -f /etc/default/puppet ]] && sed -i "s;START=no;START=yes;" /etc/default/puppet'
+}
 
 welcome_step
 prerequisites
@@ -796,6 +886,17 @@ else
   fi
   [[ "$response" = "y" ]] && update_puppet
 fi
+
+# mc2 part
+output -l -q 'Mc2 manager installation ? (y/n)'
+if [[ -n "$MC2IP" ]]; then
+  response="y"
+elif (( YES == 0 )); then
+  read response
+else
+  response="n"
+fi
+[[ "$response" = "y" ]] && install_mc2
 
 # controller part
 output -l -q 'Openstack controller installation ? (y/n)'
@@ -892,7 +993,7 @@ if [[ "$response" = "y" ]]; then
   [[ "$response" = "y" ]] && install_osnode uosnv5 $NOVA5IP
 fi
 
-# mabager part
+# manager part
 output -l -q 'Mvmc manager installation ? (y/n)'
 if [[ -n "$MVMCIP" ]]; then
   response="y"
@@ -902,5 +1003,6 @@ else
   response="n"
 fi
 [[ "$response" = "y" ]] && install_mvmc
+
 
 exit 0

@@ -123,3 +123,15 @@
 [submodule "vagrant/modules/vsftpd"]
 	path = vagrant/modules/vsftpd
 	url = https://github.com/thias/puppet-vsftpd/
+[submodule "vagrant/modules/ossec"]
+	path = vagrant/modules/ossec
+	url = https://github.com/djjudas21/puppet-ossec
+[submodule "vagrant/modules/collectd"]
+	path = vagrant/modules/collectd
+	url = https://github.com/puppet-community/puppet-collectd
+[submodule "vagrant/modules/influxdb"]
+	path = vagrant/modules/influxdb
+	url = https://github.com/n1tr0g/golja-influxdb
+[submodule "vagrant/modules/grafana"]
+	path = vagrant/modules/grafana
+	url = https://github.com/bfraser/puppet-grafana

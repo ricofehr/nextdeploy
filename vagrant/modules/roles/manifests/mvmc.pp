@@ -15,6 +15,8 @@ class roles::mvmc {
   class {'pm::base::apt':} ->
   class {'pm::base':} ->
   class {'pm::hosts':} ->
+  class {'pm::monitor::collect':} ->
+  class {'pm::hids::agent':} ->
   class {'pm::ror':} ->
   class {'pm::puppet':} ->
   class {'pm::sql':} ->

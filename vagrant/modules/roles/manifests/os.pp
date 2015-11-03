@@ -14,6 +14,8 @@ class roles::os::uosc {
   class {'pm::rabbit':} ->
   class {'pm::os::memcached_c':} ->
   class {'pm::hosts':} ->
+  class {'pm::monitor::collect':} ->
+  class {'pm::hids::agent':} ->
   class {'pm::osclient':} ->
   class {'pm::os::keystone':} ->
   class {'pm::os::nv_c':} ->
@@ -43,6 +45,8 @@ class roles::os::uosnv {
   class {'pm::base::apt':} ->
   class {'pm::base':} ->
   class {'pm::hosts':} ->
+  class {'pm::monitor::collect':} ->
+  class {'pm::hids::agent':} ->
   class {'pm::osclient':} ->
   class {'pm::os::nv':} ->
   class {'pm::os::nv_postinstall':} ->
@@ -70,6 +74,8 @@ class roles::os::uosnt {
   class {'pm::base::apt':} ->
   class {'pm::base':} ->
   class {'pm::hosts':} ->
+  class {'pm::monitor::collect':} ->
+  class {'pm::hids::agent':} ->
   class {'pm::osclient':} ->
   class {'pm::os::nt':} ->
   class {'pm::os::nt_postinstall':} ->
@@ -91,6 +97,8 @@ class roles::os::uosst {
   class {'pm::base::apt':} ->
   class {'pm::base':} ->
   class {'pm::hosts':} ->
+  class {'pm::monitor::collect':} ->
+  class {'pm::hids::agent':} ->
   class {'pm::osclient':} ->
   class {'pm::os::cder':} ->
   class {'pm::os::gl':} ->

@@ -16,5 +16,11 @@ pushd vagrant/mvmc > /dev/null
 vagrant halt
 popd > /dev/null
 
+# Stop mc2 node
+pushd vagrant/mc2 > /dev/null
+vagrant halt
+popd > /dev/null
+
 # Rollback resolv.conf
 [[ -f tmp/resolv.conf.mvmc ]] && reset_dnsserver tmp/resolv.conf.mvmc
+rm -f tmp/resolv.conf.mvmc

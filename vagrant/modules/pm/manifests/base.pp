@@ -33,6 +33,10 @@ class pm::base::apt {
     timeout => 1800,
     environment => 'DEBIAN_FRONTEND=noninteractive'
   } ->
+  # install curl via apt because fail other dependency if package
+  exec { 'installcurl':
+    command => '/usr/bin/apt-get install --yes --force-yes curl'
+  } ->
   exec { 'touchbaseapt':
     command => 'touch /root/.baseapt'
   }
@@ -128,6 +132,7 @@ class pm::base {
         'mailutils'
         ]:
         ensure => installed,
+        require => Exec['apt-update']
   }
 
   #env locals settings
