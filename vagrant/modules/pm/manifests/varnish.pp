@@ -19,13 +19,17 @@ class pm::varnish {
   file { '/lib/systemd/system/varnish.service':
     ensure => file,
     mode   => 644,
-    source => "puppet:///modules/pm/varnish/varnish.service.${v}"
+    source => "puppet:///modules/pm/varnish/varnish.service.${v}",
+    owner => 'root',
+    group => 'root'
   }
   ->
   file { '/etc/default/varnish':
     ensure => file,
     mode   => 644,
-    source => ["puppet:///modules/pm/varnish/varnish_default.${v}"]
+    source => ["puppet:///modules/pm/varnish/varnish_default.${v}"],
+    owner => 'root',
+    group => 'root'
   }
   ->
   file { '/etc/varnish/default.vcl':
@@ -34,7 +38,9 @@ class pm::varnish {
     source => [
       "puppet:///modules/pm/varnish/custom/default.vcl_${clientcert}",
       "puppet:///modules/pm/varnish/default.vcl.${v}"
-    ]
+    ],
+    owner => 'root',
+    group => 'root'
   } ->
   file { '/etc/varnish/auth.vcl':
     ensure => file,
@@ -42,7 +48,9 @@ class pm::varnish {
     source => [
       "puppet:///modules/pm/varnish/auth/auth.vcl_${fqdn}",
       "puppet:///modules/pm/varnish/auth.vcl"
-    ]
+    ],
+    owner => 'root',
+    group => 'root'
   } ->
   service { 'varnish':
     ensure     => running,
