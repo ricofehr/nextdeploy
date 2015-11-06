@@ -1,0 +1,7 @@
+/var/ossec/logs/*.log {
+    create 0664 ossec ossec
+    missingok
+    notifempty
+    rotate 4
+}
+
