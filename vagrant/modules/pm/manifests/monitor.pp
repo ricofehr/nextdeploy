@@ -85,5 +85,62 @@ class pm::monitor::collect {
 
  class { 'collectd::plugin::uptime': } ->
 
- class { 'collectd::plugin::users': }
+ class { 'collectd::plugin::users': } ->
+
+ class { 'collectd::plugin::swap':
+    reportbydevice => false,
+    reportbytes    => true
+  } ->
+
+  class { 'collectd::plugin::syslog':
+    log_level => 'warning'
+  }
+}
+
+# == Class: pm::monitor::collect::varnish
+#
+# Configure collectd plugin for varnish
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::monitor::collect::varnish {
+  class { 'collectd::plugin::varnish':
+    instances => {
+      'instanceName' => {
+        'CollectCache' => 'true',
+        'CollectBackend' => 'true',
+        'CollectConnections' => 'true',
+        'CollectSHM' => 'true',
+        'CollectESI' => 'false',
+        'CollectFetch' => 'true',
+        'CollectHCB' => 'false',
+        'CollectTotals' => 'true',
+        'CollectWorkers' => 'true',
+      }
+    }
+  } ->
+
+  class { 'collectd::plugin::tcpconns':
+    localports  => ['80'],
+    listening   => true,
+  }
+}
+
+# == Class: pm::monitor::collect::openvpn
+#
+# Configure collectd plugin for openvpn
+#
+#
+# === Authors
+#
+# Eric Fehr <eric.fehr@publicis-modem.fr>
+#
+class pm::monitor::collect::openvpn {
+  class { 'collectd::plugin::openvpn':
+    collectindividualusers => false,
+    collectusercount       => true,
+  }
 }

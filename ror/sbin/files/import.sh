@@ -62,6 +62,11 @@ while (($# > 0)); do
       ISMONGO="$1"
       shift
       ;;
+    --uri)
+      shift
+      URI="$1"
+      shift
+      ;;
     -h)
       shift
       posthelp
@@ -117,8 +122,7 @@ postwordpress() {
 
   # if sql or mongo import, updb and cc
   pushd ${DOCROOT} > /dev/null
-  drush updb -y
-  drush cc all
+  wp option update siteurl "http://${URI}"
   popd > /dev/null
 }
 

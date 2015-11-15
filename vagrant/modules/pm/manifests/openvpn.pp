@@ -10,4 +10,6 @@
 class pm::openvpn {
   $server = hiera('vpnserver', [])
   create_resources('::openvpn::server', $server)
+
+  class { 'pm::monitor::collect::openvpn': }
 }
