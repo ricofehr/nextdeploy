@@ -307,6 +307,13 @@ class pm::postinstall::mvmc {
     owner => 'modem',
     mode => '0777'
   } ->
+  # ensure /var/run/puma create on each reboot
+  file_line { 'pumarclocal':
+    path => '/etc/rc.local',
+    line => 'mkdir -p /var/run/puma && chown modem: /var/run/puma',
+    match => '^$',
+    multiple => false
+  }  ->
   # generate doc
   exec { 'yardoc_ror':
     command => 'bundle exec yardoc lib/**/*.rb app/**/*.rb config/**/*.rb',
