@@ -10,6 +10,8 @@
 class roles::mc2 {
   class {'pm::base::apt':} ->
   class {'pm::base':} ->
+  class {'pm::jenkins':} ->
+  class {'pm::w3af':} ->
   class {'pm::monitor::services':} ->
   class {'pm::monitor::collect':} ->
   class {'pm::hids::server':} ->
