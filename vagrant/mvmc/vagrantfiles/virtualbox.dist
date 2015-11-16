@@ -18,6 +18,8 @@ Vagrant.configure("2") do |config|
         mvmc.vm.network :private_network, :ip => "%%DATAPREFIX%%.60", :netmask => "255.255.255.128"
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
+        virthost.customize ["modifyvm", :id, "--natsettings1", "1400,0,0,0,0"]
+        virthost.customize ["modifyvm", :id, "--nictype1", "virtio"]
         virthost.memory = 2048
         virthost.cpus = 2
       end

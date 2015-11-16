@@ -15,6 +15,8 @@ Vagrant.configure("2") do |config|
         uosc.vm.network :private_network, ip: "172.16.171.70", netmask: "255.255.255.128"
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
+        virthost.customize ["modifyvm", :id, "--natsettings1", "1400,0,0,0,0"]
+        virthost.customize ["modifyvm", :id, "--nictype1", "virtio"]
         virthost.memory = 1536
         virthost.cpus = 2
       end
@@ -31,6 +33,8 @@ Vagrant.configure("2") do |config|
         uosnv.vm.network :private_network, :ip => "172.16.171.75", :netmask => "255.255.255.128"
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
+        virthost.customize ["modifyvm", :id, "--natsettings1", "1400,0,0,0,0"]
+        virthost.customize ["modifyvm", :id, "--nictype1", "virtio"]
         virthost.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
         virthost.auto_nat_dns_proxy = false
         virthost.memory = 2560
@@ -50,6 +54,7 @@ Vagrant.configure("2") do |config|
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
         virthost.customize ["modifyvm", :id, "--natsettings1", "1400,0,0,0,0"]
+        virthost.customize ["modifyvm", :id, "--nictype1", "virtio"]
         virthost.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
         virthost.memory = 512
         virthost.cpus = 1
@@ -68,6 +73,8 @@ Vagrant.configure("2") do |config|
         uosst.vm.network :private_network, :ip => "172.16.171.72", :netmask => "255.255.255.128"
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
+        virthost.customize ["modifyvm", :id, "--natsettings1", "1400,0,0,0,0"]
+        virthost.customize ["modifyvm", :id, "--nictype1", "virtio"]
         virthost.memory = 512
         virthost.cpus = 1
       end
