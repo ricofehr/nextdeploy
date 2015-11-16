@@ -23,10 +23,10 @@ install_xcode() {
 # brew install
 install_brew() {
   output -q "Brew Installation ..."
-  rvm use ruby-2.1.0@rails410
 
   # Install brew only if it isnt yes installed
   if [[ ! -e /usr/local/Cellar ]]; then
+    output -l "Please press ENTER if nothing happens after 30s (check out/setup.log for more details)"
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
     (($?!=0)) && output -e 'Brew installation has failed'
   fi
@@ -40,17 +40,17 @@ install_vbox() {
   output -q "VirtualBox Installation ..."
   # Install virtualbox only it isnt yes installed
   if [[ ! -e /usr/bin/VBoxManage ]] && [[ ! -e /usr/local/bin/VBoxManage ]]; then
-    curl -OsSL http://download.virtualbox.org/virtualbox/5.0.8/VirtualBox-5.0.8-103449-OSX.dmg
-    hdiutil mount VirtualBox-5.0.8-103449-OSX.dmg
+    curl -OsSL http://download.virtualbox.org/virtualbox/5.0.10/VirtualBox-5.0.10-104061-OSX.dmg
+    hdiutil mount VirtualBox-5.0.10-104061-OSX.dmg
     sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
     (($?!=0)) && output -e 'Virtualbox installation has failed'
     hdiutil unmount /Volumes/VirtualBox/
-    rm -f VirtualBox-5.0.8-103449-OSX.dmg
+    rm -f VirtualBox-5.0.10-104061-OSX.dmg
 
-    curl -OsSL "http://download.virtualbox.org/virtualbox/5.0.8/Oracle_VM_VirtualBox_Extension_Pack-5.0.8-103449.vbox-extpack"
-    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.0.8-103449.vbox-extpack
+    curl -OsSL "http://download.virtualbox.org/virtualbox/5.0.10/Oracle_VM_VirtualBox_Extension_Pack-5.0.10-104061.vbox-extpack"
+    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.0.10-104061.vbox-extpack
     (($?!=0)) && output -w 'Virtualbox extension installation has failed'
-    rm -f Oracle_VM_VirtualBox_Extension_Pack-5.0.8-103449.vbox-extpack
+    rm -f Oracle_VM_VirtualBox_Extension_Pack-5.0.10-104061.vbox-extpack
   fi
 }
 
@@ -68,12 +68,12 @@ install_vagrant() {
 # git install
 install_git() {
   output -q "Git Installation ..."
-  curl -OsSL "http://downloads.sourceforge.net/project/git-osx-installer/git-2.2.1-intel-universal-mavericks.dmg"
-  hdiutil mount git-2.2.1-intel-universal-mavericks.dmg
-  sudo installer -pkg /Volumes/Git\ 2.2.1\ Mavericks\ Intel\ Universal/git-2.2.1-intel-universal-mavericks.pkg -target /
+  curl -OsSL "http://downloads.sourceforge.net/project/git-osx-installer/git-2.6.2-intel-universal-mavericks.dmg"
+  hdiutil mount git-2.6.2-intel-universal-mavericks.dmg
+  sudo installer -pkg /Volumes/Git\ 2.6.2\ Mavericks\ Intel\ Universal/git-2.6.2-intel-universal-mavericks.pkg -target /
   (($?!=0)) && output -e 'Git installation has failed'
-  hdiutil unmount /Volumes/Git\ 2.2.1\ Mavericks\ Intel\ Universal
-  rm -f git-2.2.1-intel-universal-mavericks.dmg
+  hdiutil unmount /Volumes/Git\ 2.6.2\ Mavericks\ Intel\ Universal
+  rm -f git-2.6.2-intel-universal-mavericks.dmg
 }
 
 # enable ip_forward

@@ -125,12 +125,6 @@ install_libmysqlclient() {
   (($?!=0)) && output -w 'community-mysql-devel installation is on error. This library is needed by rails application'
 }
 
-# get rvm gpg key
-rvm_key() {
-  # Install rvm gpg key
-  curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -
-}
-
 # stop firewalld, not used
 stop_firewalld() {
   output -q -l "We need to stop firewalld for avoid vagrant freeze ? (y/n)"
@@ -170,6 +164,5 @@ rules_firewalld() {
 
 # specific linux installs
 install_specific_os() {
-  rvm_key
   install_nfs
 }

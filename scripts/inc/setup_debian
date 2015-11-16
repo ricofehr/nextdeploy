@@ -125,14 +125,7 @@ install_libmysqlclient() {
   (($?!=0)) && output -w 'libmysqlclient-dev installation is on error. This library is needed by rails application'
 }
 
-# get rvm gpg key
-rvm_key() {
-  # Install rvm gpg key
-  curl -sSL https://rvm.io/mpapis.asc | gpg --import -
-}
-
 # specific linux installs
 install_specific_os() {
-  rvm_key
   install_nfs
 }
