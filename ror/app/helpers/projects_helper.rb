@@ -35,12 +35,12 @@ module ProjectsHelper
     if self.password && self.password.length > 0
       ftppasswd = self.password[0..7]
     else
-      ftppasswd = 'mvmc'
+      ftppasswd = 'nextdeploy'
     end
 
     # todo: avoid bash cmd
-    Rails.logger.warn "sudo /usr/local/bin/./mvmc-addftp #{self.gitpath} #{ftppasswd}"
-    system("sudo /usr/local/bin/./mvmc-addftp #{self.gitpath} #{ftppasswd}")
+    Rails.logger.warn "sudo /usr/local/bin/./nextdeploy-addftp #{self.gitpath} #{ftppasswd}"
+    system("sudo /usr/local/bin/./nextdeploy-addftp #{self.gitpath} #{ftppasswd}")
   end
 
   # Lauch bash script for delete ftp user for assets and dump
@@ -49,7 +49,7 @@ module ProjectsHelper
   # No return
   def remove_ftp
     # todo: avoid bash cmd
-    Rails.logger.warn "sudo /usr/local/bin/./mvmc-rmftp #{self.gitpath}"
-    system("sudo /usr/local/bin/./mvmc-rmftp #{self.gitpath}")
+    Rails.logger.warn "sudo /usr/local/bin/./nextdeploy-rmftp #{self.gitpath}"
+    system("sudo /usr/local/bin/./nextdeploy-rmftp #{self.gitpath}")
   end
 end

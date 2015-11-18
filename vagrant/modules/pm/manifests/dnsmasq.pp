@@ -38,11 +38,11 @@ class pm::dnsmasq {
   } ->
 
   exec { 'touchhosts':
-    command => 'touch /etc/hosts.mvmc'
+    command => 'touch /etc/hosts.nextdeploy'
   } ->
 
   exec { 'chmodhosts':
-    command => 'chmod 777 /etc/hosts.mvmc'
+    command => 'chmod 777 /etc/hosts.nextdeploy'
   }  ->
 
   exec { 'localhostresolvconf':

@@ -33,24 +33,53 @@ class pm::phpcli {
   exec {'pear-consoletable':
     command => 'pear install -f Console_Table'
   } ->
-  exec {'pear-drushchannel':
-    command => 'pear channel-discover pear.drush.org',
-    unless => 'pear list-channels | grep pear.drush.org'
+
+  #exec {'pear-drushchannel':
+  #  command => 'pear channel-discover pear.drush.org',
+  #  unless => 'pear list-channels | grep pear.drush.org'
+  #} ->
+  #exec {'drush-install':
+  #  command => 'pear install -f drush/drush',
+  #  onlyif => 'test ! -f /usr/bin/drush',
+  #} ->
+
+  exec { 'getdrush':
+    command => 'wget https://github.com/drush-ops/drush/releases/download/8.0.0-rc4/drush.phar',
+    creates => '/usr/local/bin/drush',
+    cwd => '/tmp'
   } ->
-  exec {'drush-install':
-    command => 'pear install -f drush/drush',
-    onlyif => 'test ! -f /usr/bin/drush',
+
+  exec { 'coredrush':
+    command => 'php drush.phar core-status',
+    creates => '/usr/local/bin/drush',
+    cwd => '/tmp'
+  } ->  
+
+  exec { 'chmodrush':
+    command => 'chmod +x drush.phar',
+    creates => '/usr/local/bin/drush',
+    cwd => '/tmp'
+  } ->   
+
+  exec { 'mvdrush':
+    command => 'mv drush.phar /usr/local/bin/drush',
+    creates => '/usr/local/bin/drush',
+    cwd => '/tmp'
   } ->
+
   exec {'wpcli-dl':
     command => 'curl -sL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /tmp/wp-cli.phar',
     require => Exec['installcurl'],
   } ->
+
   exec {'wpcli-chmod':
     command => 'chmod +x /tmp/wp-cli.phar'
   } ->
+
   exec {'wpcli-mv':
     command => 'mv -f /tmp/wp-cli.phar /usr/bin/wp'
   } ->
+
   exec { 'touchinstallphpcli':
     command => 'touch /root/.installphpcli'
   }

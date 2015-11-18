@@ -39,7 +39,7 @@ class Commit
         options[:author_email] = commit.author_email
         options[:message] = commit.message
         options[:created_at] = commit.created_at
-      rescue Exceptions::MvmcException => me
+      rescue Exceptions::NextDeployException => me
         me.log
       end
     end
@@ -80,7 +80,7 @@ class Commit
 
     begin
       commits = @gitlabapi.get_commits(project.gitlab_id, branchname)
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log
     end
 

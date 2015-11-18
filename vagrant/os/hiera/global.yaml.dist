@@ -3,10 +3,10 @@ global::pubprefix: %%PUBPREFIX%%
 global::managementprefix: %%MANAGEMENTPREFIX%%
 global::apiprefix: %%APIPREFIX%%
 global::dataprefix: %%DATAPREFIX%%
-global::mvmcuri: %%MVMCURI%%
+global::mvmcuri: %%NEXTDEPLOYURI%%
 global::gitlaburi: %%GITLABURI%%
 global::gitlabns: %%GITLABNS%%
-global::mvmcsuf: %%MVMCSUF%%
+global::mvmcsuf: %%NEXTDEPLOYSUF%%
 global::nova_hv: %%NOVAHV%%
 global::neutron_extdev: %%EXTDEV%%
 global::neutron_pubdev: %%PUBDEV%%

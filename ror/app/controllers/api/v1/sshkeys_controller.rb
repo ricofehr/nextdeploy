@@ -95,12 +95,12 @@ module API
         if !@user.admin?
           # for update / destroy, check that the sshkey is owner by current user
           if (@sshkey && !sshkeys.include?(@sshkey))
-              raise Exceptions::MvmcException.new("Access forbidden for this user")
+              raise Exceptions::NextDeployException.new("Access forbidden for this user")
           end
 
           # if we create, check the user_id
           if (!@sshkey && params[:sshkey][:user_id].to_i != @user.id.to_i)
-              raise Exceptions::MvmcException.new("Access forbidden for this user")
+              raise Exceptions::NextDeployException.new("Access forbidden for this user")
           end
         end
       end

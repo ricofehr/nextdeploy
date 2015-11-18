@@ -3,10 +3,11 @@ global::pubprefix: %%PUBPREFIX%%
 global::managementprefix: %%MANAGEMENTPREFIX%%
 global::apiprefix: %%APIPREFIX%%
 global::dataprefix: %%DATAPREFIX%%
-global::mvmcuri: %%MVMCURI%%
+global::mvmcuri: %%NEXTDEPLOYURI%%
+global::httpwildcard: %%NEXTDEPLOYURI%%
 global::gitlaburi: %%GITLABURI%%
 global::gitlabns: %%GITLABNS%%
-global::mvmcsuf: %%MVMCSUF%%
+global::mvmcsuf: %%NEXTDEPLOYSUF%%
 global::railsenv: %%RAILSENV%%
 global::ossecip: %%PUBPREFIX%%.50
 global::influxip: %%PUBPREFIX%%.50

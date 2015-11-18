@@ -20,7 +20,7 @@ module VmsHelper
     technos = technos.sort_by {|t| t.ordering}
     ftppasswd = ''
     (project.password && project.password.length > 0) ? 
-      (ftppasswd = project.password) : (ftppasswd = 'mvmc')
+      (ftppasswd = project.password) : (ftppasswd = 'nextdeploy')
 
     #add base puppet class
     classes << '  - pm::base::apt'
@@ -70,17 +70,17 @@ module VmsHelper
         f.puts "docrootgit: /var/www/#{vhost}\n"
         f.puts "weburi: #{vm_url}\n"
         f.puts "project: #{project.name}\n"
-        f.puts "mvmcuri: #{Rails.application.config.mvmcuri}\n"
+        f.puts "nextdeployuri: #{Rails.application.config.nextdeployuri}\n"
         f.puts "ftpuser: #{project.gitpath}\n"
         f.puts "ftppasswd: #{ftppasswd}\n"
         f.puts "framework: #{project.framework.name.downcase}\n"
         f.puts "ismysql: 1\n" if project.technos.any? { |t| t.name.include? 'mysql' }
         f.puts "ismongo: 1\n" if project.technos.any? { |t| t.name.include? 'mongo' }
-        f.puts "ossecip: #{Rails.application.config.mc2ip}\n"
-        f.puts "influxip: #{Rails.application.config.mc2ip}\n"
+        f.puts "ossecip: #{Rails.application.config.ndc2ip}\n"
+        f.puts "influxip: #{Rails.application.config.ndc2ip}\n"
       }
     rescue Exception => me
-      raise Exceptions::MvmcException.new("Create hiera file for #{name} failed, #{me.message}")
+      raise Exceptions::NextDeployException.new("Create hiera file for #{name} failed, #{me.message}")
     end
 
   end
@@ -123,21 +123,21 @@ module VmsHelper
       pattern = IO.read(template)
       pattern.gsub!('%{vmreplace}', vm_replace)
       pattern.gsub!('%{os_suffix}', Rails.application.config.os_suffix)
-      pattern.gsub!('%{mvmcip}', Rails.application.config.mvmcip)
-      pattern.gsub!('%{mvmchost}', Rails.application.config.mvmcuri)
+      pattern.gsub!('%{nextdeployip}', Rails.application.config.nextdeployip)
+      pattern.gsub!('%{nextdeployhost}', Rails.application.config.nextdeployuri)
       pattern.gsub!('%{gitlabhost}', Rails.application.config.gitlab_endpoint0.sub('http://', ''))
       # ft = File.open(template, "rb")
       # pattern = ft.read
       # ft.close()
     rescue Exception => e
-      raise Exceptions::MvmcException.new("Create cloudinit file for #{name} failed: #{e}")
+      raise Exceptions::NextDeployException.new("Create cloudinit file for #{name} failed: #{e}")
     end
 
     # encode cloudinit datas
     Base64.encode64(pattern)
   end
 
-  # Generate Host file with delegated zone for mvmc virtual instances
+  # Generate Host file with delegated zone for nextdeploy virtual instances
   #
   # No param
   # @raise an exception if errors occurs during file writing
@@ -148,14 +148,14 @@ module VmsHelper
     vms = Vm.all
 
     begin
-      open("/etc/hosts.mvmc", "w") { |f|
+      open("/etc/hosts.nextdeploy", "w") { |f|
         vms.each { |v|
           f.puts "#{v.floating_ip} #{v.vm_url} admin.#{v.vm_url} m.#{v.vm_url} nodejs.#{v.vm_url}\n" if v.floating_ip && v.floating_ip.length > 0
         }
       }
 
     rescue
-      raise Exceptions::MvmcException.new("Create hosts.mvmc file failed")
+      raise Exceptions::NextDeployException.new("Create hosts.nextdeploy file failed")
     end
 
   end

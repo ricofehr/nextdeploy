@@ -11,7 +11,7 @@ manage_etc_hosts: false
 # - apt-get install -y --force-yes language-pack-UTF-8 puppet-common puppet
 
 bootcmd:
- - cloud-init-per instance my_set_hostname sh -xc "echo '%{mvmcip} mvmc %{mvmchost} %{gitlabhost}' >> /etc/hosts; echo %{vmreplace} > /etc/hostname; hostname -F /etc/hostname"
+ - cloud-init-per instance my_set_hostname sh -xc "echo '%{nextdeployip} nextdeploy %{nextdeployhost} %{gitlabhost}' >> /etc/hosts; echo %{vmreplace} > /etc/hostname; hostname -F /etc/hostname"
  - cloud-init-per instance my_etc_hosts sh -xc "sed -i 's/exit 0/puppet agent --enable/' /etc/rc.local;echo 'exit 0' >> /etc/rc.local;sed -i -e '/^127.0.1.1/d' /etc/hosts; echo 127.0.1.1 %{vmreplace}%{os_suffix} %{vmreplace} >> /etc/hosts"
 
 # Run 'apt-get update' on first boot
@@ -35,7 +35,7 @@ puppet:
     main:
       ordering: manifest
     agent:
-      server: mvmc
+      server: nextdeploy
       certname: "%f"
   ca_cert: |
     -----BEGIN CERTIFICATE-----

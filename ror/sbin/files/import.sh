@@ -8,7 +8,7 @@ URIMOBILE=''
 FRAMEWORK=''
 FTPUSER=''
 FTPPASSWD=''
-FTPHOST='mvmc'
+FTPHOST='nextdeploy'
 DOCROOT="$(pwd)/server"
 
 # display helpn all of this parametes are setted during vm install
@@ -18,9 +18,9 @@ Usage: $0 [options]
 
 -h                this is some help text.
 --framework xxxx  framework of the project. choices between symfony2, drupal, wordpress, static (default)
---ftpuser xxxx    ftp user on mvmc ftp server
---ftppasswd xxxx  ftp password on mvmc ftp server
---ftphost xxxx    override mvmc ftp host
+--ftpuser xxxx    ftp user on nextdeploy ftp server
+--ftppasswd xxxx  ftp password on nextdeploy ftp server
+--ftphost xxxx    override nextdeploy ftp host
 --ismysql x       1/0 if mysql-server present (default is 0)
 --ismongo x       1/0 if mysql-server present (default is 0)
 EOF

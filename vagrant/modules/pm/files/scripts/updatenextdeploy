@@ -8,7 +8,7 @@ TAG="HEAD"
 # if parameter, update TAG variable
 [[ -n $1 ]] && TAG="$1"
 
-pushd /home/mvmc >/dev/null
+pushd /home/nextdeploy >/dev/null
 git reset --hard HEAD
 (( $? != 0 )) && exit 1
 git pull --rebase

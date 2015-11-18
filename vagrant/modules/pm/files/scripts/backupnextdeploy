@@ -1,0 +1,16 @@
+#!/bin/bash
+
+BACKUPDATE="$(date +%y%m%d%H%M)"
+
+pushd /tmp >/dev/null
+mkdir nextdeploy-${BACKUPDATE}
+mysqldump --default-character-set=utf8 --single-transaction --quick -u root -ptoor s_nextdeploy > nextdeploy-${BACKUPDATE}/s_nextdeploy.sql 2>/dev/null
+(( $? != 0 )) && exit 1
+rsync -az /home/nextdeploy nextdeploy-${BACKUPDATE}/ >/dev/null 2>&1
+(( $? != 0 )) && exit 1
+tar cvfz nextdeploy-${BACKUPDATE}.tar.gz nextdeploy-${BACKUPDATE} >/dev/null 2>&1
+(( $? != 0 )) && exit 1
+rm -rf nextdeploy-${BACKUPDATE}
+popd >/dev/null
+
+echo nextdeploy-${BACKUPDATE}.tar.gz

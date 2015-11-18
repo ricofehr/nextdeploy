@@ -24,4 +24,4 @@ rake db:seed
 * Services (job queues, cache servers, search engines, etc.)
 
 * Deployment instructions
-Go to the Readme.md of the project: https://github.com/ricofehr/mvmc/
+Go to the Readme.md of the project: https://github.com/ricofehr/nextdeploy/

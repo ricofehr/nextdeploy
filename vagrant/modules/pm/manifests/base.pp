@@ -57,9 +57,9 @@ class pm::base::gitlab {
     path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ]
   }
 
-  $mvmcuri = hiera('global::mvmcuri', 'mvmc.local')
+  $nextdeployuri = hiera('global::nextdeployuri', 'nextdeploy.local')
   $gitlaburi = hiera('global::gitlaburi', 'gitlab.local')
-  $mvmcsuf = hiera('global::mvmcsuf', 'os.mvmc')
+  $nextdeploysuf = hiera('global::nextdeploysuf', 'os.nextdeploy')
 
   # Nginx settings
   file { '/etc/os-http.conf':
@@ -78,27 +78,27 @@ class pm::base::gitlab {
     group => 'root',
     before => Class['::gitlab']
   } ->
-  exec { 'mvmcsuffix':
-    command => "/bin/sed -i 's;%%MVMCSUF%%;${mvmcsuf};' /etc/os-http.conf",
-    onlyif => 'grep MVMCSUF /etc/os-http.conf',
+  exec { 'nextdeploysuffix':
+    command => "/bin/sed -i 's;%%NEXTDEPLOYSUF%%;${nextdeploysuf};g' /etc/os-http.conf",
+    onlyif => 'grep NEXTDEPLOYSUF /etc/os-http.conf',
     user => 'root',
     before => Class['::gitlab']
   } ->
-  exec { 'mvmcuri':
-    command => "/bin/sed -i 's;%%MVMCURI%%;${mvmcuri};' /etc/os-http.conf",
-    onlyif => 'grep MVMCURI /etc/os-http.conf',
+  exec { 'nextdeployuri':
+    command => "/bin/sed -i 's;%%NEXTDEPLOYURI%%;${nextdeployuri};g' /etc/os-http.conf",
+    onlyif => 'grep NEXTDEPLOYURI /etc/os-http.conf',
     user => 'root',
     before => Class['::gitlab']
   } ->
   exec { 'gitlaburi':
-    command => "/bin/sed -i 's;%%GITLABURI%%;${gitlaburi};' /etc/os-http.conf",
+    command => "/bin/sed -i 's;%%GITLABURI%%;${gitlaburi};g' /etc/os-http.conf",
     onlyif => 'grep GITLABURI /etc/os-http.conf',
     user => 'root',
     before => Class['::gitlab']
   } ->
-  exec { 'mvmcuri2':
-    command => "/bin/sed -i 's;%%MVMCURI%%;${mvmcuri};' /etc/os-doc.conf",
-    onlyif => 'grep MVMCURI /etc/os-doc.conf',
+  exec { 'nextdeployuri2':
+    command => "/bin/sed -i 's;%%NEXTDEPLOYURI%%;${nextdeployuri};g' /etc/os-doc.conf",
+    onlyif => 'grep NEXTDEPLOYURI /etc/os-doc.conf',
     user => 'root',
     before => Class['::gitlab']
   }

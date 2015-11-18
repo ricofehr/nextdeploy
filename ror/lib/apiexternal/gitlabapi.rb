@@ -30,7 +30,7 @@ module Apiexternal
       }
 
       # Prepare gitlab rest connection
-      conn_token = Faraday.new(:url => "#{Rails.application.config.gitlab_endpoint0}") do |faraday|
+      conn_token = Faraday.new(:url => "#{Rails.application.config.gitlab_endpoint0}", ssl: {verify:false}) do |faraday|
         faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
       end
 
@@ -60,7 +60,7 @@ module Apiexternal
         }
 
         # Prepare gitlab rest connection
-        conn_token = Faraday.new(:url => "#{Rails.application.config.gitlab_endpoint0}") do |faraday|
+        conn_token = Faraday.new(:url => "#{Rails.application.config.gitlab_endpoint0}", ssl: {verify:false}) do |faraday|
           faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
         end
 
@@ -397,10 +397,11 @@ module Apiexternal
       Gitlab.configure do |config|
         config.endpoint       = Rails.application.config.gitlab_endpoint
         config.private_token = self.private_token
+        config.httparty = { verify: false }
       end
 
-      @conn = Faraday.new(:url => "#{Rails.application.config.gitlab_endpoint0}") do |faraday|
-        faraday.adapter  :net_http_persistent  # make requests with persistent adapter
+      @conn = Faraday.new(:url => "#{Rails.application.config.gitlab_endpoint0}", ssl: {verify: false}) do |faraday|
+        faraday.adapter  Faraday.default_adapter #:net_http_persistent  # make requests with persistent adapter
       end
     end
 

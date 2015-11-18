@@ -54,12 +54,12 @@ nohup.out
 /vagrant/os/hiera/uos*.yaml
 /vagrant/os/hiera/global.yaml
 /vagrant/os/Vagrantfile
-/vagrant/mvmc/hiera/mvmc*.yaml
-/vagrant/mvmc/hiera/global.yaml
-/vagrant/mvmc/Vagrantfile
-/vagrant/mc2/hiera/mc2*.yaml
-/vagrant/mc2/hiera/global.yaml
-/vagrant/mc2/Vagrantfile
+/vagrant/nextdeploy/hiera/nextdeploy*.yaml
+/vagrant/nextdeploy/hiera/global.yaml
+/vagrant/nextdeploy/Vagrantfile
+/vagrant/ndc2/hiera/ndc2*.yaml
+/vagrant/ndc2/hiera/global.yaml
+/vagrant/ndc2/Vagrantfile
 
 # custom vcl folder
 /vagrant/modules/pm/files/varnish/custom/*
@@ -97,5 +97,5 @@ nohup.out
 
 #.vagrant folders
 /vagrant/os/.vagrant
-/vagrant/mc2/.vagrant
-/vagrant/mvmc/.vagrant
+/vagrant/ndc2/.vagrant
+/vagrant/nextdeploy/.vagrant

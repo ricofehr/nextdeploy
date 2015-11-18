@@ -41,6 +41,11 @@ sub vcl_recv {
     set req.http.X-Real-Forwarded-For = req.http.Client_IP;
   }
 
+  # forece use https
+  if (req.http.x-forwarded-proto != "https") {
+    error 301;
+  }
+
   # by default, jenkins
   set req.backend = default;
   if (req.http.host ~ "ossec") { set req.backend = ossec; return(pass); }
@@ -250,8 +255,14 @@ sub vcl_deliver {
 }
 
 sub vcl_error {
+
 if (obj.status == 200) {
   synthetic {""};
+  return (deliver);
+}
+
+if (obj.status == 301 && req.http.x-forwarded-proto != "https") {
+  set obj.http.Location = "https://" + req.http.host + req.url;
   return (deliver);
 }
 

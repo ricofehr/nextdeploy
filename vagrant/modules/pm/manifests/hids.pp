@@ -35,7 +35,7 @@ class pm::hids::server {
   } ->
 
   exec { 'certossec':
-    command => 'openssl req -new -x509 -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 7300 -subj "/C=FR/ST=IDF/L=Paris/O=MyCompany/CN=ossec.mvmc"',
+    command => 'openssl req -new -x509 -key /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -days 7300 -subj "/C=FR/ST=IDF/L=Paris/O=MyCompany/CN=ossec"',
     unless => 'test -f /var/ossec/etc/sslmanager.cert'
   } ->
 

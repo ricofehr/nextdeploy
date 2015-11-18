@@ -1,7 +1,8 @@
 apt::always_apt_update: true
 global::pubprefix: %%PUBPREFIX%%
-global::grafanauri: grafana.%%MVMCURI%%
-global::ossecuri: ossec.%%MVMCURI%%
+global::grafanauri: grafana.%%NEXTDEPLOYURI%%
+global::ossecuri: ossec.%%NEXTDEPLOYURI%%
+global::httpwildcard: %%NEXTDEPLOYURI%%
 global::ossecip: %%PUBPREFIX%%.50
 global::influxip: %%PUBPREFIX%%.50
 global::mailadmin: %%MAILADMIN%%

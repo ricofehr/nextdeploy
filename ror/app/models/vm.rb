@@ -83,7 +83,7 @@ class Vm < ActiveRecord::Base
   # No return
   def boot_os
     # Raise an exception if the limit of vms is reachable
-    raise Exceptions::MvmcException.new("Vms limit is reachable") if Vm.all.length > Rails.application.config.limit_vm
+    raise Exceptions::NextDeployException.new("Vms limit is reachable") if Vm.all.length > Rails.application.config.limit_vm
 
     # init api object
     init_osapi
@@ -96,7 +96,7 @@ class Vm < ActiveRecord::Base
       sshname = user.sshkeys.first ? user.sshkeys.first.name : ''
       self.nova_id = @osapi.boot_vm(self.name, systemimage.glance_id, sshname, self.vmsize.title, user_data)
       self.status = 0
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log_e
     end
   end
@@ -143,7 +143,7 @@ class Vm < ActiveRecord::Base
   def delete_vm
     begin
       @osapi.delete_vm(self.nova_id)
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log
     end
     

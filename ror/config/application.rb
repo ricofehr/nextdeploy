@@ -9,7 +9,7 @@ Bundler.require(*Rails.groups)
 # Global properties for the rails app
 #
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
-module Mvmc
+module NextDeploy
   class Application < Rails::Application
     # Include externals custom apis
     config.autoload_paths += %W(#{config.root}/lib)
