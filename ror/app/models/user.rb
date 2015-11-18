@@ -101,7 +101,7 @@ class User < ActiveRecord::Base
         end
       end
 
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log
     end
   end
@@ -124,7 +124,7 @@ class User < ActiveRecord::Base
     begin
       self.gitlab_id = @gitlabapi.create_user(self.email, self.password, self.gitlab_user)
       self.projects.each {|project| @gitlabapi.add_user_to_project(project.gitlab_id, self.gitlab_id, self.access_level)}
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log
     end
   end
@@ -136,7 +136,7 @@ class User < ActiveRecord::Base
   def purge_user
     begin
       @gitlabapi.delete_user(self.gitlab_id)
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log
     end
 

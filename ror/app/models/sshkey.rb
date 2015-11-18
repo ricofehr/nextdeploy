@@ -54,7 +54,7 @@ class Sshkey < ActiveRecord::Base
 
       #gitlab side
       self.gitlab_id = @gitlabapi.add_sshkey(user.gitlab_user, self.name, self.key)
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log
     end
   end
@@ -84,7 +84,7 @@ class Sshkey < ActiveRecord::Base
       #gitlab side
       @gitlabapi.delete_sshkey(user.gitlab_user, self.gitlab_id)
       self.gitlab_id = @gitlabapi.add_sshkey(user.gitlab_user, self.name, self.key)
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log
     end
   end
@@ -100,7 +100,7 @@ class Sshkey < ActiveRecord::Base
 
       #gitlab side
       @gitlabapi.delete_sshkey(user.gitlab_user, self.gitlab_id)
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log
     end
   end

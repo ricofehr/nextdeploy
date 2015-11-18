@@ -1,13 +1,13 @@
 ---
 
 classes:
-  - roles::mvmc
+  - roles::nextdeploy
 
 # mysql parameters
 mysql_db:
-  s_mvmc:
-    user: s_mvmc
-    password: s_mvmc
+  s_nextdeploy:
+    user: s_nextdeploy
+    password: s_nextdeploy
     host: '%'
     grant: 'all'
 
@@ -82,12 +82,12 @@ gitlab::sidekiq:
 
 # vpn parameters
 vpnserver:
-  mvmc:
+  nextdeploy:
     country: FR
     province: IDF
     city: Paris
-    organization: os.mvmc
-    email: usera@os.mvmc
+    organization: os.nextdeploy
+    email: usera@os.nextdeploy
     server: '10.0.171.0 255.255.255.0'
     push:
       - "route %{hiera('global::pubprefix')}.0 255.255.255.0"

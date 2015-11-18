@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# debian specific part for setup mvmc
+# debian specific part for setup nextdeploy
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
 
 # virtualbox install

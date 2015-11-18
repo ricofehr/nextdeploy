@@ -16,7 +16,6 @@ Systemimagetype.destroy_all
 puts "destroy systemimages"
 Vmsize.destroy_all
 puts "destroy flavors"
-
 #flavor import rows
 flavor_tiny = Vmsize.create!(title: 'm1.tiny', description: '1cpu/512M/15G') ;
 flavor_small = Vmsize.create!(title: 'm1.small', description: '2cpu/1024M/15G') ;
@@ -92,7 +91,7 @@ hiera: "mysql_db:
     password: s_bdd
     host: 'localhost'
     grant: 'all'")
-#techno_tomcat7 = Techno.create!(name: "tomcat7", puppetclass: "mvmc::tomcat7", ordering: 140,
+#techno_tomcat7 = Techno.create!(name: "tomcat7", puppetclass: "nextdeploy::tomcat7", ordering: 140,
 #                                hiera: "")
 techno_nodejs = Techno.create!(name: "nodejs", puppetclass: "pm::nodejs", ordering: 140,
                                 hiera: "")
@@ -117,11 +116,11 @@ pm_g = Group.create!(name: 'Project Manager', access_level: 20)
 guest_g = Group.create!(name: 'Guest', access_level: 10)
 puts "Created #{Group.count} groups"
 
-admin = User.create!(email: 'usera@os.mvmc', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: admin_g)
-user_lead = User.create!(email: 'userl@os.mvmc', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: lead_g)
-user_dev = User.create!(email: 'userd@os.mvmc', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: dev_g)
-user_pm = User.create!(email: 'userp@os.mvmc', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: pm_g)
-user_g = User.create!(email: 'userg@os.mvmc', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: guest_g)
+admin = User.create!(email: 'usera@os.nextdeploy', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: admin_g)
+user_lead = User.create!(email: 'userl@os.nextdeploy', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: lead_g)
+user_dev = User.create!(email: 'userd@os.nextdeploy', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: dev_g)
+user_pm = User.create!(email: 'userp@os.nextdeploy', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: pm_g)
+user_g = User.create!(email: 'userg@os.nextdeploy', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: guest_g)
 
 puts "Created #{User.count} users"
 

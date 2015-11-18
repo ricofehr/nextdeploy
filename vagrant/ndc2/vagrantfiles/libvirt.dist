@@ -1,15 +1,16 @@
+# create NextDeploy Control Center vm, who includes some monitoring and security tools
 Vagrant.configure("2") do |config|
     config.ssh.username = "modem"
     config.ssh.password = "modem"
     config.vm.box_download_insecure = true
     config.vm.synced_folder ".", "/vagrant", type: "rsync"
 
-    config.vm.define :mc2, primary: true do |mc2|
-      mc2.vm.hostname = "mc2"
-      mc2.vm.box = "mc"
-      mc2.vm.box_url = "http://imgs.mvmc.services-pm.fr:8383/kvm/mc.box"
-      mc2.vm.provider :libvirt do |virthost|
-        mc2.vm.network :private_network, :ip => "%%PUBPREFIX%%.50", :libvirt__network_name => "vagrant-osp%%OSPUBSUF%%"
+    config.vm.define :ndc2, primary: true do |ndc2|
+      ndc2.vm.hostname = "ndc2"
+      ndc2.vm.box = "mc"
+      ndc2.vm.box_url = "http://imgs.nextdeploy.io:8383/kvm/mc.box"
+      ndc2.vm.provider :libvirt do |virthost|
+        ndc2.vm.network :private_network, :ip => "%%PUBPREFIX%%.50", :libvirt__network_name => "vagrant-osp%%OSPUBSUF%%"
         virthost.memory = 1536
         virthost.cpus = 2
         virthost.cpu_mode = "host-model"

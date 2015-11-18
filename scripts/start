@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Start script for launch mvmc platform
+# Start script for launch nextdeploy platform
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
 
 # Include some usable functions
@@ -25,7 +25,12 @@ done
 
 # little ugly but sometimes in ubuntu statd is not starting
 ps aux | grep statd | grep -v grep > /dev/null
-(($?!=0)) && sudo rpc.statd
+(( $? != 0 )) && sudo rpc.statd &
+
+# Start mc2 node
+pushd vagrant/ndc2 > /dev/null
+vagrant up --provider=${HVISOR}
+popd > /dev/null
 
 # Start openstack nodes
 pushd vagrant/os > /dev/null
@@ -36,16 +41,11 @@ vagrant up uosnv --provider=${HVISOR}
 popd > /dev/null
 
 # Start manager node
-pushd vagrant/mvmc > /dev/null
-vagrant up --provider=${HVISOR}
-popd > /dev/null
-
-# Start mc2 node
-pushd vagrant/mc2 > /dev/null
+pushd vagrant/nextdeploy > /dev/null
 vagrant up --provider=${HVISOR}
 popd > /dev/null
 
 # Wait that manager is up and target dns resolv to manger node
-sleep 30
-cp /etc/resolv.conf tmp/resolv.conf.mvmc
-sudo /bin/bash -c "echo 'nameserver ${DNSIP}' > /etc/resolv.conf"
+#sleep 30
+#cp /etc/resolv.conf tmp/resolv.conf.nextdeploy
+#sudo /bin/bash -c "echo 'nameserver ${DNSIP}' > /etc/resolv.conf"

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Setup script for install mvmc platform on remote servers
+# Setup script for install nextdeploy platform on remote servers
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
 
 PUPPETIP=''
@@ -19,8 +19,8 @@ GITLABURI=''
 PUBPREFIX=''
 APIPREFIX=''
 DATAPREFIX=''
-MVMCSUF=''
-MVMCURI=''
+NEXTDEPLOYSUF=''
+NEXTDEPLOYURI=''
 MANAGEMENTPREFIX=''
 ISOTHERNOVA=0
 ISINSTALLPUPPETMASTER=0
@@ -29,10 +29,10 @@ PUPPETSSHPORT=22
 CONTROLLERIP=''
 NEUTRONIP=''
 GLANCEIP=''
-MVMCIP=''
+NEXTDEPLOYIP=''
 MAILADMIN=''
 ADMINPASSWORD=''
-MC2IP=''
+NDC2IP=''
 NOVAIP=''
 NOVA2IP=''
 NOVA3IP=''
@@ -45,7 +45,7 @@ NOVA5IP=''
 source scripts/inc/utils
 
 # display help
-mvmchelp() {
+nextdeployhelp() {
   cat <<EOF
 Usage: $0 [options]
 
@@ -60,12 +60,12 @@ Usage: $0 [options]
 -d xxxx                     subnet prefix for data network (default is 172.16.171)
 -e xxxx                     subnet prefix for management network (default is 172.16.170)
 -n xxxx                     dns server for vms (default is 192.168.171.60)
--m xxxx                     mvmc webui URI (default is mvmc.domain)
+-m xxxx                     nextdeploy global URI (default is nextdeploy.domain)
 -ma xxxx                    an email for some alerts purpose (default is admin@example.com)
 -pa xxxx                    admin password used for some webui (like grafana)
--s xxxx                     mvmc dns suffixes (default is os.domain)
+-s xxxx                     nextdeploy dns suffixes (default is os.domain)
 -t xxxx                     set the time needed to reboot a node (default is 220)
---domain xxxx               global domain for the mvmc nodes (default is none)
+--domain xxxx               global domain for the nextdeploy nodes (default is none)
 --puppetmaster-ip   xxxx    ip for puppetmaster service
 --puppetmaster-sshport xxxx port for ssh to puppermaster node (default is 22)
 --puppetmaster-fqdn xxxx    fqdn for puppetmaster service
@@ -79,8 +79,8 @@ Usage: $0 [options]
 --nova3-ip xxxx             install a third nova node (ip needed)
 --nova4-ip xxxx             install a fourth nova node (ip needed)
 --nova5-ip xxxx             install a fifth nova node (ip needed)
---mvmc-ip xxxx              install the mvmc manager node (ip needed)
---mc2-ip xxxx               install the mc2 node (ip needed)
+--nextdeploy-ip xxxx        install the nextdeploy manager node (ip needed)
+--ndc2-ip xxxx              install the ndc2 node (ip needed)
 EOF
 
 exit 0
@@ -119,7 +119,7 @@ while (($# > 0)); do
       ;;
     -h)
       shift
-      mvmchelp
+      nextdeployhelp
       ;;
     -p)
       shift
@@ -149,7 +149,7 @@ while (($# > 0)); do
       ;;
     -m)
       shift
-      MVMCURI="$1"
+      NEXTDEPLOYURI="$1"
       shift
       ;;
     -ma)
@@ -164,7 +164,7 @@ while (($# > 0)); do
       ;;
     -s)
       shift
-      MVMCSUF="$1"
+      NEXTDEPLOYSUF="$1"
       shift
       ;;
     -t)
@@ -244,18 +244,18 @@ while (($# > 0)); do
       ISOTHERNOVA=1
       shift
       ;;
-    --mvmc-ip)
+    --nextdeploy-ip)
       shift
-      MVMCIP="$1"
+      NEXTDEPLOYIP="$1"
       shift
       ;;
-    --mc2-ip)
+    --ndc2-ip)
       shift
-      MC2IP="$1"
+      NDC2IP="$1"
       shift
       ;;
     *)
-      mvmchelp
+      nextdeployhelp
       shift
       ;;
   esac
@@ -278,7 +278,7 @@ fi
 
 # Some intoduction words
 welcome_step() {
-  output -l -q "This script is an help for install mvmc on remote servers."
+  output -l -q "This script is an help for install nextdeploy on remote servers."
   output -l -q "You need 4 servers for install openstack nodes, 1 server for the manager node (gitlab, rest api, dns) and one empty puppet service up somewhere outside this 5 servers."
   output -l -q "Your remote servers need to be accessed by ssh with root user."
   confirm "Continue ?"
@@ -294,9 +294,9 @@ prerequisites() {
   local managementprefix="$MANAGEMENTPREFIX"
   local exteth="$NEUTRONEXTDEV"
   local masqeth="$NEUTRONPUBDEV"
-  local mvmcuri="$MVMCURI"
+  local nextdeployuri="$NEXTDEPLOYURI"
   local gitlaburi="$GITLABURI"
-  local mvmcsuf="$MVMCSUF"
+  local nextdeploysuf="$NEXTDEPLOYSUF"
   local mailadmin="$MAILADMIN"
   local adminpassword="$ADMINPASSWORD"
 
@@ -308,9 +308,9 @@ prerequisites() {
     [[ -z "$managementprefix" ]] && managementprefix='172.16.70'
     [[ -z "$exteth" ]] && exteth='eth1'
     [[ -z "$masqeth" ]] && masqeth='eth0'
-    [[ -z "$mvmcuri" ]] && mvmcuri="mvmc.$DOMAIN"
-    [[ -z "$gitlaburi" ]] && gitlaburi="gitlab.${DOMAIN}"
-    [[ -z "$mvmcsuf" ]] && mvmcsuf="os.${DOMAIN}"
+    [[ -z "$nextdeployuri" ]] && nextdeployuri="nextdeploy.$DOMAIN"
+    [[ -z "$gitlaburi" ]] && gitlaburi="gitlab.${nextdeployuri}"
+    [[ -z "$nextdeploysuf" ]] && nextdeploysuf="os.nextdeploy.${DOMAIN}"
     [[ -z "$PUPPETPORT" ]] && PUPPETPORT="8140"
     [[ -z "$mailadmin" ]] && mailadmin="admin@example.com"
     [[ -z "$adminpassword" ]] && adminpassword="admin"
@@ -320,21 +320,23 @@ prerequisites() {
   rm -rf tmp/remote
   mkdir tmp/remote
   mkdir tmp/remote/os
-  mkdir tmp/remote/mvmc
-  mkdir tmp/remote/mc2
+  mkdir tmp/remote/nextdeploy
+  mkdir tmp/remote/ndc2
 
   # duplicate yaml and specific puppet files for remote setting
   cp vagrant/os/hiera/os/uos* tmp/remote/os/
-  cp vagrant/mvmc/hiera/mvmc/mvmc* tmp/remote/mvmc/
-  cp vagrant/mc2/hiera/mc2/mc* tmp/remote/mc2/
+  cp vagrant/nextdeploy/hiera/nextdeploy/nextdeploy* tmp/remote/nextdeploy/
+  cp vagrant/ndc2/hiera/ndc2/ndc2* tmp/remote/ndc2/
   cp vagrant/os/hiera/global.yaml.dist tmp/remote/os/global.yaml
-  cp vagrant/mvmc/hiera/global.yaml.dist tmp/remote/mvmc/global.yaml
-  cp vagrant/mc2/hiera/global.yaml.dist tmp/remote/mc2/global.yaml
-  cp vagrant/modules/pm/files/varnish/default.vcl.mc2 tmp/remote/mc2/
+  cp vagrant/nextdeploy/hiera/global.yaml.dist tmp/remote/nextdeploy/global.yaml
+  cp vagrant/ndc2/hiera/global.yaml.dist tmp/remote/ndc2/global.yaml
+  cp vagrant/modules/pm/files/varnish/default.vcl.ndc2 tmp/remote/ndc2/
   cp vagrant/modules/pm/files/hosts/hosts tmp/remote/hosts_global
-  cp vagrant/modules/pm/files/nginx/os-doc.conf tmp/remote/mvmc/
-  cp vagrant/modules/pm/files/nginx/os-http.conf tmp/remote/mvmc/
-  cp vagrant/modules/pm/files/scripts/puma-start tmp/remote/mvmc/
+  cp vagrant/modules/pm/files/nginx/os-doc.conf tmp/remote/nextdeploy/
+  cp vagrant/modules/pm/files/nginx/os-http.conf tmp/remote/nextdeploy/
+  cp vagrant/modules/pm/files/scripts/puma-start tmp/remote/nextdeploy/
+  cp vagrant/modules/pm/files/pound/pound.cfg tmp/remote/nextdeploy/
+  cp vagrant/modules/pm/files/pound/pound.cfg tmp/remote/ndc2/
 
   # prepare until 5 compute node hiera files
   pushd tmp/remote/os/ > /dev/null
@@ -386,32 +388,32 @@ prerequisites() {
     [[ -z "$masqeth" ]] && masqeth='eth0'
   fi
 
-  # the local domain for the 5 mvmc servers
+  # the local domain for the 5 nextdeploy servers
   if [[ -z "$DOMAIN" ]] && [[ "$YES" = "0" ]]; then
-    output -q -l "The local domain for the 5 mvmc servers ? (default is nothing)"
+    output -q -l "The local domain for the 5 nextdeploy servers ? (default is nothing)"
     read DOMAIN
     [[ -z "$DOMAIN" ]] && DOMAIN='' 
   fi
 
-  # the mvmc webui
-  if [[ -z "$mvmcuri" ]]; then
-    output -q -l "The manager mvmc uri ? (default is mvmc.${DOMAIN})"
-    read mvmcuri
-    [[ -z "$mvmcuri" ]] && mvmcuri="mvmc.$DOMAIN"
+  # the nextdeploy webui
+  if [[ -z "$nextdeployuri" ]]; then
+    output -q -l "The manager nextdeploy uri ? (default is nextdeploy.${DOMAIN})"
+    read nextdeployuri
+    [[ -z "$nextdeployuri" ]] && nextdeployuri="nextdeploy.$DOMAIN"
   fi
 
   # the gitlab webui
   if [[ -z "$gitlaburi" ]]; then
-    output -q -l "The gitlab uri ? (default is gitlab.${DOMAIN})"
+    output -q -l "The gitlab uri ? (default is gitlab.${nextdeployuri})"
     read gitlaburi
-    [[ -z "$gitlaburi" ]] && gitlaburi="gitlab.${DOMAIN}"
+    [[ -z "$gitlaburi" ]] && gitlaburi="gitlab.${nextdeployuri}"
   fi
 
   # the common subdomain for vm endpoint
-  if [[ -z "$mvmcsuf" ]]; then
-    output -q -l "The common wildcard subdomain for the vms ? (default is os.${DOMAIN})"
-    read mvmcsuf
-    [[ -z "$mvmcsuf" ]] && mvmcsuf="os.${DOMAIN}" 
+  if [[ -z "$nextdeploysuf" ]]; then
+    output -q -l "The common wildcard subdomain for the vms ? (default is os.nextdeploy.${DOMAIN})"
+    read nextdeploysuf
+    [[ -z "$nextdeploysuf" ]] && nextdeploysuf="os.nextdeploy.${DOMAIN}" 
   fi
 
   # an email for some alert purpose
@@ -480,38 +482,42 @@ EOF
   $BINSED -i "s;%%EXTDEV%%;${exteth};" tmp/remote/os/global.yaml
   $BINSED -i "s;%%PUBDEV%%;${masqeth};" tmp/remote/os/global.yaml
   $BINSED -i "s;%%NOVAHV%%;kvm;" tmp/remote/os/global.yaml
-  $BINSED -i "s;%%MVMCURI%%;${mvmcuri};" tmp/remote/os/global.yaml
-  $BINSED -i "s;%%MVMCSUF%%;${mvmcsuf};" tmp/remote/os/global.yaml
+  $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};" tmp/remote/os/global.yaml
+  $BINSED -i "s;%%NEXTDEPLOYSUF%%;${nextdeploysuf};" tmp/remote/os/global.yaml
   $BINSED -i "s;%%GITLABURI%%;${gitlaburi};" tmp/remote/os/global.yaml
   $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/os/global.yaml
-  # mvmc part
-  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/mvmc/global.yaml
-  $BINSED -i "s;%%DATAPREFIX%%;${dataprefix};" tmp/remote/mvmc/global.yaml
-  $BINSED -i "s;%%APIPREFIX%%;${apiprefix};" tmp/remote/mvmc/global.yaml
-  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${managementprefix};" tmp/remote/mvmc/global.yaml
-  $BINSED -i "s;%%MVMCURI%%;${mvmcuri};" tmp/remote/mvmc/global.yaml
-  $BINSED -i "s;%%MVMCSUF%%;${mvmcsuf};" tmp/remote/mvmc/global.yaml
-  $BINSED -i "s;%%GITLABURI%%;${gitlaburi};" tmp/remote/mvmc/global.yaml
-  $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/mvmc/global.yaml
-  $BINSED -i "s;%%RAILSENV%%;production;" tmp/remote/mvmc/global.yaml  
-  # mc2 part
-  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/mc2/global.yaml
-  $BINSED -i "s;%%MVMCURI%%;${mvmcuri};" tmp/remote/mc2/global.yaml
-  $BINSED -i "s;%%MAILADMIN%%;${mailadmin};" tmp/remote/mc2/global.yaml
-  $BINSED -i "s;%%ADMINPASSWORD%%;${adminpassword};" tmp/remote/mc2/global.yaml
-  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/mc2/default.vcl.mc2
+  # nextdeploy part
+  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/nextdeploy/global.yaml
+  $BINSED -i "s;%%DATAPREFIX%%;${dataprefix};" tmp/remote/nextdeploy/global.yaml
+  $BINSED -i "s;%%APIPREFIX%%;${apiprefix};" tmp/remote/nextdeploy/global.yaml
+  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${managementprefix};" tmp/remote/nextdeploy/global.yaml
+  $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};" tmp/remote/nextdeploy/global.yaml
+  $BINSED -i "s;%%NEXTDEPLOYSUF%%;${nextdeploysuf};" tmp/remote/nextdeploy/global.yaml
+  $BINSED -i "s;%%GITLABURI%%;${gitlaburi};" tmp/remote/nextdeploy/global.yaml
+  $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/nextdeploy/global.yaml
+  $BINSED -i "s;%%RAILSENV%%;production;" tmp/remote/nextdeploy/global.yaml  
+  $BINSED -i "s;%%PUBLICADDRESS%%;0.0.0.0;" tmp/remote/nextdeploy/pound.cfg
+  $BINSED -i "s;%%HTTPADDRESS%%;127.0.0.1;" tmp/remote/nextdeploy/pound.cfg
+  # ndc2 part
+  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/ndc2/global.yaml
+  $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};" tmp/remote/ndc2/global.yaml
+  $BINSED -i "s;%%MAILADMIN%%;${mailadmin};" tmp/remote/ndc2/global.yaml
+  $BINSED -i "s;%%ADMINPASSWORD%%;${adminpassword};" tmp/remote/ndc2/global.yaml
+  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/ndc2/default.vcl.ndc2
+  $BINSED -i "s;%%PUBLICADDRESS%%;0.0.0.0;" tmp/remote/ndc2/pound.cfg
+  $BINSED -i "s;%%HTTPADDRESS%%;127.0.0.1;" tmp/remote/ndc2/pound.cfg
 
   # merge the 2 global files
-  cat tmp/remote/os/global.yaml tmp/remote/mvmc/global.yaml tmp/remote/mc2/global.yaml | sort | uniq > tmp/remote/global.yaml
+  cat tmp/remote/os/global.yaml tmp/remote/nextdeploy/global.yaml tmp/remote/ndc2/global.yaml | sort | uniq > tmp/remote/global.yaml
 
   # prepare rails production config file
-  cp ror/config/environments/production.rb.dist tmp/remote/mvmc/production.rb
+  cp ror/config/environments/production.rb.dist tmp/remote/nextdeploy/production.rb
 
   # prepare rails config file
-  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/mvmc/production.rb
-  $BINSED -i "s;%%MVMCSUF%%;${mvmcsuf};" tmp/remote/mvmc/production.rb
-  $BINSED -i "s;%%MVMCURI%%;${mvmcuri};" tmp/remote/mvmc/production.rb
-  $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/mvmc/production.rb
+  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/nextdeploy/production.rb
+  $BINSED -i "s;%%NEXTDEPLOYSUF%%;${nextdeploysuf};" tmp/remote/nextdeploy/production.rb
+  $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};" tmp/remote/nextdeploy/production.rb
+  $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/nextdeploy/production.rb
 
   # prepare hosts file
   $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/hosts_global
@@ -521,22 +527,22 @@ EOF
   $BINSED -i "s;%%DATAPREFIX%%;${dataprefix};" tmp/remote/hosts_global
   echo "${PUPPETIP} ${PUPPETFQDN}" >> tmp/remote/hosts_global
 
-  # prepare nginx mvmc files
-  $BINSED -i "s;%%MVMCSUF%%;${mvmcsuf};" tmp/remote/mvmc/os-http.conf
-  $BINSED -i "s;%%MVMCURI%%;${mvmcuri};" tmp/remote/mvmc/os-http.conf
-  $BINSED -i "s;%%GITLABURI%%;${gitlaburi};" tmp/remote/mvmc/os-http.conf
-  $BINSED -i "s;%%MVMCURI%%;${mvmcuri};" tmp/remote/mvmc/os-doc.conf
+  # prepare nginx nextdeploy files
+  $BINSED -i "s;%%NEXTDEPLOYSUF%%;${nextdeploysuf};" tmp/remote/nextdeploy/os-http.conf
+  $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};" tmp/remote/nextdeploy/os-http.conf
+  $BINSED -i "s;%%GITLABURI%%;${gitlaburi};" tmp/remote/nextdeploy/os-http.conf
+  $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};" tmp/remote/nextdeploy/os-doc.conf
 
   #prepare puma.sh
-  $BINSED -i "s;%%RAILSENV%%;production -t 8:32 -w 2;" tmp/remote/mvmc/puma-start
+  $BINSED -i "s;%%RAILSENV%%;production -t 8:32 -w 2;" tmp/remote/nextdeploy/puma-start
 
   # ask to configure vlans on remote servers
   output -l -q "On controller openstack node, please configure this 3 private ips: ${managementprefix}.70, ${dataprefix}.70, ${apiprefix}.70"
   output -l -q "On neutron openstack node, please configure this 4 private ips: ${publicprefix}.71, ${managementprefix}.71, ${dataprefix}.71, ${apiprefix}.71"
   output -l -q "On glance openstack node, please configure this 2 private ips: ${managementprefix}.72, ${apiprefix}.72"
   output -l -q "On compute openstack node, please configure this 3 private ips: ${managementprefix}.75, ${dataprefix}.75, ${apiprefix}.75"
-  output -l -q "On mvmc manager node, please configure this 3 private ips: ${publicprefix}.60, ${managementprefix}.60, ${apiprefix}.60"
-  output -l -q "On mc2 manager node, please configure this 1 private ip: ${publicprefix}.50"
+  output -l -q "On nextdeploy manager node, please configure this 3 private ips: ${publicprefix}.60, ${managementprefix}.60, ${apiprefix}.60"
+  output -l -q "On ndc2 manager node, please configure this 1 private ip: ${publicprefix}.50"
   confirm "Waiting this installations are done ... Continue ?"
   echo -en "\n\n"
 }
@@ -587,7 +593,7 @@ update_puppet() {
 
 # update hiera files
 update_hierafiles() {
-  local nodenames=('uosc' 'uosnt' 'uosst' 'uosnv' 'mvmc' 'mc2' 'uosnv2' 'uosnv3' 'uosnv4' 'uosnv5')
+  local nodenames=('uosc' 'uosnt' 'uosst' 'uosnv' 'nextdeploy' 'ndc2' 'uosnv2' 'uosnv3' 'uosnv4' 'uosnv5')
   local nodename=''
   local fqdn=''
 
@@ -597,8 +603,8 @@ update_hierafiles() {
   for nodename in "${nodenames[@]}"; do
     fqdn="$nodename"
     pathyaml="tmp/remote/os/"
-    [[ "$nodename" = "mvmc" ]] && pathyaml="tmp/remote/mvmc/"
-    [[ "$nodename" = "mc2" ]] && pathyaml="tmp/remote/mc2/"
+    [[ "$nodename" = "nextdeploy" ]] && pathyaml="tmp/remote/nextdeploy/"
+    [[ "$nodename" = "ndc2" ]] && pathyaml="tmp/remote/ndc2/"
     [[ -n "$DOMAIN" ]] && fqdn="${fqdn}.${DOMAIN}"
     scp -P ${PUPPETSSHPORT} ${pathyaml}${nodename}.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
   done
@@ -720,8 +726,8 @@ launch_puppetagent() {
   local remote_ip="$1"
   local fqdn="$2"
 
-  # clean old cert if needed (but not for mc2 node)
-  [[ $fqdn != "mc2"* ]] && ssh -t -t -p ${PUPPETSSHPORT} root@${PUPPETIP} "puppet cert clean ${fqdn}"
+  # clean old cert if needed (but not for ndc2 node)
+  [[ $fqdn != "ndc2"* ]] && ssh -t -t -p ${PUPPETSSHPORT} root@${PUPPETIP} "puppet cert clean ${fqdn}"
   # enable puppet on the remote node and validate on puppetmaster
   ssh -t -t root@${remote_ip} 'puppet agent --test'
   sleep 3
@@ -769,30 +775,33 @@ install_osnode() {
   launch_puppetagent $remote_ip $fqdn
 }
 
-# Install mvmc manager node
-install_mvmc() {
+# Install nextdeploy manager node
+install_nextdeploy() {
   # init local variables
-  local fqdn='mvmc'
+  local fqdn='nextdeploy'
   local fqdnshort="$fqdn"
   local remote_ip
   [[ -n "$DOMAIN" ]] && fqdn="${fqdn}.${DOMAIN}"
-  [[ -n "$MVMCIP" ]] && remote_ip="$MVMCIP"
+  [[ -n "$NEXTDEPLOYIP" ]] && remote_ip="$NEXTDEPLOYIP"
 
   # get the ip
   if [[ -z "$remote_ip" ]]; then
-    output -q -l 'The ip for mvmc manager node ?'
+    output -q -l 'The ip for nextdeploy manager node ?'
     read remote_ip
   fi
 
-  # update MVMCIP into production.rb
-  $BINSED -i "s;%%MVMCIP%%;${remote_ip};" tmp/remote/mvmc/production.rb
+  # update NEXTDEPLOYIP into production.rb
+  $BINSED -i "s;%%NEXTDEPLOYIP%%;${remote_ip};" tmp/remote/nextdeploy/production.rb
 
   # copy nginx templates file onto puppetmaster
-  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/mvmc/os-doc.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx/os-doc.conf_${fqdn}
-  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/mvmc/os-http.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx/os-http.conf_${fqdn}
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nextdeploy/os-doc.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx/os-doc.conf_${fqdn}
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nextdeploy/os-http.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx/os-http.conf_${fqdn}
+
+  # copy pound cfg file
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nextdeploy/pound.cfg root@${PUPPETIP}:/etc/puppet/modules/pm/files/pound/pound.cfg_${fqdn}
 
   # copy puma script onto puppetmaster
-  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/mvmc/puma-start root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma-start_${fqdn}
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nextdeploy/puma-start root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma-start_${fqdn}
 
   # copy puppet.conf onto puppetmaster files repository
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puppet.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet/puppet.conf_${fqdn}
@@ -802,62 +811,71 @@ install_mvmc() {
   prepare_node $remote_ip $fqdn
 
   # clone project into tmp folder
-  mkdir tmp/mvmcgit
-  pushd tmp/mvmcgit > /dev/null
-  ssh root@${remote_ip} 'mkdir -p /home/mvmc'
-  git clone --recursive git@github.com:ricofehr/mvmc.git .
-  rsync -avzPessh . root@${remote_ip}:/home/mvmc/
-  ssh root@${remote_ip} 'ln -sf /home/mvmc/puppet /puppet'
-  ssh root@${remote_ip} 'ln -sf /home/mvmc/ror /ror'
-  ssh root@${remote_ip} 'ln -sf /home/mvmc/out /out'
-  ssh root@${remote_ip} 'ln -sf /home/mvmc/ror/hiera /hiera'
+  mkdir tmp/nextdeploygit
+  pushd tmp/nextdeploygit > /dev/null
+  ssh root@${remote_ip} 'mkdir -p /home/nextdeploy'
+  git clone --recursive git@github.com:ricofehr/nextdeploy.git .
+  rsync -avzPessh . root@${remote_ip}:/home/nextdeploy/
+  ssh root@${remote_ip} 'ln -sf /home/nextdeploy/puppet /puppet'
+  ssh root@${remote_ip} 'ln -sf /home/nextdeploy/ror /ror'
+  ssh root@${remote_ip} 'ln -sf /home/nextdeploy/out /out'
+  ssh root@${remote_ip} 'ln -sf /home/nextdeploy/ror/hiera /hiera'
   popd > /dev/null
-  rm -rf tmp/mvmcgit
+  rm -rf tmp/nextdeploygit
 
   # rsync rails app (git clone on remote server should be better)
-  rsync -avzPessh tmp/remote/mvmc/production.rb root@${remote_ip}:/ror/config/environments/
+  rsync -avzPessh tmp/remote/nextdeploy/production.rb root@${remote_ip}:/ror/config/environments/
 
   # synchro hiera files
   scp -P ${PUPPETSSHPORT} tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
-  scp -P ${PUPPETSSHPORT} tmp/remote/mvmc/mvmc.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
+  scp -P ${PUPPETSSHPORT} tmp/remote/nextdeploy/nextdeploy.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
 
   # launch puppet-agent for start the installation
   launch_puppetagent $remote_ip $fqdn
 
   # allow puppetmaster to start at boot
-  ssh root@${remote_ip} '[[ -f /etc/default/puppet ]] && sed -i "s;START=no;START=yes;" /etc/default/puppet'
+  ssh root@${remote_ip} '[[ -f /etc/default/puppetmaster ]] && sed -i "s;START=no;START=yes;" /etc/default/puppetmaster'
 }
 
-# Install mc2 manager node
-install_mc2() {
+# Install ndc2 manager node
+install_ndc2() {
   # init local variables
-  local fqdn='mc2'
+  local fqdn='ndc2'
   local fqdnshort="$fqdn"
   local remote_ip
   [[ -n "$DOMAIN" ]] && fqdn="${fqdn}.${DOMAIN}"
-  [[ -n "$MC2IP" ]] && remote_ip="$MC2IP"
+  [[ -n "$NDC2IP" ]] && remote_ip="$NDC2IP"
 
   # get the ip
   if [[ -z "$remote_ip" ]]; then
-    output -q -l 'The ip for mc2 node ?'
+    output -q -l 'The ip for ndc2 node ?'
     read remote_ip
   fi
 
   # copy varnish vcl onto puppetmaster
-  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/mc2/default.vcl.mc2 root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/default.vcl_${fqdn}
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/ndc2/default.vcl.ndc2 root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/default.vcl_${fqdn}
+
+  # copy pound cfg file
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/ndc2/pound.cfg root@${PUPPETIP}:/etc/puppet/modules/pm/files/pound/pound.cfg_${fqdn}
+
 
   # setting local, hosts and install puppet
   prepare_node $remote_ip $fqdn
 
   # synchro hiera files
   scp -P ${PUPPETSSHPORT} tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
-  scp -P ${PUPPETSSHPORT} tmp/remote/mc2/mc2.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
+  scp -P ${PUPPETSSHPORT} tmp/remote/ndc2/ndc2.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
+
+  # use same cert for master and client
+  ssh root@${remote_ip} 'puppet agent -t'
+  ssh root@${remote_ip} 'cd /var/lib/puppet/sslagent && rm -rf certs private_keys public_keys'
+  ssh root@${remote_ip} 'cd /var/lib/puppet/sslagent && ln -s ../ssl/certs && ln -s ../ssl/private_keys && ln -s ../ssl/public_keys'
 
   # launch puppet-agent for start the installation
   launch_puppetagent $remote_ip $fqdn
 
   # allow puppetmaster to start at boot
-  ssh root@${remote_ip} '[[ -f /etc/default/puppet ]] && sed -i "s;START=no;START=yes;" /etc/default/puppet'
+  ssh root@${remote_ip} '[[ -f /etc/default/puppetmaster ]] && sed -i "s;START=no;START=yes;" /etc/default/puppetmaster'
 }
 
 welcome_step
@@ -887,16 +905,16 @@ else
   [[ "$response" = "y" ]] && update_puppet
 fi
 
-# mc2 part
-output -l -q 'Mc2 manager installation ? (y/n)'
-if [[ -n "$MC2IP" ]]; then
+# ndc2 part
+output -l -q 'NdC2 manager installation ? (y/n)'
+if [[ -n "$NDC2IP" ]]; then
   response="y"
 elif (( YES == 0 )); then
   read response
 else
   response="n"
 fi
-[[ "$response" = "y" ]] && install_mc2
+[[ "$response" = "y" ]] && install_ndc2
 
 # controller part
 output -l -q 'Openstack controller installation ? (y/n)'
@@ -994,15 +1012,15 @@ if [[ "$response" = "y" ]]; then
 fi
 
 # manager part
-output -l -q 'Mvmc manager installation ? (y/n)'
-if [[ -n "$MVMCIP" ]]; then
+output -l -q 'NextDeploy manager installation ? (y/n)'
+if [[ -n "$NEXTDEPLOYIP" ]]; then
   response="y"
 elif (( YES == 0 )); then
   read response
 else
   response="n"
 fi
-[[ "$response" = "y" ]] && install_mvmc
+[[ "$response" = "y" ]] && install_nextdeploy
 
 
 exit 0

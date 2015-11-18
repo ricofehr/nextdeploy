@@ -64,7 +64,7 @@ class Project < ActiveRecord::Base
       branchs.each {|branch| @gitlabapi.create_branch(self.gitlab_id, branch, 'master')}
       @gitlabapi.unprotect_branch(self.gitlab_id, 'master')
       self.users.each {|user| @gitlabapi.add_user_to_project(self.gitlab_id, user.gitlab_id, user.access_level)}
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log
     end
   end
@@ -76,7 +76,7 @@ class Project < ActiveRecord::Base
   def delete_git
     begin
       @gitlabapi.delete_project(self.gitlab_id)
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log
     end
     remove_gitpath
@@ -102,7 +102,7 @@ class Project < ActiveRecord::Base
           @gitlabapi.add_user_to_project(self.gitlab_id, user.gitlab_id, user.access_level)
         end
       end
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log
     end
   end

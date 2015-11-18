@@ -1,0 +1,33 @@
+Vagrant.configure("2") do |config|
+    config.ssh.username = "modem"
+    config.ssh.password = "modem"
+    config.vm.box_download_insecure = true
+    config.vm.synced_folder ".", "/vagrant", type: "rsync"
+
+    config.vm.define :nextdeploy, primary: true do |nextdeploy|
+      nextdeploy.vm.hostname = :nextdeploy
+      nextdeploy.vm.box = "mc"
+      nextdeploy.vm.synced_folder "../../ror", "/ror", type: '%%FILESHARETYPE%%'
+      nextdeploy.vm.synced_folder "../../out", "/out", type: '%%FILESHARETYPE%%'
+      nextdeploy.vm.synced_folder "../../puppet", "/puppet", type: '%%FILESHARETYPE%%'
+      nextdeploy.vm.box_url = "http://imgs.nextdeploy.io:8383/vbox/mc.box"
+      nextdeploy.vm.provider :virtualbox do |virthost|
+        virthost.customize ["modifyvm", :id, "--nictype1", "virtio"]
+        virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
+        virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
+        virthost.memory = 2048
+        virthost.cpus = 2
+      end
+
+      nextdeploy.vm.network :private_network, :ip => "%%APIPREFIX%%.60", :netmask => "255.255.255.128", nictype: "virtio"
+      nextdeploy.vm.network :private_network, :ip => "%%PUBPREFIX%%.60", :netmask => "255.255.255.128", nictype: "virtio"
+      nextdeploy.vm.network :private_network, :ip => "%%MANAGEMENTPREFIX%%.60", :netmask => "255.255.255.128", nictype: "virtio", virtualbox__intnet: "nd_management"
+      nextdeploy.vm.network :private_network, :ip => "%%DATAPREFIX%%.60", :netmask => "255.255.255.128", nictype: "virtio", virtualbox__intnet: "nd_data"
+    end
+
+  config.vm.provision :puppet do |puppet|
+    puppet.manifest_file = "init.pp"
+    puppet.module_path = "modules"
+    puppet.options = "--ordering=manifest --hiera_config /vagrant/hiera/hiera.yaml"
+  end
+end

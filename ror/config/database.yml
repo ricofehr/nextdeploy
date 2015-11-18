@@ -12,9 +12,9 @@ default: &default
 development:
   adapter: mysql2
   encoding: utf8
-  database: s_mvmc
-  username: s_mvmc
-  password: s_mvmc
+  database: s_nextdeploy
+  username: s_nextdeploy
+  password: s_nextdeploy
   host: 127.0.0.1
   pool: 10
 
@@ -24,9 +24,9 @@ development:
 test:
   adapter: mysql2
   encoding: utf8
-  database: s_mvmc_test
-  username: s_mvmc
-  password: s_mvmc
+  database: s_nextdeploy_test
+  username: s_nextdeploy
+  password: s_nextdeploy
   host: 127.0.0.1
   pool: 10
 
@@ -36,8 +36,8 @@ test:
 production:
   adapter: mysql2
   encoding: utf8
-  database: s_mvmc
-  username: s_mvmc
-  password: s_mvmc
+  database: s_nextdeploy
+  username: s_nextdeploy
+  password: s_nextdeploy
   host: 127.0.0.1
   pool: 10

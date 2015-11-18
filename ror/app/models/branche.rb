@@ -51,7 +51,7 @@ class Branche
 
     begin
       branches = @gitlabapi.get_branches(project.gitlab_id)
-    rescue Exceptions::MvmcException => me
+    rescue Exceptions::NextDeployException => me
       me.log
     end
 

@@ -1,18 +1,18 @@
+# create NextDeploy Control Center vm, who includes some monitoring and security tools
 Vagrant.configure("2") do |config|
     config.ssh.username = "modem"
     config.ssh.password = "modem"
     config.vm.box_download_insecure = true
     config.vm.synced_folder ".", "/vagrant", type: "rsync"
 
-    config.vm.define :mc2, primary: true do |mc2|
-      mc2.vm.hostname = "mc2"
-      mc2.vm.box = "mc"
-      mc2.vm.box_url = "http://imgs.mvmc.services-pm.fr:8383/vbox/mc.box"
-      mc2.vm.provider :virtualbox do |virthost|
-        mc2.vm.network :private_network, :ip => "%%PUBPREFIX%%.50", :netmask => "255.255.255.128"
+    config.vm.define :ndc2, primary: true do |ndc2|
+      ndc2.vm.hostname = :ndc2
+      ndc2.vm.box = "mc"
+      ndc2.vm.box_url = "http://imgs.nextdeploy.io:8383/vbox/mc.box"
+      ndc2.vm.provider :virtualbox do |virthost|
+        ndc2.vm.network :private_network, :ip => "%%PUBPREFIX%%.50", :netmask => "255.255.255.128", nictype: "virtio"
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
-        virthost.customize ["modifyvm", :id, "--natsettings1", "1400,0,0,0,0"]
         virthost.customize ["modifyvm", :id, "--nictype1", "virtio"]
         virthost.memory = 2048
         virthost.cpus = 2

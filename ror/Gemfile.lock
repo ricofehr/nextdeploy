@@ -57,7 +57,7 @@ GEM
     execjs (2.2.1)
     faraday (0.9.0)
       multipart-post (>= 1.2, < 3)
-    gitlab (3.2.0)
+    gitlab (3.4.0)
       httparty
       terminal-table
     hike (1.2.3)
@@ -155,7 +155,7 @@ DEPENDENCIES
   debugger
   devise
   faraday
-  gitlab
+  gitlab (~> 3.4.0)
   jbuilder (~> 2.0)
   jquery-rails
   mysql2 (~> 0.3.20)

@@ -67,35 +67,35 @@ class pm::postinstall::exploitation {
   file { '/usr/local/bin/rdnsmasq':
     ensure => 'file',
     content => '#!/bin/bash
-hostsmin=$(find /etc/hosts.mvmc -mmin -1)
+hostsmin=$(find /etc/hosts.nextdeploy -mmin -1)
 [[ -n $hostsmin ]] && service dnsmasq force-reload',
     owner => 'root',
     mode => '0700',
     group => 'root'
   }
 
-  # update mvmc project from github repository
-  file { '/usr/local/bin/updatemvmc':
+  # update nextdeploy project from github repository
+  file { '/usr/local/bin/updatenextdeploy':
     ensure => 'file',
-    source => ['puppet:///modules/pm/scripts/updatemvmc'],
+    source => ['puppet:///modules/pm/scripts/updatenextdeploy'],
     owner => 'root',
     mode => '0755',
     group => 'root'
   }
 
   # execute rake:migrate command on the ror rest project
-  file { '/usr/local/bin/migratemvmc':
+  file { '/usr/local/bin/migratenextdeploy':
     ensure => 'file',
-    source => ['puppet:///modules/pm/scripts/migratemvmc'],
+    source => ['puppet:///modules/pm/scripts/migratenextdeploy'],
     owner => 'root',
     mode => '0755',
     group => 'root'
   }
 
   # execute bundle install command on the ror rest project
-  file { '/usr/local/bin/bundlemvmc':
+  file { '/usr/local/bin/bundlenextdeploy':
     ensure => 'file',
-    source => ['puppet:///modules/pm/scripts/bundlemvmc'],
+    source => ['puppet:///modules/pm/scripts/bundlenextdeploy'],
     owner => 'root',
     mode => '0755',
     group => 'root'
@@ -110,10 +110,10 @@ hostsmin=$(find /etc/hosts.mvmc -mmin -1)
     group => 'root'
   }
   
-  # backup mvmc
-  file { '/usr/local/bin/backupmvmc':
+  # backup nextdeploy
+  file { '/usr/local/bin/backupnextdeploy':
     ensure => 'file',
-    source => ['puppet:///modules/pm/scripts/backupmvmc'],
+    source => ['puppet:///modules/pm/scripts/backupnextdeploy'],
     owner => 'root',
     mode => '0755',
     group => 'root'
@@ -121,16 +121,16 @@ hostsmin=$(find /etc/hosts.mvmc -mmin -1)
 
 }
 
-# == Class: pm::postinstall::mvmc
+# == Class: pm::postinstall::nextdeploy
 #
-# Some commands and setting for finalize installation of manager node for mvmc platform
+# Some commands and setting for finalize installation of manager node for nextdeploy platform
 #
 #
 # === Authors
 #
 # Eric Fehr <eric.fehr@publicis-modem.fr>
 #
-class pm::postinstall::mvmc {
+class pm::postinstall::nextdeploy {
   $railsenv = hiera('global::railsenv', 'development')
 
   Exec {
@@ -160,60 +160,67 @@ class pm::postinstall::mvmc {
 
   # prepare vpnkeys folder
   exec { 'copyindextxt':
-    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/index.txt /ror/vpnkeys/index.txt',
+    command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/keys/index.txt /ror/vpnkeys/index.txt',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   exec { 'copyserial':
-    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/serial /ror/vpnkeys/serial',
+    command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/keys/serial /ror/vpnkeys/serial',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   exec { 'copycakey':
-    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/ca.key /ror/vpnkeys/ca.key',
+    command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/keys/ca.key /ror/vpnkeys/ca.key',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   exec { 'copycacrt':
-    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/keys/ca.crt /ror/vpnkeys/ca.crt',
+    command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/keys/ca.crt /ror/vpnkeys/ca.crt',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   exec { 'copywhichopenssl':
-    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/whichopensslcnf /ror/vpnkeys/bin/whichopensslcnf',
+    command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/whichopensslcnf /ror/vpnkeys/bin/whichopensslcnf',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   exec { 'copyopenssl098':
-    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/openssl-0.9.8.cnf /ror/vpnkeys/bin/openssl-0.9.8.cnf',
+    command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/openssl-0.9.8.cnf /ror/vpnkeys/bin/openssl-0.9.8.cnf',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   exec { 'copyopenssl100':
-    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/openssl-1.0.0.cnf /ror/vpnkeys/bin/openssl-1.0.0.cnf',
+    command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/openssl-1.0.0.cnf /ror/vpnkeys/bin/openssl-1.0.0.cnf',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   exec { 'copyopenssl096':
-    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/openssl-0.9.6.cnf /ror/vpnkeys/bin/openssl-0.9.6.cnf',
+    command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/openssl-0.9.6.cnf /ror/vpnkeys/bin/openssl-0.9.6.cnf',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   exec { 'copyopenssl':
-    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/openssl.cnf /ror/vpnkeys/bin/openssl.cnf',
+    command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/openssl.cnf /ror/vpnkeys/bin/openssl.cnf',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   exec { 'copypkitool':
-    command => 'cp -f /etc/openvpn/mvmc/easy-rsa/pkitool /ror/vpnkeys/bin/pkitool',
+    command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/pkitool /ror/vpnkeys/bin/pkitool',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   exec { 'chownmodemvpnkeys':
     command => 'chown -R modem: /ror/vpnkeys',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
+  # redirect gitlab to https
+  file_line { 'gitlabhttps':
+    path => '/var/opt/gitlab/nginx/conf/gitlab-http.conf',
+    line => 'server_tokens off; if ($http_x_forwarded_proto != "https") { rewrite ^(.*)$ https://$server_name$1 permanent; }',
+    match => '.*server_tokens off;.*',
+    multiple => false
+  }  ->
   # patch gitlab for auto-confirm users
   file { '/opt/gitlab/embedded/service/gitlab-rails/lib/api/users.rb':
     ensure => file,
@@ -226,23 +233,23 @@ class pm::postinstall::mvmc {
   exec { 'gitlabusersetting':
     command => '/opt/gitlab/embedded/bin/psql -h /var/opt/gitlab/postgresql -d gitlabhq_production -c "UPDATE application_settings SET signup_enabled=\'f\',max_attachment_size=60, default_projects_limit=0;"',
     user => 'gitlab-psql',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   # restart gitlab
   exec { 'restartgitalb':
     command => '/usr/bin/gitlab-ctl restart',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   # ensure that ror and out folders is on modem owner
   # temporary before git repo will be public
   exec { 'chownmodem':
-    command => 'chown -R modem: /home/mvmc',
-    onlyif => 'test -d /home/mvmc',
+    command => 'chown -R modem: /home/nextdeploy',
+    onlyif => 'test -d /home/nextdeploy',
     user => 'root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
-  # disable hostkey verification on mvmc
+  # disable hostkey verification on nextdeploy
   file_line { 'disable_hostchecking_ssh':
     path => '/etc/ssh/ssh_config',
     line => 'StrictHostKeyChecking no'
@@ -250,55 +257,55 @@ class pm::postinstall::mvmc {
   # git config email
   exec { 'gitconfig1':
     command => 'git config --global user.email admin@example.com',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   # git config username
   exec { 'gitconfig2':
     command => 'git config --global user.name root',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   # prepare ror website
   exec { 'bundle-clean':
     command => 'rm -rf vendor/bundle/*',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   # clean sshkeys
   exec { 'sshkeys-clean':
     command => 'rm -f sshkeys/*',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   # clean privatetoken
   exec { 'token-clean':
     command => 'rm -f tmp/private_token',
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   # need sudo for manage ftp users
   file_line { 'sudo_rule':
     path => '/etc/sudoers',
-    line => 'modem ALL=(root) NOPASSWD: /usr/local/bin/./mvmc-*',
+    line => 'modem ALL=(root) NOPASSWD: /usr/local/bin/./nextdeploy-*',
   } ->
   # install ruby bundles
   exec { 'bundle-ror':
     command => 'bundle install --path vendor/bundle > /out/logbundle.log 2>&1',
     timeout => 0,
-    unless => 'test -f /home/modem/.installmvmc',
+    creates => '/home/modem/.installnextdeploy',
     require => [ Package['libmysqlclient-dev'], Class['rvm'], Class['memcached'] ]
   } ->
   # database installation
   exec { 'db-schema':
     command => 'rake db:schema:load > /out/logdbschema.log 2>&1',
     timeout => 0,
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   exec { 'db-migrate':
     command => 'rake db:migrate > /out/logdbmigrate.log 2>&1',
     timeout => 0,
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   exec { 'db-seed':
     command => 'rake db:seed > /out/logdbseed.log 2>&1',
     timeout => 0,
-    unless => 'test -f /home/modem/.installmvmc',
+    creates => '/home/modem/.installnextdeploy',
     require => File['/bin/sh']
   } ->
   # ensure puma folder is here for create socket
@@ -318,16 +325,16 @@ class pm::postinstall::mvmc {
   exec { 'yardoc_ror':
     command => 'bundle exec yardoc lib/**/*.rb app/**/*.rb config/**/*.rb',
     timeout => 120,
-    unless => 'test -f /home/modem/.installmvmc'
+    creates => '/home/modem/.installnextdeploy'
   } ->
   file { '/hiera':
     ensure => 'link',
     target => '/ror/hiera',
     owner => 'root',
   } ->
-  exec { 'touchinstallmvmc':
-    command => 'touch /home/modem/.installmvmc',
-    unless => 'test -f /home/modem/.installmvmc'
+  exec { 'touchinstallnextdeploy':
+    command => 'touch /home/modem/.installnextdeploy',
+    creates => '/home/modem/.installnextdeploy'
   }
 
   # nodejs and ember_build prerequisites

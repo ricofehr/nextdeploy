@@ -169,7 +169,7 @@ module Apiexternal
 
       begin
        auth_token
-      rescue Exceptions::MvmcException => me
+      rescue Exceptions::NextDeployException => me
         me.log_e
       end
 

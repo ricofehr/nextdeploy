@@ -1,6 +1,6 @@
 # == Class: pm::ftp
 #
-# Install vsftpd with help of thias module
+# Install vsftpd with help of this module
 #
 #
 # === Authors
@@ -26,15 +26,15 @@ account required pam_permit.so',
     group => 'root'
   }
   ->
-  file { '/usr/local/bin/mvmc-addftp':
-    source => 'puppet:///modules/pm/vsftpd/mvmc-addftp',
+  file { '/usr/local/bin/nextdeploy-addftp':
+    source => 'puppet:///modules/pm/vsftpd/nextdeploy-addftp',
     owner => 'root',
     group => 'root',
     mode => '0700'
   }
   ->
-  file { '/usr/local/bin/mvmc-rmftp':
-    source => 'puppet:///modules/pm/vsftpd/mvmc-rmftp',
+  file { '/usr/local/bin/nextdeploy-rmftp':
+    source => 'puppet:///modules/pm/vsftpd/nextdeploy-rmftp',
     owner => 'root',
     group => 'root',
     mode => '0700'

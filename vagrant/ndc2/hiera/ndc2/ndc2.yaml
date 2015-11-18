@@ -1,7 +1,7 @@
 ---
 
 classes:
-  - roles::mc2
+  - roles::ndc2
 
 # override apache parameters
 apache::user: www-data

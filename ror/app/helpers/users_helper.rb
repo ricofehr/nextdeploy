@@ -23,7 +23,7 @@ module UsersHelper
     system('mkdir -p sshkeys')
     system("rm -f sshkeys/#{self.email}.authorized_keys")
     system("touch sshkeys/#{self.email}.authorized_keys")
-    # add server mvmc public key to authorized_keys
+    # add server nextdeploy public key to authorized_keys
     system("cat ~/.ssh/id_rsa.pub > sshkeys/#{self.email}.authorized_keys")
     Sshkey.admins.each { |k| system("echo #{k.key} >> sshkeys/#{self.email}.authorized_keys") if k.user.id != self.id }
     self.sshkeys.each { |k| system("echo #{k.key} >> sshkeys/#{self.email}.authorized_keys") }
@@ -91,7 +91,7 @@ module UsersHelper
   # @raise an exception if errors occurs during file reading
   # No return
   def openvpn_conf
-    template = "vpnkeys/conf/mvmc.conf"
+    template = "vpnkeys/conf/nextdeploy.conf"
 
     begin
       pattern = IO.read(template)
@@ -99,7 +99,7 @@ module UsersHelper
       pattern.gsub!('%{ovpnip}', Rails.application.config.ovpnip)
       pattern.gsub!('%{ovpnport}', Rails.application.config.ovpnport)
     rescue Exception => e
-      raise Exceptions::MvmcException.new("Create mvmc.conf file for #{self.email} failed: #{e}")
+      raise Exceptions::NextDeployException.new("Create nextdeploy.conf file for #{self.email} failed: #{e}")
     end
   end
 

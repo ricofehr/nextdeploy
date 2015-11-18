@@ -2,7 +2,7 @@ module Exceptions
   # The head of exception class for the project
   #
   # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
-  class MvmcException < Exception
+  class NextDeployException < Exception
     attr_reader :message
 
     # Constructor.
@@ -31,7 +31,7 @@ module Exceptions
   end
 
   # Class for openstack api exception
-  class OSApiException < MvmcException; end
+  class OSApiException < NextDeployException; end
   # Class for gitlab api exception
-  class GitlabApiException < MvmcException; end
+  class GitlabApiException < NextDeployException; end
 end

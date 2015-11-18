@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Stop script for halt mvmc platform
+# Stop script for halt nextdeploy platform
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
 
 # Include some usable functions
@@ -12,15 +12,15 @@ vagrant halt
 popd > /dev/null
 
 # Stop manager node
-pushd vagrant/mvmc > /dev/null
+pushd vagrant/nextdeploy > /dev/null
 vagrant halt
 popd > /dev/null
 
 # Stop mc2 node
-pushd vagrant/mc2 > /dev/null
+pushd vagrant/ndc2 > /dev/null
 vagrant halt
 popd > /dev/null
 
 # Rollback resolv.conf
-[[ -f tmp/resolv.conf.mvmc ]] && reset_dnsserver tmp/resolv.conf.mvmc
-rm -f tmp/resolv.conf.mvmc
+#[[ -f tmp/resolv.conf.nextdeploy ]] && reset_dnsserver tmp/resolv.conf.nextdeploy
+#rm -f tmp/resolv.conf.nextdeploy

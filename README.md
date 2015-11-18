@@ -1,15 +1,15 @@
-# Mvmc
+# NextDeploy
 
-[![Build Status](http://build.mvmc.services-pm.fr:9292/buildStatus/icon?job=mvmc)](http://build.mvmc.services-pm.fr:9292/job/mvmc/)
+[![Build Status](http://build.nextdeploy.services-pm.fr:9292/buildStatus/icon?job=nextdeploy)](http://build.nextdeploy.services-pm.fr:9292/job/nextdeploy/)
 
 The project is an ongoing deployment system virtualized development environment in the cloud. Generic installation templates are defined for different frameworks or cms. When creating a project, a git repository is associated with this installation template. Thus, virtual machines can be run on demand by deploying the site on a preinstalled system following prerequisites specified in the template.
 
 The project uses a cloud to host vms. The api is working actually with openstack. In the future, HP and AWS cloud will also be taken into account. Installation templates are defined for the puppet tool. Git is used for versioning developments on projects and Gitlab manager is installed for these deposits. A REST API (in ruby on rails) is the intermediary between these systems and can manage user authentication, project creation, adding users, and of course the launch of vms.
 
 The REST api can be reached with 3 different ways
-* a local client (ruby script) to be use with commandline (Repository here: https://github.com/ricofehr/mvmc-cli)
-* an WebUI developped with EMBER (Repository here: https://github.com/ricofehr/mvmc-webui)
-* an android application (Repository here: https://github.com/ricofehr/mvmc-android)
+* a local client (ruby script) to be use with commandline (Repository here: https://github.com/ricofehr/nextdeploy-cli)
+* an WebUI developped with EMBER (Repository here: https://github.com/ricofehr/nextdeploy-webui)
+* an android application (Repository here: https://github.com/ricofehr/nextdeploy-android)
 
 ## Features
 
@@ -23,21 +23,21 @@ The REST api can be reached with 3 different ways
 
 ## Folders
 
-* /client The Ruby client for exchange with the rest api thanks to commandline ([submodule](https://github.com/ricofehr/mvmc-cli))
+* /client The Ruby client for exchange with the rest api thanks to commandline ([submodule](https://github.com/ricofehr/nextdeploy-cli))
 * /out Some logs, specially during the setup of the platform
-* /puppet Installation templates for the vms into the cloud. Customs class are included into puppet/pm folder, others are taken from puppetforge catalog. ([submodule](https://github.com/ricofehr/mvmc-puppet))
+* /puppet Installation templates for the vms into the cloud. Customs class are included into puppet/pm folder, others are taken from puppetforge catalog. ([submodule](https://github.com/ricofehr/nextdeploy-puppet))
 * /ror The rails application who serves the rest api. 
-* /ror/public The Webui developped on EmberJs ([submodule](https://github.com/ricofehr/mvmc-webui))
-* /scripts Some jobs for setup completely the project in local workstation, start or stop mvmc
+* /ror/public The Webui developped on EmberJs ([submodule](https://github.com/ricofehr/nextdeploy-webui))
+* /scripts Some jobs for setup completely the project in local workstation, start or stop nextdeploy
 * /tmp Temporary folder
 * /vagrant Definitions for create the 4 openstack nodes and the manager node
 
 ## Submodules and Clone
-The cli application (client folder), the webui (ror/public folder), the vm installation templates (/puppet folder) and some puppet modules of the community used by installation and setting of mvmc, are included in the project in the form of Submodules git.
+The cli application (client folder), the webui (ror/public folder), the vm installation templates (/puppet folder) and some puppet modules of the community used by installation and setting of nextdeploy, are included in the project in the form of Submodules git.
 
 To retrieve, use this clone cmd.
 ```
-git clone --recursive git@github.com:ricofehr/mvmc
+git clone --recursive git@github.com:ricofehr/nextdeploy
 ```
 
 If the clone has already been done, execute this command.
@@ -59,8 +59,8 @@ Usage: ./scripts/./setup [options]
 -c           no destroy vm already created
 -q           quieter mode
 -y           ask yes to all question
--fs xxxx     fileshare strategy for rails app source between host and mvmc node, nfs/rsync (Default is nfs)
--cu xxxx     cli username (default is usera@os.mvmc)
+-fs xxxx     fileshare strategy for rails app source between host and nextdeploy node, nfs/rsync (Default is nfs)
+-cu xxxx     cli username (default is usera@os.nextdeploy)
 -cp xxxx     cli password (default is word123123)
 -g xxxx      gitlaburi (default is gitlab.local)
 -hv xxxx     hypervisor: virtualbox or libvirt (default is virtualbox)
@@ -72,56 +72,56 @@ Usage: ./scripts/./setup [options]
 -d xxxx      subnet prefix for data network (default is 172.16.171)
 -e xxxx      subnet prefix for management network (default is 172.16.170)
 -n xxxx      dns server for vms (default is 192.168.171.60)
--m xxxx      mvmc webui URI (default is mvmc.local)
--s xxxx      mvmc dns suffixes (default is os.mvmc)
+-m xxxx      nextdeploy webui URI (default is nextdeploy.local)
+-s xxxx      nextdeploy dns suffixes (default is os.nextdeploy)
 -r           avoid change resolv.conf and hosts files
 -vm          start a vm after build is complete
 ```
 Installation requires a large amount of RAM, a computer with 8GB of RAM minimum is required. Indeed, the OpenStack cloud is then implemented using vagrant through the creation of four virtual machines (controller, neutron, glance, nova) and another virtual machine is created to launch the rest app and hosts the gitlab and templates puppet installation. The script requires "curl" and "sudo" as a prerequisite.
 
-The setup script has been tested on mac os x, debian, ubuntu and fedora. The hypervisor for mvmc installation is virtualbox (mac osx) or kvm (debian, ubuntu, fedora). Knowing that the performance of virtual machines deployed on OpenStack will be much better if mvmc is virtualized through kvm. Indeed, kvm can then itself be used as a hypervisor-level cloud. Otherwise (mvmc installation on virtualbox on macosx), it uses qemu.
+The setup script has been tested on mac os x, debian, ubuntu and fedora. The hypervisor for nextdeploy installation is virtualbox (mac osx) or kvm (debian, ubuntu, fedora). Knowing that the performance of virtual machines deployed on OpenStack will be much better if nextdeploy is virtualized through kvm. Indeed, kvm can then itself be used as a hypervisor-level cloud. Otherwise (nextdeploy installation on virtualbox on macosx), it uses qemu.
 
 A set of groups, users and projects are created during installation.
 
 ## Remote installation
 
-For a remote installation, you must have 5 physical machines availabes: 4 for the cloud and 1 for mvmc manager. From this set, the following script makes much of the installation work and configuration based on puppet templates associated with vms vagrant.
+For a remote installation, you must have 5 physical machines availabes: 4 for the cloud and 1 for nextdeploy manager. From this set, the following script makes much of the installation work and configuration based on puppet templates associated with vms vagrant.
 ```
 ./scripts/./setup-remote
 ```
 
 ## Groupes / Users
 
-5 groups are defined at mvmc:
+5 groups are defined at nextdeploy:
 * Admin: all rights
 * Lead Dev: all rights to the projects associated with it
 * Dev: only rights to edit their profile, access to the git repository, launch vms and ssh on them.
 * Pm: Only rights to edit their profile or launch vms
 * Guest: Only rights to recover access to urls vms
 
-When local mvmc facility (see above Local Installation), the following users are created:
-* usera@os.mvmc (password: word123123 and admin group)
-* userl@os.mvmc (password: word123123 and lead dev group)
-* userd@os.mvmc (password: word123123 and dev group)
-* userp@os.mvmc (password: word123123 and pm group)
-* userg@os.mvmc (password: word123123 and guest group)
+When local nextdeploy facility (see above Local Installation), the following users are created:
+* usera@os.nextdeploy (password: word123123 and admin group)
+* userl@os.nextdeploy (password: word123123 and lead dev group)
+* userd@os.nextdeploy (password: word123123 and dev group)
+* userp@os.nextdeploy (password: word123123 and pm group)
+* userg@os.nextdeploy (password: word123123 and guest group)
 
 
 ## Vm installation pattern
 
 The tool used for managing templates facilities associated with the project is puppet. Currently supported technologies are mainly directed php with Symfony2, drupal and wordpress. It is also possible to start a vm "php" without involving a framework or cms. To follow, support for Java technology (ame), windows (sitecore), ...
 
-The git repository for this templates: https://github.com/ricofehr/mvmc-puppet
+The git repository for this templates: https://github.com/ricofehr/nextdeploy-puppet
 
 ## Android Application
 
 The android application is on a separate repository.
-Go here: http://github.com/ricofehr/mvmc-android
+Go here: http://github.com/ricofehr/nextdeploy-android
 
 
 ## REST API
 
-The API is the scheduler and project facilitator. Developed in rails, the api manages user authentication, maintains mvmc data model and interfaces with apis of gitlab and cloud (OpenStack at this time). Puma rails server is launched to handle requests.
+The API is the scheduler and project facilitator. Developed in rails, the api manages user authentication, maintains nextdeploy data model and interfaces with apis of gitlab and cloud (OpenStack at this time). Puma rails server is launched to handle requests.
 Thus, we will find the following calls:
 ```
                          Prefix Verb   URI Pattern
@@ -197,26 +197,26 @@ cancel_api_v1_user_registration GET    /api/v1/users/cancel
 
 A client developed in Ruby allows communication with the rest api via the command line.
 A small configuration file is related to the script and must contain the email / password of the user.
-An example of /etc/mvmc.conf
+An example of /etc/nextdeploy.conf
 ```
-email: userl@os.mvmc
+email: userl@os.nextdeploy
 password: word123123
-endpoint: mvmc.local
+endpoint: nextdeploy.local
 ```
 
 The ruby client manages the following commands
 ```
-`mvmc help` will print help about this command
-`mvmc up` launch current commit into vm
-`mvmc launch [projectname] [branch] [commit]` launch [commit] (default is head) on the [branch] (default is master) for [projectname] into remote mvmc
-`mvmc destroy` destroy current vm associated to this project
-`mvmc ssh` ssh into current vm
-`mvmc projects` list projects for current user
-`mvmc clone [project-name]` clone project in current folder
-`mvmc config [endpoint] [username] [password]` get/set properties settings for mvmc
+`ndeploy help` will print help about this command
+`ndeploy up` launch current commit into vm
+`ndeploy launch [projectname] [branch] [commit]` launch [commit] (default is head) on the [branch] (default is master) for [projectname] into remote nextdeploy
+`ndeploy destroy` destroy current vm associated to this project
+`ndeploy ssh` ssh into current vm
+`ndeploy projects` list projects for current user
+`ndeploy clone [project-name]` clone project in current folder
+`ndeploy config [endpoint] [username] [password]` get/set properties settings for nextdeploy
 ```
 
-The git repository for cli application: https://github.com/ricofehr/mvmc-cli
+The git repository for cli application: https://github.com/ricofehr/nextdeploy-cli
 
 
 ## Ember
@@ -229,7 +229,7 @@ For generate application.js
 cd ror/public && ./bin/./ember_build
 ```
 
-The git repository for webui application: https://github.com/ricofehr/mvmc-webui
+The git repository for webui application: https://github.com/ricofehr/nextdeploy-webui
 
 ## Yard
 
