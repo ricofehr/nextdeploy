@@ -503,7 +503,7 @@ EOF
   $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};" tmp/remote/ndc2/global.yaml
   $BINSED -i "s;%%MAILADMIN%%;${mailadmin};" tmp/remote/ndc2/global.yaml
   $BINSED -i "s;%%ADMINPASSWORD%%;${adminpassword};" tmp/remote/ndc2/global.yaml
-  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/ndc2/default.vcl.ndc2
+  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};g" tmp/remote/ndc2/default.vcl.ndc2
   $BINSED -i "s;%%PUBLICADDRESS%%;0.0.0.0;" tmp/remote/ndc2/pound.cfg
   $BINSED -i "s;%%HTTPADDRESS%%;127.0.0.1;" tmp/remote/ndc2/pound.cfg
 
@@ -514,24 +514,24 @@ EOF
   cp ror/config/environments/production.rb.dist tmp/remote/nextdeploy/production.rb
 
   # prepare rails config file
-  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/nextdeploy/production.rb
-  $BINSED -i "s;%%NEXTDEPLOYSUF%%;${nextdeploysuf};" tmp/remote/nextdeploy/production.rb
-  $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};" tmp/remote/nextdeploy/production.rb
-  $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/nextdeploy/production.rb
+  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};g" tmp/remote/nextdeploy/production.rb
+  $BINSED -i "s;%%NEXTDEPLOYSUF%%;${nextdeploysuf};g" tmp/remote/nextdeploy/production.rb
+  $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};g" tmp/remote/nextdeploy/production.rb
+  $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};g" tmp/remote/nextdeploy/production.rb
 
   # prepare hosts file
-  $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/hosts_global
-  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};" tmp/remote/hosts_global
-  $BINSED -i "s;%%APIPREFIX%%;${apiprefix};" tmp/remote/hosts_global
-  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${managementprefix};" tmp/remote/hosts_global
-  $BINSED -i "s;%%DATAPREFIX%%;${dataprefix};" tmp/remote/hosts_global
+  $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};g" tmp/remote/hosts_global
+  $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};g" tmp/remote/hosts_global
+  $BINSED -i "s;%%APIPREFIX%%;${apiprefix};g" tmp/remote/hosts_global
+  $BINSED -i "s;%%MANAGEMENTPREFIX%%;${managementprefix};g" tmp/remote/hosts_global
+  $BINSED -i "s;%%DATAPREFIX%%;${dataprefix};g" tmp/remote/hosts_global
   echo "${PUPPETIP} ${PUPPETFQDN}" >> tmp/remote/hosts_global
 
   # prepare nginx nextdeploy files
-  $BINSED -i "s;%%NEXTDEPLOYSUF%%;${nextdeploysuf};" tmp/remote/nextdeploy/os-http.conf
-  $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};" tmp/remote/nextdeploy/os-http.conf
-  $BINSED -i "s;%%GITLABURI%%;${gitlaburi};" tmp/remote/nextdeploy/os-http.conf
-  $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};" tmp/remote/nextdeploy/os-doc.conf
+  $BINSED -i "s;%%NEXTDEPLOYSUF%%;${nextdeploysuf};g" tmp/remote/nextdeploy/os-http.conf
+  $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};g" tmp/remote/nextdeploy/os-http.conf
+  $BINSED -i "s;%%GITLABURI%%;${gitlaburi};g" tmp/remote/nextdeploy/os-http.conf
+  $BINSED -i "s;%%NEXTDEPLOYURI%%;${nextdeployuri};g" tmp/remote/nextdeploy/os-doc.conf
 
   #prepare puma.sh
   $BINSED -i "s;%%RAILSENV%%;production -t 8:32 -w 2;" tmp/remote/nextdeploy/puma-start
