@@ -242,19 +242,14 @@ newdrupal() {
 
   #install drupal
   pushd "${DOCROOT}" > /dev/null
-  if [[ "$version" = "7" ]]; then
-    drush dl drupal
-  else
-    drush dl drupal-6
-  fi
+  drush dl drupal-${version}
 
   #remove tmp drupal-x folder
   drupalfolder="$(ls | grep "drupal")"
   if [[ -d "$drupalfolder" ]]; then
     mv ${PROJROOT}${projname}/_online/server/${drupalfolder}/* .
     mv "${drupalfolder}/.htaccess" .
-    rm "${drupalfolder}/.gitignore"
-    rmdir "$drupalfolder"
+    rm -rf ${PROJROOT}${projname}/_online/server/drupal*
 
     pushd "${DOCONLINE}" > /dev/null
     cp "${RORSBIN}/files/gitignore_drupal" .gitignore
@@ -279,6 +274,11 @@ newdrupal6() {
 #create a drupal7 website
 newdrupal7() {
   newdrupal -v 7 "$@"
+}
+
+#create a drupal8 website
+newdrupal8() {
+  newdrupal -v 8 "$@"
 }
 
 #create symfony website

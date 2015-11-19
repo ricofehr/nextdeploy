@@ -116,11 +116,11 @@ pm_g = Group.create!(name: 'Project Manager', access_level: 20)
 guest_g = Group.create!(name: 'Guest', access_level: 10)
 puts "Created #{Group.count} groups"
 
-admin = User.create!(email: 'usera@os.nextdeploy', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: admin_g)
-user_lead = User.create!(email: 'userl@os.nextdeploy', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: lead_g)
-user_dev = User.create!(email: 'userd@os.nextdeploy', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: dev_g)
-user_pm = User.create!(email: 'userp@os.nextdeploy', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: pm_g)
-user_g = User.create!(email: 'userg@os.nextdeploy', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: guest_g)
+admin = User.create!(email: 'usera@os.nextdeploy', firstname: 'usera', lastname: 'usera', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: admin_g)
+user_lead = User.create!(email: 'userl@os.nextdeploy', firstname: 'userl', lastname: 'userl', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: lead_g)
+user_dev = User.create!(email: 'userd@os.nextdeploy', firstname: 'userd', lastname: 'userd', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: dev_g)
+user_pm = User.create!(email: 'userp@os.nextdeploy', firstname: 'userp', lastname: 'userp', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: pm_g)
+user_g = User.create!(email: 'userg@os.nextdeploy', firstname: 'userg', lastname: 'userg', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: guest_g)
 
 puts "Created #{User.count} users"
 
