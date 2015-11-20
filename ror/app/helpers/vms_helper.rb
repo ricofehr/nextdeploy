@@ -51,6 +51,8 @@ module VmsHelper
         # tools are disabled without auth
         if project.login && project.login.length > 0
           f.puts "is_auth: 'yes'\n"
+          f.puts "httpuser: '#{project.login}'\n"
+          f.puts "httppasswd: '#{ftppasswd}'\n"
         else
           f.puts "is_auth: 'no'\n"
         end

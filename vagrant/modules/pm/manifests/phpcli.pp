@@ -37,18 +37,8 @@ class pm::phpcli {
     date_timezone => 'Europe/Paris'
   } ->
 
-  exec {'pear-consoletable':
-    command => 'pear install -f Console_Table'
-  } ->
-
   exec { 'getdrush':
-    command => 'wget https://github.com/drush-ops/drush/releases/download/8.0.0-rc4/drush.phar',
-    creates => '/usr/local/bin/drush',
-    cwd => '/tmp'
-  } ->
-
-  exec { 'coredrush':
-    command => 'php drush.phar core-status',
+    command => 'wget http://files.drush.org/drush.phar',
     creates => '/usr/local/bin/drush',
     cwd => '/tmp'
   } ->  
