@@ -29,7 +29,7 @@ class ProjectSerializer < ActiveModel::Serializer
   # gitpath needs string changes
   def attributes
     data = super
-    data[:gitpath] = Rails.application.config.gitlab_endpoint0.gsub('http://', '') << ':/root/' << data[:gitpath] if current_user.lead?
+    data[:gitpath] = Rails.application.config.gitlab_endpoint0.gsub(/https?:\/\//, '') << ':/root/' << data[:gitpath] if current_user.lead?
     data
   end
 end
