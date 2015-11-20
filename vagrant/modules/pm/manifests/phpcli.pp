@@ -30,18 +30,16 @@ class pm::phpcli {
         ensure => installed,
         require => Exec['apt-update']
   } ->
+
+  php::ini { '/etc/php5/cli/php.ini':
+    memory_limit   => '1024M',
+    max_execution_time => '0',
+    date_timezone => 'Europe/Paris'
+  } ->
+
   exec {'pear-consoletable':
     command => 'pear install -f Console_Table'
   } ->
-
-  #exec {'pear-drushchannel':
-  #  command => 'pear channel-discover pear.drush.org',
-  #  unless => 'pear list-channels | grep pear.drush.org'
-  #} ->
-  #exec {'drush-install':
-  #  command => 'pear install -f drush/drush',
-  #  onlyif => 'test ! -f /usr/bin/drush',
-  #} ->
 
   exec { 'getdrush':
     command => 'wget https://github.com/drush-ops/drush/releases/download/8.0.0-rc4/drush.phar',
