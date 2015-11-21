@@ -40,7 +40,8 @@ class pm::varnish {
       "puppet:///modules/pm/varnish/default.vcl.${v}"
     ],
     owner => 'root',
-    group => 'root'
+    group => 'root',
+    notify => Service['varnish']
   } ->
   file { '/etc/varnish/auth.vcl':
     ensure => file,

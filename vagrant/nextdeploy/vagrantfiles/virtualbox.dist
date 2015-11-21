@@ -10,7 +10,7 @@ Vagrant.configure("2") do |config|
       nextdeploy.vm.synced_folder "../../ror", "/ror", type: '%%FILESHARETYPE%%'
       nextdeploy.vm.synced_folder "../../out", "/out", type: '%%FILESHARETYPE%%'
       nextdeploy.vm.synced_folder "../../puppet", "/puppet", type: '%%FILESHARETYPE%%'
-      nextdeploy.vm.box_url = "http://imgs.nextdeploy.io:8383/vbox/mc.box"
+      nextdeploy.vm.box_url = "http://imgs.nextdeploy.io/vbox/mc.box"
       nextdeploy.vm.provider :virtualbox do |virthost|
         virthost.customize ["modifyvm", :id, "--nictype1", "virtio"]
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
