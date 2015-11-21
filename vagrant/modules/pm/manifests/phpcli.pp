@@ -31,12 +31,6 @@ class pm::phpcli {
         require => Exec['apt-update']
   } ->
 
-  php::ini { '/etc/php5/cli/php.ini':
-    memory_limit   => '1024M',
-    max_execution_time => '0',
-    date_timezone => 'Europe/Paris'
-  } ->
-
   exec { 'getdrush':
     command => 'wget http://files.drush.org/drush.phar',
     creates => '/usr/local/bin/drush',

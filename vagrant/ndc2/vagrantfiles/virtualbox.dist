@@ -8,7 +8,7 @@ Vagrant.configure("2") do |config|
     config.vm.define :ndc2, primary: true do |ndc2|
       ndc2.vm.hostname = :ndc2
       ndc2.vm.box = "mc"
-      ndc2.vm.box_url = "http://imgs.nextdeploy.io:8383/vbox/mc.box"
+      ndc2.vm.box_url = "http://imgs.nextdeploy.io/vbox/mc.box"
       ndc2.vm.provider :virtualbox do |virthost|
         ndc2.vm.network :private_network, :ip => "%%PUBPREFIX%%.50", :netmask => "255.255.255.128", nictype: "virtio"
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]

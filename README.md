@@ -1,6 +1,6 @@
 # NextDeploy
 
-[![Build Status](http://build.nextdeploy.services-pm.fr:9292/buildStatus/icon?job=nextdeploy)](http://build.nextdeploy.services-pm.fr:9292/job/nextdeploy/)
+[![Build Status](http://build.nextdeploy.io/buildStatus/icon?job=nextdeploy)](http://build.nextdeploy.io/job/nextdeploy/)
 
 The project is an ongoing deployment system virtualized development environment in the cloud. Generic installation templates are defined for different frameworks or cms. When creating a project, a git repository is associated with this installation template. Thus, virtual machines can be run on demand by deploying the site on a preinstalled system following prerequisites specified in the template.
 

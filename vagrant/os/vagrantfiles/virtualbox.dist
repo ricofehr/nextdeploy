@@ -7,7 +7,7 @@ Vagrant.configure("2") do |config|
     config.vm.define :uosc, primary: true do |uosc|
       uosc.vm.hostname = :uosc
       uosc.vm.box = "uos-c"
-      uosc.vm.box_url = "http://imgs.nextdeploy.io:8383/vbox/uos-c.box"
+      uosc.vm.box_url = "http://imgs.nextdeploy.io/vbox/uos-c.box"
       uosc.vm.provider :virtualbox do |virthost|
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
@@ -25,7 +25,7 @@ Vagrant.configure("2") do |config|
    config.vm.define :uosnv, autostart: false do |uosnv|
       uosnv.vm.hostname = :uosnv
       uosnv.vm.box = "uos-s"
-      uosnv.vm.box_url = "http://imgs.nextdeploy.io:8383/vbox/uos-s.box"
+      uosnv.vm.box_url = "http://imgs.nextdeploy.io/vbox/uos-s.box"
       uosnv.vm.provider :virtualbox do |virthost|
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
@@ -46,7 +46,7 @@ Vagrant.configure("2") do |config|
    config.vm.define :uosnt, autostart: false do |uosnt|
       uosnt.vm.hostname = :uosnt
       uosnt.vm.box = "uos-c"
-      uosnt.vm.box_url = "http://imgs.nextdeploy.io:8383/vbox/uos-c.box"
+      uosnt.vm.box_url = "http://imgs.nextdeploy.io/vbox/uos-c.box"
       uosnt.vm.provider :virtualbox do |virthost|
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
@@ -65,7 +65,7 @@ Vagrant.configure("2") do |config|
    config.vm.define :uosst, autostart: false do |uosst|
       uosst.vm.hostname = :uosst
       uosst.vm.box = "uos-s"
-      uosst.vm.box_url = "http://imgs.nextdeploy.io:8383/vbox/uos-s.box"
+      uosst.vm.box_url = "http://imgs.nextdeploy.io/vbox/uos-s.box"
       uosst.vm.provider :virtualbox do |virthost|
         virthost.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
         virthost.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
