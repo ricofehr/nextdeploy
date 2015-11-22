@@ -557,6 +557,7 @@ update_puppet() {
   rm -rf tmp/remote/nginx
   rm -f tmp/remote/puma-start_*
   rm -f tmp/remote/default.vcl_*
+  rm -f tmp/remote/pound.cfg_*
 
   # backup actual fw files, puppet files, hosts and nginx conf
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/fw tmp/remote/
@@ -565,6 +566,7 @@ update_puppet() {
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma-start_* tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/default.vcl_* tmp/remote/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/pound/pound.cfg_* tmp/remote/
 
   # clean puppet master
   ssh -t -t -p ${PUPPETSSHPORT} root@${PUPPETIP} 'rm -rf /etc/puppet/modules'
@@ -579,6 +581,7 @@ update_puppet() {
   [[ -d tmp/remote/nginx ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nginx root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   test -f tmp/remote/puma-start_* && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puma-start_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
   test -f tmp/remote/default.vcl_* && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/default.vcl_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/
+  test -f tmp/remote/pound.cfg_* && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/pound.cfg_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/pound/
 
   # a second time to ensure that default hosts / puppet / fw / nginx files are updated
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" vagrant/modules root@${PUPPETIP}:/etc/puppet/
