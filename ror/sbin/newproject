@@ -249,12 +249,17 @@ newdrupal() {
   if [[ -d "$drupalfolder" ]]; then
     mv ${PROJROOT}${projname}/_online/server/${drupalfolder}/* .
     mv "${drupalfolder}/.htaccess" .
+    # fix for server-status
+    sed -i "s;^.*RewriteRule.*index.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" .htaccess
     rm -rf ${PROJROOT}${projname}/_online/server/drupal*
 
     pushd "${DOCONLINE}" > /dev/null
     cp "${RORSBIN}/files/gitignore_drupal" .gitignore
     cp "${RORSBIN}/files/crontab_drupal" scripts/crontab
     sed -i "s;%%DOCROOT%%;${DOCROOT};" scripts/crontab
+    # add https support
+    echo "if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') { $_SERVER['HTTPS'] = 'on';}" >> sites/default/default.settings.php
+    # add and commit
     git add .
     git add .gitignore
     git add .htaccess
