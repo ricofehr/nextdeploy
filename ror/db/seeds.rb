@@ -24,12 +24,12 @@ flavor_large = Vmsize.create!(title: 'm1.large', description: '4cpu/8192M/80G') 
 
 #Framework import rows
 framework_sf2 = Framework.create!(name: 'Symfony2', publicfolder: 'web/',
-rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /app_dev.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /app_dev.php [L]\\n",
+rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /app_dev.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /app_dev.php [L]\\n",
 puppetclass: 'pm::deploy::symfony2')
 framework_drupal = Framework.create!(name: 'Drupal7', publicfolder: '',
 rewrites: '', puppetclass: 'pm::deploy::drupal')
 framework_wordpress = Framework.create!(name: 'Wordpress', publicfolder: '',
-rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /index.php [L]\\n",
+rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /index.php [L]\\n",
 puppetclass: 'pm::deploy::wordpress')
 framework_no = Framework.create(name: 'Static', publicfolder: '', rewrites: '', puppetclass: 'pm::deploy::static')
 puts "Created #{Framework.count} frameworks"
