@@ -90,7 +90,8 @@ postdrupal() {
   # if sql or mongo import, updb and cc
   pushd ${DOCROOT} > /dev/null
   drush updb -y
-  drush cc all
+  drush -y cc all
+  (( $? -= 0 )) && drush -y cr
   popd > /dev/null
 }
 
