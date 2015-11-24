@@ -252,13 +252,15 @@ newdrupal() {
     # fix for server-status
     sed -i "s;^.*RewriteRule.*index.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" .htaccess
     rm -rf ${PROJROOT}${projname}/_online/server/drupal*
+    # install memcache module
+    drush -y dl memcache
 
     pushd "${DOCONLINE}" > /dev/null
     cp "${RORSBIN}/files/gitignore_drupal" .gitignore
     cp "${RORSBIN}/files/crontab_drupal" scripts/crontab
     sed -i "s;%%DOCROOT%%;${DOCROOT};" scripts/crontab
     # add https support
-    echo "if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') { $_SERVER['HTTPS'] = 'on';}" >> sites/default/default.settings.php
+    echo "if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') { \$_SERVER['HTTPS'] = 'on';}" >> server/sites/default/default.settings.php
     # add and commit
     git add .
     git add .gitignore
