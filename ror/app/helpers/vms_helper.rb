@@ -78,6 +78,7 @@ module VmsHelper
         f.puts "framework: #{project.framework.name.downcase}\n"
         f.puts "ismysql: 1\n" if project.technos.any? { |t| t.name.include? 'mysql' }
         f.puts "ismongo: 1\n" if project.technos.any? { |t| t.name.include? 'mongo' }
+        f.puts "iscache: 'yes'\n" if project.technos.any? { |t| t.name.include? 'memcache' }
         f.puts "ossecip: #{Rails.application.config.ndc2ip}\n"
         f.puts "influxip: #{Rails.application.config.ndc2ip}\n"
       }
