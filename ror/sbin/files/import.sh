@@ -23,6 +23,7 @@ Usage: $0 [options]
 --ftphost xxxx    override nextdeploy ftp host
 --ismysql x       1/0 if mysql-server present (default is 0)
 --ismongo x       1/0 if mysql-server present (default is 0)
+--uri xxxx        set main uri for the website
 EOF
 
 exit 0
@@ -72,7 +73,6 @@ while (($# > 0)); do
       posthelp
       ;;
     *)
-      posthelp
       shift
       ;;
   esac
