@@ -73,19 +73,20 @@ apache_vhost:
         custom_fragment: \"%{rewrites}\"")
 
 techno_mongodb = Techno.create!(name: "mongodb", puppetclass: "pm::nosql::mongo", ordering: 80,
-                                hiera: "is_mongo: yes")
+                                hiera: "ismongo: 1")
 techno_rabbitmq = Techno.create!(name: "rabbitmq", puppetclass: "pm::rabbit", ordering: 60,
                                 hiera: "")
 techno_elasticsearch = Techno.create!(name: "elasticsearch", puppetclass: "pm::elastic", ordering: 40,
                                 hiera: "")
 techno_memcached = Techno.create!(name: "memcached", puppetclass: "pm::nosql::memcache", ordering: 100,
-                                hiera: "")
+                                hiera: "iscache: 1")
 techno_redis = Techno.create!(name: "redis", puppetclass: "pm::nosql::redis", ordering: 80,
                                 hiera: "")
 techno_varnish = Techno.create!(name: "varnish", puppetclass: "pm::varnish", ordering: 200,
                                 hiera: "")
 techno_mysql = Techno.create!(name: "mysql", puppetclass: "pm::sql", ordering: 70,
-hiera: "mysql_db:
+hiera: "ismysql: 1
+mysql_db:
   s_bdd:
     user: s_bdd
     password: s_bdd
