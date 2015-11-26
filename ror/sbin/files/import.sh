@@ -181,6 +181,7 @@ importsql() {
 importmongo() {
   local ret=0
   local mongofile=''
+  local mongofolder=''
 
   # prepare tmp folder
   rm -rf /tmp/dump
@@ -192,7 +193,9 @@ importmongo() {
     # take the first one
     mongofile="$(ls *.tar.gz | head -n 1 | sed "s;.tar.gz;;" | tr -d "\n")"
     tar xvfz ${mongofile}.tar.gz
-    LC_ALL=en_US.UTF-8 mongorestore --drop $mongofile
+    rm -f *.tar.gz
+    mongofolder="$(ls)" 
+    LC_ALL=en_US.UTF-8 mongorestore --drop $mongofolder
     (( $? != 0 )) && ret=1
   else
     ret=1
@@ -218,6 +221,7 @@ assetsarchive() {
     # take the first one
     archivefile="$(ls *.tar.gz | head -n 1 | tr -d "\n")"
     tar xvfz "$archivefile"
+    rm -f "$archivefile"
     if (( $? == 0 )); then
       mkdir -p ${destfolder}
       rsync -av * ${destfolder}/

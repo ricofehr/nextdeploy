@@ -50,11 +50,11 @@ module VmsHelper
 
         # tools are disabled without auth
         if project.login && project.login.length > 0
-          f.puts "is_auth: 'yes'\n"
+          f.puts "isauth: 1\n"
           f.puts "httpuser: '#{project.login}'\n"
           f.puts "httppasswd: '#{ftppasswd}'\n"
         else
-          f.puts "is_auth: 'no'\n"
+          f.puts "isauth: 0\n"
         end
 
         # varnish3 for older linux
@@ -73,12 +73,10 @@ module VmsHelper
         f.puts "weburi: #{vm_url}\n"
         f.puts "project: #{project.name}\n"
         f.puts "nextdeployuri: #{Rails.application.config.nextdeployuri}\n"
+        f.puts "system: '#{systemimage.name}'"
         f.puts "ftpuser: #{project.gitpath}\n"
         f.puts "ftppasswd: #{ftppasswd}\n"
         f.puts "framework: #{project.framework.name.downcase}\n"
-        f.puts "ismysql: 1\n" if project.technos.any? { |t| t.name.include? 'mysql' }
-        f.puts "ismongo: 1\n" if project.technos.any? { |t| t.name.include? 'mongo' }
-        f.puts "iscache: 'yes'\n" if project.technos.any? { |t| t.name.include? 'memcache' }
         f.puts "ossecip: #{Rails.application.config.ndc2ip}\n"
         f.puts "influxip: #{Rails.application.config.ndc2ip}\n"
       }
