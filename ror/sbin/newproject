@@ -300,6 +300,8 @@ newsymfony2() {
   cp "${RORSBIN}/files/console" app/
   cp "${RORSBIN}/files/app.php" web/
   cp "${RORSBIN}/files/app_dev.php" web/
+  # fix for server-status
+  sed -i "s;^.*RewriteRule.*app.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" web/.htaccess  
   popd > /dev/null
 
   pushd "${DOCONLINE}" > /dev/null
