@@ -164,56 +164,67 @@ class pm::postinstall::nextdeploy {
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   exec { 'copyserial':
     command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/keys/serial /ror/vpnkeys/serial',
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   exec { 'copycakey':
     command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/keys/ca.key /ror/vpnkeys/ca.key',
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   exec { 'copycacrt':
     command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/keys/ca.crt /ror/vpnkeys/ca.crt',
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   exec { 'copywhichopenssl':
     command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/whichopensslcnf /ror/vpnkeys/bin/whichopensslcnf',
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   exec { 'copyopenssl098':
     command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/openssl-0.9.8.cnf /ror/vpnkeys/bin/openssl-0.9.8.cnf',
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   exec { 'copyopenssl100':
     command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/openssl-1.0.0.cnf /ror/vpnkeys/bin/openssl-1.0.0.cnf',
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   exec { 'copyopenssl096':
     command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/openssl-0.9.6.cnf /ror/vpnkeys/bin/openssl-0.9.6.cnf',
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   exec { 'copyopenssl':
     command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/openssl.cnf /ror/vpnkeys/bin/openssl.cnf',
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   exec { 'copypkitool':
     command => 'cp -f /etc/openvpn/nextdeploy/easy-rsa/pkitool /ror/vpnkeys/bin/pkitool',
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   exec { 'chownmodemvpnkeys':
     command => 'chown -R modem: /ror/vpnkeys',
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   # redirect gitlab to https
   file_line { 'gitlabhttps':
     path => '/var/opt/gitlab/nginx/conf/gitlab-http.conf',
@@ -221,6 +232,7 @@ class pm::postinstall::nextdeploy {
     match => '.*server_tokens off;.*',
     multiple => false
   }  ->
+
   # patch gitlab for auto-confirm users
   file { '/opt/gitlab/embedded/service/gitlab-rails/lib/api/users.rb':
     ensure => file,
@@ -229,18 +241,21 @@ class pm::postinstall::nextdeploy {
     mode => '0664',
     require => Exec['gitlab_reconfigure']
   } ->
+
   # some custom settings for gitlab
   exec { 'gitlabusersetting':
     command => '/opt/gitlab/embedded/bin/psql -h /var/opt/gitlab/postgresql -d gitlabhq_production -c "UPDATE application_settings SET signup_enabled=\'f\',max_attachment_size=60, default_projects_limit=0;"',
     user => 'gitlab-psql',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   # restart gitlab
   exec { 'restartgitalb':
     command => '/usr/bin/gitlab-ctl restart',
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   # ensure that ror and out folders is on modem owner
   # temporary before git repo will be public
   exec { 'chownmodem':
@@ -249,41 +264,49 @@ class pm::postinstall::nextdeploy {
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   # disable hostkey verification on nextdeploy
   file_line { 'disable_hostchecking_ssh':
     path => '/etc/ssh/ssh_config',
     line => 'StrictHostKeyChecking no'
   } ->
+
   # git config email
   exec { 'gitconfig1':
     command => 'git config --global user.email admin@example.com',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   # git config username
   exec { 'gitconfig2':
     command => 'git config --global user.name root',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   # prepare ror website
   exec { 'bundle-clean':
     command => 'rm -rf vendor/bundle/*',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   # clean sshkeys
   exec { 'sshkeys-clean':
     command => 'rm -f sshkeys/*',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   # clean privatetoken
   exec { 'token-clean':
     command => 'rm -f tmp/private_token',
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   # need sudo for manage ftp users
   file_line { 'sudo_rule':
     path => '/etc/sudoers',
     line => 'modem ALL=(root) NOPASSWD: /usr/local/bin/./nextdeploy-*',
   } ->
+
   # install ruby bundles
   exec { 'bundle-ror':
     command => 'bundle install --path vendor/bundle > /out/logbundle.log 2>&1',
@@ -291,47 +314,55 @@ class pm::postinstall::nextdeploy {
     creates => '/home/modem/.installnextdeploy',
     require => [ Package['libmysqlclient-dev'], Class['rvm'], Class['memcached'] ]
   } ->
+
   # database installation
   exec { 'db-schema':
     command => 'rake db:schema:load > /out/logdbschema.log 2>&1',
     timeout => 0,
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   exec { 'db-migrate':
     command => 'rake db:migrate > /out/logdbmigrate.log 2>&1',
     timeout => 0,
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   exec { 'db-seed':
     command => 'rake db:seed > /out/logdbseed.log 2>&1',
     timeout => 0,
     creates => '/home/modem/.installnextdeploy',
     require => File['/bin/sh']
   } ->
+
   # ensure puma folder is here for create socket
   file { '/var/run/puma':
     ensure =>  directory,
     owner => 'modem',
     mode => '0777'
   } ->
+
   # ensure /var/run/puma create on each reboot
   file_line { 'pumarclocal':
     path => '/etc/rc.local',
     line => 'mkdir -p /var/run/puma && chown modem: /var/run/puma',
     match => '^$',
     multiple => false
-  }  ->
+  } ->
+
   # generate doc
   exec { 'yardoc_ror':
     command => 'bundle exec yardoc lib/**/*.rb app/**/*.rb config/**/*.rb',
     timeout => 120,
     creates => '/home/modem/.installnextdeploy'
   } ->
+
   file { '/hiera':
     ensure => 'link',
     target => '/ror/hiera',
     owner => 'root',
   } ->
+
   exec { 'touchinstallnextdeploy':
     command => 'touch /home/modem/.installnextdeploy',
     creates => '/home/modem/.installnextdeploy'
@@ -342,19 +373,19 @@ class pm::postinstall::nextdeploy {
     manage_package_repo       => false,
     nodejs_dev_package_ensure => 'present',
     npm_package_ensure        => 'present',
-  }
-  ->
+  } ->
+  
   file { '/usr/bin/node':
     ensure   => 'link',
     target => '/usr/bin/nodejs',
-  }
-  ->
+  } ->
+
   package { 'fsmonitor':
     ensure   => present,
     provider => 'npm',
     require => Exec['apt-update']
-  }
-  ->
+  } ->
+
   package { 'ember-tools':
     ensure   => present,
     provider => 'npm',

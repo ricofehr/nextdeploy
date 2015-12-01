@@ -26,6 +26,9 @@ flavor_large = Vmsize.create!(title: 'm1.large', description: '4cpu/8192M/80G') 
 framework_sf2 = Framework.create!(name: 'Symfony2', publicfolder: 'web/',
 rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /app_dev.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /app_dev.php [L]\\n",
 puppetclass: 'pm::deploy::symfony2')
+framework_sf3 = Framework.create!(name: 'Symfony3', publicfolder: 'web/',
+rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /app_dev.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /app_dev.php [L]\\n",
+puppetclass: 'pm::deploy::symfony3')
 framework_drupal = Framework.create!(name: 'Drupal7', publicfolder: '',
 rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/favicon.ico\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteRule ^ index.php [L]\\n", 
 puppetclass: 'pm::deploy::drupal')
