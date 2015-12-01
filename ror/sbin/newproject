@@ -185,6 +185,9 @@ newproject() {
     Symfony2)
       newsymfony2 -n "$projname"
       ;;
+    Symfony3)
+      newsymfony3 -n "$projname"
+      ;;
     Ezpublish_2014.05)
       newez -n "$projname"
       ;;
@@ -288,18 +291,18 @@ newdrupal8() {
   newdrupal -v 8 "$@"
 }
 
-#create symfony website
+#create symfony2 website
 newsymfony2() {
   # debug "init symfony2 project..."
   pushd "${DOCROOT}" > /dev/null
   curl -s https://getcomposer.org/installer | php
-  php composer.phar create-project symfony/framework-standard-edition sf2 --no-progress --no-interaction
+  php composer.phar create-project symfony/framework-standard-edition sf2 "2.*" --no-progress --no-interaction
   mkdir -p vendor; mv sf2/vendor/* vendor/; rm -rf sf2/vendor
   mv sf2/* .; rm sf2/.gitignore; rm -rf sf2
   php composer.phar install --no-progress --no-interaction
-  cp "${RORSBIN}/files/console" app/
-  cp "${RORSBIN}/files/app.php" web/
-  cp "${RORSBIN}/files/app_dev.php" web/
+  sed -i "s;//umask(0000;umask(0002;" app/console
+  sed -i "s/^use.*Request;/& umask(0002);/" web/app.php
+  sed -i "s/^use.*Request;/& umask(0002);/" web/app_dev.php
   # fix for server-status
   sed -i "s;^.*RewriteRule.*app.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" web/.htaccess  
   popd > /dev/null
@@ -309,6 +312,34 @@ newsymfony2() {
   git add .
   git add .gitignore
   git commit -m "init sf2"
+  git push origin master
+
+  popd > /dev/null
+
+  # debug "init symfony done"
+}
+
+#create symfony3 website
+newsymfony3() {
+  # debug "init symfony3 project..."
+  pushd "${DOCROOT}" > /dev/null
+  curl -s https://getcomposer.org/installer | php
+  php composer.phar create-project symfony/framework-standard-edition sf3 "3.*" --no-progress --no-interaction
+  mkdir -p vendor; mv sf3/vendor/* vendor/; rm -rf sf3/vendor
+  mv sf3/* .; rm sf3/.gitignore; rm -rf sf3
+  php composer.phar install --no-progress --no-interaction
+  sed -i "s;//umask(0000;umask(0002;" bin/console
+  sed -i "s/^use.*Request;/& umask(0002);/" web/app.php
+  sed -i "s/^use.*Request;/& umask(0002);/" web/app_dev.php
+  # fix for server-status
+  sed -i "s;^.*RewriteRule.*app.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" web/.htaccess
+  popd > /dev/null
+
+  pushd "${DOCONLINE}" > /dev/null
+  cp "${RORSBIN}/files/gitignore_sf3" .gitignore
+  git add .
+  git add .gitignore
+  git commit -m "init sf3"
   git push origin master
 
   popd > /dev/null

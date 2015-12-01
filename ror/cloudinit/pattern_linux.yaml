@@ -15,7 +15,7 @@ bootcmd:
  - cloud-init-per instance my_etc_hosts sh -xc "sed -i 's/exit 0/puppet agent --enable/' /etc/rc.local;echo 'exit 0' >> /etc/rc.local;sed -i -e '/^127.0.1.1/d' /etc/hosts; echo 127.0.1.1 %{vmreplace}%{os_suffix} %{vmreplace} >> /etc/hosts"
 
 # Run 'apt-get update' on first boot
-#apt_update: true
+apt_update: true
 
 # Run 'apt-get upgrade' on first boot
 #apt_upgrade: true
