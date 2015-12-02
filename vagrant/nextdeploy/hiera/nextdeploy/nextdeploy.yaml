@@ -74,6 +74,8 @@ gitlab::gitlab_rails:
 gitlab::unicorn:
   somaxconn: 2048
   worker_timeout: 120
+  worker_memory_limit_min: '800*(1024**2)'
+  worker_memory_limit_max: '1000*(1024**2)'
 gitlab::nginx:
   gzip: 'on'
   custom_nginx_config: 'server_names_hash_bucket_size 128;client_max_body_size 64m;large_client_header_buffers 32 128k;include /etc/os-doc.conf;include /etc/os-http.conf;'

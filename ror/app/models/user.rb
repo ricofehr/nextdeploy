@@ -41,9 +41,9 @@ class User < ActiveRecord::Base
   # Return gitlab username
   #
   # No param
-  # @return [String] gitlab username compliant
+  # @return [String] gitlab username compliant (remove @ and . from email)
   def gitlab_user
-    self.email.gsub(/@.*/,'')
+    self.email.gsub(/@/,'').gsub(/\./,'')
   end
 
   # Return group access_level

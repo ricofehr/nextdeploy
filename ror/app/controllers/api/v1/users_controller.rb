@@ -4,6 +4,9 @@ module API
     #
     # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
     class UsersController < ApplicationController
+      # except forgot to rest auth
+      before_filter :authenticate_user_from_token!, :except => [:forgot]
+      before_filter :authenticate_api_v1_user!, :except => [:forgot]
       # Check user right for avoid no-authorized access
       before_action :check_lead, only: [:show_by_email, :index, :show, :update]
       # Hook who set user object
@@ -125,6 +128,8 @@ module API
         # Json output (return error if issue occurs)
         respond_to do |format|
           if @user_c
+            # Send a welcome email
+            UserMailer.welcome_email(@user_c, user_params[:password]).deliver
             format.json { render json: @user_c, status: 200 }
           else
             format.json { render json: nil, status: :unprocessable_entity }
@@ -149,6 +154,22 @@ module API
             format.json { render json: @user_c.errors, status: :unprocessable_entity }
           end
         end
+      end
+
+      # send again welcome email if forgot password
+      def forgot
+        @user_c = User.find_by_email(params[:email])
+
+        # generate a new password
+        genpass = Devise.friendly_token.first(8)
+        # test if user exists
+        if @user_c && @user_c.update(password: genpass, password_confirmation: genpass)
+          # update gitlab user details
+          @user_c.update_gitlabuser
+          # Send a welcome email
+          UserMailer.welcome_email(@user_c, genpass).deliver 
+        end
+        render nothing: true, status: 200
       end
 
       # Destroy user object
