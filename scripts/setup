@@ -32,7 +32,7 @@ FILESHARETYPE='virtualbox' # define which sharing strategy for rails app between
 STARTVM=0 # start a test vm after build complete
 
 # display help
-nexdeployhelp() {
+nextdeployhelp() {
   cat <<EOF
 Usage: $0 [options]
 
