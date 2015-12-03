@@ -38,14 +38,14 @@ glance_image:
     is_public: 'yes'
     container_format: 'bare'
     disk_format: 'qcow2'
-    source: 'http://imgs.nextdeploy.io:8383/os/osvm-jessie.img'
+    source: 'http://imgs.nextdeploy.io/os/osvm-jessie.img'
   osvm-trusty:
     ensure: present
     name: 'osvm-trusty'
     is_public: 'yes'
     container_format: 'bare'
     disk_format: 'qcow2'
-    source: 'http://imgs.nextdeploy.io:8383/os/osvm-trusty.img'
+    source: 'http://imgs.nextdeploy.io/os/osvm-trusty.img'
 
 #keystone setting
 keystone::enabled: false
