@@ -74,7 +74,7 @@ module API
       # houuuu que c est moche
       def ember_to_rails
         params_p = params[:sshkey]
-        params_p[:user_id] = params_p[:user]
+        params_p[:user_id] = params_p[:user] unless params_p[:user_id]
         params_p.delete(:user)
         params[:sshkey] = params_p
       end
