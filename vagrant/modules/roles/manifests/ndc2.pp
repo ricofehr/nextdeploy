@@ -12,7 +12,7 @@ class roles::ndc2 {
   class {'pm::base':} ->
   class {'pm::pound':} ->
   class {'pm::jenkins':} ->
-  class {'pm::w3af':} ->
+#  class {'pm::w3af':} ->
   class {'pm::monitor::services':} ->
   class {'pm::monitor::collect':} ->
   class {'pm::hids::server':} ->

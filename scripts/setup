@@ -368,9 +368,10 @@ preparefiles() {
   $BINSED -i "s;%%OSMANAGEMENTSUF%%;${MANAGEMENTPREFIX##*.};" Vagrantfile
   # on fedora, we set rsync type for avoir firewalld issue
   $BINSED -i "s;%%FILESHARETYPE%%;${FILESHARETYPE};" Vagrantfile
+  popd > /dev/null
   # fix an issue when rsync share
   rm -f puppet/pm/files/sshkeys
-  popd > /dev/null
+  rm -f puppet/pm/files/varnish/auth
 
   output -q "Prepare vagrantfile for ndc2 node"
   pushd vagrant/ndc2 > /dev/null
@@ -437,6 +438,12 @@ preparefiles() {
   rm -f default.vcl.*
   cp ../default.vcl.ndc2 default.vcl_ndc2
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" default.vcl_ndc2
+  popd > /dev/null
+
+  output -q "Prepare project pattern definitions"
+  pushd ror/jsons > /dev/null
+  cp -f create_project.json.dist create_project.json
+  cp -f new_project.json.dist new_project.json
   popd > /dev/null
 
   output -q "Prepare rails development.rb settings file"

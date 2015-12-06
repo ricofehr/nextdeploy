@@ -39,7 +39,7 @@ module API
           if @user.lead?
             @users = []
             projects = @user.projects
-            if projects
+            if projects && projects.length > 0
               @users = projects.map { |project| project.users }
               @users.flatten!.uniq!
               @users.select! { |u| ! u.admin? }
@@ -61,6 +61,19 @@ module API
         respond_to do |format|
           format.json { render json: @user_c, status: 200 }
         end
+      end
+
+      # Check user email
+      def check_email
+        valid = true
+        email = params[:email]
+        user_id = params[:id].to_i
+        # check if the email is already taken by other users
+        User.all.each do |user_e|
+          valid = false if user_e.id != user_id && user_e.email.eql?(email)
+        end
+        (valid) ? (codestatus = 200) : (codestatus = 410)
+        render nothing: true, status: codestatus
       end
 
       # Details about current logged user (recorded into rails session)
@@ -213,6 +226,7 @@ module API
         params_p.delete(:authentication_token)
         params_p.delete(:group)
         params_p.delete(:projects)
+        params_p.delete(:own_projects)
         params_p.delete(:group_id) if ! @user.admin?
         params_p.delete(:quotavm) if ! @user.lead?
         params_p.delete(:project_ids) if ! @user.admin?
@@ -222,7 +236,7 @@ module API
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def user_params
-        params.require(:user).permit(:email, :company, :quotavm, :firstname, :lastname, :password, :password_confirmation, :group_id, :project_ids => [])
+        params.require(:user).permit(:email, :company, :quotavm, :firstname, :lastname, :password, :password_confirmation, :is_project_create, :group_id, :project_ids => [])
       end
     end
   end

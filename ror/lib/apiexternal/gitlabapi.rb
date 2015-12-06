@@ -91,21 +91,27 @@ module Apiexternal
 
     # Add a new gitlab sshkey
     #
-    # @param username [String] the gitlab username
+    # @param user_id [Integer] the gitlab userid
     # @param name [String] the sshkey name
     # @param key [String] the public key
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return [Integer] the gitlab sshkeyid
-    def add_sshkey(username, name, key)
-      sudo(username)
-      begin
-        gitlab_id = Gitlab.create_ssh_key(name, key).id
-      rescue Exceptions => e
-        raise Exceptions::GitlabApiException.new("add ssh_key #{name} for #{username} failed, #{e}")
-      end
-      nosudo
+    def add_sshkey(user_id, name, key)
+      
+      add_sshkey = {
+        title: name,
+        key: key
+      }
 
-      return gitlab_id
+      response = @conn.post do |req|
+        req.url "/api/v3/users/#{user_id}/keys"
+        req.headers = self.headers
+        req.body = add_sshkey.to_json
+      end
+
+      raise Exceptions::GitlabApiException.new("add ssh_key #{name} for #{user_id} failed") if response.status != 201
+
+      return json(response.body)[:id]
     end
 
     # Create a new gitlab project
@@ -269,16 +275,19 @@ module Apiexternal
       return branch
     end
 
-    # Return gitlab projects binding to username user
+    # Return gitlab projects binding to user_id user
     #
-    # @param username [String] the gitlab username
+    # @param user_id [Integer] the gitlab userid
     # @returns [Array] projects list
-    def get_projects(username)
-      sudo(username)
-      projects = Gitlab.projects
-      nosudo
+    def get_projects(user_id)
+      response = @conn.get do |req|
+        req.url "/api/v3/projects?sudo=#{user_id}"
+        req.headers = self.headers
+      end
 
-      projects
+      raise Exceptions::GitlabApiException.new("get projects for #{user_id} failed") if response.status != 200
+
+      return json(response.body)
     end
 
     # Return gitlab users binding to gitlab_id project
@@ -311,14 +320,15 @@ module Apiexternal
     # @param gitlab_id [Integer] the sshkey id
     # @raise Exceptions::GitlabApiException if errors occurs
     # No return
-    def delete_sshkey(username, gitlab_id)
-      sudo(username)
-      begin
-        Gitlab.delete_ssh_key(gitlab_id)
-      rescue Exceptions => e
-        raise Exceptions::GitlabApiException.new("delete ssh_key #{gitlab_id} failed, #{e}")
+    def delete_sshkey(user_id, gitlab_id)
+      return if !gitlab_id
+
+      response = @conn.delete do |req|
+        req.url "/api/v3/users/#{user_id}/keys/#{gitlab_id}"
+        req.headers = self.headers
       end
-      nosudo
+
+      raise Exceptions::GitlabApiException.new("delete sshkey #{gitlab_id} failed, #{response.body}") if response.status != 200
     end
 
     # Delete a project
