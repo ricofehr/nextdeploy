@@ -107,7 +107,7 @@ techno_nodejs = Techno.create!(name: "nodejs", puppetclass: "pm::nodejs", orderi
 puts "Created #{Techno.count} technos"
 
 #Brand import rows
-brand_cust1 = Brand.create!(name: "MyCompany")
+brand_cust1 = Brand.create!(name: "Test Company")
 brand_cust2 = Brand.create!(name: "YourCompany")
 brand_cust3 = Brand.create!(name: "HisCompany")
 
@@ -124,11 +124,11 @@ pm_g = Group.create!(name: 'Project Manager', access_level: 20)
 guest_g = Group.create!(name: 'Guest', access_level: 10)
 puts "Created #{Group.count} groups"
 
-admin = User.create!(email: 'usera@os.nextdeploy', firstname: 'usera', lastname: 'usera', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: admin_g)
-user_lead = User.create!(email: 'userl@os.nextdeploy', firstname: 'userl', lastname: 'userl', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: lead_g)
-user_dev = User.create!(email: 'userd@os.nextdeploy', firstname: 'userd', lastname: 'userd', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: dev_g)
-user_pm = User.create!(email: 'userp@os.nextdeploy', firstname: 'userp', lastname: 'userp', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: pm_g)
-user_g = User.create!(email: 'userg@os.nextdeploy', firstname: 'userg', lastname: 'userg', company: 'My Company', quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: guest_g)
+admin = User.create!(email: 'usera@os.nextdeploy', firstname: 'usera', lastname: 'usera', company: 'My Company', is_project_create: true, quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: admin_g)
+user_lead = User.create!(email: 'userl@os.nextdeploy', firstname: 'userl', lastname: 'userl', company: 'My Company', is_project_create: true, quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: lead_g)
+user_dev = User.create!(email: 'userd@os.nextdeploy', firstname: 'userd', lastname: 'userd', company: 'My Company', is_project_create: false, quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: dev_g)
+user_pm = User.create!(email: 'userp@os.nextdeploy', firstname: 'userp', lastname: 'userp', company: 'My Company', is_project_create: false, quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: pm_g)
+user_g = User.create!(email: 'userg@os.nextdeploy', firstname: 'userg', lastname: 'userg', company: 'My Company', is_project_create: false, quotavm: 0, password: 'word123123', password_confirmation: 'word123123', group: guest_g)
 
 puts "Created #{User.count} users"
 
@@ -136,40 +136,40 @@ puts "Created #{User.count} users"
 #Project import rows
 project_drupal = Project.create!(name: "www.drupalmycompany.com", brand: brand_cust1, framework: framework_drupal,
                                gitpath: "mycompany-www-drupalmycompany-com", systemimagetype: linux, enabled: true,
-                               login: "modem", password: "modem",
+                               login: "modem", password: "modem", owner: admin,
                                vmsizes: [flavor_tiny, flavor_small],
                                users: [admin, user_lead, user_dev, user_pm, user_g],
                                technos: [techno_varnish, techno_apache, techno_mysql, techno_redis, techno_memcached])
 project_symfony_c = Project.create!(name: "www.symfonyyourcompany.com", systemimagetype: linux, brand: brand_cust2, framework: framework_sf2,
-                                  login: "modem", password: "modem",
+                                  login: "modem", password: "modem", owner: admin,
                                   vmsizes: [flavor_tiny, flavor_small],
                                   gitpath: "yourcompany-www-symfonyyourcompany-com", enabled: true,
                                   users: [admin, user_dev, user_g],
                                   technos: [techno_varnish, techno_apache, techno_mongodb, techno_redis, techno_rabbitmq, techno_elasticsearch])
 
 project_symfony_s = Project.create!(name: "www.symfonyhiscompany.com", systemimagetype: linux, brand: brand_cust3, framework: framework_sf2,
-                                        login: "modem", password: "modem",
+                                        login: "modem", password: "modem", owner: admin,
                                         vmsizes: [flavor_tiny],
                                         gitpath: "hiscompany-www-symfonyhiscompany-com", enabled: true,
                                         users: [admin, user_dev],
                                         technos: [techno_varnish, techno_apache, techno_mysql, techno_redis])
 
 project_no = Project.create!(name: "www.statichiscompany.com", systemimagetype: linux, brand: brand_cust3, framework: framework_no,
-                                      login: "modem", password: "modem",
+                                      login: "modem", password: "modem", owner: admin,
                                       vmsizes: [flavor_tiny],
                                       users: [admin, user_lead, user_dev],
                                       gitpath: "hiscompany-www-statichiscompany-com", enabled: true,
                                       technos: [techno_varnish, techno_apache])
 
 project_wordpress = Project.create!(name: "www.wordpressmycompany.com", systemimagetype: linux, brand: brand_cust1, framework: framework_wordpress,
-                               login: "modem", password: "modem",
+                               login: "modem", password: "modem", owner: admin,
                                vmsizes: [flavor_tiny, flavor_small],
                                users: [admin, user_lead, user_g],
                                gitpath: "mycompany-www-wordpressmycompany-com", enabled: true,
                                technos: [techno_varnish, techno_apache, techno_mysql])
 
 project_njs = Project.create!(name: "www.njsyourcompany.com", systemimagetype: linux, brand: brand_cust2, framework: framework_no,
-                                      login: "modem", password: "modem",
+                                      login: "modem", password: "modem", owner: admin,
                                       vmsizes: [flavor_tiny],
                                       users: [admin, user_lead, user_dev],
                                       gitpath: "yourcompany-www-njsyourcompany-com", enabled: true,

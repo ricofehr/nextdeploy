@@ -8,13 +8,14 @@ class Project < ActiveRecord::Base
   belongs_to :brand
   belongs_to :framework
   belongs_to :systemimagetype
+  belongs_to :owner, class_name: "User", foreign_key: "owner_id", inverse_of: :own_projects
 
   has_many :project_technos, dependent: :destroy
   has_many :prefix_dns_s, dependent: :destroy
   has_many :technos, through: :project_technos
 
   has_many :user_project, dependent: :destroy
-  has_many :users, through: :user_project
+  has_many :users, through: :user_project, inverse_of: :projects
 
   has_many :project_vmsize, dependent: :destroy
   has_many :vmsizes, through: :project_vmsize

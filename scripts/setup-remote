@@ -513,6 +513,10 @@ EOF
   # prepare rails production config file
   cp ror/config/environments/production.rb.dist tmp/remote/nextdeploy/production.rb
 
+  # prepare project pattern definitions
+  cp -f ror/jsons/create_project.json.dist tmp/remote/nextdeploy/create_project.json
+  cp -f ror/jsons/new_project.json.dist tmp/remote/nextdeploy/new_project.json
+
   # prepare rails config file
   $BINSED -i "s;%%PUBPREFIX%%;${publicprefix};g" tmp/remote/nextdeploy/production.rb
   $BINSED -i "s;%%NEXTDEPLOYSUF%%;${nextdeploysuf};g" tmp/remote/nextdeploy/production.rb
@@ -818,6 +822,7 @@ install_nextdeploy() {
   pushd tmp/nextdeploygit > /dev/null
   ssh root@${remote_ip} 'mkdir -p /home/nextdeploy'
   git clone --recursive git@github.com:ricofehr/nextdeploy.git .
+  # rsync rails app (git clone on remote server should be better)
   rsync -avzPessh . root@${remote_ip}:/home/nextdeploy/
   ssh root@${remote_ip} 'ln -sf /home/nextdeploy/puppet /puppet'
   ssh root@${remote_ip} 'ln -sf /home/nextdeploy/ror /ror'
@@ -826,8 +831,10 @@ install_nextdeploy() {
   popd > /dev/null
   rm -rf tmp/nextdeploygit
 
-  # rsync rails app (git clone on remote server should be better)
+  # rsync dist files (rails settings and project patterns)
   rsync -avzPessh tmp/remote/nextdeploy/production.rb root@${remote_ip}:/ror/config/environments/
+  ssh root@${remote_ip} '[[ -f /ror/jsons/create_project.json ]]' || rsync -avzPessh tmp/remote/nextdeploy/create_project.json root@${remote_ip}:/ror/jsons/
+  ssh root@${remote_ip} '[[ -f /ror/jsons/new_project.json ]]' || rsync -avzPessh tmp/remote/nextdeploy/new_project.json root@${remote_ip}:/ror/jsons/
 
   # synchro hiera files
   scp -P ${PUPPETSSHPORT} tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/

@@ -53,7 +53,7 @@ class Sshkey < ActiveRecord::Base
       @osapi.add_sshkey(self.name, self.key)
 
       #gitlab side
-      self.gitlab_id = @gitlabapi.add_sshkey(user.gitlab_user, self.name, self.key)
+      self.gitlab_id = @gitlabapi.add_sshkey(user.gitlab_id, self.name, self.key)
     rescue Exceptions::NextDeployException => me
       me.log
     end
@@ -82,8 +82,8 @@ class Sshkey < ActiveRecord::Base
       @osapi.add_sshkey(self.name, self.key)
 
       #gitlab side
-      @gitlabapi.delete_sshkey(user.gitlab_user, self.gitlab_id)
-      self.gitlab_id = @gitlabapi.add_sshkey(user.gitlab_user, self.name, self.key)
+      @gitlabapi.delete_sshkey(user.gitlab_id, self.gitlab_id)
+      self.gitlab_id = @gitlabapi.add_sshkey(user.gitlab_id, self.name, self.key)
     rescue Exceptions::NextDeployException => me
       me.log
     end
@@ -99,7 +99,7 @@ class Sshkey < ActiveRecord::Base
       @osapi.delete_sshkey(self.name)
 
       #gitlab side
-      @gitlabapi.delete_sshkey(user.gitlab_user, self.gitlab_id)
+      @gitlabapi.delete_sshkey(user.gitlab_id, self.gitlab_id)
     rescue Exceptions::NextDeployException => me
       me.log
     end

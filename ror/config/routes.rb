@@ -8,6 +8,8 @@ Rails.application.routes.draw do
 
       # Some custom routes
       get '/projects/git/:gitpath' => 'projects#show_by_gitpath', as: 'project_by_gitpath', constraints: { gitpath: /.+/ }
+      get '/projects/:id/name/:name' => 'projects#check_name', as: 'project_check_name', constraints: { id: /\d+/, name: /[a-zA-Z0-9_\.-]+/ }
+      get '/users/:id/email/:email' => 'users#check_email', as: 'user_check_email', constraints: { id: /\d+/, email: /.+@.+\..*/ }
       get '/users/email/:email' => 'users#show_by_email', as: 'user_by_email', constraints: { email: /.+@.+\..*/ }
       get '/users/:id' => 'users#show', as: 'user', constraints: { id: /\d+/ }
       get '/user' => 'users#show_current', as: 'user_current'

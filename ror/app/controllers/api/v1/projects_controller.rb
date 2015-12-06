@@ -5,12 +5,12 @@ module API
     # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
     class ProjectsController < ApplicationController
       # Hook who set project object
-      before_action :set_project, only: [:show, :update, :destroy]
+      before_action :set_project, only: [:update, :destroy]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
       # Check user right for avoid no-authorized access
       before_action :check_admin, only: [:index]
-      before_action :only_admin, only: [:create, :destroy, :update]
+      before_action :only_create, only: [:create, :destroy, :update]
 
       # List all projects
       def index
@@ -43,9 +43,51 @@ module API
 
       # Display details about one project
       def show
-        # Json output
-        respond_to do |format|
-          format.json { render json: @project, status: 200 }
+        if ! params[:id].eql?('0')
+          @project = Project.includes(:users).includes(:technos).find(params[:id])
+          # Json output
+          respond_to do |format|
+            format.json { render json: @project, status: 200 }
+          end
+        else
+          if @user.admin?
+            new_pattern
+          else
+            create_pattern
+          end
+        end
+      end
+
+      # Check project name
+      def check_name
+        valid = true
+        name = params[:name]
+        proj_id = params[:id].to_i
+        # check if the name is already taken by other projects
+        Project.all.each do |proj| 
+          valid = false if proj.id != proj_id && proj.name.eql?(name)
+        end
+        (valid) ? (codestatus = 200) : (codestatus = 410)
+        render nothing: true, status: codestatus
+      end
+
+      # return default "create project" (pattern for user no-admin who can creates project)
+      def create_pattern
+        # display file
+        if File.exist?('jsons/create_project.json')
+          render file: 'jsons/create_project.json', status: 200, content_type: "application/json"
+        else
+          render nothing: true, status: 500
+        end
+      end
+
+      # return default "new project" (pattern for admin who creates project)
+      def new_pattern
+        # display file
+        if File.exist?('jsons/new_project.json')
+          render file: 'jsons/new_project.json', status: 200, content_type: "application/json"
+        else
+          render nothing: true, status: 500
         end
       end
 
@@ -102,6 +144,20 @@ module API
       end
 
       private
+        # check right about admin user
+        def only_create
+          if ! @user.is_project_create?
+            raise Exceptions::GitlabApiException.new("Access forbidden for this user")
+          end
+
+          # only admin can change anyone project
+          if ! @user.admin? && params[:owner_id] && params[:owner_id] != @user.id
+            raise Exceptions::GitlabApiException.new("Access forbidden for this user")
+          end
+
+          true
+        end
+
         # Use callbacks to share common setup or constraints between actions.
         def set_project
           @project = Project.includes(:users).includes(:technos).find(params[:id])
@@ -114,6 +170,7 @@ module API
 
           params_p[:techno_ids] = params_p[:technos]
           params_p[:user_ids] = params_p[:users]
+          params_p[:owner_id] = params_p[:owner]
           params_p[:framework_id] = params_p[:framework]
           params_p[:brand_id] = params_p[:brand]
           params_p[:systemimagetype_id] = params_p[:systemimagetype]
@@ -125,6 +182,7 @@ module API
           params_p.delete(:created_at)
           params_p.delete(:technos)
           params_p.delete(:users)
+          params_p.delete(:owner)
           params_p.delete(:framework)
           params_p.delete(:brand)
           params_p.delete(:systemimagetype)
@@ -135,7 +193,7 @@ module API
 
         # Never trust parameters from the scary internet, only allow the white list through.
         def project_params
-          params.require(:project).permit(:name, :gitpath, :brand_id, :framework_id, :systemimagetype_id, :enabled, :login, :password, :user_ids => [], :techno_ids => [], :vmsize_ids => [])
+          params.require(:project).permit(:name, :gitpath, :brand_id, :framework_id, :systemimagetype_id, :enabled, :login, :password, :owner_id, :user_ids => [], :techno_ids => [], :vmsize_ids => [])
         end
     end
   end

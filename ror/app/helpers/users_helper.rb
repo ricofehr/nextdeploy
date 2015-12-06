@@ -115,7 +115,7 @@ module UsersHelper
     system("ssh-keygen -f sshkeys/#{self.email} -N ''")
     system("chmod 644 sshkeys/#{self.email}")
     system("chmod 644 sshkeys/#{self.email}.pub")
-    @gitlabapi.add_sshkey(gitlab_user, "modemsshkey", public_sshkey_modem)
+    @gitlabapi.add_sshkey(gitlab_id, "modemsshkey", public_sshkey_modem)
   end
 
   # Copy modem ssh key

@@ -18,6 +18,10 @@ nohup.out
 /ror/config/environments/production.rb
 /ror/config/environments/development.rb
 
+# Ignore pattern files
+/ror/jsons/create_project.json
+/ror/jsons/new_project.json
+
 # Ignore sshkeys symlink
 /puppet/pm/files/sshkeys
 
