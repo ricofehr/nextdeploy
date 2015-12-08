@@ -2,7 +2,7 @@
 #
 # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
 class TechnoSerializer < ActiveModel::Serializer
-  attributes :id, :name, :puppetclass, :hiera
+  attributes :id, :name
   delegate :current_user, to: :scope
 
   has_many :projects, key: :projects
