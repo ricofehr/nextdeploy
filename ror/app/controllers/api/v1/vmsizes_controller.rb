@@ -12,7 +12,7 @@ module API
       # List all vmsizes
       def index
         # select only objects allowed by current user
-        if @user.admin?
+        if @user.is_project_create
           @vmsizes = Vmsize.all
         else
           @vmsizes = []
