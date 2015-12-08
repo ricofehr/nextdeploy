@@ -12,7 +12,7 @@ module API
       # List all technos objects
       def index
         # select only objects allowed by current user
-        if @user.is_project_create
+        if @user.project_create?
           @technos = Techno.all
         else
           @technos = []

@@ -146,7 +146,7 @@ module API
       private
         # check right about admin user
         def only_create
-          if ! @user.is_project_create?
+          if ! @user.project_create?
             raise Exceptions::GitlabApiException.new("Access forbidden for this user")
           end
 

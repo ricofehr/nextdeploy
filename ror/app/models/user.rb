@@ -63,6 +63,14 @@ class User < ActiveRecord::Base
     self.group.admin?
   end
 
+  # Return true if project_create right
+  #
+  # No param
+  # @return [Boolean] if project_create right
+  def project_create?
+    self.is_project_create
+  end
+
   # Return true if lead or admin
   #
   # No param
