@@ -76,6 +76,8 @@ module API
         params_p = params[:sshkey]
         params_p[:user_id] = params_p[:user] unless params_p[:user_id]
         params_p.delete(:user)
+        # normalize name value
+        params_p[:name].gsub!(/[^a-zA-Z-]/,'')
         params[:sshkey] = params_p
       end
 
