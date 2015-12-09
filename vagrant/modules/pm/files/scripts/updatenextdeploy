@@ -17,7 +17,7 @@ git fetch --all --tags
 (( $? != 0 )) && exit 1
 git reset --hard $TAG
 (( $? != 0 )) && exit 1
-git submodule update --init
+git submodule update --init --recursive
 (( $? != 0 )) && exit 1
 popd >/dev/null
 

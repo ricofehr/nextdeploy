@@ -79,8 +79,15 @@ apache_vhost:
         - 'All'
         custom_fragment: \"%{rewrites}\"")
 
-techno_mongodb = Techno.create!(name: "mongodb", puppetclass: "pm::nosql::mongo", ordering: 80,
-                                hiera: "ismongo: 1")
+techno_mongodb = Techno.create!(name: "mongodb-2.6", puppetclass: "pm::nosql::mongo", ordering: 80,
+                                hiera: "ismongo: 1
+mongodb::globals::version: '2.6'")
+techno_mongodb3 = Techno.create!(name: "mongodb-3.0", puppetclass: "pm::nosql::mongo", ordering: 80,
+                                hiera: "ismongo: 1
+mongodb::globals::version: '3.0'")
+techno_mongodb32 = Techno.create!(name: "mongodb-3.2", puppetclass: "pm::nosql::mongo", ordering: 80,
+                                hiera: "ismongo: 1
+mongodb::globals::version: '3.2'")
 techno_rabbitmq = Techno.create!(name: "rabbitmq", puppetclass: "pm::rabbit", ordering: 60,
                                 hiera: "")
 techno_elasticsearch = Techno.create!(name: "elasticsearch", puppetclass: "pm::elastic", ordering: 40,
