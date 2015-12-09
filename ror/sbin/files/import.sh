@@ -195,7 +195,7 @@ importmongo() {
     tar xvfz ${mongofile}.tar.gz
     rm -f *.tar.gz
     mongofolder="$(ls)" 
-    LC_ALL=en_US.UTF-8 mongorestore --drop $mongofolder
+    LC_ALL=en_US.UTF-8 mongorestore -d $mongofolder --drop $mongofolder
     (( $? != 0 )) && ret=1
   else
     ret=1
@@ -241,7 +241,7 @@ case "$FRAMEWORK" in
   "drupal"*)
     postdrupal
     ;;
-  "symfony2")
+  "symfony"*)
     postsymfony2
     ;;
   "wordpress")
