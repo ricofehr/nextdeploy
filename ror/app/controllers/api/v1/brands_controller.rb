@@ -19,7 +19,8 @@ module API
           projects = @user.projects
           if projects
             @brands = [] << projects.map { |project| project.brand }
-            @brands.flatten!.uniq!
+            @brands.flatten! if @brands.flatten
+            @brands.uniq!
           end
         end
 
