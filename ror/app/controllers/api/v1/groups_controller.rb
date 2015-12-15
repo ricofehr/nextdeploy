@@ -15,7 +15,20 @@ module API
         if @user.admin?
           @groups = Group.all
         else
-          @groups = [] << @user.group
+          if @user.lead?
+            @groups = [] << @user.group
+            projects = @user.projects
+            if projects && projects.length > 0
+              users = projects.map { |project| project.users }
+              users.flatten! if users.flatten
+              users.uniq!
+              users.select! { |u| ! u.admin? }
+              @groups = users.map { |usr| usr.group }
+              @groups.uniq!
+            end
+          else
+            @groups = [] << @user.group
+          end
         end
 
         respond_to do |format|

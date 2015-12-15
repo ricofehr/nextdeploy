@@ -19,7 +19,8 @@ module API
           projects = @user.projects
           if projects
             @frameworks = [] << projects.map { |project| project.framework }
-            @frameworks.flatten!.uniq!
+            @frameworks.flatten! if @frameworks.flatten
+            @frameworks.uniq!
           end
         end
 

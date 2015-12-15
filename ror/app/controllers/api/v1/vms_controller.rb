@@ -34,7 +34,8 @@ module API
               projects = @user.projects
               if projects
                 @vms = [] << projects.map { |project| project.vms }
-                @vms.flatten!.uniq!
+                @vms.flatten! if @vms.flatten
+                @vms.uniq!
                 @vms.select! { |v| ! v.user.admin? }
               end
             else

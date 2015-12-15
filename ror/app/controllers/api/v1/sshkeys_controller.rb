@@ -94,7 +94,7 @@ module API
       # check right for grant access
       def check_rights
         sshkeys = @user.sshkeys
-        if !@user.admin?
+        if !@user.lead?
           # for update / destroy, check that the sshkey is owner by current user
           if (@sshkey && !sshkeys.include?(@sshkey))
               raise Exceptions::NextDeployException.new("Access forbidden for this user")

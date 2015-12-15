@@ -41,7 +41,8 @@ module API
             projects = @user.projects
             if projects && projects.length > 0
               @users = projects.map { |project| project.users }
-              @users.flatten!.uniq!
+              @users.flatten! if @users.flatten
+              @users.uniq!
               @users.select! { |u| ! u.admin? }
             end
           else

@@ -19,7 +19,8 @@ module API
           projects = @user.projects
           if projects
             @vmsizes = [] << projects.map { |project| project.vmsizes }
-            @vmsizes.flatten!.uniq!
+            @vmsizes.flatten! if @vmsizes.flatten
+            @vmsizes.uniq!
           end
         end
 
