@@ -37,7 +37,7 @@ do_start()
 {
         $IPTABLES -P INPUT DROP
         $IPTABLES -P OUTPUT DROP
-        
+
 	    #accept forward
 	    $IPTABLES -P FORWARD ACCEPT
 

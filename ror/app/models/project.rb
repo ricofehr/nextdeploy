@@ -1,6 +1,6 @@
 # The Project object
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class Project < ActiveRecord::Base
   # IO function are included into helpers module
   include ProjectsHelper
@@ -27,28 +27,18 @@ class Project < ActiveRecord::Base
   validates :brand_id, :framework_id, numericality: {only_integer: true, greater_than: 0}
 
   # Git repository dependence
-  before_create :init_gitlabapi, :create_git, :create_ftp
-  before_update :init_gitlabapi, :update_git
-  before_destroy :init_gitlabapi, :delete_git, :remove_ftp
-
-  @gitlabapi = nil
+  before_create :create_git, :create_ftp
+  before_update :update_git
+  before_destroy :delete_git, :remove_ftp
 
   private
-
-  # Init gitlabapi object
-  #
-  # No param
-  # No return
-  def init_gitlabapi
-    @gitlabapi = Apiexternal::Gitlabapi.new
-  end
 
   # Init branchs array
   #
   # No param
   # No return
   def branches
-      Branche.all(self.id)
+      Branche.all(id)
   end
 
 
@@ -58,13 +48,14 @@ class Project < ActiveRecord::Base
   # No return
   def create_git
     branchs = ['develop', 'hotfixes', 'release']
+    gitlabapi = Apiexternal::Gitlabapi.new
 
     begin
-      self.gitlab_id = @gitlabapi.create_project(self.name, self.gitpath)
+      self.gitlab_id = gitlabapi.create_project(name, gitpath)
       create_rootfolder
-      branchs.each {|branch| @gitlabapi.create_branch(self.gitlab_id, branch, 'master')}
-      @gitlabapi.unprotect_branch(self.gitlab_id, 'master')
-      self.users.each {|user| @gitlabapi.add_user_to_project(self.gitlab_id, user.gitlab_id, user.access_level)}
+      branchs.each {|branch| gitlabapi.create_branch(gitlab_id, branch, 'master')}
+      gitlabapi.unprotect_branch(gitlab_id, 'master')
+      users.each {|user| gitlabapi.add_user_to_project(gitlab_id, user.gitlab_id, user.access_level)}
     rescue Exceptions::NextDeployException => me
       me.log
     end
@@ -75,8 +66,10 @@ class Project < ActiveRecord::Base
   # No param
   # No return
   def delete_git
+    gitlabapi = Apiexternal::Gitlabapi.new
+
     begin
-      @gitlabapi.delete_project(self.gitlab_id)
+      gitlabapi.delete_project(gitlab_id)
     rescue Exceptions::NextDeployException => me
       me.log
     end
@@ -88,19 +81,20 @@ class Project < ActiveRecord::Base
   # No param
   # No return
   def update_git
-    
+    gitlabapi = Apiexternal::Gitlabapi.new
+
     begin
-      users_g = @gitlabapi.get_project_users(self.gitlab_id)
+      users_g = gitlabapi.get_project_users(gitlab_id)
       # remove user to project if needed
       users_g.each do |user|
-        unless self.users.any? { |usr| usr.gitlab_id == user.id }
-          @gitlabapi.delete_user_to_project(self.gitlab_id, user.id)
+        unless users.any? { |usr| usr.gitlab_id == user.id }
+          gitlabapi.delete_user_to_project(gitlab_id, user.id)
         end
       end
 
-      self.users.each do |user| 
+      users.each do |user|
         unless users_g.any? { |usr| usr.id == user.gitlab_id }
-          @gitlabapi.add_user_to_project(self.gitlab_id, user.gitlab_id, user.access_level)
+          gitlabapi.add_user_to_project(gitlab_id, user.gitlab_id, user.access_level)
         end
       end
     rescue Exceptions::NextDeployException => me

@@ -1,6 +1,6 @@
 # This class format ssh key properties for json output
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class SshkeySerializer < ActiveModel::Serializer
   attributes :id, :key, :name, :gitlab_id
 

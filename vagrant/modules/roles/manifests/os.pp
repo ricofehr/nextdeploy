@@ -5,7 +5,7 @@
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class roles::os::uosc {
   class {'pm::base::apt':} ->
@@ -36,7 +36,7 @@ class roles::os::uosc {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class roles::os::uosnv {
   # get variable who say if this nova is the first and main compute node
@@ -68,7 +68,7 @@ class roles::os::uosnv {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class roles::os::uosnt {
   class {'pm::base::apt':} ->
@@ -91,7 +91,7 @@ class roles::os::uosnt {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class roles::os::uosst {
   class {'pm::base::apt':} ->

@@ -1,6 +1,6 @@
 # Parent class for all controllers
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class ApplicationController < ActionController::Base
   # include serializers class. Needed for serialization_scope parameter
   include ActionController::Serialization
@@ -71,10 +71,7 @@ class ApplicationController < ActionController::Base
   def authenticate_user_from_token!
     authenticate_with_http_token do |user_token, options|
       @user = user_token && User.find_by_authentication_token(user_token)
-
-      if @user
-        sign_in(:api_v1_user, @user)
-      end
+      sign_in(:api_v1_user, @user) if @user
     end
   end
 end

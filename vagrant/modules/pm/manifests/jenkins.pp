@@ -5,7 +5,7 @@
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::jenkins {
 
@@ -29,5 +29,5 @@ class pm::jenkins {
   service { 'jenkins':
     ensure => running,
     enable => true,
-  }  
+  }
 }

@@ -1,15 +1,12 @@
 # This object stores all property about a git commit
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class Commit
   # Activemodel object without database table
   include ActiveModel::Serializers::JSON
 
   # get on attributes
   attr_reader :id, :commit_hash, :project_id, :branche_id, :short_id, :title, :author_name, :author_email, :message, :created_at
-
-  # gitlab api connector
-  @gitlabapi = nil
 
   # Constructor
   #
@@ -26,11 +23,11 @@ class Commit
       project = Project.find(@project_id)
 
       begin
-        commit = 
-          # cache commit object during 1 day   
+        commit =
+          # cache commit object during 1 day
           Rails.cache.fetch("commits/#{@id}", expires_in: 24.hours) do
-            @gitlabapi = Apiexternal::Gitlabapi.new
-            @gitlabapi.get_commit(project.gitlab_id, commit_hash)          
+            gitlabapi = Apiexternal::Gitlabapi.new
+            gitlabapi.get_commit(project.gitlab_id, commit_hash)
           end
 
         options[:short_id] = commit.short_id
@@ -54,15 +51,14 @@ class Commit
 
   # Find function. Return a commit object from his id
   #
-  # @param id [String] projectid-branchname-commithash string
+  # @param idstr [String] projectid-branchname-commithash string
   # @return [Commit]
-  def self.find(id)
-    @id = id
-    tab = id.split('-')
+  def self.find(idstr)
+    tab = idstr.split('-')
     commit_hash = tab.pop
     branche_id = tab.join('-')
-    
-    new(commit_hash, branche_id)          
+
+    new(commit_hash, branche_id)
   end
 
   # Return all commits for a branch

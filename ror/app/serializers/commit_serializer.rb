@@ -1,6 +1,6 @@
 # This class format commit properties for json output
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class CommitSerializer < ActiveModel::Serializer
   attributes :id, :commit_hash, :short_id, :title, :author_name, :author_email, :message, :created_at
   delegate :current_user, to: :scope
@@ -13,7 +13,7 @@ class CommitSerializer < ActiveModel::Serializer
     if current_user.admin?
       object.vms
     elsif current_user.lead?
-      object.vms.select { |vm| ! vm.user.admin? && vm.project.users.include?(current_user) }
+      object.vms.select { |vm| !vm.user.admin? && vm.project.users.include?(current_user) }
     else
       object.vms.select { |vm| vm.user.id == current_user.id }
     end

@@ -8,12 +8,16 @@ Bundler.require(*Rails.groups)
 
 # Global properties for the rails app
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 module NextDeploy
   class Application < Rails::Application
     # Include externals custom apis
     config.autoload_paths += %W(#{config.root}/lib)
     config.autoload_paths += Dir["#{config.root}/lib/**/"]
+
+    # Timezone to paris
+    config.time_zone = "Europe/Paris"
+    config.active_record.default_timezone = :local
 
     # Set embed property for serializers objects
     ActiveModel::Serializer.setup do |config|

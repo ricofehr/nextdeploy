@@ -4,7 +4,7 @@ module API
     # Actually, Systemimage objects are managed directly in database.
     # Controller is needed only for display properties into json format for rest compliance
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class SystemimagesController < ApplicationController
       # set systemimage object before show function
       before_action :set_systemimage, only: [:show]

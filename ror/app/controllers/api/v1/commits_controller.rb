@@ -2,7 +2,7 @@ module API
   module V1
     # Commit controller for the rest API (V1).
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class CommitsController < ApplicationController
       # set commit object before show function
       before_action :set_commit, only: [:show]

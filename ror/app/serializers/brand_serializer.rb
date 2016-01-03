@@ -1,6 +1,6 @@
 # This class format brand properties for json output
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class BrandSerializer < ActiveModel::Serializer
   attributes :id, :name, :logo
   delegate :current_user, to: :scope

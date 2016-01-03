@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Setup script for install nextdeploy platform on remote servers
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, @github: ricofehr)
 
 PUPPETIP=''
 PUPPETFQDN=''
@@ -347,7 +347,7 @@ prerequisites() {
   popd > /dev/null
 
   # get the publicprefix
-  if [[ -z "$publicprefix" ]]; then 
+  if [[ -z "$publicprefix" ]]; then
     output -q -l "The openstack public network (default is 192.168.71) ?"
     read publicprefix
     [[ -z "$publicprefix" ]] && publicprefix='192.168.71'
@@ -392,7 +392,7 @@ prerequisites() {
   if [[ -z "$DOMAIN" ]] && [[ "$YES" = "0" ]]; then
     output -q -l "The local domain for the 5 nextdeploy servers ? (default is nothing)"
     read DOMAIN
-    [[ -z "$DOMAIN" ]] && DOMAIN='' 
+    [[ -z "$DOMAIN" ]] && DOMAIN=''
   fi
 
   # the nextdeploy webui
@@ -413,7 +413,7 @@ prerequisites() {
   if [[ -z "$nextdeploysuf" ]]; then
     output -q -l "The common wildcard subdomain for the vms ? (default is os.nextdeploy.${DOMAIN})"
     read nextdeploysuf
-    [[ -z "$nextdeploysuf" ]] && nextdeploysuf="os.nextdeploy.${DOMAIN}" 
+    [[ -z "$nextdeploysuf" ]] && nextdeploysuf="os.nextdeploy.${DOMAIN}"
   fi
 
   # an email for some alert purpose
@@ -495,7 +495,7 @@ EOF
   $BINSED -i "s;%%NEXTDEPLOYSUF%%;${nextdeploysuf};" tmp/remote/nextdeploy/global.yaml
   $BINSED -i "s;%%GITLABURI%%;${gitlaburi};" tmp/remote/nextdeploy/global.yaml
   $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/nextdeploy/global.yaml
-  $BINSED -i "s;%%RAILSENV%%;production;" tmp/remote/nextdeploy/global.yaml  
+  $BINSED -i "s;%%RAILSENV%%;production;" tmp/remote/nextdeploy/global.yaml
   $BINSED -i "s;%%PUBLICADDRESS%%;0.0.0.0;" tmp/remote/nextdeploy/pound.cfg
   $BINSED -i "s;%%HTTPADDRESS%%;127.0.0.1;" tmp/remote/nextdeploy/pound.cfg
   # ndc2 part
@@ -577,7 +577,7 @@ update_puppet() {
 
   # rsync puppet modules (rsync here but a git clone into puppet node should be better)
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" vagrant/modules root@${PUPPETIP}:/etc/puppet/
-  
+
   # upload specific folders
   [[ -d tmp/remote/fw ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/fw root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   [[ -d tmp/remote/puppet ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puppet root@${PUPPETIP}:/etc/puppet/modules/pm/files/
@@ -619,7 +619,7 @@ update_hierafiles() {
 
 # Upload puppet templates for openstack and manager install
 remote_puppet() {
-  
+
   output -q 'Working on remote puppet master'
   # install puppetmaster if we are on debian / ubuntu
   ssh -t -t -p ${PUPPETSSHPORT} root@${PUPPETIP} '[[ -f /etc/debian_version ]] && apt-get install puppetmaster'
@@ -644,7 +644,7 @@ remote_puppet() {
   - global
 EOF
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/hiera.yaml root@${PUPPETIP}:/etc/puppet/hiera.yaml
-  
+
   update_puppet
 
   # copy default hosts file
@@ -679,7 +679,7 @@ prepare_node() {
 
     # add puppetmaster into hosts file
     ssh root@${remote_ip} "echo '${PUPPETIP} ${PUPPETFQDN}' >> /etc/hosts"
-  
+
     # reboot remote uosc
     ssh -t -t root@${remote_ip} "reboot"
 
@@ -690,7 +690,7 @@ prepare_node() {
       while (( rtries++ < 3 )); do
         sleep $TIMETOREBOOT
         ssh root@${remote_ip} "pwd"
-        (( $? == 0 )) && break  
+        (( $? == 0 )) && break
       done
       (( rtries == 3 )) && output -e "The node $fqdn is not rebooted at time during install process"
     fi
@@ -777,7 +777,7 @@ install_osnode() {
   # synchro hiera files
   scp -P ${PUPPETSSHPORT} tmp/remote/global.yaml root@${PUPPETIP}:/var/lib/hiera/
   scp -P ${PUPPETSSHPORT} tmp/remote/os/${nodename}.yaml root@${PUPPETIP}:/var/lib/hiera/${fqdn}.yaml
-  
+
   # launch puppet-agent for start the installation
   launch_puppetagent $remote_ip $fqdn
 }

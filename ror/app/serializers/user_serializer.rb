@@ -1,6 +1,6 @@
 # This class format user properties for json output
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class UserSerializer < ActiveModel::Serializer
   attributes :id, :email, :authentication_token, :is_project_create, :company, :quotavm, :firstname, :lastname, :created_at
   delegate :current_user, to: :scope
@@ -10,6 +10,11 @@ class UserSerializer < ActiveModel::Serializer
   has_one :group, key: :group
   has_many :projects, key: :projects
   has_many :own_projects, key: :own_projects
+
+  # give auth_token only for current user
+  def authentication_token
+    object.authentication_token if !current_user || object.id == current_user.id
+  end
 
   # avoid for no lead/admin users to see other users details
   def projects

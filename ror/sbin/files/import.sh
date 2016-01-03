@@ -194,7 +194,7 @@ importmongo() {
     mongofile="$(ls *.tar.gz | head -n 1 | sed "s;.tar.gz;;" | tr -d "\n")"
     tar xvfz ${mongofile}.tar.gz
     rm -f *.tar.gz
-    mongofolder="$(ls)" 
+    mongofolder="$(ls)"
     LC_ALL=en_US.UTF-8 mongorestore -d $mongofolder --drop $mongofolder
     (( $? != 0 )) && ret=1
   else

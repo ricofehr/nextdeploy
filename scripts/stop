@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Stop script for halt nextdeploy platform
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, @github: ricofehr)
 
 # Include some usable functions
 source scripts/inc/utils

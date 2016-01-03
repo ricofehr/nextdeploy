@@ -5,14 +5,14 @@
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::pound {
   Exec {
     path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
     user => 'root'
   }
-  
+
   $https_address = hiera('global::httpsaddress', '0.0.0.0')
   $http_address = hiera('global::httpaddress', '127.0.0.1')
   $http_wildcard = hiera('global::httpwildcard', 'local')
@@ -67,5 +67,5 @@ class pm::pound {
   service { 'pound':
     ensure => running,
     enable => true,
-  }  
+  }
 }

@@ -1,6 +1,6 @@
 # The User object
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class User < ActiveRecord::Base
   # An Heleer module contains IO functions
   include UsersHelper
@@ -25,11 +25,8 @@ class User < ActiveRecord::Base
   # Some hooks before chnages on user object
   before_save :ensure_authentication_token
 
-  before_create :init_gitlabapi, :init_user, :generate_sshkey_modem, :generate_authorizedkeys, :generate_authentication_token, :generate_openvpn_keys
-  before_destroy :init_gitlabapi, :purge_user
-
-  # gitlabapi object
-  @gitlabapi = nil
+  before_create :init_user, :generate_sshkey_modem, :generate_authorizedkeys, :generate_authentication_token, :generate_openvpn_keys
+  before_destroy :purge_user
 
   # Return current token and generates one before it if needed
   #
@@ -44,7 +41,7 @@ class User < ActiveRecord::Base
   # No param
   # @return [String] gitlab username compliant (remove @ and . from email)
   def gitlab_user
-    self.email.gsub(/@/,'').gsub(/\./,'')
+    email.tr('@.','')
   end
 
   # Return group access_level
@@ -52,7 +49,7 @@ class User < ActiveRecord::Base
   # No param
   # @return [integer] group accesslevel
   def access_level
-    self.group.access_level
+    group.access_level
   end
 
   # Return true if admin
@@ -60,15 +57,7 @@ class User < ActiveRecord::Base
   # No param
   # @return [Boolean] if admin
   def admin?
-    self.group.admin?
-  end
-
-  # Return true if project_create right
-  #
-  # No param
-  # @return [Boolean] if project_create right
-  def project_create?
-    self.is_project_create
+    group.admin?
   end
 
   # Return true if lead or admin
@@ -76,7 +65,7 @@ class User < ActiveRecord::Base
   # No param
   # @return [Boolean] if admin
   def lead?
-    self.group.lead?
+    group.lead?
   end
 
   # Return true if guest
@@ -84,7 +73,7 @@ class User < ActiveRecord::Base
   # No param
   # @return [Boolean] if guest
   def guest?
-    self.group.access_level == 10
+    group.access_level == 10
   end
 
   # Update the user to gitlab
@@ -92,21 +81,21 @@ class User < ActiveRecord::Base
   # No param
   # No return
   def update_gitlabuser
-    init_gitlabapi
-    
+    gitlabapi = Apiexternal::Gitlabapi.new
+
     begin
-      @gitlabapi.update_user(self.gitlab_id, self.email, self.password, self.gitlab_user)
-      projects_g = @gitlabapi.get_projects(self.gitlab_id)
+      gitlabapi.update_user(gitlab_id, email, password, gitlab_user)
+      projects_g = gitlabapi.get_projects(gitlab_id)
       # remove user to project if needed
       projects_g.each do |project|
-        unless self.projects.any? { |proj| proj.gitlab_id == project[:id] }
-          @gitlabapi.delete_user_to_project(project[:id], self.gitlab_id)
+        unless projects.any? { |proj| proj.gitlab_id == project[:id] }
+          gitlabapi.delete_user_to_project(project[:id], gitlab_id)
         end
       end
 
-      self.projects.each do |project| 
+      projects.each do |project|
         unless projects_g.any? { |proj| proj[:id] == project.gitlab_id }
-          @gitlabapi.add_user_to_project(project.gitlab_id, self.gitlab_id, self.access_level)
+          gitlabapi.add_user_to_project(project.gitlab_id, gitlab_id, access_level)
         end
       end
 
@@ -117,22 +106,16 @@ class User < ActiveRecord::Base
 
   private
 
-  # Set gitlabapi object
-  #
-  # No param
-  # No return
-  def init_gitlabapi
-    @gitlabapi = Apiexternal::Gitlabapi.new
-  end
-
   # Create the user to gitlab, set gitlab_id attribute
   #
   # No param
   # No return
   def init_user
+    gitlabapi = Apiexternal::Gitlabapi.new
+
     begin
-      self.gitlab_id = @gitlabapi.create_user(self.email, self.password, self.gitlab_user)
-      self.projects.each {|project| @gitlabapi.add_user_to_project(project.gitlab_id, self.gitlab_id, self.access_level)}
+      self.gitlab_id = gitlabapi.create_user(email, password, gitlab_user)
+      projects.each { |project| gitlabapi.add_user_to_project(project.gitlab_id, gitlab_id, access_level) }
     rescue Exceptions::NextDeployException => me
       me.log
     end
@@ -143,8 +126,10 @@ class User < ActiveRecord::Base
   # No param
   # No return
   def purge_user
+    gitlabapi = Apiexternal::Gitlabapi.new
+
     begin
-      @gitlabapi.delete_user(self.gitlab_id)
+      gitlabapi.delete_user(gitlab_id)
     rescue Exceptions::NextDeployException => me
       me.log
     end

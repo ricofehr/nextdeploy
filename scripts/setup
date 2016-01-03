@@ -1,7 +1,7 @@
 #!/bin/bash --login
 #
 # Setup script for install nextdeploy platform into local computer
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, @github: ricofehr)
 
 CLIEMAIL='usera@os.nextdeploy' # user for nextdeploy client cli
 CLIPASSWORD='word123123' # password for nextdeploy client cli

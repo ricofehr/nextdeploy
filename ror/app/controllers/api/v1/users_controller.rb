@@ -2,7 +2,7 @@ module API
   module V1
     # User controller for the rest API (V1).
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class UsersController < ApplicationController
       # except forgot to rest auth
       before_filter :authenticate_user_from_token!, :except => [:forgot]
@@ -36,17 +36,13 @@ module API
 
         #filter by user_id for limited access
         else
-          if @user.lead?
-            @users = []
+          @users = []
+          if @user.lead? && @user.projects
             projects = @user.projects
-            if projects && projects.length > 0
-              @users = projects.map { |project| project.users }
-              @users.flatten! if @users.flatten
-              @users.uniq!
-              @users.select! { |u| ! u.admin? }
-            end
+            @users = projects.flat_map(&:users).uniq
+            @users.select! { |u| !u.admin? }
           else
-            @users = [] << User.includes(:projects).find(@user.id)
+            @users << User.includes(:projects).find(@user.id)
           end
         end
 
@@ -65,13 +61,14 @@ module API
       end
 
       # Check user email
+      # TODO: too much tests in controller
       def check_email
         valid = true
         email = params[:email]
         user_id = params[:id].to_i
         # check if the email is already taken by other users
         User.all.each do |user_e|
-          valid = false if user_e.id != user_id && user_e.email.eql?(email)
+          valid = false if user_e.id != user_id && user_e.email == email
         end
         (valid) ? (codestatus = 200) : (codestatus = 410)
         render nothing: true, status: codestatus
@@ -157,6 +154,7 @@ module API
         oldemail = @user_c.email
         # Json output (return error if issue occurs)
         respond_to do |format|
+          # TODO: too much calls in controller
           if @user_c.update(user_params)
             # update gitlab user details
             @user_c.update_gitlabuser
@@ -176,12 +174,13 @@ module API
 
         # generate a new password
         genpass = Devise.friendly_token.first(8)
+        # TODO: too much calls in controller
         # test if user exists
         if @user_c && @user_c.update(password: genpass, password_confirmation: genpass)
           # update gitlab user details
           @user_c.update_gitlabuser
           # Send a welcome email
-          UserMailer.welcome_email(@user_c, genpass).deliver 
+          UserMailer.welcome_email(@user_c, genpass).deliver
         end
         render nothing: true, status: 200
       end
@@ -211,8 +210,8 @@ module API
       def ember_to_rails
         params_p = params[:user]
 
-        params_p[:group_id] = params_p[:group]
-        params_p[:project_ids] = params_p[:projects]
+        params_p[:group_id] ||= params_p[:group]
+        params_p[:project_ids] ||= params_p[:projects]
 
         if ((params_p[:password] && params_p[:password].empty?) ||
             (params_p[:password_confirmation] && params_p[:password_confirmation].empty?))

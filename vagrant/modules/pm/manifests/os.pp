@@ -6,7 +6,7 @@
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::memcached_c {
   class { '::memcached': }
@@ -20,7 +20,7 @@ class pm::os::memcached_c {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::keystone {
 
@@ -47,7 +47,7 @@ class pm::os::keystone {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::nv_c {
 
@@ -82,7 +82,7 @@ class pm::os::nv_c {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::nv {
   Exec {
@@ -155,7 +155,7 @@ class pm::os::nv {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::nv_postinstall {
   Exec {
@@ -194,7 +194,7 @@ class pm::os::nv_postinstall {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::nv0_postinstall {
   Exec {
@@ -277,7 +277,7 @@ class pm::os::nv0_postinstall {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::gl {
   Exec {
@@ -327,7 +327,7 @@ class pm::os::gl {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::nt_c {
 
@@ -360,7 +360,7 @@ class pm::os::nt_c {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::nt {
   Exec {
@@ -463,7 +463,7 @@ exit 0"
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::nt_postinstall {
 
@@ -481,10 +481,10 @@ class pm::os::nt_postinstall {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::cder_c {
-  
+
   class { 'cinder':
     require => [ Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
   }
@@ -506,10 +506,10 @@ class pm::os::cder_c {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::cder {
-  
+
   class { '::keystone':
     require => [ File['/etc/hosts'] ],
   }
@@ -537,7 +537,7 @@ class pm::os::cder {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::hz {
   class { '::horizon':

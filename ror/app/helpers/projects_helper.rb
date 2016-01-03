@@ -1,6 +1,6 @@
 # Stores IO functions for project Class
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 module ProjectsHelper
   # Lauch bash script for create root folder and deploy framework
   #
@@ -8,8 +8,8 @@ module ProjectsHelper
   # No return
   def create_rootfolder
     # todo: avoid bash cmd
-    Rails.logger.warn "/bin/bash /ror/sbin/newproject -u #{Rails.application.config.gitlab_prefix} -n #{self.name} -f #{self.framework.name} -g #{self.gitpath}"
-    system("/bin/bash /ror/sbin/newproject -u #{Rails.application.config.gitlab_prefix} -n #{self.name} -f #{self.framework.name} -g #{self.gitpath}")
+    Rails.logger.warn "/bin/bash /ror/sbin/newproject -u #{Rails.application.config.gitlab_prefix} -n #{name} -f #{framework.name} -g #{gitpath}"
+    system("/bin/bash /ror/sbin/newproject -u #{Rails.application.config.gitlab_prefix} -n #{name} -f #{framework.name} -g #{gitpath}")
   end
 
   # Remove gitfolder
@@ -20,8 +20,8 @@ module ProjectsHelper
     # temporary folder for init the project
     # it must be cleared during the creation process
     # todo: avoid bash cmd
-    if self.name && self.name.length > 0
-      system("rm -rf #{Rails.application.config.project_initpath}/#{self.name}")
+    if name && name.length > 0
+      system("rm -rf #{Rails.application.config.project_initpath}/#{name}")
     end
   end
 
@@ -30,17 +30,12 @@ module ProjectsHelper
   # No param
   # No return
   def create_ftp
-    ftppasswd = ''
-
-    if self.password && self.password.length > 0
-      ftppasswd = self.password[0..7]
-    else
-      ftppasswd = 'nextdeploy'
-    end
+    # generate password for ftp
+    (password && password.length > 0) ? (ftppasswd = password[0..7]) : (ftppasswd = 'nextdeploy')
 
     # todo: avoid bash cmd
-    Rails.logger.warn "sudo /usr/local/bin/./nextdeploy-addftp #{self.gitpath} #{ftppasswd}"
-    system("sudo /usr/local/bin/./nextdeploy-addftp #{self.gitpath} #{ftppasswd}")
+    Rails.logger.warn "sudo /usr/local/bin/./nextdeploy-addftp #{gitpath} #{ftppasswd}"
+    system("sudo /usr/local/bin/./nextdeploy-addftp #{gitpath} #{ftppasswd}")
   end
 
   # Lauch bash script for delete ftp user for assets and dump
@@ -49,7 +44,7 @@ module ProjectsHelper
   # No return
   def remove_ftp
     # todo: avoid bash cmd
-    Rails.logger.warn "sudo /usr/local/bin/./nextdeploy-rmftp #{self.gitpath}"
-    system("sudo /usr/local/bin/./nextdeploy-rmftp #{self.gitpath}")
+    Rails.logger.warn "sudo /usr/local/bin/./nextdeploy-rmftp #{gitpath}"
+    system("sudo /usr/local/bin/./nextdeploy-rmftp #{gitpath}")
   end
 end

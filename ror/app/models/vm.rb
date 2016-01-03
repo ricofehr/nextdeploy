@@ -1,6 +1,6 @@
 # The VM Object
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class Vm < ActiveRecord::Base
   # An Heleer module contains IO functions
   include VmsHelper
@@ -19,22 +19,19 @@ class Vm < ActiveRecord::Base
   attr_accessor :floating_ip, :commit
 
   # Some hooks before vm changes
-  before_create :init_osapi, :boot_os
+  before_create :boot_os
   after_create :generate_host_all
-  before_destroy :init_osapi, :delete_vm
+  before_destroy :delete_vm
 
   # Init external api objects and extra attributes
   after_initialize :init_extra_attr
-
-  # openstack api connector, static object
-  @osapi = nil
 
   # Update status field with time build
   #
   # No param
   # No return
   def setupcomplete
-    self.status = (Time.now - self.created_at).to_i
+    self.status = (Time.zone.now - created_at).to_i
     save
   end
 
@@ -44,10 +41,10 @@ class Vm < ActiveRecord::Base
   # No param
   # No return
   def buildtime
-    return self.status if self.status != 0
-    
-    ret = (Time.now - self.created_at).to_i
-    # more 2hours into setup status is equal to error status
+    return status if status != 0
+
+    ret = (Time.zone.now - created_at).to_i
+    # more 2hours with setup status is equal to error status
     (ret > 7200) ? (1) : (-ret)
   end
 
@@ -58,12 +55,10 @@ class Vm < ActiveRecord::Base
   # No param
   # @return [String] unique vm title
   def vm_name
-    user = self.user
-    project = self.project
-    if !self.name || self.name.empty?
-      "#{user.id}-#{project.name.gsub('.','-')}-#{Time.now.to_i.to_s.gsub(/^../,'')}".downcase
+    if !name || name.empty?
+      "#{user.id}-#{project.name.gsub('.','-')}-#{Time.zone.now.to_i.to_s.sub(/^../,'')}".downcase
     else
-      self.name
+      name
     end
   end
 
@@ -85,8 +80,7 @@ class Vm < ActiveRecord::Base
     # Raise an exception if the limit of vms is reachable
     raise Exceptions::NextDeployException.new("Vms limit is reachable") if Vm.all.length > Rails.application.config.limit_vm
 
-    # init api object
-    init_osapi
+    osapi = Apiexternal::Osapi.new
 
     begin
       self.name = vm_name
@@ -94,19 +88,11 @@ class Vm < ActiveRecord::Base
       generate_vcl
       user_data = generate_userdata
       sshname = user.sshkeys.first ? user.sshkeys.first.name : ''
-      self.nova_id = @osapi.boot_vm(self.name, systemimage.glance_id, sshname, self.vmsize.title, user_data)
+      self.nova_id = osapi.boot_vm(name, systemimage.glance_id, sshname, vmsize.title, user_data)
       self.status = 0
     rescue Exceptions::NextDeployException => me
       me.log_e
     end
-  end
-
-  # Init openstack api object
-  #
-  # No param
-  # No return
-  def init_osapi
-    @osapi = Apiexternal::Osapi.new
   end
 
   # Init extra attributes
@@ -116,21 +102,21 @@ class Vm < ActiveRecord::Base
   def init_extra_attr
     @floating_ip = nil
 
-    if self.nova_id
+    if nova_id
       # store floating_ip in rails cache
-      @floating_ip = 
-        Rails.cache.fetch("vms/#{self.nova_id}/floating_ip", expires_in: 144.hours) do
+      @floating_ip =
+        Rails.cache.fetch("vms/#{nova_id}/floating_ip", expires_in: 144.hours) do
           # init api object
-          init_osapi
+          osapi = Apiexternal::Osapi.new
           # get floatingip from openstack
-          ret = @osapi.get_floatingip(self.nova_id)
+          ret = osapi.get_floatingip(nova_id)
           (ret) ? (ret[:ip]) : nil
         end
     end
 
-    @commit = 
-      Rails.cache.fetch("vms/#{self.commit_id}/commit_object", expires_in: 144.hours) do
-        Commit.find(self.commit_id)      
+    @commit =
+      Rails.cache.fetch("vms/#{commit_id}/commit_object", expires_in: 144.hours) do
+        Commit.find(commit_id)
       end
 
     #check_status
@@ -141,12 +127,14 @@ class Vm < ActiveRecord::Base
   # No param
   # No return
   def delete_vm
+    osapi = Apiexternal::Osapi.new
+
     begin
-      @osapi.delete_vm(self.nova_id)
+      osapi.delete_vm(nova_id)
     rescue Exceptions::NextDeployException => me
       me.log
     end
-    
+
     # delete hiera and vcl files
     clear_vmfiles
   end

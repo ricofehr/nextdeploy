@@ -1,5 +1,5 @@
 # Rails Router
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 Rails.application.routes.draw do
 
   # Api v1 Controllers

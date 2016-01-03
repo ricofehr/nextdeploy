@@ -50,7 +50,7 @@ sub vcl_recv {
   if (req.request != "GET" &&
       req.request != "POST" &&
       req.request != "OPTIONS" &&
-      req.request != "HEAD" && 
+      req.request != "HEAD" &&
       req.request != "DELETE" &&
       req.request != "PATCH" &&
       req.request != "PUT") {

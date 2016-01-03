@@ -2,7 +2,7 @@ module API
   module V1
     # Group controller for the rest API (V1).
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class GroupsController < ApplicationController
       # Hook who set group object
       before_action :set_group, only: [:show, :update, :destroy]
@@ -15,24 +15,23 @@ module API
         if @user.admin?
           @groups = Group.all
         else
+          @groups = []
           if @user.lead?
-            @groups = [] << @user.group
+            @groups << @user.group
             projects = @user.projects
-            if projects && projects.length > 0
-              users = projects.map { |project| project.users }
-              users.flatten! if users.flatten
-              users.uniq!
-              users.select! { |u| ! u.admin? }
-              @groups = users.map { |usr| usr.group }
-              @groups.uniq!
+            if projects && projects.size > 0
+              users = projects.flat_map(&:users).uniq
+              users.select! { |u| !u.admin? }
+
+              @groups << users.map(&:group)
             end
           else
-            @groups = [] << @user.group
+            @groups << @user.group
           end
         end
 
         respond_to do |format|
-          format.json { render json: @groups }
+          format.json { render json: @groups.flatten.uniq }
         end
       end
 

@@ -2,7 +2,7 @@ module API
   module V1
     # Sshkey controller for the rest API (V1).
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class SshkeysController < ApplicationController
       # Hook who set sshkey object
       before_action :set_sshkey, only: [:show, :update, :destroy]
@@ -14,10 +14,8 @@ module API
       # List all sshkey for one user
       def index
         # Default: current user
-        user_id = @user.id
         # Other user if parameter sended
-        user_id = params[:user_id] if params[:user_id]
-
+        (params[:user_id]) ? (user_id = params[:user_id]) : (user_id = @user.id)
         @sshkeys = User.includes(:sshkeys).find(user_id).sshkeys
 
         # Json output
@@ -74,10 +72,10 @@ module API
       # houuuu que c est moche
       def ember_to_rails
         params_p = params[:sshkey]
-        params_p[:user_id] = params_p[:user] unless params_p[:user_id]
+        params_p[:user_id] ||= params_p[:user]
         params_p.delete(:user)
         # normalize name value
-        params_p[:name].gsub!(/[^a-zA-Z-]/,'')
+        params_p[:name].tr!('^a-zA-Z-', '')
         params[:sshkey] = params_p
       end
 

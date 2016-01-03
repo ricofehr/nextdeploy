@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Some common bash function
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, @github: ricofehr)
 
 # Return local domain on workstation
 get_domain() {

@@ -2,7 +2,7 @@ module API
   module V1
     # Brand controller for the rest API (V1).
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class BrandsController < ApplicationController
       # Hook who set brand object
       before_action :set_brand, only: [:show, :update, :destroy]
@@ -15,18 +15,15 @@ module API
         if @user.admin?
           @brands = Brand.all
         else
-          @brands = []
           projects = @user.projects
           if projects
-            @brands = [] << projects.map { |project| project.brand }
-            @brands.flatten! if @brands.flatten
-            @brands.uniq!
+            @brands = projects.flat_map(&:brand).uniq
           end
         end
 
         # Json output
         respond_to do |format|
-            format.json { render json: @brands, status: 200 }
+            format.json { render json: @brands || [], status: 200 }
         end
       end
 

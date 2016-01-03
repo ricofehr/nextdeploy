@@ -2,7 +2,7 @@ module API
   module V1
     # VM controller for the rest API (V1).
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class API::V1::VmsController < ApplicationController
       # except setupcomplet to rest auth
       before_filter :authenticate_user_from_token!, :except => [:setupcomplete]
@@ -18,7 +18,6 @@ module API
       def index
         # select only objects allowed by current user
         if project_id = params[:project_id]
-          @vms = []
           if @user.lead?
             project = Project.find(project_id)
             @vms = project.vms if @user.projects.include?(project)
@@ -30,13 +29,10 @@ module API
             @vms = Vm.all
           else
             if @user.lead?
-              @vms = []
               projects = @user.projects
               if projects
-                @vms = [] << projects.map { |project| project.vms }
-                @vms.flatten! if @vms.flatten
-                @vms.uniq!
-                @vms.select! { |v| ! v.user.admin? }
+                @vms = projects.flat_map(&:vms).uniq
+                @vms.select! { |v| !v.user.admin? }
               end
             else
               @vms = @user.vms
@@ -46,7 +42,7 @@ module API
 
         # Json format
         respond_to do |format|
-            format.json { render json: @vms, status: 200 }
+            format.json { render json: @vms || [], status: 200 }
         end
       end
 
@@ -118,7 +114,7 @@ module API
       def check_status
         @vm.check_status
         (@vm.status > 1) ? (codestatus = 200) : (codestatus = 410)
-        render plain: @vm.buildtime, status: codestatus    
+        render plain: @vm.buildtime, status: codestatus
       end
 
       private
@@ -134,15 +130,15 @@ module API
       end
 
       # change ember parameter name for well rails relationships
-      # houuuu que c est moche
+      # HACK: ugly method
       def ember_to_rails
         params_p = params[:vm]
 
-        params_p[:user_id] = params_p[:user] unless params_p[:user_id]
-        params_p[:project_id] = params_p[:project] unless params_p[:project_id]
-        params_p[:systemimage_id] = params_p[:systemimage] unless params_p[:systemimage_id]
-        params_p[:vmsize_id] = params_p[:vmsize] unless params_p[:vmsize_id]
-        params_p[:commit_id] = params_p[:commit] unless params_p[:commit_id]
+        params_p[:user_id] ||= params_p[:user]
+        params_p[:project_id] ||= params_p[:project]
+        params_p[:systemimage_id] ||= params_p[:systemimage]
+        params_p[:vmsize_id] ||= params_p[:vmsize]
+        params_p[:commit_id] ||= params_p[:commit]
 
         params_p.delete(:created_at)
         params_p.delete(:nova_id)

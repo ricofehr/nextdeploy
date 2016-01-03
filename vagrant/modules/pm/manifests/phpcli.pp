@@ -5,11 +5,11 @@
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::phpcli {
-  Exec { 
-    path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ], 
+  Exec {
+    path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ],
     unless => 'test -f /root/.installphpcli'
   }
 
@@ -35,13 +35,13 @@ class pm::phpcli {
     command => 'wget http://files.drush.org/drush.phar',
     creates => '/usr/local/bin/drush',
     cwd => '/tmp'
-  } ->  
+  } ->
 
   exec { 'chmodrush':
     command => 'chmod +x drush.phar',
     creates => '/usr/local/bin/drush',
     cwd => '/tmp'
-  } ->   
+  } ->
 
   exec { 'mvdrush':
     command => 'mv drush.phar /usr/local/bin/drush',

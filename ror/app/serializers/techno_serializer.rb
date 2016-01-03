@@ -1,6 +1,6 @@
 # This class format techno properties for json output
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class TechnoSerializer < ActiveModel::Serializer
   attributes :id, :name
   delegate :current_user, to: :scope

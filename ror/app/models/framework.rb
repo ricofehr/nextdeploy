@@ -1,6 +1,6 @@
 # Every project has a framework object
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class Framework < ActiveRecord::Base
   has_many :projects, dependent: :destroy
 

@@ -28,9 +28,9 @@ The REST api can be reached with 3 different ways
 * /puppet Installation templates for the vms into the cloud. Customs class are included into puppet/pm folder, others are taken from puppetforge catalog. ([submodule](https://github.com/ricofehr/nextdeploy-puppet))
 * /ror The rails application who serves the rest api. 
 * /ror/public The Webui developped on EmberJs ([submodule](https://github.com/ricofehr/nextdeploy-webui))
-* /scripts Some jobs for setup completely the project in local workstation, start or stop nextdeploy
+* /scripts Some jobs for setup completely the project in local workstation or remote servers
 * /tmp Temporary folder
-* /vagrant Definitions for create the 4 openstack nodes and the manager node
+* /vagrant Definitions for create the 4 openstack nodes, the manager node and the monitoring node
 
 ## Submodules and Clone
 The cli application (client folder), the webui (ror/public folder), the vm installation templates (/puppet folder) and some puppet modules of the community used by installation and setting of nextdeploy, are included in the project in the form of Submodules git.
@@ -59,10 +59,10 @@ Usage: ./scripts/./setup [options]
 -c           no destroy vm already created
 -q           quieter mode
 -y           ask yes to all question
--fs xxxx     fileshare strategy for rails app source between host and nextdeploy node, nfs/rsync (Default is nfs)
+-fs xxxx     fileshare strategy for rails app source between host and nextdeploy node, nfs/rsync (Default is nfs for libvirt and virtualbox for vbox)
 -cu xxxx     cli username (default is usera@os.nextdeploy)
 -cp xxxx     cli password (default is word123123)
--g xxxx      gitlaburi (default is gitlab.local)
+-g xxxx      gitlaburi (default is gitlab.nextdeploy.local)
 -hv xxxx     hypervisor: virtualbox or libvirt (default is virtualbox)
 -nv          enable nested virtualisation for nova (default is off), EXPERIMENTAL
 -ne xxxx     set the neutron external interface (for the public openstack subnet, default is eth2)
@@ -73,21 +73,57 @@ Usage: ./scripts/./setup [options]
 -e xxxx      subnet prefix for management network (default is 172.16.170)
 -n xxxx      dns server for vms (default is 192.168.171.60)
 -m xxxx      nextdeploy webui URI (default is nextdeploy.local)
+-mc xxxx     ndc2 default URI (default is ndc2.local)
+-ma xxxx     an email for some alerts purpose (default is admin@example.com)
+-pa xxxx     admin password used for some webui (like grafana)
 -s xxxx      nextdeploy dns suffixes (default is os.nextdeploy)
 -r           avoid change resolv.conf and hosts files
 -vm          start a vm after build is complete
 ```
-Installation requires a large amount of RAM, a computer with 8GB of RAM minimum is required. Indeed, the OpenStack cloud is then implemented using vagrant through the creation of four virtual machines (controller, neutron, glance, nova) and another virtual machine is created to launch the rest app and hosts the gitlab and templates puppet installation. The script requires "curl" and "sudo" as a prerequisite.
+Installation requires a large amount of RAM, a computer with 12GB of RAM minimum is required. Indeed, the OpenStack cloud is then implemented using vagrant through the creation of four virtual machines (controller, neutron, glance, nova) and another virtual machine is created to launch the rest app and hosts the gitlab and templates puppet installation. The script requires "curl" and "sudo" as a prerequisite.
 
-The setup script has been tested on mac os x, debian, ubuntu and fedora. The hypervisor for nextdeploy installation is virtualbox (mac osx) or kvm (debian, ubuntu, fedora). Knowing that the performance of virtual machines deployed on OpenStack will be much better if nextdeploy is virtualized through kvm. Indeed, kvm can then itself be used as a hypervisor-level cloud. Otherwise (nextdeploy installation on virtualbox on macosx), it uses qemu.
+The setup script has been tested on mac os x, debian, ubuntu and fedora. The hypervisor for nextdeploy installation is virtualbox (mac osx) or kvm (debian, ubuntu, fedora). Knowing that the performance of virtual machines deployed on OpenStack will be better if nextdeploy is virtualized through kvm.
 
 A set of groups, users and projects are created during installation.
 
 ## Remote installation
 
-For a remote installation, you must have 5 physical machines availabes: 4 for the cloud and 1 for nextdeploy manager. From this set, the following script makes much of the installation work and configuration based on puppet templates associated with vms vagrant.
+For a remote installation, you must have at least 6 physical machines availables: 4 for the cloud, 1 for nextdeploy manager and 1 for the monitoring node. From this set, the following script makes much of the installation work and configuration based on puppet templates associated with vms vagrant.
 ```
-./scripts/./setup-remote
+Usage: ./scripts/./setup-remote [options]
+
+-h                          this is some help text.
+-q                          quieter mode
+-y                          non-interactive mode, take default value when no setted
+-g xxxx                     gitlaburi (default is gitlab.domain)
+-ne xxxx                    set the neutron external interface (for the public openstack subnet, default is eth1)
+-np xxxx                    set the neutron public interface (default is eth0)
+-p xxxx                     subnet prefix (external network) for vms (default is 192.168.171)
+-a xxxx                     subnet prefix for api network (default is 192.168.170)
+-d xxxx                     subnet prefix for data network (default is 172.16.171)
+-e xxxx                     subnet prefix for management network (default is 172.16.170)
+-n xxxx                     dns server for vms (default is 192.168.171.60)
+-m xxxx                     nextdeploy global URI (default is nextdeploy.domain)
+-ma xxxx                    an email for some alerts purpose (default is admin@example.com)
+-pa xxxx                    admin password used for some webui (like grafana)
+-s xxxx                     nextdeploy dns suffixes (default is os.domain)
+-t xxxx                     set the time needed to reboot a node (default is 220)
+--domain xxxx               global domain for the nextdeploy nodes (default is none)
+--puppetmaster-ip   xxxx    ip for puppetmaster service
+--puppetmaster-sshport xxxx port for ssh to puppermaster node (default is 22)
+--puppetmaster-fqdn xxxx    fqdn for puppetmaster service
+--install-puppetmaster      install the puppet master service
+--update-puppetmaster       update the puppet master service with lastest modules and hiera files
+--controller-ip xxxx        install the controller node (ip needed)
+--neutron-ip xxxx           install the neutron node (ip needed)
+--glance-ip xxxx            install the glance node (ip needed)
+--nova-ip xxxx              install the nova node (ip needed)
+--nova2-ip xxxx             install a second nova node (ip needed)
+--nova3-ip xxxx             install a third nova node (ip needed)
+--nova4-ip xxxx             install a fourth nova node (ip needed)
+--nova5-ip xxxx             install a fifth nova node (ip needed)
+--nextdeploy-ip xxxx        install the nextdeploy manager node (ip needed)
+--ndc2-ip xxxx              install the ndc2 node (ip needed)
 ```
 
 ## Groupes / Users
@@ -206,14 +242,23 @@ endpoint: nextdeploy.local
 
 The ruby client manages the following commands
 ```
-`ndeploy help` will print help about this command
-`ndeploy up` launch current commit into vm
-`ndeploy launch [projectname] [branch] [commit]` launch [commit] (default is head) on the [branch] (default is master) for [projectname] into remote nextdeploy
-`ndeploy destroy` destroy current vm associated to this project
-`ndeploy ssh` ssh into current vm
-`ndeploy projects` list projects for current user
-`ndeploy clone [project-name]` clone project in current folder
-`ndeploy config [endpoint] [username] [password]` get/set properties settings for nextdeploy
+`  ndeploy clone [projectname]                         # clone project in current folder
+`  ndeploy config [endpoint] [username] [password]     # get/set properties settings for nextdeploy
+`  ndeploy destroy                                     # destroy current vm
+`  ndeploy getftp assets|dump [project]                # get an assets archive or a dump for the [project]
+`  ndeploy git [cmd]                                   # Executes a git command
+`  ndeploy help [COMMAND]                              # Describe available commands or one specific command
+`  ndeploy launch [projectname] [branch] [commit]      # launch [commit] (default is head) on the [branch] (default is master) for [projectname] into remote nextdeploy platform
+`  ndeploy list                                        # list launched vms for current user
+`  ndeploy listftp assets|dump [project]               # list assets archive or a dump for the [project]
+`  ndeploy projects                                    # list projects for current user
+`  ndeploy putftp assets|dump [project] [file]         # putftp an assets archive [file] or a dump [file] for the [project]
+`  ndeploy ssh                                         # ssh into remote vm
+`  ndeploy sshkey                                      # Put your public ssh key (id_rsa.pub) onto NextDeploy
+`  ndeploy sshkeys                                     # List sshkeys actually associated to the current user
+`  ndeploy up                                          # launch current commit to remote nextdeploy
+`  ndeploy upgrade                                     # upgrade ndeploy with the last version
+`  ndeploy version                                     # print current version of ndeploy
 ```
 
 The git repository for cli application: https://github.com/ricofehr/nextdeploy-cli

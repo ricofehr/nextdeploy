@@ -1,6 +1,6 @@
 # Stores details about one system technology (apache / mongo / mysql / nodejs / ...)
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class Techno < ActiveRecord::Base
   # Technos are associated with project object
   has_many :project_technos, dependent: :destroy

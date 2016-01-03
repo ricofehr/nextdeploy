@@ -66,13 +66,13 @@ sub vcl_recv {
   if (req.request != "GET" &&
       req.request != "POST" &&
       req.request != "OPTIONS" &&
-      req.request != "HEAD" && 
+      req.request != "HEAD" &&
       req.request != "DELETE" &&
       req.request != "PATCH" &&
       req.request != "PUT") {
         error 405 "Not allowed";
   }
-  
+
   # Tout ce qui n'est pas GET ou HEAD ne sera pas mis en cache
   # On utilise la directive PASS et non PIPE
   if (req.request != "GET" &&
