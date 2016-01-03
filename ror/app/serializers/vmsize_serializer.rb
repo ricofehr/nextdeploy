@@ -1,6 +1,6 @@
 # This class format vmsize properties for json output
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class VmsizeSerializer < ActiveModel::Serializer
   attributes :id, :title, :description
   delegate :current_user, to: :scope
@@ -22,7 +22,7 @@ class VmsizeSerializer < ActiveModel::Serializer
     if current_user.admin?
       object.vms
     elsif current_user.lead?
-      object.vms.select { |vm| ! vm.user.admin? && vm.project.users.include?(current_user) }
+      object.vms.select { |vm| !vm.user.admin? && vm.project.users.include?(current_user) }
     else
       object.vms.select { |vm| vm.user.id == current_user.id }
     end

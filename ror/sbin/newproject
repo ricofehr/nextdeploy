@@ -304,7 +304,7 @@ newsymfony2() {
   sed -i "s/^use.*Request;/& umask(0002);/" web/app.php
   sed -i "s/^use.*Request;/& umask(0002);/" web/app_dev.php
   # fix for server-status
-  sed -i "s;^.*RewriteRule.*app.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" web/.htaccess  
+  sed -i "s;^.*RewriteRule.*app.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" web/.htaccess
   popd > /dev/null
 
   pushd "${DOCONLINE}" > /dev/null

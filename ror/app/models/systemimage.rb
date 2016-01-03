@@ -1,6 +1,6 @@
 # A systemimage stores properties about an exploitation system
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class Systemimage < ActiveRecord::Base
   belongs_to :systemimagetype
   # Each vms is running onto an unique exploitation system

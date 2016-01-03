@@ -1,6 +1,6 @@
 # This class format branche properties for json output
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class BrancheSerializer < ActiveModel::Serializer
   attributes :id, :name
 

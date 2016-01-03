@@ -1,7 +1,7 @@
 module Apiexternal
   # Gitlabapi manages request to gitlab api via gitlab gems or rest request
   #
-  # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+  # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
   class Gitlabapi
 
     # class attribute, the connector to rest api
@@ -22,7 +22,6 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # No return
     def get_private_token(username='root', password='5iveL!fe')
-
       #json request for session request
       sess_req = {
         login: username,
@@ -80,12 +79,7 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return [Integer] the gitlab userid
     def create_user(email, password, username)
-      #begin
-        gituser = Gitlab.create_user(email, password, {username: username})
-      #rescue Exceptions => e
-      #  raise Exceptions::GitlabApiException.new("create user #{email} failed, #{e}")
-      #end
-
+      gituser = Gitlab.create_user(email, password, {username: username})
       return gituser.id
     end
 
@@ -97,7 +91,7 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return [Integer] the gitlab sshkeyid
     def add_sshkey(user_id, name, key)
-      
+
       add_sshkey = {
         title: name,
         key: key
@@ -120,19 +114,20 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return [Integer] the gitlab projectid
     def create_project(name, gitpath)
-      begin
-         gitlab_project = Gitlab.create_project(gitpath, description: "project #{name}",
-                                                        wall_enabled: true,
-                                                        wiki_enabled: true,
-                                                        issues_enabled: true,
-                                                        user_id: 1,
-                                                        public: false)
-
-      rescue Exceptions => e
-        raise Exceptions::GitlabApiException.new("create_project #{gitpath} failed: #{e}")
-      end
+      gitlab_project = Gitlab.create_project(
+                         gitpath,
+                         description: "project #{name}",
+                         wall_enabled: true,
+                         wiki_enabled: true,
+                         issues_enabled: true,
+                         user_id: 1,
+                         public: false
+                       )
 
       return gitlab_project.id
+
+    rescue => e
+      raise Exceptions::GitlabApiException.new("create_project #{gitpath} failed: #{e}")
     end
 
     # Create branch to a project
@@ -143,11 +138,9 @@ module Apiexternal
     # @raise Exceptions:r:GitlabApiException if errors occurs
     # @return nothing
     def create_branch(project_id, branch, ref)
-      begin
-        Gitlab.repo_create_branch(project_id, branch, ref)
-      rescue Exceptions => e
+      Gitlab.repo_create_branch(project_id, branch, ref)
+    rescue => e
         raise Exceptions::GitlabApiException.new("create_branch (#{project_id}, #{branch}) failed: #{e}")
-      end
     end
 
     # Protect branch to a project
@@ -157,11 +150,9 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return nothing
     def protect_branch(project_id, branch)
-      begin
-        Gitlab.protect_branch(project_id, branch)
-      rescue Exceptions => e
-        raise Exceptions::GitlabApiException.new("protect_branch (#{project_id}, #{branch}) failed: #{e}")
-      end
+      Gitlab.protect_branch(project_id, branch)
+    rescue => e
+      raise Exceptions::GitlabApiException.new("protect_branch (#{project_id}, #{branch}) failed: #{e}")
     end
 
     # Unprotect branch to a project
@@ -171,11 +162,9 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return nothing
     def unprotect_branch(project_id, branch)
-      begin
-        Gitlab.unprotect_branch(project_id, branch)
-      rescue Exceptions => e
-        raise Exceptions::GitlabApiException.new("unprotect_branch (#{project_id}, #{branch}) failed: #{e}")
-      end
+      Gitlab.unprotect_branch(project_id, branch)
+    rescue Exceptions => e
+      raise Exceptions::GitlabApiException.new("unprotect_branch (#{project_id}, #{branch}) failed: #{e}")
     end
 
     # Update gitlab user
@@ -187,11 +176,7 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return [Integer] the gitlab userid
     def update_user(gitlab_id, email, password, username)
-      #begin
-        gituser = Gitlab.edit_user(gitlab_id, {email: email, password: password, username: username})
-      #rescue Exceptions => e
-      # raise Exceptions::GitlabApiException.new("create user #{email} failed, #{e}")
-      #end
+      Gitlab.edit_user(gitlab_id, {email: email, password: password, username: username})
     end
 
     # Add user to a project team
@@ -202,15 +187,12 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return nothing
     def add_user_to_project(project_id, user_id, access_level=30)
-
       # only one admin, so fix to 40
       access_level = 40 if access_level == 50
+      Gitlab.add_team_member(project_id, user_id, access_level)
 
-      begin
-        Gitlab.add_team_member(project_id, user_id, access_level)
-      rescue Exceptions => e
-        raise Exceptions::GitlabApiException.new("add_user_to_project failed, #{e}")
-      end
+    rescue Exceptions => e
+      raise Exceptions::GitlabApiException.new("add_user_to_project failed, #{e}")
     end
 
     # Get list of commits for a project
@@ -220,13 +202,9 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return [Array] commits list
     def get_commits(id, branchname)
-      begin
-        commits = Gitlab.commits(id, ref_name: branchname)
-      rescue Exceptions => e
-        raise Exceptions::GitlabApiException.new("get_commits #{id} failed, #{e}")
-      end
-
-      return commits
+      return Gitlab.commits(id, ref_name: branchname)
+    rescue Exceptions => e
+      raise Exceptions::GitlabApiException.new("get_commits #{id} failed, #{e}")
     end
 
     # Get specific commit for a project
@@ -236,13 +214,9 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return [Hash] commit details
     def get_commit(id, commithash)
-      begin
-        commit = Gitlab.commit(id, commithash)
-      rescue Exceptions => e
-        raise Exceptions::GitlabApiException.new("get_commit #{commithash} failed, #{e}")
-      end
-
-      return commit
+      return Gitlab.commit(id, commithash)
+    rescue Exceptions => e
+      raise Exceptions::GitlabApiException.new("get_commit #{commithash} failed, #{e}")
     end
 
     # Get list of branchs for a project
@@ -251,13 +225,9 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return [Array] Branchs lists
     def get_branches(id)
-      begin
-        branchs = Gitlab.branches(id)
-      rescue Exceptions => e
-        raise Exceptions::GitlabApiException.new("get_branchs #{id} failed, #{e}")
-      end
-
-      return branchs
+      return Gitlab.branches(id)
+    rescue Exceptions => e
+      raise Exceptions::GitlabApiException.new("get_branchs #{id} failed, #{e}")
     end
 
     # Get specific branch for a project
@@ -266,13 +236,9 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return [Hash] Branch details
     def get_branche(id, branchname)
-      begin
-        branch = Gitlab.branche(id, branchname)
-      rescue Exceptions => e
-        raise Exceptions::GitlabApiException.new("get_branch #{id} (#{branchname}) failed, #{e}")
-      end
-
-      return branch
+      return Gitlab.branche(id, branchname)
+    rescue Exceptions => e
+      raise Exceptions::GitlabApiException.new("get_branch #{id} (#{branchname}) failed, #{e}")
     end
 
     # Return gitlab projects binding to user_id user
@@ -345,12 +311,6 @@ module Apiexternal
       end
 
       raise Exceptions::GitlabApiException.new("delete project #{gitlab_id} failed, #{response.body}") if response.status != 200
-
-      #begin
-      #  Gitlab.delete_project(gitlab_id)
-      #rescue Exceptions => e
-      #  Exceptions::GitlabApiException.new("delete project #{gitlab_id} failed, #{e}")
-      #end
     end
 
     # Delete user to a project team
@@ -360,12 +320,9 @@ module Apiexternal
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return nothing
     def delete_user_to_project(project_id, user_id)
-
-      begin
-        Gitlab.remove_team_member(project_id, user_id)
-      rescue Exceptions => e
-        raise Exceptions::GitlabApiException.new("delete_user_to_project failed, #{e}")
-      end
+      Gitlab.remove_team_member(project_id, user_id)
+    rescue => e
+      raise Exceptions::GitlabApiException.new("delete_user_to_project failed, #{e}")
     end
 
     protected

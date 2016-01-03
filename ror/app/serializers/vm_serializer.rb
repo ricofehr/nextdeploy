@@ -1,6 +1,6 @@
 # This class format vm properties for json output
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class VmSerializer < ActiveModel::Serializer
   attributes :id, :nova_id, :floating_ip, :created_at, :name, :status
 

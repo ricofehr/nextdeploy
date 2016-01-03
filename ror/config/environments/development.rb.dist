@@ -1,6 +1,6 @@
 # Global properties for the rails app in developement environment
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 

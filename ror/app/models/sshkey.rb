@@ -1,13 +1,13 @@
 # Stores properties about ssh key and execute background command for gitlab / cloud.
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class Sshkey < ActiveRecord::Base
   belongs_to :user
 
   # some hooks befor key changes
-  before_create :init_gitlabapi, :init_osapi, :init_sshkey
-  before_destroy :init_gitlabapi, :init_osapi, :purge_sshkey
-  before_update :init_gitlabapi, :init_osapi, :reset_sshkey
+  before_create :init_sshkey
+  before_destroy :purge_sshkey
+  before_update :reset_sshkey
 
   # some hooks after key changes
   after_create :update_authorizedkeys
@@ -21,39 +21,23 @@ class Sshkey < ActiveRecord::Base
   #get all sshkey for admins users
   scope :admins, ->(){ joins(:user => :group).where('groups.access_level' => 50) }
 
-  # Api objecs init to nil
-  @osapi = nil
-  @gitlabapi = nil
-
   private
 
-  # Init openstack api object
-  #
-  # No param
-  # No return
-  def init_osapi
-    @osapi = Apiexternal::Osapi.new
-  end
-
-  # Init gitlab api object
-  #
-  # No param
-  # No return
-  def init_gitlabapi
-    @gitlabapi = Apiexternal::Gitlabapi.new
-  end
 
   # add sshkey to openstack and gitlab
   #
   # No param
   # No return
   def init_sshkey
+    osapi = Apiexternal::Osapi.new
+    gitlabapi = Apiexternal::Gitlabapi.new
+
     begin
       #openstack side
-      @osapi.add_sshkey(self.name, self.key)
+      osapi.add_sshkey(name, key)
 
       #gitlab side
-      self.gitlab_id = @gitlabapi.add_sshkey(user.gitlab_id, self.name, self.key)
+      self.gitlab_id = gitlabapi.add_sshkey(user.gitlab_id, name, key)
     rescue Exceptions::NextDeployException => me
       me.log
     end
@@ -65,9 +49,9 @@ class Sshkey < ActiveRecord::Base
   # No return
   def update_authorizedkeys
       #regenerate authorizedkeys
-      self.user.generate_authorizedkeys
-      self.user.generate_all_authorizedkeys if self.user.admin?
-      self.user.upload_authorizedkeys
+      user.generate_authorizedkeys
+      user.generate_all_authorizedkeys if user.admin?
+      user.upload_authorizedkeys
   end
 
 
@@ -76,14 +60,17 @@ class Sshkey < ActiveRecord::Base
   # No param
   # No return
   def reset_sshkey
+    osapi = Apiexternal::Osapi.new
+    gitlabapi = Apiexternal::Gitlabapi.new
+
     begin
       #openstack side
-      @osapi.delete_sshkey(self.name)
-      @osapi.add_sshkey(self.name, self.key)
+      osapi.delete_sshkey(name)
+      osapi.add_sshkey(name, key)
 
       #gitlab side
-      @gitlabapi.delete_sshkey(user.gitlab_id, self.gitlab_id)
-      self.gitlab_id = @gitlabapi.add_sshkey(user.gitlab_id, self.name, self.key)
+      gitlabapi.delete_sshkey(user.gitlab_id, gitlab_id)
+      self.gitlab_id = gitlabapi.add_sshkey(user.gitlab_id, name, key)
     rescue Exceptions::NextDeployException => me
       me.log
     end
@@ -94,12 +81,15 @@ class Sshkey < ActiveRecord::Base
   # No param
   # No return
   def purge_sshkey
+    osapi = Apiexternal::Osapi.new
+    gitlabapi = Apiexternal::Gitlabapi.new
+
     begin
       #openstack side
-      @osapi.delete_sshkey(self.name)
+      osapi.delete_sshkey(name)
 
       #gitlab side
-      @gitlabapi.delete_sshkey(user.gitlab_id, self.gitlab_id)
+      gitlabapi.delete_sshkey(user.gitlab_id, gitlab_id)
     rescue Exceptions::NextDeployException => me
       me.log
     end

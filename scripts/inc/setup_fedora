@@ -2,7 +2,7 @@
 #!/bin/bash
 #
 # debian specific part for setup nextdeploy
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, @github: ricofehr)
 
 # virtualbox install
 install_vbox() {
@@ -75,7 +75,7 @@ install_kvm() {
   # test if kvm is already installed
   lsmod | grep kvm_intel >/dev/null
   (($?==0)) && return
-  
+
   output -q "Kvm Installation ..."
   sudo dnf install -y qemu-kvm
   (($?!=0)) && output -e 'Kvm installation has failed'
@@ -141,7 +141,7 @@ stop_firewalld() {
   else
     output -q "firewalld is still running"
   fi
-  
+
 }
 
 # add some rules on firewalld for nfs share, not used

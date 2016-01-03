@@ -1,6 +1,6 @@
 # This class format project properties for json output
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class ProjectSerializer < ActiveModel::Serializer
   attributes :id, :name, :gitpath, :enabled, :login, :password, :created_at
   delegate :current_user, to: :scope
@@ -20,7 +20,7 @@ class ProjectSerializer < ActiveModel::Serializer
       users_a = object.users.select { |u| u.id != current_user.id }
       users_a.unshift(current_user)
     elsif current_user.lead?
-      users_a = object.users.select { |u| ! u.admin? && u.id != current_user.id }
+      users_a = object.users.select { |u| !u.admin? && u.id != current_user.id }
       users_a.unshift(current_user)
     else
       [] << current_user

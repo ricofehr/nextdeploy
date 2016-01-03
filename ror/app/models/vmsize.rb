@@ -1,6 +1,6 @@
 # Its a property for the vms sizing (tiny: 1 vcpus / 512Mo ram, large: 2 vcpus / 4Go ram, ...)
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class Vmsize < ActiveRecord::Base
   # multiple different flavors are possible for a project
   has_many :project_vmsize, dependent: :destroy

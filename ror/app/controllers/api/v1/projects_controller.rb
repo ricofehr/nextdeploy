@@ -2,7 +2,7 @@ module API
   module V1
     # Project controller for the rest API (V1).
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class ProjectsController < ApplicationController
       # Hook who set project object
       before_action :set_project, only: [:update, :destroy]
@@ -43,7 +43,7 @@ module API
 
       # Display details about one project
       def show
-        if ! params[:id].eql?('0')
+        if params[:id] != '0'
           @project = Project.includes(:users).includes(:technos).find(params[:id])
           # Json output
           respond_to do |format|
@@ -64,8 +64,8 @@ module API
         name = params[:name]
         proj_id = params[:id].to_i
         # check if the name is already taken by other projects
-        Project.all.each do |proj| 
-          valid = false if proj.id != proj_id && proj.name.eql?(name)
+        Project.all.each do |proj|
+          valid = false if proj.id != proj_id && proj.name == name
         end
         (valid) ? (codestatus = 200) : (codestatus = 410)
         render nothing: true, status: codestatus
@@ -104,7 +104,7 @@ module API
       # Import a new project object from a git path
       def import
         gitpath_import = params['gitpath'] ;
-        params['gitpath'] = params['gitpath'].gsub('^.*:[0-9]+','') ;
+        params['gitpath'] = params['gitpath'].sub(/^.*:[0-9]+/, '') ;
       end
 
       # Create a new project object
@@ -146,7 +146,7 @@ module API
       private
         # check right about admin user
         def only_create
-          if ! @user.project_create?
+          if ! @user.is_project_create
             raise Exceptions::GitlabApiException.new("Access forbidden for this user")
           end
 
@@ -168,13 +168,13 @@ module API
         def ember_to_rails
           params_p = params[:project]
 
-          params_p[:techno_ids] = params_p[:technos]
-          params_p[:user_ids] = params_p[:users]
-          params_p[:owner_id] = params_p[:owner]
-          params_p[:framework_id] = params_p[:framework]
-          params_p[:brand_id] = params_p[:brand]
-          params_p[:systemimagetype_id] = params_p[:systemimagetype]
-          params_p[:vmsize_ids] = params_p[:vmsizes]
+          params_p[:techno_ids] ||= params_p[:technos]
+          params_p[:user_ids] ||= params_p[:users]
+          params_p[:owner_id] ||= params_p[:owner]
+          params_p[:framework_id] ||= params_p[:framework]
+          params_p[:brand_id] ||= params_p[:brand]
+          params_p[:systemimagetype_id] ||= params_p[:systemimagetype]
+          params_p[:vmsize_ids] ||= params_p[:vmsizes]
 
           # permit empty user_ids array if we want disable all users
           params_p[:user_ids] ||= []

@@ -1,6 +1,6 @@
 # This class format systemimage properties for json output
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class SystemimageSerializer < ActiveModel::Serializer
   attributes :id, :name, :glance_id, :enabled
   delegate :current_user, to: :scope
@@ -13,7 +13,7 @@ class SystemimageSerializer < ActiveModel::Serializer
     if current_user.admin?
       object.vms
     elsif current_user.lead?
-      object.vms.select { |vm| ! vm.user.admin? && vm.project.users.include?(current_user) }
+      object.vms.select { |vm| !vm.user.admin? && vm.project.users.include?(current_user) }
     else
       object.vms.select { |vm| vm.user.id == current_user.id }
     end

@@ -5,7 +5,7 @@
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::ftp {
   Exec {
@@ -17,7 +17,7 @@ class pm::ftp {
     ensure => installed,
     require => Exec['apt-update']
   } ->
-  class { '::vsftpd':} 
+  class { '::vsftpd':}
   ->
   file { '/etc/pam.d/vsftpd':
     content => 'auth required pam_pwdfile.so pwdfile /etc/ftpd.passwd

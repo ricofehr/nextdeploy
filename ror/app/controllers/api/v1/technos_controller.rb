@@ -4,7 +4,7 @@ module API
     # Actually, techno objects are managed directly in database.
     # Controller is needed only for display properties into json format for rest compliance
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class TechnosController < ApplicationController
       # set techno object before show function
       before_action :set_techno, only: [:show]
@@ -12,21 +12,18 @@ module API
       # List all technos objects
       def index
         # select only objects allowed by current user
-        if @user.project_create?
+        if @user.is_project_create
           @technos = Techno.all
         else
-          @technos = []
           projects = @user.projects
           if projects
-            @technos = [] << projects.map { |project| project.technos }
-            @technos.flatten! if @technos.flatten
-            @technos.uniq!
+            @technos = projects.flat_map(&:technos).uniq
           end
         end
 
         # Json output
         respond_to do |format|
-            format.json { render json: @technos, status: 200 }
+            format.json { render json: @technos || [], status: 200 }
         end
       end
 

@@ -1,6 +1,6 @@
 # A group sets common property for same type of users
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class Group < ActiveRecord::Base
   has_many :users, dependent: :destroy
 
@@ -12,7 +12,7 @@ class Group < ActiveRecord::Base
   # No param
   # @return [Boolean] if admin
   def admin?
-    self.access_level > 40
+    access_level > 40
   end
 
   # Return true if lead
@@ -20,7 +20,7 @@ class Group < ActiveRecord::Base
   # No param
   # @return [Boolean] if admin or lead
   def lead?
-    self.access_level > 30
+    access_level > 30
   end
 
 end

@@ -5,7 +5,7 @@
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::monitor::services {
   file { '/home/influxdb':
@@ -15,7 +15,7 @@ class pm::monitor::services {
     mode => '0777'
   } ->
   # see parameters from hiera file
-  class { 'influxdb::server': 
+  class { 'influxdb::server':
     require => Exec['installcurl']
   }
 
@@ -35,7 +35,7 @@ class pm::monitor::services {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::monitor::collect {
  $influxip = hiera('global::influxip')
@@ -48,33 +48,33 @@ class pm::monitor::collect {
   fqdnlookup => false,
   require => Exec['installcurl'],
  } ->
- 
- collectd::plugin::network::server{"${influxip}": 
+
+ collectd::plugin::network::server{"${influxip}":
     port => 2004
  } ->
- 
+
  class { 'collectd::plugin::conntrack': } ->
- 
+
  class { 'collectd::plugin::cpu':
   reportbystate => true,
   reportbycpu => true,
   valuespercentage => true,
  } ->
- 
+
  class { 'collectd::plugin::df':
   mountpoints    => ['/u'],
   fstypes        => ['nfs','tmpfs','autofs','gpfs','proc','devpts'],
   ignoreselected => true,
  } ->
- 
+
  class { 'collectd::plugin::disk':
   disks          => ['/^dm/'],
   ignoreselected => true,
   udevnameattr   => 'DM_NAME',
  } ->
- 
+
  class { 'collectd::plugin::interface': } ->
- 
+
  class { 'collectd::plugin::load': } ->
 
  class { 'collectd::plugin::processes': } ->
@@ -104,7 +104,7 @@ class pm::monitor::collect {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::monitor::collect::varnish {
   class { 'collectd::plugin::varnish':
@@ -136,7 +136,7 @@ class pm::monitor::collect::varnish {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::monitor::collect::openvpn {
   class { 'collectd::plugin::openvpn':

@@ -2,7 +2,7 @@ module API
   module V1
     # Session controller for the rest API (V1).
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class SessionsController < Devise::SessionsController
       before_filter :authenticate_api_v1_user!, :except => [:create]
       # Json output

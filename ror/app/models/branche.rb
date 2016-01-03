@@ -1,15 +1,11 @@
 # Stores all details about a git branch for a project
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class Branche
   # Activemodel object without database table
   include ActiveModel::Serializers::JSON
 
   attr_reader :id, :name, :project, :commits
-
-
-  # gitlab api connector
-  @gitlabapi = nil
 
   # Constructor
   #
@@ -44,13 +40,13 @@ class Branche
   # @return [Array[Branche]]
   def self.all(project_id)
     # Init gitlab external api
-    @gitlabapi = Apiexternal::Gitlabapi.new
+    gitlabapi = Apiexternal::Gitlabapi.new
 
     # get project from project_id
     project = Project.find(project_id)
 
     begin
-      branches = @gitlabapi.get_branches(project.gitlab_id)
+      branches = gitlabapi.get_branches(project.gitlab_id)
     rescue Exceptions::NextDeployException => me
       me.log
     end

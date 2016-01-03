@@ -5,7 +5,7 @@
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::postinstall::exploitation {
   $railsenv = hiera('global::railsenv', 'development')
@@ -51,7 +51,7 @@ class pm::postinstall::exploitation {
   exec { 'pumaenv':
     command => "/bin/sed -i 's;%%RAILSENV%%;${railsenv};' /usr/local/bin/puma-start",
     onlyif => 'grep RAILSENV /usr/local/bin/puma-start',
-    user => 'root' 
+    user => 'root'
   }
 
   # genera application ember file
@@ -109,7 +109,7 @@ hostsmin=$(find /etc/hosts.nextdeploy -mmin -1)
     mode => '0755',
     group => 'root'
   }
-  
+
   # backup nextdeploy
   file { '/usr/local/bin/backupnextdeploy':
     ensure => 'file',
@@ -128,7 +128,7 @@ hostsmin=$(find /etc/hosts.nextdeploy -mmin -1)
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::postinstall::nextdeploy {
   $railsenv = hiera('global::railsenv', 'development')
@@ -374,7 +374,7 @@ class pm::postinstall::nextdeploy {
     nodejs_dev_package_ensure => 'present',
     npm_package_ensure        => 'present',
   } ->
-  
+
   file { '/usr/bin/node':
     ensure   => 'link',
     target => '/usr/bin/nodejs',

@@ -4,7 +4,7 @@ module API
     # Actually, framework objects are managed directly in database.
     # Controller is needed only for display properties into json format for rest compliance
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class FrameworksController < ApplicationController
       # set framework object before show function
       before_action :set_framework, only: [:show]
@@ -15,18 +15,15 @@ module API
         if @user.admin?
           @frameworks = Framework.all
         else
-          @frameworks = []
           projects = @user.projects
           if projects
-            @frameworks = [] << projects.map { |project| project.framework }
-            @frameworks.flatten! if @frameworks.flatten
-            @frameworks.uniq!
+            @frameworks = projects.flat_map(&:framework).uniq
           end
         end
 
         # Json output
         respond_to do |format|
-            format.json { render json: @frameworks, status: 200 }
+            format.json { render json: @frameworks || [], status: 200 }
         end
       end
 

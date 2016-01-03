@@ -4,7 +4,7 @@ module API
     # Actually, vmsize objects are managed directly in database.
     # Controller is needed only for display properties into json format for rest compliance
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class VmsizesController < ApplicationController
       # set vmsize object before show function
       before_action :set_vmsize, only: [:show]
@@ -12,15 +12,13 @@ module API
       # List all vmsizes
       def index
         # select only objects allowed by current user
-        if @user.project_create?
+        if @user.is_project_create
           @vmsizes = Vmsize.all
         else
           @vmsizes = []
           projects = @user.projects
           if projects
-            @vmsizes = [] << projects.map { |project| project.vmsizes }
-            @vmsizes.flatten! if @vmsizes.flatten
-            @vmsizes.uniq!
+            @vmsizes = projects.flat_map(&:vmsizes).uniq
           end
         end
 

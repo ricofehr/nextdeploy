@@ -5,7 +5,7 @@
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::w3af {
   Exec {
@@ -42,7 +42,7 @@ class pm::w3af {
     command => 'chmod a+x /opt/w3af/w3af_console',
     creates => '/root/.w3af'
   } ->
-  
+
   exec { 'pipupdate':
     command => 'pip install --upgrade pip',
     creates => '/root/.w3af'
@@ -53,7 +53,7 @@ class pm::w3af {
     environment => [ 'LC_ALL=en_US.UTF-8' ],
     creates => '/root/.w3af'
   } ->
-  
+
   exec { 'touchw3af':
     command => 'touch /root/.w3af',
     creates => '/root/.w3af'

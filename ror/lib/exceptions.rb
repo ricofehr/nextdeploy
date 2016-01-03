@@ -1,7 +1,7 @@
 module Exceptions
   # The head of exception class for the project
   #
-  # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+  # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
   class NextDeployException < Exception
     attr_reader :message
 

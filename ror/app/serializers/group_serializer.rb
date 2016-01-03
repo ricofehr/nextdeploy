@@ -1,6 +1,6 @@
 # This class format group properties for json output
 #
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class GroupSerializer < ActiveModel::Serializer
   attributes :id, :name, :access_level
   delegate :current_user, to: :scope
@@ -13,7 +13,7 @@ class GroupSerializer < ActiveModel::Serializer
       users_a = object.users.select { |u| u.id != current_user.id }
       users_a.unshift(current_user) if object.id == current_user.group.id
     elsif current_user.lead?
-      users_a = object.users.select { |u| u.id != current_user.id && u.projects.any? { |project| project.users.include?(current_user) } }
+      users_a = object.users.select { |u| u.id != current_user.id && u.projects.select { |project| project.users.include?(current_user) }.size > 0 }
       users_a.unshift(current_user) if object.id == current_user.group.id
     else
       [] << current_user

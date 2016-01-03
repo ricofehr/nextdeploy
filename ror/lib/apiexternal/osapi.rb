@@ -1,7 +1,7 @@
 module Apiexternal
   # Osapi manages rest request to openstack API
   #
-  # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+  # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
   class Osapi
 
     #class attributes (scope: private)
@@ -166,12 +166,7 @@ module Apiexternal
     # No params
     # No return
     def init_api
-
-      begin
-       auth_token
-      rescue Exceptions::NextDeployException => me
-        me.log_e
-      end
+      auth_token
 
       @conn = Hash.new
       init_conn_neutron
@@ -179,6 +174,8 @@ module Apiexternal
 
       @nets = Hash.new
       init_networks
+    rescue Exceptions::NextDeployException => me
+        me.log_e
     end
 
     # Get a token for the authentification on openstack api
@@ -309,6 +306,7 @@ module Apiexternal
       rescue
         raise Exceptions::OSApiException.new("No ports")
       end
+
       raise Exceptions::OSApiException.new("No port associated with vm #{nova_id}") if port_uuid.nil?
 
       return port_uuid[:id]

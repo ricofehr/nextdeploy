@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # mac os x specific part for setup nextdeploy
-# @author Eric Fehr (eric.fehr@publicis-modem.fr, @github: ricofehr)
+# @author Eric Fehr (ricofehr@nextdeploy.io, @github: ricofehr)
 
 # Cmdline xcode tools install
 install_xcode() {
@@ -57,7 +57,7 @@ install_vbox() {
 # vagrant install
 install_vagrant() {
   vagrant version | grep 1.7.4 >/dev/null 2>&1
-  
+
   if (( $? != 0 )); then
     output -q "Vagrant Installation ..."
     curl -OsSL "https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.4.dmg"

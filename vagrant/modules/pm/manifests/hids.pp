@@ -5,7 +5,7 @@
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::hids::server {
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ] }
@@ -84,11 +84,11 @@ nohup /var/ossec/bin/ossec-authd -p 1515 &',
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::hids::agent {
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ] }
-  
+
   $ossecip = hiera('global::ossecip', '')
 
   class { "ossec::client":
@@ -105,14 +105,14 @@ class pm::hids::agent {
 #
 # === Authors
 #
-# Eric Fehr <eric.fehr@publicis-modem.fr>
+# Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::hids::webui {
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ] }
 
   $ossecuri = hiera('global::ossecuri', '')
-  
-  exec { 'wwwinossec': 
+
+  exec { 'wwwinossec':
     command => 'usermod -G ossec www-data',
     unless => 'test -f /home/ossec-wui/index.php',
     require => Class['ossec::server']

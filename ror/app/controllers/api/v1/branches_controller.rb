@@ -2,7 +2,7 @@ module API
   module V1
     # Branche controller for the rest API (V1).
     #
-    # @author Eric Fehr (eric.fehr@publicis-modem.fr, github: ricofehr)
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class BranchesController < ApplicationController
       # Set branche object before show function
       before_action :set_branche, only: [:show]
