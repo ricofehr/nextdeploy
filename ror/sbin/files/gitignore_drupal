@@ -9,6 +9,10 @@
 /server/sites/*/files/
 /server/sites/sites.php
 
+# Ignore vendor folder (d8)
+/server/vendor/*
+!/server/vendor/.keep
+
 # IDE settings
 .buildpath
 .externalToolBuilders/

@@ -13,7 +13,7 @@ class GroupSerializer < ActiveModel::Serializer
       users_a = object.users.select { |u| u.id != current_user.id }
       users_a.unshift(current_user) if object.id == current_user.group.id
     elsif current_user.lead?
-      users_a = object.users.select { |u| u.id != current_user.id && u.projects.select { |project| project.users.include?(current_user) }.size > 0 }
+      users_a = current_user.projects.flat_map(&:users).uniq.select { |u| u.id != current_user.id && u.group.id == object.id }
       users_a.unshift(current_user) if object.id == current_user.group.id
     else
       [] << current_user

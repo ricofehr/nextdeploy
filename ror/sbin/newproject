@@ -259,6 +259,9 @@ newdrupal() {
     drush -y dl memcache
 
     pushd "${DOCONLINE}" > /dev/null
+    # for d8, include vendor empty folder to git
+    [[ -d server/vendor ]] && touch server/vendor/.keep
+
     cp "${RORSBIN}/files/gitignore_drupal" .gitignore
     cp "${RORSBIN}/files/crontab_drupal" scripts/crontab
     sed -i "s;%%DOCROOT%%;${DOCROOT};" scripts/crontab
