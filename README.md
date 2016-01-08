@@ -2,7 +2,7 @@
 
 [![Build Status](http://build.nextdeploy.io/buildStatus/icon?job=nextdeploy)](http://build.nextdeploy.io/job/nextdeploy/)
 
-The project is an ongoing deployment system virtualized development environment in the cloud. Generic installation templates are defined for different frameworks or cms. When creating a project, a git repository is associated with this installation template. Thus, virtual machines can be run on demand by deploying the site on a preinstalled system following prerequisites specified in the template.
+NextDeploy is a deployment system of virtualized development environments in a compute cloud. Generic installation templates are defined for different frameworks or cms. When creating a project, a git repository is associated with this installation template. Thus, virtual machines can be run on demand by deploying the site on a preinstalled system following prerequisites specified in the template.
 
 The project uses a cloud to host vms. The api is working actually with openstack. In the future, HP and AWS cloud will also be taken into account. Installation templates are defined for the puppet tool. Git is used for versioning developments on projects and Gitlab manager is installed for these deposits. A REST API (in ruby on rails) is the intermediary between these systems and can manage user authentication, project creation, adding users, and of course the launch of vms.
 
@@ -19,7 +19,7 @@ The REST api can be reached with 3 different ways
 * Rest api developped with rails
 * a WebUI, a bash command and an android application for transmit with rest api
 * Based on vagrant, there is a complete process for install the project on his laptop.
-* Working progress, more features in future (more cms and technos supported, ldap connector for authentification, lot of linux image, HP cloud connector, ...)
+* Working progress, more features in future (more cms and technos supported, ldap connector for authentification, lot of linux image, Aws connector, ...)
 
 ## Folders
 

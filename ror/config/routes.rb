@@ -5,6 +5,8 @@ Rails.application.routes.draw do
   # Api v1 Controllers
   namespace :api do
     namespace :v1 do
+      # Session route
+      devise_for(:users, :controllers => { :sessions => "api/v1/sessions" }, :skip => [:registrations, :passwords] )
 
       # Some custom routes
       get '/projects/git/:gitpath' => 'projects#show_by_gitpath', as: 'project_by_gitpath', constraints: { gitpath: /.+/ }
@@ -45,9 +47,6 @@ Rails.application.routes.draw do
         list_only.resources :frameworks
         list_only.resources :systemimages
       end
-
-      # Session route
-      devise_for(:users, :controllers => { :sessions => "api/v1/sessions" } )
     end
   end
 end

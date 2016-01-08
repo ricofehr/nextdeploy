@@ -1,0 +1,13 @@
+/var/log/nginx-* {
+  weekly
+  missingok
+  rotate 52
+  compress
+  delaycompress
+  notifempty
+  create 0640 www-data adm
+  sharedscripts
+  postrotate
+    [ ! -f /var/opt/gitlab/nginx/nginx.pid ] || kill -USR1 `cat /var/opt/gitlab/nginx/nginx.pid`
+  endscript
+}

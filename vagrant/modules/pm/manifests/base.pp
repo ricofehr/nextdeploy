@@ -78,6 +78,13 @@ class pm::base::gitlab {
     group => 'root',
     before => Class['::gitlab']
   } ->
+  file { '/etc/logrotate.d/nginx':
+    ensure =>  file,
+    source => ["puppet:///modules/pm/nginx/logrotate"],
+    owner => 'root',
+    group => 'root',
+    before => Class['::gitlab']
+  } ->
   exec { 'nextdeploysuffix':
     command => "/bin/sed -i 's;%%NEXTDEPLOYSUF%%;${nextdeploysuf};g' /etc/os-http.conf",
     onlyif => 'grep NEXTDEPLOYSUF /etc/os-http.conf',

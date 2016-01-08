@@ -251,6 +251,7 @@ cinder::scheduler::scheduler_driver: 'cinder.scheduler.simple.SimpleScheduler'
 horizon::allowed_hosts:
   - '127.0.0.1'
   - "%{::clientcert}"
+  - "hz.%{hiera('global::nextdeployuri')}"
 horizon::cache_server_ip: 'controller-m'
 horizon::cache_server_port: '11211'
 horizon::secret_key: 'oshorizon'

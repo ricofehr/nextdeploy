@@ -31,9 +31,11 @@ module API
 
       # Destroy current session
       def destroy
-        resource = User.find_for_database_authentication(:email => params[:email])
-        resource.authentication_token = nil
-        resource.save
+        authenticate_with_http_token do |user_token, options|
+          resource = user_token && User.find_by_authentication_token(user_token)
+          resource.reset_authentication_token! if resource
+        end
+        
         render :json=> {:success=>true}
       end
 

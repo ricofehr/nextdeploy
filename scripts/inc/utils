@@ -30,14 +30,26 @@ get_hypervisor() {
 set_dnsserver() {
   local server="$1"
 
-  sudo /bin/bash -c "echo \"nameserver ${server}\" > /etc/resolv.conf"
+  if (( CHANGEDNS == 1 )); then
+    sudo /bin/bash -c "echo \"nameserver ${server}\" > /etc/resolv.conf"
 
-  # if mac os x, change network preferences
-  if [[ -f /usr/bin/sw_vers ]]; then
-    networksetup -listallnetworkservices | grep -v "An asterisk" | while read NETSERV;do
-      sudo networksetup -setdnsservers "$NETSERV" $server
-      sudo networksetup -setsearchdomains "$NETSERV" ''
-    done
+    # if mac os x, change network preferences
+    if [[ -f /usr/bin/sw_vers ]]; then
+      networksetup -listallnetworkservices | grep -v "An asterisk" | while read NETSERV;do
+        sudo networksetup -setdnsservers "$NETSERV" $server
+        sudo networksetup -setsearchdomains "$NETSERV" ''
+      done
+    fi
+  else
+    echo "Ensure that your DNS server is targetting on ${server}"
+    echo "nameserver ${server} in your /etc/resolv.conf"
+    if [[ -f /usr/bin/sw_vers ]]; then
+      echo "and execute networksetup like below"
+      networksetup -listallnetworkservices | grep -v "An asterisk" | while read NETSERV;do
+        echo "sudo networksetup -setdnsservers \"$NETSERV\" $server"
+        echo "sudo networksetup -setsearchdomains \"$NETSERV\" ''"
+      done
+    fi
   fi
 }
 

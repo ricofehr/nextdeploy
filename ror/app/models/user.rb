@@ -36,6 +36,15 @@ class User < ActiveRecord::Base
     self.authentication_token ||= generate_authentication_token
   end
 
+  # Reset current authentication_token
+  #
+  # No param
+  # No return
+  def reset_authentication_token!
+    self.authentication_token = nil
+    save
+  end
+
   # Return gitlab username
   #
   # No param
