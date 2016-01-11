@@ -379,9 +379,6 @@ preparefiles() {
   # on fedora, we set rsync type for avoir firewalld issue
   $BINSED -i "s;%%FILESHARETYPE%%;${FILESHARETYPE};" Vagrantfile
   popd > /dev/null
-  # fix an issue when rsync share
-  rm -f puppet/pm/files/sshkeys
-  rm -f puppet/pm/files/varnish/auth
 
   output -q "Prepare vagrantfile for ndc2 node"
   pushd vagrant/ndc2 > /dev/null
@@ -584,9 +581,25 @@ install_nextdeploy() {
     fi
   fi
 
+  errormanager=0
+  if [[ $FILESHARETYPE = "rsync" ]]; then
+    # fix an issue when rsync share
+    rm -f ../../puppet/pm/files/sshkeys
+    rm -f ../../puppet/pm/files/varnish/auth
+  fi
   output -q "Creating the manager vm, please wait a moment ..."
   vagrant up --provider=${HVISOR}
-  (($?!=0)) && output -e 'Manager node creation has some error(s)'
+  (( $? != 0 )) && errormanager=1
+
+  if [[ $FILESHARETYPE = "rsync" ]]; then
+    # fix an issue when rsync share
+    pushd ../../puppet >/dev/null
+    git checkout -- pm/files/sshkeys
+    git checkout -- pm/files/varnish/auth
+    popd >/dev/null
+  fi
+  (( errormanager == 1 )) && output -e 'Manager node creation has some error(s)'
+  
   sleep 200
   output -q "The manager instance is up"
   popd > /dev/null

@@ -135,6 +135,7 @@ class pm::base {
         'ifstat',
         'links',
         'git-core',
+        'geoip-bin',
         'ethtool',
         'mailutils'
         ]:
