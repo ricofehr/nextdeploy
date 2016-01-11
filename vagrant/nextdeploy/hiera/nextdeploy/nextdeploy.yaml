@@ -115,7 +115,7 @@ vsftpd::directives:
     pam_service_name: 'vsftpd'
     nopriv_user: 'ftp'
     guest_username: 'ftp'
-    ftpd_banner: 'Mvmc Assets FTP Server'
+    ftpd_banner: 'NextDeploy Assets FTP Server'
 
 # rvm parameters
 rvm::system_rubies:

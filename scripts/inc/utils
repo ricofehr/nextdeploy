@@ -41,13 +41,13 @@ set_dnsserver() {
       done
     fi
   else
-    echo "Ensure that your DNS server is targetting on ${server}"
-    echo "nameserver ${server} in your /etc/resolv.conf"
+    output -q "Ensure that your DNS server is targetting on ${server}"
+    output -q -l "nameserver ${server} in your /etc/resolv.conf"
     if [[ -f /usr/bin/sw_vers ]]; then
-      echo "and execute networksetup like below"
+      output -q -l "and execute networksetup like below"
       networksetup -listallnetworkservices | grep -v "An asterisk" | while read NETSERV;do
-        echo "sudo networksetup -setdnsservers \"$NETSERV\" $server"
-        echo "sudo networksetup -setsearchdomains \"$NETSERV\" ''"
+        output -q -l "sudo networksetup -setdnsservers \"$NETSERV\" $server"
+        output -q -l "sudo networksetup -setsearchdomains \"$NETSERV\" ''"
       done
     fi
   fi

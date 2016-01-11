@@ -127,7 +127,7 @@ module VmsHelper
       pattern.gsub!('%{os_suffix}', Rails.application.config.os_suffix)
       pattern.gsub!('%{nextdeployip}', Rails.application.config.nextdeployip)
       pattern.gsub!('%{nextdeployhost}', Rails.application.config.nextdeployuri)
-      pattern.gsub!('%{gitlabhost}', Rails.application.config.gitlab_endpoint0.sub('http://', ''))
+      pattern.gsub!('%{gitlabhost}', Rails.application.config.gitlab_endpoint0.sub(/https?:\/\//, ''))
     rescue => e
       raise Exceptions::NextDeployException.new("Create cloudinit file for #{name} failed: #{e}")
     end

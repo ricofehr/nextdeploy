@@ -9,6 +9,12 @@
 #
 class pm::jenkins {
 
+  Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ] }
+
+  exec { 'jenkinsaptkey':
+    command => 'wget -q -O - https://jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -'
+  } ->
+
   file { '/etc/apt/sources.list.d/jenkins.list':
     ensure => file,
     content => 'deb http://pkg.jenkins-ci.org/debian binary/'
