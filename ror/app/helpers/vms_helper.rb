@@ -167,7 +167,7 @@ module VmsHelper
   # No return
   def check_status
     # dont check status if we are on setup process
-    return if (status == 0 && created_at > (Time.zone.now - 120.minutes))
+    return if (status == 0 && created_at > (Time.zone.now - 240.minutes))
 
     conn_status = nil
 
