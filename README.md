@@ -17,7 +17,7 @@ The REST api can be reached with 3 different ways
 * Actually, 3 cms are supporting: drupal, wordpress and symfony2
 * Gitlab for hosting repository
 * Rest api developped with rails
-* a WebUI, a bash command and an android application for transmit with rest api
+* A WebUI, a bash command and an android application for transmit with rest api
 * Based on vagrant, there is a complete process for install the project on his laptop.
 * Working progress, more features in future (more cms and technos supported, ldap connector for authentification, lot of linux image, Aws connector, ...)
 
@@ -80,7 +80,7 @@ Usage: ./scripts/./setup [options]
 -r           avoid change resolv.conf and hosts files
 -vm          start a vm after build is complete
 ```
-Installation requires a large amount of RAM, a computer with 12GB of RAM minimum is required. Indeed, the OpenStack cloud is then implemented using vagrant through the creation of four virtual machines (controller, neutron, glance, nova) and another virtual machine is created to launch the rest app and hosts the gitlab and templates puppet installation. The script requires "curl" and "sudo" as a prerequisite.
+Installation requires a large amount of RAM, a computer with 12GB of RAM minimum is required. Indeed, the OpenStack cloud is then implemented using vagrant through the creation of four virtual machines (controller, neutron, glance, nova) and another virtual machine is created: for launch the REST app, hosts the gitlab and templates puppet installation. The script requires "curl" and "sudo" as a prerequisite.
 
 The setup script has been tested on mac os x, debian, ubuntu and fedora. The hypervisor for nextdeploy installation is virtualbox (mac osx) or kvm (debian, ubuntu, fedora). Knowing that the performance of virtual machines deployed on OpenStack will be better if nextdeploy is virtualized through kvm.
 
@@ -132,8 +132,8 @@ Usage: ./scripts/./setup-remote [options]
 * Admin: all rights
 * Lead Dev: all rights to the projects associated with it
 * Dev: only rights to edit their profile, access to the git repository, launch vms and ssh on them.
-* Pm: Only rights to edit their profile or launch vms
-* Guest: Only rights to recover access to urls vms
+* Pm: only rights to edit their profile or launch vms
+* Guest: only rights to recover access to urls vms
 
 When local nextdeploy facility (see above Local Installation), the following users are created:
 * usera@os.nextdeploy (password: word123123 and admin group)
@@ -214,30 +214,24 @@ Thus, we will find the following calls:
         new_api_v1_user_session GET    /api/v1/users/sign_in
             api_v1_user_session POST   /api/v1/users/sign_in
     destroy_api_v1_user_session DELETE /api/v1/users/sign_out
-           api_v1_user_password POST   /api/v1/users/password
-       new_api_v1_user_password GET    /api/v1/users/password/new
-      edit_api_v1_user_password GET    /api/v1/users/password/edit
-                                PATCH  /api/v1/users/password
-                                PUT    /api/v1/users/password
-cancel_api_v1_user_registration GET    /api/v1/users/cancel
-       api_v1_user_registration POST   /api/v1/users
-   new_api_v1_user_registration GET    /api/v1/users/sign_up
-  edit_api_v1_user_registration GET    /api/v1/users/edit
-                                PATCH  /api/v1/users
-                                PUT    /api/v1/users
-                                DELETE /api/v1/users
+
 ```
 
 
 ## CommandLine Client
 
 A client developed in Ruby allows communication with the rest api via the command line.
+For install this one, copy-paste this line in your teminal (OSX, Debian, Ubuntu or Fedora)
+```
+curl -sSL http://cli.nextdeploy.io/ | bash
+```
+
 A small configuration file is related to the script and must contain the email / password of the user.
 An example of /etc/nextdeploy.conf
 ```
 email: userl@os.nextdeploy
 password: word123123
-endpoint: nextdeploy.local
+endpoint: api.nextdeploy.local
 ```
 
 The ruby client manages the following commands
@@ -283,7 +277,7 @@ cd ror && yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
 ```
 
 
-## TODOS
+## TODO
 
 * More installation templates
 * More operating systems
