@@ -29,6 +29,7 @@ NESTED=0 # enable nested virtualization for nova node
 NEUTRONEXTDEV='eth2' # neutron interface who set the external network ip
 NEUTRONPUBDEV='eth0' # neutron interface who set the public IP
 FILESHARETYPE='virtualbox' # define which sharing strategy for rails app between host computer and nextdeploy virtual node
+RSYNCARGS='' # define options for rsync share type
 STARTVM=0 # start a test vm after build complete
 
 # display help
@@ -343,6 +344,9 @@ install_prerequisites() {
 
 # Prepare vagrantfiles and global.yaml
 preparefiles() {
+  # Add options for rsync share type
+  [[ "$FILESHARETYPE" = "rsync" ]] && RSYNCARGS=", rsync__args: [\"--archive\", \"-z\"]"
+
   output -q "Prepare vagrantfile for openstack nodes"
   pushd vagrant/os > /dev/null
   rm -f Vagrantfile
@@ -378,6 +382,7 @@ preparefiles() {
   $BINSED -i "s;%%OSMANAGEMENTSUF%%;${MANAGEMENTPREFIX##*.};" Vagrantfile
   # on fedora, we set rsync type for avoir firewalld issue
   $BINSED -i "s;%%FILESHARETYPE%%;${FILESHARETYPE};" Vagrantfile
+  $BINSED -i "s;%%RSYNCARGS%%;${RSYNCARGS};" Vagrantfile
   popd > /dev/null
 
   output -q "Prepare vagrantfile for ndc2 node"
@@ -387,8 +392,6 @@ preparefiles() {
   (($?!=0)) && output -e 'Cant create Vagrantfile for ndc2 node'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" Vagrantfile
   $BINSED -i "s;%%OSPUBSUF%%;${PUBPREFIX##*.};" Vagrantfile
-  # on fedora, we set rsync type for avoir firewalld issue
-  $BINSED -i "s;%%FILESHARETYPE%%;${FILESHARETYPE};" Vagrantfile
   popd > /dev/null
 
   output -q "Prepare hiera global.yml for openstack nodes"
@@ -581,24 +584,9 @@ install_nextdeploy() {
     fi
   fi
 
-  errormanager=0
-  if [[ $FILESHARETYPE = "rsync" ]]; then
-    # fix an issue when rsync share
-    rm -f ../../puppet/pm/files/sshkeys
-    rm -f ../../puppet/pm/files/varnish/auth
-  fi
   output -q "Creating the manager vm, please wait a moment ..."
   vagrant up --provider=${HVISOR}
-  (( $? != 0 )) && errormanager=1
-
-  if [[ $FILESHARETYPE = "rsync" ]]; then
-    # fix an issue when rsync share
-    pushd ../../puppet >/dev/null
-    git checkout -- pm/files/sshkeys
-    git checkout -- pm/files/varnish/auth
-    popd >/dev/null
-  fi
-  (( errormanager == 1 )) && output -e 'Manager node creation has some error(s)'
+  (( $? != 0 )) && output -e 'Manager node creation has some error(s)'
   
   sleep 200
   output -q "The manager instance is up"
