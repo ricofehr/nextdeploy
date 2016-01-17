@@ -25,6 +25,7 @@ module VmsHelper
     #add base puppet class
     classes << '  - pm::base::apt'
     classes << '  - pm::base'
+    classes << '  - pm::mail'
     # if nodejs techno is already targetted, do not added 2 times
     # and we need nodejs class for all project because frontend build needs: grunt, gulp, ...
     classes << '  - pm::nodejs' unless project.technos.any? { |t| t.name.include?('nodejs') }

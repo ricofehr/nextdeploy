@@ -16,9 +16,14 @@ class Branche
     @name = name
     @project_id = project_id
     @id = "#{project_id}-#{name}"
+  end
 
-    # cache commits array during 10min
-    @commits = Commit.all(@id)
+  # Get commits
+  #
+  # No params
+  # @return [Array[Commits]]
+  def commits
+    Commit.all(@id)
   end
 
   # Find function. Return a branch object from his id

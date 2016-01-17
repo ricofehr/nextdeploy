@@ -342,10 +342,10 @@ class pm::postinstall::nextdeploy {
     mode => '0777'
   } ->
 
-  # ensure /var/run/puma create on each reboot
-  file_line { 'pumarclocal':
+  # ensure resolvconf and /var/run/puma create on each reboot
+  file_line { 'resolvpumarclocal':
     path => '/etc/rc.local',
-    line => 'mkdir -p /var/run/puma && chown modem: /var/run/puma',
+    line => '[[ -f /var/run/resolvconf/resolv.conf ]] && rm -f /etc/resolv.conf && ln -s /var/run/resolvconf/resolv.conf /etc/resolv.conf && service dnsmasq restart;mkdir -p /var/run/puma && chown modem: /var/run/puma',
     match => '^$',
     multiple => false
   } ->
