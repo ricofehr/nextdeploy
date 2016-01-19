@@ -274,7 +274,8 @@ welcome_step() {
   output -q -l "Welcome to setup process for nextdeploy platform in local environment"
   output -q -l "Remember, the project needs lot of ram for running in virtualisation mode on local workstation computer"
   output -q -l "At least 12Go are needed and 16Go are recommended"
-  output -q -l "The installation process needs long time (at least 90min), needs curl command and ask sometimes root password (assume that sudo command is installed)"
+  output -q -l "The installation process needs long time (at least 90min),"
+  output -q -l "needs curl command and ask sometimes root password (assume that sudo command is installed)"
   confirm "Ok for continue"
   echo -en "\n\n"
 }

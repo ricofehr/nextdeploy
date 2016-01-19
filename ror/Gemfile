@@ -42,7 +42,7 @@ gem 'devise'
 gem 'puma'
 
 # gitlab api
-gem 'gitlab', '~> 3.4.0'
+gem 'gitlab', '~> 3.6.1'
 
 # faraday restful library
 gem 'faraday'

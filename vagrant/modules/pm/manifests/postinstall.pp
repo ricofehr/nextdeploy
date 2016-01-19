@@ -233,15 +233,6 @@ class pm::postinstall::nextdeploy {
     multiple => false
   }  ->
 
-  # patch gitlab for auto-confirm users
-  file { '/opt/gitlab/embedded/service/gitlab-rails/lib/api/users.rb':
-    ensure => file,
-    source => ['puppet:///modules/pm/gitlab/users.rb'],
-    owner => 'modem',
-    mode => '0664',
-    require => Exec['gitlab_reconfigure']
-  } ->
-
   # some custom settings for gitlab
   exec { 'gitlabusersetting':
     command => '/opt/gitlab/embedded/bin/psql -h /var/opt/gitlab/postgresql -d gitlabhq_production -c "UPDATE application_settings SET signup_enabled=\'f\',max_attachment_size=60, default_projects_limit=0;"',

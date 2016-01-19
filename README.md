@@ -21,16 +21,19 @@ The REST api can be reached with 3 different ways
 * Based on vagrant, there is a complete process for install the project on his laptop.
 * Working progress, more features in future (more cms and technos supported, ldap connector for authentification, lot of linux image, Aws connector, ...)
 
-## Folders
-
-* /client The Ruby client for exchange with the rest api thanks to commandline ([submodule](https://github.com/ricofehr/nextdeploy-cli))
-* /out Some logs, specially during the setup of the platform
-* /puppet Installation templates for the vms into the cloud. Customs class are included into puppet/pm folder, others are taken from puppetforge catalog. ([submodule](https://github.com/ricofehr/nextdeploy-puppet))
-* /ror The rails application who serves the rest api. 
-* /ror/public The Webui developped on EmberJs ([submodule](https://github.com/ricofehr/nextdeploy-webui))
-* /scripts Some jobs for setup completely the project in local workstation or remote servers
-* /tmp Temporary folder
-* /vagrant Definitions for create the 4 openstack nodes, the manager node and the monitoring node
+## Repository Structure
+```
+nextdeploy/
++--client/      The Ruby client for exchange with the rest api thanks to commandline (submodule, https://github.com/ricofehr/nextdeploy-cli)
++--out/         Some logs, specially during the setup of the platform
++--puppet/      Installation templates for the vms into the cloud. (submodule, https://github.com/ricofehr/nextdeploy-puppet)
+   +---pm/      Customs class
++--ror/         The rails application who serves the rest api
+   +---public/  The Webui developped on EmberJs (submodule, https://github.com/ricofehr/nextdeploy-webui)
++--scripts/     Some jobs for setup completely the project in local workstation or remote servers
++--tmp/         Temporary folder
++--vagrant/     Definitions for create the 4 openstack nodes, the manager node and the monitoring node
+```
 
 ## Submodules and Clone
 The cli application (client folder), the webui (ror/public folder), the vm installation templates (/puppet folder) and some puppet modules of the community used by installation and setting of nextdeploy, are included in the project in the form of Submodules git.
@@ -242,7 +245,7 @@ The ruby client manages the following commands
 `  ndeploy getftp assets|dump [project]                # get an assets archive or a dump for the [project]
 `  ndeploy git [cmd]                                   # Executes a git command
 `  ndeploy help [COMMAND]                              # Describe available commands or one specific command
-`  ndeploy launch [projectname] [branch] [commit]      # launch [commit] (default is head) on the [branch] (default is master) for [projectname] into remote nextdeploy platform
+`  ndeploy launch [projectname] [branch] [commit]      # launch [commit] on the [branch] for [projectname] into remote nextdeploy platform
 `  ndeploy list                                        # list launched vms for current user
 `  ndeploy listftp assets|dump [project]               # list assets archive or a dump for the [project]
 `  ndeploy projects                                    # list projects for current user

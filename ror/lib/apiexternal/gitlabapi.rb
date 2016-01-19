@@ -76,10 +76,11 @@ module Apiexternal
     # @param email [String] the user email
     # @param password [String] the user password
     # @param username [String] the gitlab username
+    # @param name [String] the gitlab name
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return [Integer] the gitlab userid
-    def create_user(email, password, username)
-      gituser = Gitlab.create_user(email, password, {username: username})
+    def create_user(email, password, username, name)
+      gituser = Gitlab.create_user(email, password, username, {name: name, confirm: false})
       return gituser.id
     end
 
@@ -173,10 +174,11 @@ module Apiexternal
     # @param email [String] the user email
     # @param password [String] the user password
     # @param username [String] the gitlab username
+    # @param name [String] the gitlab name
     # @raise Exceptions::GitlabApiException if errors occurs
     # @return [Integer] the gitlab userid
-    def update_user(gitlab_id, email, password, username)
-      Gitlab.edit_user(gitlab_id, {email: email, password: password, username: username})
+    def update_user(gitlab_id, email, password, username, name)
+      Gitlab.edit_user(gitlab_id, {email: email, password: password, username: username, name: name})
     end
 
     # Add user to a project team

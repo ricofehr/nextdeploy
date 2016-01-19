@@ -93,7 +93,7 @@ class User < ActiveRecord::Base
     gitlabapi = Apiexternal::Gitlabapi.new
 
     begin
-      gitlabapi.update_user(gitlab_id, email, password, gitlab_user)
+      gitlabapi.update_user(gitlab_id, email, password, gitlab_user, "#{firstname} #{lastname}")
       projects_g = gitlabapi.get_projects(gitlab_id)
       # remove user to project if needed
       projects_g.each do |project|
@@ -123,7 +123,7 @@ class User < ActiveRecord::Base
     gitlabapi = Apiexternal::Gitlabapi.new
 
     begin
-      self.gitlab_id = gitlabapi.create_user(email, password, gitlab_user)
+      self.gitlab_id = gitlabapi.create_user(email, password, gitlab_user, "#{firstname} #{lastname}")
       projects.each { |project| gitlabapi.add_user_to_project(project.gitlab_id, gitlab_id, access_level) }
     rescue Exceptions::NextDeployException => me
       me.log

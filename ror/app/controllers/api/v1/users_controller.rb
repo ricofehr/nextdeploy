@@ -134,13 +134,18 @@ module API
 
       # Create a new user
       def create
-        @user_c = User.create!(user_params)
+        user_attrs = user_params
+        # get sending credentials flag
+        is_credentials_send = user_attrs.delete(:is_credentials_send)
+        @user_c = User.create!(user_attrs)
 
         # Json output (return error if issue occurs)
         respond_to do |format|
           if @user_c
             # Send a welcome email
-            UserMailer.welcome_email(@user_c, user_params[:password]).deliver
+            if is_credentials_send
+              UserMailer.welcome_email(@user_c, user_params[:password]).deliver
+            end
             format.json { render json: @user_c, status: 200 }
           else
             format.json { render json: nil, status: :unprocessable_entity }
@@ -150,16 +155,24 @@ module API
 
       # Update user object
       def update
+        user_attrs = user_params
+        # get sending credentials flag
+        is_credentials_send = user_attrs.delete(:is_credentials_send)
+
         # check old email value
         oldemail = @user_c.email
         # Json output (return error if issue occurs)
         respond_to do |format|
           # TODO: too much calls in controller
-          if @user_c.update(user_params)
+          if @user_c.update(user_attrs)
             # update gitlab user details
             @user_c.update_gitlabuser
             # rename sshkeys if needed
             @user_c.move_sshkey_modem(oldemail) if oldemail != @user_c.email
+            # Send a welcome email
+            if is_credentials_send
+              UserMailer.welcome_email(@user_c, user_params[:password]).deliver
+            end
 
             format.json { render json: @user_c, status: 200 }
           else
@@ -236,7 +249,7 @@ module API
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def user_params
-        params.require(:user).permit(:email, :company, :quotavm, :firstname, :lastname, :password, :password_confirmation, :is_project_create, :group_id, :project_ids => [])
+        params.require(:user).permit(:email, :company, :quotavm, :firstname, :lastname, :password, :password_confirmation, :is_project_create, :is_credentials_send, :group_id, :project_ids => [])
       end
     end
   end

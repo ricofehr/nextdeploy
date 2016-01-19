@@ -116,22 +116,6 @@ techno_mongodb = Techno.create!(
 mongodb::globals::version: '2.6'"
                  )
 
-techno_mongodb3 = Techno.create!(
-                    name: "mongodb-3.0",
-                    puppetclass: "pm::nosql::mongo",
-                    ordering: 80,
-                    hiera: "ismongo: 1
-mongodb::globals::version: '3.0'"
-                  )
-
-techno_mongodb32 = Techno.create!(
-                     name: "mongodb-3.2",
-                     puppetclass: "pm::nosql::mongo",
-                     ordering: 80,
-                     hiera: "ismongo: 1
-mongodb::globals::version: '3.2'"
-                   )
-
 techno_rabbitmq = Techno.create!(
                     name: "rabbitmq",
                     puppetclass: "pm::rabbit",
@@ -186,6 +170,22 @@ techno_nodejs = Techno.create!(
                   ordering: 140,
                   hiera: ""
                 )
+
+techno_mongodb3 = Techno.create!(
+                    name: "mongodb-3.0",
+                    puppetclass: "pm::nosql::mongo",
+                    ordering: 80,
+                    hiera: "ismongo: 1
+mongodb::globals::version: '3.0'"
+                  )
+
+techno_mongodb32 = Techno.create!(
+                     name: "mongodb-3.2",
+                     puppetclass: "pm::nosql::mongo",
+                     ordering: 80,
+                     hiera: "ismongo: 1
+mongodb::globals::version: '3.2'"
+                   )
 
 puts "Created #{Techno.count} technos"
 

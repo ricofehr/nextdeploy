@@ -9,13 +9,13 @@
 #
 class pm::ror {
   class{ 'rvm::rvmrc':
-    max_time_flag => 180,
+    max_time_flag => 360,
     before  => Class['rvm'],
   }
 
   class { 'rvm': }
   $gems = hiera('rvm::gem', [])
-  create_resources('rvm_gem', $gems)
+  create_resources('rvm_gem', $gems, { require => Class['rvm'] })
   package { ['libmysqlclient-dev']: ensure => installed }
   class { '::memcached': }
 
