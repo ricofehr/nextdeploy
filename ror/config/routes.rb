@@ -46,6 +46,7 @@ Rails.application.routes.draw do
         list_only.resources :vmsizes
         list_only.resources :frameworks
         list_only.resources :systemimages
+        list_only.resources :hpmessages
       end
     end
   end

@@ -406,3 +406,17 @@ debian8 = Systemimage.create!(
           )
 
 puts "Create #{Systemimage.count} system image"
+
+
+tweeter_msg = Hpmessage.create!(
+            title: '@NextDeploy',
+            message: '<a class="twitter-timeline"  href="https://twitter.com/nextdeploy" data-widget-id="684143234185052160">',
+            expiration: '0',
+            access_level_min: 20,
+            access_level_max: 50,
+            ordering: -100,
+)
+
+puts "Create #{Hpmessage.count} messages"
+
+

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151206103445) do
+ActiveRecord::Schema.define(version: 20160122122105) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -34,6 +34,15 @@ ActiveRecord::Schema.define(version: 20151206103445) do
     t.integer  "access_level"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "hpmessages", force: true do |t|
+    t.string  "title"
+    t.text    "message"
+    t.integer "access_level_min"
+    t.integer "access_level_max"
+    t.integer "expiration"
+    t.integer "ordering"
   end
 
   create_table "prefix_dns", force: true do |t|
