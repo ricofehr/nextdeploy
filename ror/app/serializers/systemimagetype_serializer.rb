@@ -6,16 +6,6 @@ class SystemimagetypeSerializer < ActiveModel::Serializer
   delegate :current_user, to: :scope
 
   has_many :systemimages, key: :systemimages
-  has_many :projects, key: :projects
-
-  # dont display projects if user is not allowed for
-  def projects
-    if current_user.admin?
-      object.projects
-    else
-      object.projects.select { |project| project.users.include?(current_user) }
-    end
-  end
 
   # dont display systemimages if user is not allowed for
   def systemimages

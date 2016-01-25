@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160122122105) do
+ActiveRecord::Schema.define(version: 20160124232330) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -54,6 +54,14 @@ ActiveRecord::Schema.define(version: 20160122122105) do
 
   add_index "prefix_dns", ["project_id"], name: "index_prefix_dns_on_project_id", using: :btree
 
+  create_table "project_systemimages", force: true do |t|
+    t.integer "project_id"
+    t.integer "systemimage_id"
+  end
+
+  add_index "project_systemimages", ["project_id"], name: "index_project_systemimages_on_project_id", using: :btree
+  add_index "project_systemimages", ["systemimage_id"], name: "index_project_systemimages_on_systemimage_id", using: :btree
+
   create_table "project_technos", force: true do |t|
     t.integer  "project_id"
     t.integer  "techno_id"
@@ -82,7 +90,6 @@ ActiveRecord::Schema.define(version: 20160122122105) do
     t.integer  "brand_id"
     t.boolean  "enabled"
     t.integer  "gitlab_id"
-    t.integer  "systemimagetype_id"
     t.string   "login"
     t.string   "password"
     t.integer  "owner_id"
@@ -91,7 +98,6 @@ ActiveRecord::Schema.define(version: 20160122122105) do
   add_index "projects", ["brand_id"], name: "index_projects_on_brand_id", using: :btree
   add_index "projects", ["framework_id"], name: "index_projects_on_framework_id", using: :btree
   add_index "projects", ["owner_id"], name: "index_projects_on_owner_id", using: :btree
-  add_index "projects", ["systemimagetype_id"], name: "index_projects_on_systemimagetype_id", using: :btree
 
   create_table "sshkeys", force: true do |t|
     t.integer  "user_id"

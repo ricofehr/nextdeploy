@@ -7,7 +7,6 @@ class Project < ActiveRecord::Base
 
   belongs_to :brand
   belongs_to :framework
-  belongs_to :systemimagetype
   belongs_to :owner, class_name: "User", foreign_key: "owner_id", inverse_of: :own_projects
 
   has_many :project_technos, dependent: :destroy
@@ -20,10 +19,13 @@ class Project < ActiveRecord::Base
   has_many :project_vmsize, dependent: :destroy
   has_many :vmsizes, through: :project_vmsize
 
+  has_many :project_systemimage, dependent: :destroy
+  has_many :systemimages, through: :project_systemimage
+
   has_many :vms, dependent: :destroy
 
   # some properties are mandatory and must be well-formed
-  validates :name, :brand_id, :framework_id, :systemimagetype_id, :gitpath, presence: true
+  validates :name, :brand_id, :framework_id, :systemimage_ids, :gitpath, presence: true
   validates :brand_id, :framework_id, numericality: {only_integer: true, greater_than: 0}
 
   # Git repository dependence

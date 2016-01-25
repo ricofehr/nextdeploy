@@ -173,7 +173,7 @@ module API
           params_p[:owner_id] ||= params_p[:owner]
           params_p[:framework_id] ||= params_p[:framework]
           params_p[:brand_id] ||= params_p[:brand]
-          params_p[:systemimagetype_id] ||= params_p[:systemimagetype]
+          params_p[:systemimage_ids] ||= params_p[:systemimages]
           params_p[:vmsize_ids] ||= params_p[:vmsizes]
 
           # permit empty user_ids array if we want disable all users
@@ -185,7 +185,7 @@ module API
           params_p.delete(:owner)
           params_p.delete(:framework)
           params_p.delete(:brand)
-          params_p.delete(:systemimagetype)
+          params_p.delete(:systemimages)
           params_p.delete(:vmsizes)
 
           params[:project] = params_p
@@ -193,7 +193,7 @@ module API
 
         # Never trust parameters from the scary internet, only allow the white list through.
         def project_params
-          params.require(:project).permit(:name, :gitpath, :brand_id, :framework_id, :systemimagetype_id, :enabled, :login, :password, :owner_id, :user_ids => [], :techno_ids => [], :vmsize_ids => [])
+          params.require(:project).permit(:name, :gitpath, :brand_id, :framework_id, :enabled, :login, :password, :owner_id, :user_ids => [], :techno_ids => [], :vmsize_ids => [], :systemimage_ids => [])
         end
     end
   end

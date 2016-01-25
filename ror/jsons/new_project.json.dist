@@ -1,1 +1,1 @@
-{"project":{"id":null,"name":"","gitpath":"","enabled":true,"login":"modem","password":"modem","created_at":null,"owner":null,"brand":1,"framework":1,"systemimagetype":1,"technos":[1,7,8],"vmsizes":[2],"users":[1],"vms":[],"branches":[]}}
+{"project":{"id":null,"name":"","gitpath":"","enabled":true,"login":"modem","password":"modem","created_at":null,"owner":null,"brand":1,"framework":1,"systemimages":[1,2],"technos":[1,7,8],"vmsizes":[2],"users":[1],"vms":[],"branches":[]}}
