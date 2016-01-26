@@ -239,23 +239,23 @@ endpoint: api.nextdeploy.local
 
 The ruby client manages the following commands
 ```
-`  ndeploy clone [projectname]                         # clone project in current folder
-`  ndeploy config [endpoint] [username] [password]     # get/set properties settings for nextdeploy
-`  ndeploy destroy                                     # destroy current vm
-`  ndeploy getftp assets|dump [project]                # get an assets archive or a dump for the [project]
-`  ndeploy git [cmd]                                   # Executes a git command
-`  ndeploy help [COMMAND]                              # Describe available commands or one specific command
-`  ndeploy launch [projectname] [branch] [commit]      # launch [commit] on the [branch] for [projectname] into remote nextdeploy platform
-`  ndeploy list                                        # list launched vms for current user
-`  ndeploy listftp assets|dump [project]               # list assets archive or a dump for the [project]
-`  ndeploy projects                                    # list projects for current user
-`  ndeploy putftp assets|dump [project] [file]         # putftp an assets archive [file] or a dump [file] for the [project]
-`  ndeploy ssh                                         # ssh into remote vm
-`  ndeploy sshkey                                      # Put your public ssh key (id_rsa.pub) onto NextDeploy
-`  ndeploy sshkeys                                     # List sshkeys actually associated to the current user
-`  ndeploy up                                          # launch current commit to remote nextdeploy
-`  ndeploy upgrade                                     # upgrade ndeploy with the last version
-`  ndeploy version                                     # print current version of ndeploy
+ndeploy clone [projectname]                         # clone project in current folder
+ndeploy config [endpoint] [username] [password]     # get/set properties settings for nextdeploy
+ndeploy destroy                                     # destroy current vm
+ndeploy getftp assets|dump [project]                # get an assets archive or a dump for the [project]
+ndeploy git [cmd]                                   # Executes a git command
+ndeploy help [COMMAND]                              # Describe available commands or one specific command
+ndeploy launch [projectname] [branch] [commit]      # launch [commit] on the [branch] for [projectname] into remote nextdeploy platform
+ndeploy list                                        # list launched vms for current user
+ndeploy listftp assets|dump [project]               # list assets archive or a dump for the [project]
+ndeploy projects                                    # list projects for current user
+ndeploy putftp assets|dump [project] [file]         # putftp an assets archive [file] or a dump [file] for the [project]
+ndeploy ssh                                         # ssh into remote vm
+ndeploy sshkey                                      # Put your public ssh key (id_rsa.pub) onto NextDeploy
+ndeploy sshkeys                                     # List sshkeys actually associated to the current user
+ndeploy up                                          # launch current commit to remote nextdeploy
+ndeploy upgrade                                     # upgrade ndeploy with the last version
+ndeploy version                                     # print current version of ndeploy
 ```
 
 The git repository for cli application: https://github.com/ricofehr/nextdeploy-cli
@@ -292,6 +292,8 @@ cd ror && yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
 * Add elements of monitoring and supervision
 * Improve usability of the UI
 * Implement some extra functionnalities for the vms: security test, code quality parser, ..
+
+More details on the trello dashboard: https://trello.com/b/dVdgtJxE/nextdeploy
 
 
 ## Contributing
