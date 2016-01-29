@@ -30,6 +30,6 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def vms
-    object.vms.select { |vm| !current_user || vm.project.users.include?(current_user) }
+    object.vms.select { |vm| !current_user || (!vm.user.admin? && vm.project.users.include?(current_user)) }
   end
 end

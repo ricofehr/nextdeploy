@@ -16,11 +16,8 @@ class ProjectSerializer < ActiveModel::Serializer
 
   # avoid for no lead/admin users to see other users details
   def users
-    if current_user.admin?
+    if current_user.lead?
       users_a = object.users.select { |u| u.id != current_user.id }
-      users_a.unshift(current_user)
-    elsif current_user.lead?
-      users_a = object.users.select { |u| !u.admin? && u.id != current_user.id }
       users_a.unshift(current_user)
     else
       [] << current_user

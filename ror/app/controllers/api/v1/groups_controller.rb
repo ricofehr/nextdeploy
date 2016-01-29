@@ -12,22 +12,10 @@ module API
       # List all groups
       def index
         # select only objects allowed by current user
-        if @user.admin?
+        if @user.lead?
           @groups = Group.all
         else
-          @groups = []
-          if @user.lead?
-            @groups << @user.group
-            projects = @user.projects
-            if projects && projects.size > 0
-              users = projects.flat_map(&:users).uniq
-              users.select! { |u| !u.admin? }
-
-              @groups << users.map(&:group)
-            end
-          else
-            @groups << @user.group
-          end
+          @groups = [] << @user.group
         end
 
         respond_to do |format|

@@ -18,7 +18,7 @@ module API
 
       # List all users
       def index
-        if @user.admin?
+        if @user.lead?
           # Find users with project associated
           @users = User.includes(:projects).all
 
@@ -36,14 +36,7 @@ module API
 
         #filter by user_id for limited access
         else
-          @users = []
-          if @user.lead? && @user.projects
-            projects = @user.projects
-            @users = projects.flat_map(&:users).uniq
-            @users.select! { |u| !u.admin? }
-          else
-            @users << User.includes(:projects).find(@user.id)
-          end
+          @users = [] << User.includes(:projects).find(@user.id)
         end
 
         # Json output
