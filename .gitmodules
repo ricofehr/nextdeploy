@@ -129,3 +129,6 @@
 [submodule "vagrant/modules/grafana"]
 	path = vagrant/modules/grafana
 	url = https://github.com/bfraser/puppet-grafana
+[submodule "webui"]
+	path = webui
+	url = git@github.com:ricofehr/nextdeploy-webui
