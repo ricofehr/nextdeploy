@@ -20,9 +20,9 @@ class pm::base::apt {
     command => '/usr/bin/apt-get install --yes --force-yes ubuntu-cloud-keyring',
     environment => 'DEBIAN_FRONTEND=noninteractive'
   } ->
-  file { '/etc/apt/sources.list.d/cloudarchive-kilo.list':
+  file { '/etc/apt/sources.list.d/cloudarchive-liberty.list':
     ensure => file,
-    content => "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/kilo main"
+    content => "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/liberty main"
   } ->
   exec { 'apt-update':
     command => "/usr/bin/apt-get update",
