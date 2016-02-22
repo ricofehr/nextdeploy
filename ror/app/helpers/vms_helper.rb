@@ -19,8 +19,7 @@ module VmsHelper
     templates = []
     technos = project.technos.sort_by(&:ordering)
     # generate ftp password
-    (project.password && project.password.length > 0) ?
-      (ftppasswd = project.password) : (ftppasswd = 'nextdeploy')
+    ftppasswd = project.password
 
     #add base puppet class
     classes << '  - pm::base::apt'
@@ -55,10 +54,10 @@ module VmsHelper
         f.puts templates.join("\n")
 
         # tools are disabled without auth
-        if project.login && project.login.length > 0
+        if is_auth
           f.puts "isauth: 1\n"
           f.puts "httpuser: '#{project.login}'\n"
-          f.puts "httppasswd: '#{ftppasswd}'\n"
+          f.puts "httppasswd: '#{project.password}'\n"
         else
           f.puts "isauth: 0\n"
         end

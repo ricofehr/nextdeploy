@@ -150,12 +150,15 @@ module API
         params_p.delete(:commit)
         params_p.delete(:vmsize)
 
+        # force auth if we are not an admin user
+        params_p[:is_auth] = true unless @user.admin?
+
         params[:vm] = params_p
       end
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def vm_params
-        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id)
+        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :is_auth)
       end
     end
   end
