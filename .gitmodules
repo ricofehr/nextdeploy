@@ -114,9 +114,6 @@
 [submodule "client"]
 	path = client
 	url = git@github.com:ricofehr/nextdeploy-cli
-[submodule "ror/public"]
-	path = ror/public
-	url = git@github.com:ricofehr/nextdeploy-webui
 [submodule "puppet"]
 	path = puppet
 	url = git@github.com:ricofehr/nextdeploy-puppet
