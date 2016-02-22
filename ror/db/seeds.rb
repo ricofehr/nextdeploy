@@ -405,10 +405,11 @@ project_njs = Project.create!(
 puts "Created #{Project.count} projects"
 
 
-tweeter_msg = Hpmessage.create!(
+twitter_msg = Hpmessage.create!(
             title: '@NextDeploy',
-            message: '<iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" class="twitter-timeline twitter-timeline-rendered" style="position: static; visibility: visible; display: inline-block; width: 520px; height: 320px; padding: 0px; border: none; max-width: 100%; min-width: 180px; margin-top: 0px; margin-bottom: 0px; min-height: 200px;" src="https://nextdeploy.io/timeline.html" title="Twitter Timeline"></iframe>',
+            message: '<a class="twitter-timeline" href="https://twitter.com/nextdeploy" data-widget-id="690883407518273536">Tweets by @nextdeploy</a>',
             expiration: '0',
+            is_twitter: 1,
             access_level_min: 20,
             access_level_max: 50,
             ordering: -100,

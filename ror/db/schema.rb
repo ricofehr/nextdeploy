@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160124232330) do
+ActiveRecord::Schema.define(version: 20160221194305) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -43,6 +43,7 @@ ActiveRecord::Schema.define(version: 20160124232330) do
     t.integer "access_level_max"
     t.integer "expiration"
     t.integer "ordering"
+    t.boolean "is_twitter"
   end
 
   create_table "prefix_dns", force: true do |t|
@@ -184,6 +185,7 @@ ActiveRecord::Schema.define(version: 20160124232330) do
     t.string   "name"
     t.integer  "vmsize_id"
     t.integer  "status"
+    t.boolean  "is_auth",        default: true
   end
 
   add_index "vms", ["project_id"], name: "index_vms_on_project_id", using: :btree
