@@ -29,10 +29,11 @@ nextdeploy/
 +--puppet/      Installation templates for the vms into the cloud. (submodule, https://github.com/ricofehr/nextdeploy-puppet)
    +---pm/      Customs class
 +--ror/         The rails application who serves the rest api
-   +---public/  The Webui developped on EmberJs (submodule, https://github.com/ricofehr/nextdeploy-webui)
+   +---public/  Destination folder for the EmberJs build of the webui app
 +--scripts/     Some jobs for setup completely the project in local workstation or remote servers
 +--tmp/         Temporary folder
 +--vagrant/     Definitions for create the 4 openstack nodes, the manager node and the monitoring node
++--webui/       The Webui developped on EmberJs (submodule, https://github.com/ricofehr/nextdeploy-webui)
 ```
 
 ## Submodules and Clone
@@ -264,11 +265,11 @@ The git repository for cli application: https://github.com/ricofehr/nextdeploy-c
 ## Ember
 
 The Web Gui is developed with Ember framework.
-The Ember stack is localised in rails standard location, into public folder.
-From this publics folder, we find MVC classes respectively into models / templates / controllers folders.
-For generate application.js
+The Ember stack is localised in webui/ folder and builded in rails standard location, into public folder.
+From this webui folder, we find MVC classes respectively into models / templates / controllers folders.
+For build static app into ror/public (needs node, bower and ember-cli)
 ```
-cd ror/public && ./bin/./ember_build
+cd webui && ember build --output-path ../ror/public/
 ```
 
 The git repository for webui application: https://github.com/ricofehr/nextdeploy-webui
@@ -287,10 +288,8 @@ cd ror && yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
 * Allow a connection to an external ldap for authentication
 * A connector for AWS or HP Cloud.
 * Unit tests
-* Improving the quality of code, rewrite some "ugly" blocks
-* Improve the logging task for rest api
+* Improving the quality of code
 * Add elements of monitoring and supervision
-* Improve usability of the UI
 * Implement some extra functionnalities for the vms: security test, code quality parser, ..
 
 More details on the trello dashboard: https://trello.com/b/dVdgtJxE/nextdeploy
