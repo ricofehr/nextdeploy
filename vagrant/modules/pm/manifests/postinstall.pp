@@ -57,10 +57,16 @@ class pm::postinstall::exploitation {
   # genera application ember file
   file { '/usr/local/bin/rebuildember':
     ensure => file,
-    source => ['puppet:///modules/pm/scripts/rebuildember'],
+    source => ["puppet:///modules/pm/scripts/rebuildember_${clientcert}",
+    'puppet:///modules/pm/scripts/rebuildember'],
     owner => 'root',
     mode => '0755',
     group => 'root'
+  } ->
+  exec { 'emberenv':
+    command => "/bin/sed -i 's;%%RAILSENV%%;${railsenv};' /usr/local/bin/rebuildember",
+    onlyif => 'grep RAILSENV /usr/local/bin/rebuildember',
+    user => 'root'
   }
 
   # restart dnsmasq script
@@ -360,26 +366,17 @@ class pm::postinstall::nextdeploy {
   }
 
   # nodejs and ember_build prerequisites
-  class { 'nodejs':
-    manage_package_repo       => false,
-    nodejs_dev_package_ensure => 'present',
-    npm_package_ensure        => 'present',
-  } ->
-
-  file { '/usr/bin/node':
-    ensure   => 'link',
-    target => '/usr/bin/nodejs',
-  } ->
+  class { 'pm::nodejs': } ->
 
   package { 'fsmonitor':
     ensure   => present,
     provider => 'npm',
-    require => Exec['apt-update']
+    require => [ Exec['apt-update'], File['/usr/bin/node'] ]
   } ->
 
-  package { 'ember-tools':
+  package { 'ember-cli':
     ensure   => present,
     provider => 'npm',
-    require => Exec['apt-update']
+    require => [ Exec['apt-update'], File['/usr/bin/node'] ]
   }
 }

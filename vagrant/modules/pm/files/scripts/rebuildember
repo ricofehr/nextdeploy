@@ -3,12 +3,15 @@
 # if we are root, exit
 (( $UID == 0 )) && echo "please execute with modem user, not root" && exit 1
 
-
-export PATH=/usr/local/rvm/gems/ruby-2.1.0/bin:/usr/local/rvm/gems/ruby-2.1.0@global/bin:/usr/local/rvm/rubies/ruby-2.1.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/rvm/bin:/opt/ruby/bin/
-export GEM_HOME=/usr/local/rvm/gems/ruby-2.1.0
-export MY_RUBY_HOME=/usr/local/rvm/rubies/ruby-2.1.0
-export GEM_PATH=/usr/local/rvm/gems/ruby-2.1.0:/usr/local/rvm/gems/ruby-2.1.0@global
-export RUBY_VERSION=ruby-2.1.0
-
-[[ ! -f /ror/public/javascripts/application.js ]] && cd /ror/public && ember build -d
-[[ -n "$(find /ror/public/javascripts/. -type f -mmin -1 | grep -v application.js)" ]] && cd /ror/public && ember build -d
+if [[ ! -f /ror/public/index.html ]] ||
+[[ -n "$(find /ror/webui/app/. -type f -mmin -1)" ]] ||
+[[ -n "$(find /ror/webui/config/. -type f -mmin -1)" ]] ||
+[[ -n "$(find /ror/webui/public/. -type f -mmin -1)" ]] ||
+[[ -n "$(find /ror/webui/package.json -type f -mmin -1)" ]] ||
+[[ -n "$(find /ror/webui/bower.json -type f -mmin -1)" ]]; then
+  pushd /ror/webui > /dev/null
+  npm install
+  bower install
+  ember build --environment %%RAILSENV%% --output-path /ror/public/
+  popd > /dev/null
+fi
