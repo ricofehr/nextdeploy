@@ -55,8 +55,6 @@ class pm::os::nv_c {
     require => [ Class['pm::os::memcached_c'], Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
   }
 
-  nova_config { 'DEFAULT/default_floating_pool': value => 'public' }
-
   class { '::nova::api': }
 
   class { '::nova::network::neutron':

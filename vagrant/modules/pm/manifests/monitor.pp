@@ -8,6 +8,12 @@
 # Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::monitor::services {
+  Exec {
+      path => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/rvm/bin:/opt/ruby/bin/',
+      user => 'root',
+  }
+
+
   file { '/home/influxdb':
     ensure =>  directory,
     owner => 'root',
@@ -26,6 +32,14 @@ class pm::monitor::services {
     mode => '0777'
   } ->
   class { 'grafana': }
+
+  exec { 'updinflux':
+    command => 'apt-get -y update',
+    user => 'root'
+  }
+
+  # ensure that apt-update is running before install influxdb package
+  Apt::Source <| |> ~> Exec['updinflux'] -> Package['influxdb']
 }
 
 # == Class: pm::monitor::collect

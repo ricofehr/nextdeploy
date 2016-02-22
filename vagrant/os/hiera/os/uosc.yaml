@@ -260,7 +260,7 @@ horizon::secret_key: 'oshorizon'
 horizon::swift: false
 horizon::django_debug: False
 horizon::api_result_limit: 2000
-horizon::compress_offline: false
+#horizon::compress_offline: false
 horizon::keystone_url: 'http://keystone-m:5000/v2.0'
 
 #rabbitmq settigns
