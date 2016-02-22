@@ -11,6 +11,10 @@
 /tmp/*
 !/tmp/.keep
 
+# Ignore ember build folder
+/ror/public/*
+!/ror/public/.keep
+
 # Ignore nohup file
 nohup.out
 
