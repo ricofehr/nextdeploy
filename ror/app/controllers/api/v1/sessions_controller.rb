@@ -11,15 +11,15 @@ module API
       # Create a new session
       def create
         # check if email exists
-        resource = User.find_for_database_authentication(email: params[:email])
+        resource = User.find_for_database_authentication(email: params[:user][:email])
         return invalid_login_attempt unless resource
 
         # check password
-        if resource.valid_password?(params[:password])
+        if resource.valid_password?(params[:user][:password])
           sign_in(:api_v1_user, resource)
           resource.ensure_authentication_token
           respond_to do |format|
-            format.json { render json: resource, status: 200 }
+            format.json { render json: { token: resource.authentication_token, email: resource.email, access_level: resource.access_level, user_id: resource.id, group_id: resource.group.id, user: resource }, status: 200 }
           end
 
           return
