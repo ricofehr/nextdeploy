@@ -7,13 +7,13 @@ Vagrant.configure("2") do |config|
     config.vm.define :nextdeploy, primary: true do |nextdeploy|
       nextdeploy.vm.hostname = "nextdeploy"
       nextdeploy.vm.box = "mc"
-      nextdeploy.vm.synced_folder "../../client", "/mvmc", type: '%%FILESHARETYPE%%'%%RSYNCARGS%%
+      nextdeploy.vm.synced_folder "../../", "/home/nextdeploy", type: '%%FILESHARETYPE%%'%%RSYNCARGS%%
       nextdeploy.vm.synced_folder "../../ror", "/ror", type: '%%FILESHARETYPE%%'%%RSYNCARGS%%
       nextdeploy.vm.synced_folder "../../out", "/out", type: '%%FILESHARETYPE%%'%%RSYNCARGS%%
       nextdeploy.vm.synced_folder "../../puppet", "/puppet", type: '%%FILESHARETYPE%%'%%RSYNCARGS%%
       nextdeploy.vm.box_url = "http://imgs.nextdeploy.io/kvm/mc.box"
       nextdeploy.vm.provider :libvirt do |virthost|
-        virthost.memory = 1536
+        virthost.memory = 3072
         virthost.cpus = 2
         virthost.cpu_mode = "host-model"
         virthost.nested = false

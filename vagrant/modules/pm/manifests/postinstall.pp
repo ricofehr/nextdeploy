@@ -9,6 +9,7 @@
 #
 class pm::postinstall::exploitation {
   $railsenv = hiera('global::railsenv', 'development')
+  $emberenv = hiera('global::emberenv', 'staging')
 
   Exec {
       path => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/rvm/bin:/opt/ruby/bin/',
@@ -64,8 +65,8 @@ class pm::postinstall::exploitation {
     group => 'root'
   } ->
   exec { 'emberenv':
-    command => "/bin/sed -i 's;%%RAILSENV%%;${railsenv};' /usr/local/bin/rebuildember",
-    onlyif => 'grep RAILSENV /usr/local/bin/rebuildember',
+    command => "/bin/sed -i 's;%%EMBERENV%%;${emberenv};' /usr/local/bin/rebuildember",
+    onlyif => 'grep EMBERENV /usr/local/bin/rebuildember',
     user => 'root'
   }
 
@@ -316,7 +317,8 @@ class pm::postinstall::nextdeploy {
   exec { 'db-schema':
     command => 'rake db:schema:load > /out/logdbschema.log 2>&1',
     timeout => 0,
-    creates => '/home/modem/.installnextdeploy'
+    creates => '/home/modem/.installnextdeploy',
+    require => File['/usr/bin/node']
   } ->
 
   exec { 'db-migrate':

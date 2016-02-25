@@ -3,15 +3,15 @@
 # if we are root, exit
 (( $UID == 0 )) && echo "please execute with modem user, not root" && exit 1
 
-if [[ ! -f /ror/public/index.html ]] ||
-[[ -n "$(find /ror/webui/app/. -type f -mmin -1)" ]] ||
-[[ -n "$(find /ror/webui/config/. -type f -mmin -1)" ]] ||
-[[ -n "$(find /ror/webui/public/. -type f -mmin -1)" ]] ||
-[[ -n "$(find /ror/webui/package.json -type f -mmin -1)" ]] ||
-[[ -n "$(find /ror/webui/bower.json -type f -mmin -1)" ]]; then
-  pushd /ror/webui > /dev/null
+if [[ ! -f /ror/public/assets/vendor.js ]] ||
+[[ -n "$(find /home/nextdeploy/webui/app/. -type f -mmin -5)" ]] ||
+[[ -n "$(find /home/nextdeploy/webui/config/. -type f -mmin -5)" ]] ||
+[[ -n "$(find /home/nextdeploy/webui/public/. -type f -mmin -5)" ]] ||
+[[ -n "$(find /home/nextdeploy/webui/package.json -type f -mmin -5)" ]] ||
+[[ -n "$(find /home/nextdeploy/webui/bower.json -type f -mmin -5)" ]]; then
+  pushd /home/nextdeploy/webui > /dev/null
   npm install
   bower install
-  ember build --environment %%RAILSENV%% --output-path /ror/public/
+  ember build --environment %%EMBERENV%% --output-path /ror/public/
   popd > /dev/null
 fi

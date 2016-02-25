@@ -335,6 +335,7 @@ prerequisites() {
   cp vagrant/modules/pm/files/nginx/os-doc.conf tmp/remote/nextdeploy/
   cp vagrant/modules/pm/files/nginx/os-http.conf tmp/remote/nextdeploy/
   cp vagrant/modules/pm/files/scripts/puma-start tmp/remote/nextdeploy/
+  cp vagrant/modules/pm/files/scripts/rebuildember tmp/remote/nextdeploy/
   cp vagrant/modules/pm/files/pound/pound.cfg tmp/remote/nextdeploy/
   cp vagrant/modules/pm/files/pound/pound.cfg tmp/remote/ndc2/
 
@@ -496,6 +497,7 @@ EOF
   $BINSED -i "s;%%GITLABURI%%;${gitlaburi};" tmp/remote/nextdeploy/global.yaml
   $BINSED -i "s;%%GITLABNS%%;${gitlaburi%%/*};" tmp/remote/nextdeploy/global.yaml
   $BINSED -i "s;%%RAILSENV%%;production;" tmp/remote/nextdeploy/global.yaml
+  $BINSED -i "s;%%EMBERENV%%;production;" tmp/remote/nextdeploy/global.yaml
   $BINSED -i "s;%%PUBLICADDRESS%%;0.0.0.0;" tmp/remote/nextdeploy/pound.cfg
   $BINSED -i "s;%%HTTPADDRESS%%;127.0.0.1;" tmp/remote/nextdeploy/pound.cfg
   # ndc2 part
@@ -539,6 +541,7 @@ EOF
 
   #prepare puma.sh
   $BINSED -i "s;%%RAILSENV%%;production -t 8:32 -w 2;" tmp/remote/nextdeploy/puma-start
+  $BINSED -i "s;%%EMBERENV%%;production;" tmp/remote/nextdeploy/rebuildember
 
   # ask to configure vlans on remote servers
   output -l -q "On controller openstack node, please configure this 3 private ips: ${managementprefix}.70, ${dataprefix}.70, ${apiprefix}.70"
@@ -560,6 +563,7 @@ update_puppet() {
   rm -rf tmp/remote/hosts
   rm -rf tmp/remote/nginx
   rm -f tmp/remote/puma-start_*
+  rm -f tmp/remote/rebuildember_*
   rm -f tmp/remote/default.vcl_*
   rm -f tmp/remote/pound.cfg_*
 
@@ -569,6 +573,7 @@ update_puppet() {
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma-start_* tmp/remote/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/rebuildember_* tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/default.vcl_* tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/pound/pound.cfg_* tmp/remote/
 
@@ -584,6 +589,7 @@ update_puppet() {
   [[ -d tmp/remote/hosts ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   [[ -d tmp/remote/nginx ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nginx root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   ls tmp/remote/puma-start_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puma-start_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
+  ls tmp/remote/rebuildember_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/rebuildember_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
   ls tmp/remote/default.vcl_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/default.vcl_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/
   ls tmp/remote/pound.cfg_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/pound.cfg_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/pound/
 
@@ -807,8 +813,9 @@ install_nextdeploy() {
   # copy pound cfg file
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nextdeploy/pound.cfg root@${PUPPETIP}:/etc/puppet/modules/pm/files/pound/pound.cfg_${fqdn}
 
-  # copy puma script onto puppetmaster
+  # copy puma script and rebuildmebr onto puppetmaster
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nextdeploy/puma-start root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma-start_${fqdn}
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nextdeploy/rebuildember root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/rebuildember_${fqdn}
 
   # copy puppet.conf onto puppetmaster files repository
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puppet.conf root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet/puppet.conf_${fqdn}

@@ -431,6 +431,7 @@ preparefiles() {
   $BINSED -i "s;%%GITLABURI%%;${GITLABURI};" global.yaml
   $BINSED -i "s;%%GITLABNS%%;${GITLABURI%%/*};" global.yaml
   $BINSED -i "s;%%RAILSENV%%;development;" global.yaml
+  $BINSED -i "s;%%EMBERENV%%;staging;" global.yaml
   popd > /dev/null
 
   output -q "Prepare hiera global.yml for ndc2 node"

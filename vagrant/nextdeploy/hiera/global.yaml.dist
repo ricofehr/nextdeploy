@@ -9,5 +9,6 @@ global::gitlaburi: %%GITLABURI%%
 global::gitlabns: %%GITLABNS%%
 global::nextdeploysuf: %%NEXTDEPLOYSUF%%
 global::railsenv: %%RAILSENV%%
+global::emberenv: %%EMBERENV%%
 global::ossecip: %%PUBPREFIX%%.50
 global::influxip: %%PUBPREFIX%%.50
