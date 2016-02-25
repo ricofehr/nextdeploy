@@ -41,7 +41,7 @@ Vagrant.configure("2") do |config|
       uosnt.vm.box = "uos-c"
       uosnt.vm.box_url = "http://imgs.nextdeploy.io/kvm/uos-c.box"
       uosnt.vm.provider :libvirt do |virthost|
-        virthost.memory = 1024
+        virthost.memory = 2048
         virthost.cpus = 1
       end
 
