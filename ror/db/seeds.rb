@@ -165,10 +165,31 @@ mysql_db:
                )
 
 techno_nodejs = Techno.create!(
-                  name: "nodejs",
+                  name: "nodejs-4",
                   puppetclass: "pm::nodejs",
                   ordering: 140,
-                  hiera: ""
+                  hiera: "node_version: 4.x"
+                )
+
+techno_nodejs5 = Techno.create!(
+                  name: "nodejs-5",
+                  puppetclass: "pm::nodejs",
+                  ordering: 140,
+                  hiera: "node_version: 5.x"
+                )
+
+techno_nodejs010 = Techno.create!(
+                  name: "nodejs-0.10",
+                  puppetclass: "pm::nodejs",
+                  ordering: 140,
+                  hiera: "node_version: 0.10"
+                )
+
+techno_nodejs012 = Techno.create!(
+                  name: "nodejs-0.12",
+                  puppetclass: "pm::nodejs",
+                  ordering: 140,
+                  hiera: "node_version: 0.12"
                 )
 
 techno_mongodb3 = Techno.create!(
@@ -270,10 +291,10 @@ user_g = User.create!(
 puts "Created #{User.count} users"
 
 # HACK: Oups, it's ugly. Commands to get glance_id generated just before during glance installation
-glance_id_j = %x(glance --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 image-show osvm-jessie | grep "id" | sed "s; [^ ]*$;;" | sed "s;^.* ;;")
+glance_id_j = %x(glance --os-username user --os-password wordpass --os-tenant-name tenant0 --os-image-api-version 1 --os-auth-url http://controller-m:35357/v2.0 image-show osvm-jessie | grep "id" | sed "s; [^ ]*$;;" | sed "s;^.* ;;")
 glance_id_j.strip!
 
-glance_id_t = %x(glance --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 image-show osvm-trusty | grep "id" | sed "s; [^ ]*$;;" | sed "s;^.* ;;")
+glance_id_t = %x(glance --os-username user --os-password wordpass --os-tenant-name tenant0 --os-image-api-version 1 --os-auth-url http://controller-m:35357/v2.0 image-show osvm-trusty | grep "id" | sed "s; [^ ]*$;;" | sed "s;^.* ;;")
 glance_id_t.strip!
 
 ubuntu14 = Systemimage.create!(

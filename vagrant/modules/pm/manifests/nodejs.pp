@@ -8,12 +8,13 @@
 # Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::nodejs {
+Exec {
+    path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ]
+  }
 
-# nodejs and ember_build prerequisites
+  # nodejs and ember_build prerequisites
   class { '::nodejs':
-    repo_url_suffix => 'node_4.x',
-    # nodejs_dev_package_ensure => 'present',
-    # npm_package_ensure        => 'present',
+    repo_url_suffix => '4.x',
   }
   ->
   file { '/usr/bin/node':
@@ -26,6 +27,12 @@ class pm::nodejs {
     provider => 'npm',
   }
 
+  exec { 'nodejs-aptupdate':
+    command => "/usr/bin/apt-get update",
+    timeout => 1800,
+    user => 'root'
+  }
+
   # ensure that apt-update is running before install nodejs package
-  Apt::Source <| |> ~> Class['apt::update'] -> Package['nodejs']
+  Apt::Source <| |> ~> Exec['nodejs-aptupdate'] -> Package['nodejs']
 }
