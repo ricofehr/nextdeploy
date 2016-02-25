@@ -20,9 +20,9 @@ class pm::base::apt {
     command => '/usr/bin/apt-get install --yes --force-yes ubuntu-cloud-keyring',
     environment => 'DEBIAN_FRONTEND=noninteractive'
   } ->
-  file { '/etc/apt/sources.list.d/cloudarchive-liberty.list':
+  file { '/etc/apt/sources.list.d/cloudarchive-kilo.list':
     ensure => file,
-    content => "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/liberty main"
+    content => "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/kilo main"
   } ->
   exec { 'apt-update':
     command => "/usr/bin/apt-get update",
@@ -61,6 +61,10 @@ class pm::base::gitlab {
   $gitlaburi = hiera('global::gitlaburi', 'gitlab.local')
   $nextdeploysuf = hiera('global::nextdeploysuf', 'os.nextdeploy')
 
+  exec { 'gitlab-aptupdate':
+    command => "/usr/bin/apt-get update",
+    timeout => 1800
+  } ->
   # Nginx settings
   file { '/etc/os-http.conf':
     ensure =>  file,

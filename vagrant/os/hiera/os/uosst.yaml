@@ -45,7 +45,7 @@ glance_image:
     is_public: 'yes'
     container_format: 'bare'
     disk_format: 'qcow2'
-    source: 'http://imgs.nextdeploy.io/os/osvm-trusty.img'
+    source: 'http://imgs.nextdeploy.io/os/osvm-trusty2.img'
 
 #keystone setting
 keystone::enabled: false

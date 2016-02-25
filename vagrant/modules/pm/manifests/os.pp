@@ -29,7 +29,7 @@ class pm::os::keystone {
   }
 
   # Installs the service user endpoint.
-  class { 'keystone::endpoint': }
+  class { '::keystone::endpoint': }
 
   create_resources('keystone_tenant', hiera('keystone_tenant', []))
   create_resources('keystone_user', hiera('keystone_user', []))
@@ -483,17 +483,17 @@ class pm::os::nt_postinstall {
 #
 class pm::os::cder_c {
 
-  class { 'cinder':
+  class { '::cinder':
     require => [ Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
   }
 
   class { '::cinder::glance': }
 
-  class { 'cinder::api':
+  class { '::cinder::api':
     require => [ File['/etc/hosts'] ],
   }
 
-  class { 'cinder::scheduler': }
+  class { '::cinder::scheduler': }
 }
 
 
@@ -538,6 +538,12 @@ class pm::os::cder {
 # Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::hz {
+  # fix weird issue with horizon module and new release of concat module
+  file { '/etc/openstack-dashboard/local_settings.py':
+	content => '',
+        replace => false
+  }
+
   class { '::horizon':
     require => [ Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
   }

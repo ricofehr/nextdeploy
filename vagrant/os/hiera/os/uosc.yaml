@@ -10,68 +10,68 @@ memcached::udp_port: '11211'
 
 #keystone setting
 keystone::enabled: true
-keystone::verbose: false
+keystone::verbose: False
 keystone::catalog_type: 'sql'
 keystone::admin_bind_host: "%{hiera('global::managementprefix')}.70"
 keystone::admin_token: 'token123'
 keystone::token_expiration: 14400
 keystone::database_connection: 'mysql://keystone:oskeystone@controller-m/keystonedb'
 
-keystone::endpoint::public_url: 'http://keystone-a:5000'
-keystone::endpoint::admin_url: 'http://keystone-m:35357'
-keystone::endpoint::internal_url: 'http://keystone-m:5000'
-keystone::endpoint::version: 'v2.0'
+keystone::endpoint::public_url: 'http://keystone-a:5000/v2.0'
+keystone::endpoint::admin_url: 'http://keystone-m:35357/v2.0'
+keystone::endpoint::internal_url: 'http://keystone-m:5000/v2.0'
 keystone::endpoint::region: 'RegionOne'
+keystone::endpoint::type: 'identity'
 
 #keystone tenant resources
 keystone_tenant:
   services:
     ensure: present
-    enabled: true
+    enabled: True
     description: 'Tenant for openstack services'
   admin:
     ensure: present
-    enabled: true
+    enabled: True
     description: 'admin tenant'
   tenant0:
     ensure: present
-    enabled: true
+    enabled: True
     description: 'user tenant'
 
 keystone_user:
   admin:
     ensure: present
-    enabled: true
+    enabled: True
     email: 'admin@mvmc-openstack.local'
     password: 'toor'
   user:
     ensure: present
-    enabled: true
+    enabled: True
     email: 'user@mvmc-openstack.local'
     password: 'wordpass'
   nova:
     ensure: present
-    enabled: true
+    enabled: True
     email: 'nova@mvmc-openstack.local'
     password: 'osnova'
   neutron:
     ensure: present
-    enabled: true
+    enabled: True
     email: 'neutron@mvmc-openstack.local'
     password: 'osneutron'
   cinder:
     ensure: present
-    enabled: true
+    enabled: True
     email: 'cinder@mvmc-openstack.local'
     password: 'oscinder'
   glance:
     ensure: present
-    enabled: true
+    enabled: True
     email: 'glance@mvmc-openstack.local'
     password: 'osglance'
   swift:
     ensure: present
-    enabled: true
+    enabled: True
     email: 'swift@mvmc-openstack.local'
     password: 'osswift'
 
@@ -182,11 +182,8 @@ neutron::server::auth_password: 'osneutron'
 neutron::server::database_connection: 'mysql://neutron:osneutron@controller-m/neutrondb?charset=utf8'
 neutron::server::sync_db: true
 neutron::server::enabled: true
-
 neutron::server::notifications::nova_url: 'http://controller-m:8774/v2/'
-neutron::server::notifications::nova_admin_auth_url: 'http://keystone-m:5000/v2.0/'
 neutron::server::notifications::nova_admin_password: 'osnova'
-neutron::server::notifications::nova_region_name: 'RegionOne'
 
 neutron::agents::ml2::ovs::enable_tunneling: true
 neutron::agents::ml2::ovs::local_ip: "%{hiera('global::dataprefix')}.70"
@@ -201,6 +198,7 @@ neutron::plugins::ml2::mechanism_drivers:
   - 'openvswitch'
 neutron::plugins::ml2::tunnel_id_ranges:
   - '1:1000'
+
 #nova settings
 nova::database_connection: 'mysql://nova:osnova@controller-m/novadb?charset=utf8'
 nova::glance_api_servers: 'http://glance-a:9292'
@@ -237,12 +235,11 @@ cinder::verbose: false
 
 cinder::glance::glance_api_servers: 'cinder-a:9292'
 
+cinder::api::auth_uri: 'http://keystone-m:5000'
+cinder::api::identity_uri: 'http://keystone-m:35357'
 cinder::api::keystone_password: 'oscinder'
 cinder::api::keystone_enabled: true
 cinder::api::keystone_user: 'cinder'
-cinder::api::keystone_auth_host: 'keystone-m'
-cinder::api::keystone_auth_port: '35357'
-cinder::api::service_port: '8776'
 cinder::api::enabled: true
 
 cinder::scheduler::scheduler_driver: 'cinder.scheduler.simple.SimpleScheduler'
@@ -260,7 +257,6 @@ horizon::secret_key: 'oshorizon'
 horizon::swift: false
 horizon::django_debug: False
 horizon::api_result_limit: 2000
-#horizon::compress_offline: false
 horizon::keystone_url: 'http://keystone-m:5000/v2.0'
 
 #rabbitmq settigns

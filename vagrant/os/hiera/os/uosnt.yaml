@@ -42,9 +42,7 @@ neutron::server::enabled: false
 neutron::server::sync_db: false
 
 neutron::server::notifications::nova_url: 'http://controller-m:8774/v2/'
-neutron::server::notifications::nova_admin_auth_url: 'http://keystone-m:35357/v2.0/'
 neutron::server::notifications::nova_admin_password: 'osnova'
-neutron::server::notifications::nova_region_name: 'RegionOne'
 
 neutron::agents::ml2::ovs::enable_tunneling: true
 neutron::agents::ml2::ovs::local_ip: "%{hiera('global::dataprefix')}.71"
