@@ -16,6 +16,7 @@ if [[ ! -f /ror/public/assets/vendor.js ]] ||
   npm install
   bower install
   ember build --environment %%EMBERENV%% --output-path /ror/public/
+  [[ ! -f /ror/public/.keep ]] && touch /ror/public/.keep
   popd > /dev/null
   rm -rf webui
   popd > /dev/null
