@@ -139,6 +139,7 @@ module API
         params_p[:systemimage_id] ||= params_p[:systemimage]
         params_p[:vmsize_id] ||= params_p[:vmsize]
         params_p[:commit_id] ||= params_p[:commit]
+        params_p[:techno_ids] ||= params_p[:technos]
 
         params_p.delete(:created_at)
         params_p.delete(:nova_id)
@@ -149,6 +150,7 @@ module API
         params_p.delete(:systemimage)
         params_p.delete(:commit)
         params_p.delete(:vmsize)
+        params_p.delete(:technos)
 
         # force auth if we are not an admin user
         params_p[:is_auth] = true unless @user.admin?
@@ -158,7 +160,7 @@ module API
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def vm_params
-        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :is_auth)
+        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :is_auth, :techno_ids => [])
       end
     end
   end

@@ -11,14 +11,13 @@ module API
 
       # List all technos objects
       def index
+        # If technotype parameter, get all technos for one type
+        if technotype_id = params[:technotype_id]
+          technotype = Technotype.includes(:technos).find(technotype_id)
+          @technos = technotype.technos
         # select only objects allowed by current user
-        if @user.is_project_create
-          @technos = Techno.all
         else
-          projects = @user.projects
-          if projects
-            @technos = projects.flat_map(&:technos).uniq
-          end
+          @technos = Techno.all
         end
 
         # Json output

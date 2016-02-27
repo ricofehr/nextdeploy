@@ -11,6 +11,9 @@ class Vm < ActiveRecord::Base
   belongs_to :user
   belongs_to :systemimage
 
+  has_many :vm_technos, dependent: :destroy
+  has_many :technos, through: :vm_technos
+
   # Some scope for find vms objects by commit, by project or by name
   scope :find_by_user_commit, ->(user_id, commit){ where("user_id=#{user_id} AND commit_id like '%#{commit}'") }
   scope :find_by_user_project, ->(user_id, project_id){ where(user_id: user_id, project_id: project_id) }

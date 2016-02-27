@@ -66,11 +66,22 @@ framework_no = Framework.create(
 
 puts "Created #{Framework.count} frameworks"
 
+#Technotype
+cache = Technotype.create!(name: "Cache Server")
+wserver = Technotype.create!(name: "Web Server")
+bigdata = Technotype.create!(name: "Big Data")
+bdd = Technotype.create!(name: "Database Server")
+node = Technotype.create!(name: "Nodejs Service")
+messaging = Technotype.create!(name: "Messaging Service")
+keyvalue = Technotype.create!(name: "Keyvalue Service")
+index = Technotype.create!(name: "Index Service")
+
 #Techno import rows
 techno_apache = Techno.create!(
                   name: "apache",
                   puppetclass: "pm::http",
                   ordering: 160,
+                  technotype: wserver,
                   hiera: "docroot: %{docroot}
 apache_vhost:
   %{vhost}:
@@ -108,18 +119,11 @@ apache_vhost:
         custom_fragment: \"%{rewrites}\""
             )
 
-techno_mongodb = Techno.create!(
-                   name: "mongodb-2.6",
-                   puppetclass: "pm::nosql::mongo",
-                   ordering: 80,
-                   hiera: "ismongo: 1
-mongodb::globals::version: '2.6'"
-                 )
-
 techno_rabbitmq = Techno.create!(
                     name: "rabbitmq",
                     puppetclass: "pm::rabbit",
                     ordering: 60,
+                    technotype: messaging,
                     hiera: ""
                   )
 
@@ -127,6 +131,7 @@ techno_elasticsearch = Techno.create!(
                          name: "elasticsearch",
                          puppetclass: "pm::elastic",
                          ordering: 40,
+                         technotype: index,
                          hiera: ""
                        )
 
@@ -134,6 +139,7 @@ techno_memcached = Techno.create!(
                      name: "memcached",
                      puppetclass: "pm::nosql::memcache",
                      ordering: 100,
+                     technotype: keyvalue,
                      hiera: "iscache: 1"
                    )
 
@@ -141,6 +147,7 @@ techno_redis = Techno.create!(
                  name: "redis",
                  puppetclass: "pm::nosql::redis",
                  ordering: 80,
+                 technotype: keyvalue,
                  hiera: ""
                )
 
@@ -148,6 +155,7 @@ techno_varnish = Techno.create!(
                    name: "varnish",
                    puppetclass: "pm::varnish",
                    ordering: 200,
+                   technotype: cache,
                    hiera: ""
                  )
 
@@ -155,6 +163,7 @@ techno_mysql = Techno.create!(
                  name: "mysql",
                  puppetclass: "pm::sql",
                  ordering: 70,
+                 technotype: bdd,
                  hiera: "ismysql: 1
 mysql_db:
   s_bdd:
@@ -164,24 +173,11 @@ mysql_db:
     grant: 'all'"
                )
 
-techno_nodejs = Techno.create!(
-                  name: "nodejs-4",
-                  puppetclass: "pm::nodejs",
-                  ordering: 140,
-                  hiera: "node_version: 4.x"
-                )
-
-techno_nodejs5 = Techno.create!(
-                  name: "nodejs-5",
-                  puppetclass: "pm::nodejs",
-                  ordering: 140,
-                  hiera: "node_version: 5.x"
-                )
-
 techno_nodejs010 = Techno.create!(
                   name: "nodejs-0.10",
                   puppetclass: "pm::nodejs",
                   ordering: 140,
+                  technotype: node,
                   hiera: "node_version: 0.10"
                 )
 
@@ -189,13 +185,40 @@ techno_nodejs012 = Techno.create!(
                   name: "nodejs-0.12",
                   puppetclass: "pm::nodejs",
                   ordering: 140,
+                  technotype: node,
                   hiera: "node_version: 0.12"
                 )
+
+techno_nodejs = Techno.create!(
+                  name: "nodejs-4",
+                  puppetclass: "pm::nodejs",
+                  ordering: 140,
+                  technotype: node,
+                  hiera: "node_version: 4.x"
+                )
+
+techno_nodejs5 = Techno.create!(
+                  name: "nodejs-5",
+                  puppetclass: "pm::nodejs",
+                  ordering: 140,
+                  technotype: node,
+                  hiera: "node_version: 5.x"
+                )
+
+techno_mongodb = Techno.create!(
+                   name: "mongodb-2.6",
+                   puppetclass: "pm::nosql::mongo",
+                   ordering: 80,
+                   technotype: bigdata,
+                   hiera: "ismongo: 1
+mongodb::globals::version: '2.6'"
+                 )
 
 techno_mongodb3 = Techno.create!(
                     name: "mongodb-3.0",
                     puppetclass: "pm::nosql::mongo",
                     ordering: 80,
+                    technotype: bigdata,
                     hiera: "ismongo: 1
 mongodb::globals::version: '3.0'"
                   )
@@ -204,6 +227,7 @@ techno_mongodb32 = Techno.create!(
                      name: "mongodb-3.2",
                      puppetclass: "pm::nosql::mongo",
                      ordering: 80,
+                     technotype: bigdata,
                      hiera: "ismongo: 1
 mongodb::globals::version: '3.2'"
                    )
@@ -328,6 +352,7 @@ project_drupal = Project.create!(
                    users: [admin, user_lead, user_dev, user_pm, user_g],
                    technos: [
                      techno_varnish,
+                     techno_nodejs,
                      techno_apache,
                      techno_mysql,
                      techno_redis,
@@ -349,6 +374,7 @@ project_symfony_c = Project.create!(
                       users: [admin, user_dev, user_g],
                       technos: [
                         techno_varnish,
+                        techno_nodejs,
                         techno_apache,
                         techno_mongodb,
                         techno_redis,
@@ -371,6 +397,7 @@ project_symfony_s = Project.create!(
                       users: [admin, user_dev],
                       technos: [
                         techno_varnish,
+                        techno_nodejs,
                         techno_apache,
                         techno_mysql,
                         techno_redis
@@ -389,7 +416,7 @@ project_no = Project.create!(
                users: [admin, user_lead, user_dev],
                gitpath: "hiscompany-www-statichiscompany-com",
                enabled: true,
-               technos: [techno_varnish, techno_apache]
+               technos: [techno_varnish, techno_nodejs, techno_apache]
              )
 
 project_wordpress = Project.create!(
@@ -404,7 +431,7 @@ project_wordpress = Project.create!(
                       users: [admin, user_lead, user_g],
                       gitpath: "mycompany-www-wordpressmycompany-com",
                       enabled: true,
-                      technos: [techno_varnish, techno_apache, techno_mysql]
+                      technos: [techno_varnish, techno_nodejs, techno_apache, techno_mysql]
                     )
 
 project_njs = Project.create!(
@@ -419,7 +446,7 @@ project_njs = Project.create!(
                 users: [admin, user_lead, user_dev],
                 gitpath: "yourcompany-www-njsyourcompany-com",
                 enabled: true,
-                technos: [techno_varnish, techno_apache, techno_nodejs]
+                technos: [techno_varnish, techno_nodejs, techno_apache, techno_nodejs]
               )
 
 

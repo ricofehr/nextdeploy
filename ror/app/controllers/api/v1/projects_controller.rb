@@ -179,6 +179,10 @@ module API
           # permit empty user_ids array if we want disable all users
           params_p[:user_ids] ||= []
 
+          # format gitpath attribute
+          gitpath_prefix = "#{Rails.application.config.gitlab_endpoint0.gsub(/https?:\/\//, '')}:/root/"
+          params_p[:gitpath].gsub!(gitpath_prefix, '')
+
           params_p.delete(:created_at)
           params_p.delete(:technos)
           params_p.delete(:users)

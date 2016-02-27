@@ -15,6 +15,8 @@ class VmSerializer < ActiveModel::Serializer
     object.buildtime
   end
 
+  has_many :technos, key: :technos
+
   has_one :commit, key: :commit
   has_one :project, key: :project
   has_one :vmsize, key: :vmsize

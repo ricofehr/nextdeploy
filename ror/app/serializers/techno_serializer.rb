@@ -5,6 +5,7 @@ class TechnoSerializer < ActiveModel::Serializer
   attributes :id, :name
   delegate :current_user, to: :scope
 
+  has_one :technotype, key: :technotype
   has_many :projects, key: :projects
 
   # dont display projects if user is not allowed for

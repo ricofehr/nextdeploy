@@ -42,6 +42,7 @@ Rails.application.routes.draw do
         list_only.resources :branches
         list_only.resources :commits
         list_only.resources :systemimagetypes
+        list_only.resources :technotypes
         list_only.resources :technos
         list_only.resources :vmsizes
         list_only.resources :frameworks

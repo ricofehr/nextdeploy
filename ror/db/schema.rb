@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160221194305) do
+ActiveRecord::Schema.define(version: 20160226153915) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -135,6 +135,15 @@ ActiveRecord::Schema.define(version: 20160221194305) do
     t.datetime "updated_at"
     t.text     "hiera"
     t.integer  "ordering"
+    t.integer  "technotype_id"
+  end
+
+  add_index "technos", ["technotype_id"], name: "index_technos_on_technotype_id", using: :btree
+
+  create_table "technotypes", force: true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "user_projects", force: true do |t|
@@ -173,6 +182,16 @@ ActiveRecord::Schema.define(version: 20160221194305) do
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["group_id"], name: "index_users_on_group_id", using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
+
+  create_table "vm_technos", force: true do |t|
+    t.integer  "vm_id"
+    t.integer  "techno_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "vm_technos", ["techno_id"], name: "index_vm_technos_on_techno_id", using: :btree
+  add_index "vm_technos", ["vm_id"], name: "index_vm_technos_on_vm_id", using: :btree
 
   create_table "vms", force: true do |t|
     t.integer  "project_id"
