@@ -12,7 +12,7 @@ module API
       # List all frameworks
       def index
         # select only objects allowed by current user
-        if @user.admin?
+        if @user.is_project_create
           @frameworks = Framework.all
         else
           projects = @user.projects
