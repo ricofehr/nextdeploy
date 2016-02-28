@@ -88,6 +88,9 @@ do_start()
 	   $IPTABLES -A OUTPUT -m state --state NEW -p tcp --dport 80 -j ACCEPT
 	   $IPTABLES -A OUTPUT -m state --state NEW -p tcp --dport 443 -j ACCEPT
 
+        # github
+        $IPTABLES -A OUTPUT -p tcp -m tcp --dport 9418 -j ACCEPT
+        
         # Jenkins
         $IPTABLES -A INPUT -p tcp -m tcp --dport 9292 -j ACCEPT
 
