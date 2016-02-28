@@ -3,7 +3,7 @@
 # if we are root, exit
 (( $UID == 0 )) && echo "please execute with modem user, not root" && exit 1
 
-if [[ ! -f /ror/public/assets/vendor.js ]] ||
+if [[ ! -f /ror/public/index.html ]] ||
 [[ -n "$(find /home/nextdeploy/webui/app/. -type f -mmin -5)" ]] ||
 [[ -n "$(find /home/nextdeploy/webui/config/. -type f -mmin -5)" ]] ||
 [[ -n "$(find /home/nextdeploy/webui/public/. -type f -mmin -5)" ]] ||
