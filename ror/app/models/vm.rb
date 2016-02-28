@@ -87,6 +87,7 @@ class Vm < ActiveRecord::Base
 
     begin
       self.name = vm_name
+      self.technos = project.technos if technos.size == 0
       generate_hiera
       generate_vcl
       user_data = generate_userdata
