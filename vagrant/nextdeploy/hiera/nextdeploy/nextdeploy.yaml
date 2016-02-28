@@ -55,7 +55,6 @@ mysql::server::override_options:
 
 # gitlab parameters
 gitlab::ensure: installed
-gitlab::package_ensure: 8.3.4-ce.0
 gitlab::gitlab_http_port: '8181'
 gitlab::gitlab_ssl_port: '8282'
 gitlab::external_url: "http://%{hiera('global::gitlaburi')}"
