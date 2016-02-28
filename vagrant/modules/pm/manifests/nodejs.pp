@@ -30,7 +30,8 @@ Exec {
   exec { 'nodejs-aptupdate':
     command => "/usr/bin/apt-get update",
     timeout => 1800,
-    user => 'root'
+    user => 'root',
+    creates => '/usr/bin/node'
   }
 
   # ensure that apt-update is running before install nodejs package
