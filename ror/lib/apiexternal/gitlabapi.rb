@@ -121,6 +121,8 @@ module Apiexternal
                          wall_enabled: true,
                          wiki_enabled: true,
                          issues_enabled: true,
+                         snippets_enabled: false,
+                         builds_enabled: false,
                          user_id: 1,
                          public: false
                        )
