@@ -1,5 +1,6 @@
 #sf2 folders to exclude
 /server/web/bundles/
+/server/web/uploads/
 /server/app/bootstrap.php.cache
 /server/app/cache/*
 /server/app/config/parameters.yml
