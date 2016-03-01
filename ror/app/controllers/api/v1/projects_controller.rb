@@ -10,7 +10,8 @@ module API
       before_action :ember_to_rails, only: [:create, :update]
       # Check user right for avoid no-authorized access
       before_action :check_admin, only: [:index]
-      before_action :only_create, only: [:create, :destroy, :update]
+      before_action :only_create, only: [:create, :destroy]
+      before_action :filter_lead, only: [:udpate]
 
       # List all projects
       def index
@@ -153,6 +154,23 @@ module API
           # only admin can change anyone project
           if ! @user.admin? && params[:owner_id] && params[:owner_id] != @user.id
             raise Exceptions::GitlabApiException.new("Access forbidden for this user")
+          end
+
+          true
+        end
+
+        # filter param for project lead
+        def filter_lead
+          # only project lead or admin can update a project
+          if ! @user.lead?
+            raise Exceptions::GitlabApiException.new("Access forbidden for this user")
+          end
+
+          # admin or owner can change all
+          if ! @user.admin? && params[:owner_id] && params[:owner_id] != @user.id
+            params_p = params[:project]
+            params[:project] = []
+            params[:project][:user_ids] = params_p[:user_ids]
           end
 
           true
