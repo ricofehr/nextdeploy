@@ -258,7 +258,7 @@ class pm::postinstall::nextdeploy {
   # temporary before git repo will be public
   exec { 'chownmodem':
     command => 'chown -R modem: /home/nextdeploy',
-    onlyif => 'test -d /home/nextdeploy',
+    onlyif => 'test -d /home/nextdeploy && test "$(stat --format=%m /home/nextdeploy)" != "/home/nextdeploy"',
     user => 'root',
     creates => '/home/modem/.installnextdeploy'
   } ->
