@@ -221,12 +221,8 @@ source scripts/inc/utils
 
 # clone submodules
 install_submodules() {
-  if [[ -f ror/public/javascripts/application.js ]]; then
-    rm -f ror/public/javascripts/application.js
-    rmdir ror/public/javascripts
-    rmdir ror/public
-  fi
-  git submodule update --init --recursive
+  echo "ok"
+  #git submodule update --init --recursive
 }
 
 # setup ruby-client with default values
@@ -587,6 +583,7 @@ install_nextdeploy() {
   fi
 
   output -q "Creating the manager vm, please wait a moment ..."
+  sleep 180
   vagrant up --provider=${HVISOR}
   (( $? != 0 )) && output -e 'Manager node creation has some error(s)'
   

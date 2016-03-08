@@ -5,9 +5,8 @@
 
 # Cmdline xcode tools install
 install_xcode() {
-  output -q "CommandLineTools Installation ..."
   if [[ ! -d /Library/Developer/CommandLineTools ]]; then
-    echo "CommandLineTools Installation ..."
+    output -q "CommandLineTools Installation ..."
     /bin/bash -c 'xcode-select --install'
     #wait install is finish
     while [[ ! -d /Library/Developer/CommandLineTools ]]; do
@@ -16,16 +15,16 @@ install_xcode() {
     done
   fi
 
+  output -q "CommandLineTools Check ..."
   sudo /bin/bash -c 'xcode-select -switch /Library/Developer/CommandLineTools'
   (( $? != 0 )) && echo 'Xcode CommandLineTools has failed'
 }
 
 # brew install
 install_brew() {
-  output -q "Brew Installation ..."
-
   # Install brew only if it isnt yes installed
   if [[ ! -e /usr/local/Cellar ]]; then
+    output -q "Brew Installation ..."
     output -l "Please press ENTER if nothing happens after 30s (check out/setup.log for more details)"
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
     (( $? != 0 )) && output -e 'Brew installation has failed'
@@ -37,55 +36,56 @@ install_brew() {
 
 # virtualbox install
 install_vbox() {
-  output -q "VirtualBox Installation ..."
   # Install virtualbox only it isnt yes installed
   if [[ ! -e /usr/bin/VBoxManage ]] && [[ ! -e /usr/local/bin/VBoxManage ]]; then
-    curl -OsSL http://download.virtualbox.org/virtualbox/5.0.10/VirtualBox-5.0.10-104061-OSX.dmg
-    hdiutil mount VirtualBox-5.0.10-104061-OSX.dmg
+    output -q "VirtualBox Installation ..."
+    curl -OsSL http://download.virtualbox.org/virtualbox/5.0.16/VirtualBox-5.0.16-105871-OSX.dmg
+    hdiutil mount VirtualBox-5.0.16-105871-OSX.dmg
     sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
     (( $? != 0 )) && output -e 'Virtualbox installation has failed'
     hdiutil unmount /Volumes/VirtualBox/
-    rm -f VirtualBox-5.0.10-104061-OSX.dmg
+    rm -f VirtualBox-5.0.16-105871-OSX.dmg
 
-    curl -OsSL "http://download.virtualbox.org/virtualbox/5.0.10/Oracle_VM_VirtualBox_Extension_Pack-5.0.10-104061.vbox-extpack"
-    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.0.10-104061.vbox-extpack
+    curl -OsSL "http://download.virtualbox.org/virtualbox/5.0.16/Oracle_VM_VirtualBox_Extension_Pack-5.0.16-105871.vbox-extpack"
+    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.0.16-105871.vbox-extpack
     (( $? !=0 )) && output -w 'Virtualbox extension installation has failed'
-    rm -f Oracle_VM_VirtualBox_Extension_Pack-5.0.10-104061.vbox-extpack
+    rm -f Oracle_VM_VirtualBox_Extension_Pack-5.0.16-105871.vbox-extpack
   fi
 }
 
 # vagrant install
 install_vagrant() {
-  vagrant version | grep 1.7.4 >/dev/null 2>&1
+  vagrant version | grep 1.8.1 >/dev/null 2>&1
 
   if (( $? != 0 )); then
     output -q "Vagrant Installation ..."
-    curl -OsSL "https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.4.dmg"
-    hdiutil mount vagrant_1.7.4.dmg
+    curl -OsSL "https://releases.hashicorp.com/vagrant/1.8.1/vagrant_1.8.1.dmg"
+    hdiutil mount vagrant_1.8.1.dmg
     sudo installer -pkg /Volumes/Vagrant/Vagrant.pkg -target /
     (( $? != 0 )) && output -e 'Vagrant installation has failed'
     hdiutil unmount /Volumes/Vagrant
-    rm -f vagrant_1.7.4.dmg
+    rm -f vagrant_1.8.1.dmg
   fi
 }
 
 # git install
 install_git() {
-  git version | grep 2.6.2 >/dev/null 2>&1
+  git version | grep 2.7 >/dev/null 2>&1
   if (( $? != 0 )); then
     output -q "Git Installation ..."
-    curl -OsSL "http://downloads.sourceforge.net/project/git-osx-installer/git-2.6.2-intel-universal-mavericks.dmg"
-    hdiutil mount git-2.6.2-intel-universal-mavericks.dmg
-    sudo installer -pkg /Volumes/Git\ 2.6.2\ Mavericks\ Intel\ Universal/git-2.6.2-intel-universal-mavericks.pkg -target /
+    curl -OsSL "http://downloads.sourceforge.net/project/git-osx-installer/git-2.7.1-intel-universal-mavericks.dmg"
+    hdiutil mount git-2.7.1-intel-universal-mavericks.dmg
+    sudo installer -pkg /Volumes/Git\ 2.7.1\ Mavericks\ Intel\ Universal/git-2.7.1-intel-universal-mavericks.pkg -target /
     (( $? != 0 )) && output -e 'Git installation has failed'
-    hdiutil unmount /Volumes/Git\ 2.6.2\ Mavericks\ Intel\ Universal
-    rm -f git-2.6.2-intel-universal-mavericks.dmg
+    hdiutil unmount /Volumes/Git\ 2.7.1\ Mavericks\ Intel\ Universal
+    rm -f git-2.7.1-intel-universal-mavericks.dmg
   fi
 }
 
 # enable ip_forward
 ip_forward() {
   # Enable ip_forwarding on macos
+  output -q "Enable ip forwarding ..."
   sudo sysctl -w net.inet.ip.forwarding=1
 }
 
