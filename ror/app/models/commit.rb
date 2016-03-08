@@ -20,12 +20,12 @@ class Commit
     @project_id = branche_id.split('-')[0]
 
     if options.empty?
-      project = Project.find(@project_id)
 
       begin
         commit =
           # cache commit object during 1 day
           Rails.cache.fetch("commits/#{@id}", expires_in: 24.hours) do
+            project = Project.find(@project_id)
             gitlabapi = Apiexternal::Gitlabapi.new
             gitlabapi.get_commit(project.gitlab_id, commit_hash)
           end
