@@ -58,5 +58,5 @@ class pm::http {
     error_reporting => "E_ALL & ~E_DEPRECATED & ~E_NOTICE"
   }
 
-  php::module { [ 'mysql', 'redis', 'memcached', 'gd', 'curl', 'intl', 'mcrypt' ]: }
+  php::module { [ 'mysql', 'redis', 'memcached', 'gd', 'curl', 'intl', 'mcrypt', 'ldap' ]: }
 }
