@@ -104,9 +104,11 @@ module VmsHelper
 
     # prepare vcl file for current vm
     # todo: avoid bash cmd
-    if project.login && project.login.length > 0
+    if is_auth
       basicAuth = Base64.strict_encode64(project.login + ':' + project.password)
       system("/bin/cat vcls/auth/auth.vcl.#{vclV} | /bin/sed 's,###AUTH###,,;s,%%BASICAUTH%%,#{basicAuth},' > vcls/auth/#{vclName}")
+    else
+      system("/bin/touch vcls/auth/#{vclName}")
     end
   end
 
