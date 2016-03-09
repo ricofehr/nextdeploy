@@ -221,8 +221,7 @@ source scripts/inc/utils
 
 # clone submodules
 install_submodules() {
-  echo "ok"
-  #git submodule update --init --recursive
+  git submodule update --init --recursive
 }
 
 # setup ruby-client with default values

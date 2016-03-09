@@ -16,7 +16,6 @@ influxdb::server::data_dir: '/home/influxdb/data'
 influxdb::server::wal_dir: '/home/influxdb/wal'
 influxdb::server::admin_bind_address: "%{hiera('global::pubprefix')}.50:8083"
 influxdb::server::http_bind_address: "%{hiera('global::pubprefix')}.50:8086"
-#influxdb::server::version: lastest
 
 grafana::install_dir: '/home/grafana/install'
 grafana::data_dir: '/home/grafana/data'
