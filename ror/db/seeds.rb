@@ -75,6 +75,7 @@ node = Technotype.create!(name: "Nodejs Service")
 messaging = Technotype.create!(name: "Messaging Service")
 keyvalue = Technotype.create!(name: "Keyvalue Service")
 index = Technotype.create!(name: "Index Service")
+java = Technotype.create!(name: "Java")
 
 #Techno import rows
 techno_apache = Techno.create!(
@@ -208,7 +209,7 @@ techno_nodejs5 = Techno.create!(
 techno_mongodb = Techno.create!(
                    name: "mongodb-2.6",
                    puppetclass: "pm::nosql::mongo",
-                   ordering: 80,
+                   ordering: 40,
                    technotype: bigdata,
                    hiera: "ismongo: 1
 mongodb::globals::version: '2.6'"
@@ -217,7 +218,7 @@ mongodb::globals::version: '2.6'"
 techno_mongodb3 = Techno.create!(
                     name: "mongodb-3.0",
                     puppetclass: "pm::nosql::mongo",
-                    ordering: 80,
+                    ordering: 40,
                     technotype: bigdata,
                     hiera: "ismongo: 1
 mongodb::globals::version: '3.0'"
@@ -226,11 +227,35 @@ mongodb::globals::version: '3.0'"
 techno_mongodb32 = Techno.create!(
                      name: "mongodb-3.2",
                      puppetclass: "pm::nosql::mongo",
-                     ordering: 80,
+                     ordering: 40,
                      technotype: bigdata,
                      hiera: "ismongo: 1
 mongodb::globals::version: '3.2'"
                    )
+
+techno_java6 = Techno.create!(
+                   name: "java-6",
+                   puppetclass: "pm::java",
+                   ordering: 20,
+                   technotype: java,
+                   hiera: "pm::java::version: '6'"
+                 )
+
+techno_java7 = Techno.create!(
+                   name: "java-7",
+                   puppetclass: "pm::java",
+                   ordering: 20,
+                   technotype: java,
+                   hiera: "pm::java::version: '7'"
+                 )
+
+techno_java8 = Techno.create!(
+                   name: "java-8",
+                   puppetclass: "pm::java",
+                   ordering: 20,
+                   technotype: java,
+                   hiera: "pm::java::version: '8'"
+                 )
 
 puts "Created #{Techno.count} technos"
 
