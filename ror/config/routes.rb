@@ -27,6 +27,14 @@ Rails.application.routes.draw do
       put '/vms/:name/setupcomplete' => 'vms#setupcomplete', as: 'vm_setupcomplete', constraints: { name: /[a-zA-Z0-9-]+/ }
       get '/vms/:id/setupcomplete' => 'vms#check_status', as: 'vm_check_status', constraints: { id: /\d+/ }
 
+      # branche routes
+      get '/branches/:id' => 'branches#show', constraints: { id: /.+/ }
+      get '/branches' => 'branches#index'
+
+      # commits routes
+      get '/commits/:id' => 'commits#show', constraints: { id: /.+/ }
+      get '/commits' => 'commits#index'
+
       # Complete routes
       with_options only: [:create, :index, :show, :update, :destroy] do |list_only|
         list_only.resources :groups
@@ -39,8 +47,6 @@ Rails.application.routes.draw do
 
       # Read-Only route
       with_options only: [:index, :show] do |list_only|
-        list_only.resources :branches
-        list_only.resources :commits
         list_only.resources :systemimagetypes
         list_only.resources :technotypes
         list_only.resources :technos
