@@ -64,6 +64,13 @@ framework_no = Framework.create(
                  puppetclass: 'pm::deploy::static'
                )
 
+framework_noweb = Framework.create(
+                 name: 'NoWeb',
+                 publicfolder: '',
+                 rewrites: '',
+                 puppetclass: 'pm::deploy::noweb'
+               )
+
 puts "Created #{Framework.count} frameworks"
 
 #Technotype
