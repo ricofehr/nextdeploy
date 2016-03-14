@@ -219,7 +219,7 @@ techno_mongodb = Techno.create!(
                    ordering: 40,
                    technotype: bigdata,
                    hiera: "ismongo: 1
-mongodb::globals::version: '2.6'"
+mongodb::globals::version: '2.6.11'"
                  )
 
 techno_mongodb3 = Techno.create!(
@@ -228,7 +228,7 @@ techno_mongodb3 = Techno.create!(
                     ordering: 40,
                     technotype: bigdata,
                     hiera: "ismongo: 1
-mongodb::globals::version: '3.0'"
+mongodb::globals::version: '3.0.7'"
                   )
 
 techno_mongodb32 = Techno.create!(
@@ -237,7 +237,7 @@ techno_mongodb32 = Techno.create!(
                      ordering: 40,
                      technotype: bigdata,
                      hiera: "ismongo: 1
-mongodb::globals::version: '3.2'"
+mongodb::globals::version: '3.2.0'"
                    )
 
 techno_java6 = Techno.create!(
