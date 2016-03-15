@@ -57,7 +57,7 @@ mysql::server::override_options:
 gitlab::ensure: installed
 gitlab::gitlab_http_port: '8181'
 gitlab::gitlab_ssl_port: '8282'
-gitlab::external_url: "http://%{hiera('global::gitlaburi')}"
+gitlab::external_url: "https://%{hiera('global::gitlaburi')}"
 gitlab::git_data_dir: '/home/git-data'
 gitlab::gitlab_rails:
   time_zone: 'UTC'
@@ -78,6 +78,11 @@ gitlab::unicorn:
   worker_memory_limit_max: '1000*(1024**2)'
 gitlab::nginx:
   gzip: 'on'
+  listen_port: 80
+  listen_https: false
+  proxy_set_headers:
+    'X-Forwarded-Proto': "https"
+    'X-Forwarded-Ssl': "on"
   log_format: '$http_x_forwarded_for - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"'
   custom_nginx_config: "log_format oshttp \\'$http_x_forwarded_for - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\"\\';server_names_hash_bucket_size 128;client_max_body_size 64m;large_client_header_buffers 32 128k;include /etc/os-doc.conf;include /etc/os-http.conf;"
 gitlab::sidekiq:
