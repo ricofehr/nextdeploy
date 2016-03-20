@@ -171,7 +171,7 @@ module API
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def vm_params
-        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :is_auth, :techno_ids => [])
+        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :is_auth, :htlogin, :htpassword, :techno_ids => [])
       end
     end
   end

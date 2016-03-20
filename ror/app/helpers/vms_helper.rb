@@ -34,8 +34,8 @@ module VmsHelper
       template = techno.hiera % {vhost: "#{vm_url}", docroot: docroot,
                                  rewrites: rewrites, portV: portV,
                                  portA: portA, portT: portT,
-                                 loginV: project.login,
-                                 passwordV: project.password,
+                                 loginV: htlogin,
+                                 passwordV: htpassword,
                                  projectname: project.name}
       templates << template
     end
@@ -53,8 +53,8 @@ module VmsHelper
         # tools are disabled without auth
         if is_auth
           f.puts "isauth: 1\n"
-          f.puts "httpuser: '#{project.login}'\n"
-          f.puts "httppasswd: '#{project.password}'\n"
+          f.puts "httpuser: '#{htlogin}'\n"
+          f.puts "httppasswd: '#{htpassword}'\n"
         else
           f.puts "isauth: 0\n"
         end
@@ -105,7 +105,7 @@ module VmsHelper
     # prepare vcl file for current vm
     # todo: avoid bash cmd
     if is_auth
-      basicAuth = Base64.strict_encode64(project.login + ':' + project.password)
+      basicAuth = Base64.strict_encode64(htlogin + ':' + htpassword)
       system("/bin/cat vcls/auth/auth.vcl.#{vclV} | /bin/sed 's,###AUTH###,,;s,%%BASICAUTH%%,#{basicAuth},' > vcls/auth/#{vclName}")
     else
       system("/bin/touch vcls/auth/#{vclName}")
