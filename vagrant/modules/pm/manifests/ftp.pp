@@ -40,6 +40,13 @@ account required pam_permit.so',
     mode => '0700'
   }
   ->
+  file { '/usr/local/bin/nextdeploy-updftp':
+    source => 'puppet:///modules/pm/vsftpd/nextdeploy-updftp',
+    owner => 'root',
+    group => 'root',
+    mode => '0700'
+  }
+  ->
   exec { 'createftpdpasswd':
     command => 'touch /etc/ftpd.passwd'
   }

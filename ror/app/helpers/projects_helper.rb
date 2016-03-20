@@ -34,7 +34,7 @@ module ProjectsHelper
     (password && password.length > 0) ? (ftppasswd = password[0..7]) : (ftppasswd = 'nextdeploy')
 
     # todo: avoid bash cmd
-    Rails.logger.warn "sudo /usr/local/bin/./nextdeploy-addftp #{gitpath} #{ftppasswd}"
+    Rails.logger.warn "sudo /usr/local/bin/./nextdeploy-addftp #{gitpath} xxxxxxx"
     system("sudo /usr/local/bin/./nextdeploy-addftp #{gitpath} #{ftppasswd}")
   end
 
@@ -46,5 +46,18 @@ module ProjectsHelper
     # todo: avoid bash cmd
     Rails.logger.warn "sudo /usr/local/bin/./nextdeploy-rmftp #{gitpath}"
     system("sudo /usr/local/bin/./nextdeploy-rmftp #{gitpath}")
+  end
+
+  # Lauch bash script for update ftp password for assets and dump
+  #
+  # No param
+  # No return
+  def update_ftp
+    # generate password for ftp
+    (password && password.length > 0) ? (ftppasswd = password[0..7]) : (ftppasswd = 'nextdeploy')
+
+    # todo: avoid bash cmd
+    Rails.logger.warn "sudo /usr/local/bin/./nextdeploy-updftp #{gitpath} xxxxxxx"
+    system("sudo /usr/local/bin/./nextdeploy-updftp #{gitpath} #{ftppasswd}")
   end
 end

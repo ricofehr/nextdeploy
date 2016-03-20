@@ -1,0 +1,8 @@
+#!/bin/bash
+
+FTPUSER="$1"
+FTPPASSWD="$2"
+[[ -z "$FTPUSER" ]] && exit 1
+[[ -z "$FTPPASSWD" ]] && exit 1
+
+htpasswd -p -b /etc/ftpd.passwd $FTPUSER $(openssl passwd -1 -noverify $FTPPASSWD)

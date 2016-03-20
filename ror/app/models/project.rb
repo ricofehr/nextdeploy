@@ -30,7 +30,7 @@ class Project < ActiveRecord::Base
 
   # Git repository dependence
   before_create :create_git, :create_ftp
-  before_update :update_git
+  before_update :update_git, :update_ftp
   before_destroy :delete_git, :remove_ftp
 
   private
