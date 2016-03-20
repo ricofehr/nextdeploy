@@ -95,11 +95,22 @@ module API
 
       # Stop and destroy a vm
       def destroy
-        @vm.destroy
+        # ensute we have permission to destroy the vm
+        if  @user.vms.any? { |v| v.id == @vm.id } ||
+            @user.lead? && @vm.project.vms.any? { |v| v.id == @vm.id && !@vm.user.admin? } ||
+            @user.admin?
 
-        # Json output
-        respond_to do |format|
-          format.json { head :no_content }
+            @vm.destroy
+            # Json output
+            respond_to do |format|
+              format.json { head :no_content }
+            end
+        else
+
+          # Json output
+          respond_to do |format|
+            format.json { head :no_content, status: 403 }
+          end  
         end
       end
 
