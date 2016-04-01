@@ -66,6 +66,7 @@ nova::rabbit_hosts:
 nova::rabbit_userid: 'osuser'
 nova::rabbit_password: 'useros'
 nova::verbose:  false
+nova::preallocate_images: 'space'
 
 #nova::compute class
 nova::compute::vncserver_proxyclient_address: "%{hiera('global::managementprefix')}.75"
@@ -75,6 +76,8 @@ nova::compute::vnc_enabled: true
 
 #nova::compute::libvirt setting
 nova::compute::libvirt::migration_support: true
+nova::compute::libvirt::libvirt_disk_cachemodes: 
+  - 'file=writeback'
 nova::compute::libvirt::libvirt_virt_type: "%{hiera('global::nova_hv')}"
 nova::compute::libvirt::vncserver_listen: '0.0.0.0'
 
