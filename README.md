@@ -13,11 +13,11 @@ The REST api can be reached with 3 different ways
 
 ## Features
 
-* Vm creations on the fly
+* Vms created into openstack cloud
 * Actually, 3 cms are supporting: drupal, wordpress and symfony2
-* Gitlab for hosting repository
+* Gitlab for versioning repository
 * Rest api developped with rails
-* A WebUI, a bash command and an android application for transmit with rest api
+* A WebUI, a CLI software and an android application
 * Based on vagrant, there is a complete process for install the project on his laptop.
 * Working progress, more features in future (more cms and technos supported, ldap connector for authentification, lot of linux image, Aws connector, ...)
 
@@ -130,7 +130,7 @@ Usage: ./scripts/./setup-remote [options]
 --ndc2-ip xxxx              install the ndc2 node (ip needed)
 ```
 
-## Groupes / Users
+## Groups / Users
 
 5 groups are defined at nextdeploy:
 * Admin: all rights
@@ -285,11 +285,10 @@ cd ror && yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
 
 * More installation templates
 * More operating systems
-* Allow a connection to an external ldap for authentication
-* A connector for AWS or HP Cloud.
-* Unit tests
+* Connectors for public cloud: aws, gce, ...
+* Connectors for external code repositories: bitbucket, github, ...
 * Improving the quality of code
-* Add elements of monitoring and supervision
+* Improve monitoring and supervision
 * Implement some extra functionnalities for the vms: security test, code quality parser, ..
 
 More details on the trello dashboard: https://trello.com/b/dVdgtJxE/nextdeploy
