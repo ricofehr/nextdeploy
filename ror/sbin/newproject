@@ -272,8 +272,6 @@ newdrupal() {
     echo "if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') { \$_SERVER['HTTPS'] = 'on';}" >> server/sites/default/default.settings.php
     # add and commit
     git add .
-    git add .gitignore
-    git add .htaccess
     git commit -m "init drupal"
     git push origin master
     popd > /dev/null
@@ -299,7 +297,6 @@ newdrupal8() {
 
 #create symfony2 website
 newsymfony2() {
-  # debug "init symfony2 project..."
   pushd "${DOCROOT}" > /dev/null
   curl -s https://getcomposer.org/installer | php
   php composer.phar create-project symfony/framework-standard-edition sf2 "2.*" --no-progress --no-interaction
@@ -314,20 +311,17 @@ newsymfony2() {
   popd > /dev/null
 
   pushd "${DOCONLINE}" > /dev/null
+  cp "${RORSBIN}/files/crontab_symfony" scripts/crontab
   cp "${RORSBIN}/files/gitignore_sf2" .gitignore
   git add .
-  git add .gitignore
   git commit -m "init sf2"
   git push origin master
 
   popd > /dev/null
-
-  # debug "init symfony done"
 }
 
 #create symfony3 website
 newsymfony3() {
-  # debug "init symfony3 project..."
   pushd "${DOCROOT}" > /dev/null
   curl -s https://getcomposer.org/installer | php
   php composer.phar create-project symfony/framework-standard-edition sf3 "3.*" --no-progress --no-interaction
@@ -342,15 +336,13 @@ newsymfony3() {
   popd > /dev/null
 
   pushd "${DOCONLINE}" > /dev/null
+  cp "${RORSBIN}/files/crontab_symfony" scripts/crontab
   cp "${RORSBIN}/files/gitignore_sf3" .gitignore
   git add .
-  git add .gitignore
   git commit -m "init sf3"
   git push origin master
 
   popd > /dev/null
-
-  # debug "init symfony done"
 }
 
 #create ez website

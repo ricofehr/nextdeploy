@@ -1,0 +1,2 @@
+# flush symfony cache folder nightly
+30 04 * * * cd %%DOCROOT%% && rm -rf app/cache/dev
