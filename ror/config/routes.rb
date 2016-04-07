@@ -25,6 +25,7 @@ Rails.application.routes.draw do
       get '/vms/user/:user_id' => 'vms#show_by_user', as: 'vms_by_user', constraints: { user_id: /\d+/ }
       get '/systemimages/type/:systemimagetype_id' => 'systemimages#index_by_type', as: 'systemimages_by_type', constraints: { systemimagetype_id: /\d+/ }
       put '/vms/:name/setupcomplete' => 'vms#setupcomplete', as: 'vm_setupcomplete', constraints: { name: /[a-zA-Z0-9-]+/ }
+      put '/vms/:name/resetpassword/:password' => 'vms#resetpassword', as: 'vm_resetpassword', constraints: { name: /[a-zA-Z0-9-]+/, password: /[a-zA-Z0-9-]+/ }
       get '/vms/:id/setupcomplete' => 'vms#check_status', as: 'vm_check_status', constraints: { id: /\d+/ }
 
       # branche routes

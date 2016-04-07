@@ -293,7 +293,8 @@ admin = User.create!(
           quotavm: 0,
           password: 'word123123',
           password_confirmation: 'word123123',
-          group: admin_g
+          group: admin_g,
+          layout: 'us'
         )
 
 user_lead = User.create!(
@@ -305,7 +306,8 @@ user_lead = User.create!(
               quotavm: 10,
               password: 'word123123',
               password_confirmation: 'word123123',
-              group: lead_g
+              group: lead_g,
+              layout: 'us'
             )
 
 user_dev = User.create!(
@@ -317,7 +319,8 @@ user_dev = User.create!(
              quotavm: 5,
              password: 'word123123',
              password_confirmation: 'word123123',
-             group: dev_g
+             group: dev_g,
+             layout: 'us'
            )
 
 user_pm = User.create!(
@@ -329,7 +332,8 @@ user_pm = User.create!(
             quotavm: 5,
             password: 'word123123',
             password_confirmation: 'word123123',
-            group: pm_g
+            group: pm_g,
+            layout: 'us'
           )
 
 user_g = User.create!(
@@ -341,7 +345,8 @@ user_g = User.create!(
            quotavm: 3,
            password: 'word123123',
            password_confirmation: 'word123123',
-           group: guest_g
+           group: guest_g,
+           layout: 'us'
          )
 
 puts "Created #{User.count} users"

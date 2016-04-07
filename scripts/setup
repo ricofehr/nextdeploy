@@ -253,13 +253,13 @@ file_hosts() {
     sudo $BINSED -i "s;^192.168.171.60.*;;" /etc/hosts
     sudo /bin/bash -c "echo \"192.168.171.50 grafana.${NEXTDEPLOYURI} ossec.${NEXTDEPLOYURI} build.${NEXTDEPLOYURI}\" >> /etc/hosts"
     sudo /bin/bash -c "echo \"192.168.170.60 ui.${NEXTDEPLOYURI} api.${NEXTDEPLOYURI} ${GITLABURI} doc.${NEXTDEPLOYURI}\" >> /etc/hosts"
-    sudo /bin/bash -c "echo \"192.168.170.70 uosc${DOMAIN} hz.${NEXTDEPLOYURI}\" >> /etc/hosts"
+    sudo /bin/bash -c "echo \"192.168.170.70 uosc${DOMAIN} hz.${NEXTDEPLOYURI} vnc.${NEXTDEPLOYURI}\" >> /etc/hosts"
     sudo /bin/bash -c "echo \"192.168.171.60 f.${NEXTDEPLOYURI}\" >> /etc/hosts"
   else
     output -q "Please ensure that you have this 4 lines in /etc/hosts file"
     output -q -l "192.168.171.50 grafana.${NEXTDEPLOYURI} ossec.${NEXTDEPLOYURI} build.${NEXTDEPLOYURI}"
     output -q -l "192.168.170.60 ui.${NEXTDEPLOYURI} api.${NEXTDEPLOYURI} ${GITLABURI} doc.${NEXTDEPLOYURI}"
-    output -q -l "192.168.170.70 uosc${DOMAIN} hz.${NEXTDEPLOYURI}"
+    output -q -l "192.168.170.70 uosc${DOMAIN} hz.${NEXTDEPLOYURI} vnc.${NEXTDEPLOYURI}"
     output -q -l "192.168.171.60 f.${NEXTDEPLOYURI}"
   fi
 }

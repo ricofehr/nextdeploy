@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160320132700) do
+ActiveRecord::Schema.define(version: 20160410234813) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -157,12 +157,12 @@ ActiveRecord::Schema.define(version: 20160320132700) do
   add_index "user_projects", ["user_id"], name: "index_user_projects_on_user_id", using: :btree
 
   create_table "users", force: true do |t|
-    t.string   "email",                  default: "",    null: false
-    t.string   "encrypted_password",     default: "",    null: false
+    t.string   "email",                             default: "",    null: false
+    t.string   "encrypted_password",                default: "",    null: false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          default: 0,     null: false
+    t.integer  "sign_in_count",                     default: 0,     null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
@@ -176,7 +176,8 @@ ActiveRecord::Schema.define(version: 20160320132700) do
     t.integer  "group_id"
     t.string   "firstname"
     t.string   "lastname"
-    t.boolean  "is_project_create",      default: false
+    t.boolean  "is_project_create",                 default: false
+    t.string   "layout",                 limit: 15
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
@@ -204,9 +205,11 @@ ActiveRecord::Schema.define(version: 20160320132700) do
     t.string   "name"
     t.integer  "vmsize_id"
     t.integer  "status"
-    t.boolean  "is_auth",        default: true
+    t.boolean  "is_auth",                   default: true
     t.string   "htlogin"
     t.string   "htpassword"
+    t.string   "termpassword"
+    t.string   "layout",         limit: 15
   end
 
   add_index "vms", ["project_id"], name: "index_vms_on_project_id", using: :btree

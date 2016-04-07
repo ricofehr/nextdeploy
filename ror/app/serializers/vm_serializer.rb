@@ -2,7 +2,7 @@
 #
 # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class VmSerializer < ActiveModel::Serializer
-  attributes :id, :nova_id, :floating_ip, :created_at, :name, :status, :is_auth, :htlogin, :htpassword
+  attributes :id, :nova_id, :floating_ip, :vnc_url, :created_at, :name, :status, :is_auth, :htlogin, :htpassword, :termpassword, :layout
 
   # gitpath needs post string actions
   def attributes

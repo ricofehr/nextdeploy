@@ -216,7 +216,8 @@ nova::api::neutron_metadata_proxy_shared_secret: 'osneutron'
 nova::api::auth_uri: 'http://keystone-m:5000/v2.0/'
 nova::api::identity_uri: 'http://keystone-m:35357'
 
-nova::vncproxy::host: "%{hiera('global::apiprefix')}.70"
+nova::vncproxy::host: "vnc.%{hiera('global::nextdeployuri')}"
+nova::vncproxy::vncproxy_protocol: 'https'
 nova::vncproxy::enabled: true
 
 nova::network::neutron::neutron_admin_password: 'osneutron'

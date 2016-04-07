@@ -50,10 +50,13 @@ class pm::os::keystone {
 # Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::nv_c {
+  Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin", "/opt/bin" ] }
 
   class { '::nova':
     require => [ Class['pm::os::memcached_c'], Class ['pm::sql'], Class ['pm::rabbit'], File['/etc/hosts'] ],
   }
+
+  nova_config { 'DEFAULT/cert': value => '/etc/ssl/certs/vnc.pem' }
 
   class { '::nova::api': }
 
@@ -69,6 +72,21 @@ class pm::os::nv_c {
     'nova::conductor'
   ]:
     enabled => true,
+  }
+
+  exec { 'makeselfpem':
+    command => 'openssl req -new -x509 -days 365 -nodes -out /etc/ssl/certs/self.pem -keyout /etc/ssl/certs/self.pem -subj "/C=FR/ST=IDF/L=Paris/O=MyCompany/CN=vnc"',
+    creates => '/etc/ssl/certs/self.pem'
+  } ->
+
+  file {'/etc/ssl/certs/vnc.pem':
+    ensure => 'file',
+    source => 'file:///etc/ssl/certs/self.pem',
+    replace => false
+  }
+
+  class { '::nova::vncproxy':
+    require => [ File['/etc/ssl/certs/vnc.pem'] ]
   }
 }
 

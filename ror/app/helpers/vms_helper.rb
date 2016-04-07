@@ -71,6 +71,7 @@ module VmsHelper
         f.puts "branch: #{@commit.branche.name}\n"
         f.puts "gitpath: #{Rails.application.config.gitlab_prefix}#{project.gitpath}\n"
         f.puts "email: #{user.email}\n"
+        f.puts "layout: #{user.layout}\n"
         f.puts "docrootgit: /var/www/#{vhost}\n"
         f.puts "weburi: #{vm_url}\n"
         f.puts "project: #{project.name}\n"

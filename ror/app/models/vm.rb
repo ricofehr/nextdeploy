@@ -17,9 +17,8 @@ class Vm < ActiveRecord::Base
   # Some scope for find vms objects by commit, by project or by name
   scope :find_by_user_commit, ->(user_id, commit){ where("user_id=#{user_id} AND commit_id like '%#{commit}'") }
   scope :find_by_user_project, ->(user_id, project_id){ where(user_id: user_id, project_id: project_id) }
-  scope :find_by_name, ->(name){ where(name: name).first }
 
-  attr_accessor :floating_ip, :commit
+  attr_accessor :floating_ip, :commit, :vnc_url
 
   # Some hooks before vm changes
   before_create :boot_os
@@ -28,6 +27,15 @@ class Vm < ActiveRecord::Base
 
   # Init external api objects and extra attributes
   after_initialize :init_extra_attr
+
+  # Update vm password in database
+  #
+  # No param
+  # No return
+  def reset_password(password)
+    self.termpassword = password
+    save
+  end
 
   # Update status field with time build
   #
@@ -49,6 +57,24 @@ class Vm < ActiveRecord::Base
     ret = (Time.zone.now - created_at).to_i
     # more 2hours with setup status is equal to error status
     (ret > 7200) ? (1) : (-ret)
+  end
+
+  # Init vnc_url attribute
+  #
+  # No param
+  # No return
+  def init_vnc_url
+    @vnc_url = nil
+
+    if nova_id
+      @vnc_url =
+        Rails.cache.fetch("vms/#{nova_id}/vnc_url", expires_in: 120.seconds) do
+          # init api object
+          osapi = Apiexternal::Osapi.new
+          # get vnc_url from openstack
+          ret = osapi.get_vnctoken(nova_id)
+        end
+    end
   end
 
   protected
@@ -105,6 +131,7 @@ class Vm < ActiveRecord::Base
   # No return
   def init_extra_attr
     @floating_ip = nil
+    @vnc_url = nil
 
     if nova_id
       # store floating_ip in rails cache

@@ -5,8 +5,8 @@ module API
     # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class API::V1::VmsController < ApplicationController
       # except setupcomplet to rest auth
-      before_filter :authenticate_user_from_token!, :except => [:setupcomplete]
-      before_filter :authenticate_api_v1_user!, :except => [:setupcomplete]
+      before_filter :authenticate_user_from_token!, :except => [:setupcomplete, :resetpassword]
+      before_filter :authenticate_api_v1_user!, :except => [:setupcomplete, :resetpassword]
       # Hook who set vm object
       before_action :set_vm, only: [:show, :update, :destroy, :check_status]
       # Format ember parameters into rails parameters
@@ -67,6 +67,7 @@ module API
 
       # Details one vm properties
       def show
+        @vm.init_vnc_url
         # Json output
         respond_to do |format|
           format.json { render json: @vm, status: 200 }
@@ -116,8 +117,15 @@ module API
 
       # Compute build time and update status field
       def setupcomplete
-        @vm = Vm.find_by_name(params[:name])
-        @vm.setupcomplete
+        @vm = Vm.find_by(name: params[:name])
+        @vm.setupcomplete if (@vm)
+        render nothing: true
+      end
+
+      # Update vm password
+      def resetpassword
+        @vm = Vm.find_by(name: params[:name])
+        @vm.reset_password(params[:password]) if (@vm)
         render nothing: true
       end
 
@@ -171,7 +179,7 @@ module API
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def vm_params
-        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :is_auth, :htlogin, :htpassword, :techno_ids => [])
+        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :is_auth, :htlogin, :htpassword, :layout, :techno_ids => [])
       end
     end
   end

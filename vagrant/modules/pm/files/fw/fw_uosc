@@ -65,6 +65,9 @@ do_start()
         $IPTABLES -A OUTPUT -s 10.0.0.0/8 -j ACCEPT
         $IPTABLES -A OUTPUT -d 10.0.0.0/8 -j ACCEPT
 
+        # vnc proxy
+        $IPTABLES -A INPUT -p tcp -m tcp --dport 6080 -j ACCEPT
+
         #DNS sortant
         $IPTABLES -A OUTPUT -m state --state NEW -p udp --dport 53 -j ACCEPT
 

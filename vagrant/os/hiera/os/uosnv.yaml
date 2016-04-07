@@ -70,9 +70,11 @@ nova::preallocate_images: 'space'
 
 #nova::compute class
 nova::compute::vncserver_proxyclient_address: "%{hiera('global::managementprefix')}.75"
-nova::compute::vncproxy_host: "%{hiera('global::apiprefix')}.70"
+nova::compute::vncproxy_host: "vnc.%{hiera('global::nextdeployuri')}"
+nova::compute::vncproxy_protocol: 'https'
 nova::compute::enabled: true
 nova::compute::vnc_enabled: true
+nova::compute::vnc_keymap: 'en-us'
 
 #nova::compute::libvirt setting
 nova::compute::libvirt::migration_support: true

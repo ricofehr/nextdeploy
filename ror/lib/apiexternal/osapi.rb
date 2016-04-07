@@ -94,6 +94,31 @@ module Apiexternal
       return floatingip_id
     end
 
+    # Rest call to openstack for vnc token for the vm
+    #
+    # @param nova_id [String] the nova identifier for the vm
+    # @return [String] the vnc token associated to the vm
+    def get_vnctoken(nova_id)
+      action_req = { "os-getVNCConsole" => {
+                        type: "novnc"
+                      }
+                    }
+
+      response = @conn[:nova].post do |req|
+        req.url "/v2/#{@tenant}/servers/#{nova_id}/action"
+        req.headers = self.headers
+        req.body = action_req.to_json
+      end
+
+      Exceptions::OSApiException.new("get vnc token for #{nova_id} failed, error code: #{response.status}, #{response.body}") if response.status != 201
+
+      if response.body && json(response.body)[:console] && json(response.body)[:console][:url]
+        json(response.body)[:console][:url]
+      else
+        nil
+      end
+    end
+
     # Make a rest call to openstack for add an ssh-key
     #
     # @param name [String] the key-name identifier

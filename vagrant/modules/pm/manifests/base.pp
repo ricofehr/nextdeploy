@@ -60,6 +60,7 @@ class pm::base::gitlab {
   $nextdeployuri = hiera('global::nextdeployuri', 'nextdeploy.local')
   $gitlaburi = hiera('global::gitlaburi', 'gitlab.local')
   $nextdeploysuf = hiera('global::nextdeploysuf', 'os.nextdeploy')
+  $apiprefix = hiera('global::apiprefix', '192.168.170')
 
   exec { 'gitlab-aptupdate':
     command => "/usr/bin/apt-get update",
