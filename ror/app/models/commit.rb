@@ -22,13 +22,9 @@ class Commit
     if options.empty?
 
       begin
-        commit =
-          # cache commit object during 1 day
-          Rails.cache.fetch("commits/#{@id}", expires_in: 24.hours) do
-            project = Project.find(@project_id)
-            gitlabapi = Apiexternal::Gitlabapi.new
-            gitlabapi.get_commit(project.gitlab_id, commit_hash)
-          end
+        project = Project.find(@project_id)
+        gitlabapi = Apiexternal::Gitlabapi.new
+        commit = gitlabapi.get_commit(project.gitlab_id, commit_hash)
 
         options[:short_id] = commit.short_id
         options[:title] = commit.title
@@ -58,7 +54,9 @@ class Commit
     commit_hash = tab.pop
     branche_id = tab.join('-')
 
-    new(commit_hash, branche_id)
+    Rails.cache.fetch("commits/#{commit_hash}", expires_in: 240.hours) do
+      new(commit_hash, branche_id)
+    end
   end
 
   # Return all commits for a branch
@@ -80,9 +78,13 @@ class Commit
       me.log
     end
 
-    commits.map! {|commit| new(commit.id, branche_id, {shortid: commit.short_id, title: commit.title,
+    commits.map! {|commit| 
+      Rails.cache.fetch("commits/#{commit.id}", expires_in: 240.hours) do
+        new(commit.id, branche_id, {shortid: commit.short_id, title: commit.title,
                                                                 author_name: commit.author_name, author_email: commit.author_email,
-                                                                message: commit.message, created_at: commit.created_at}) }
+                                                                message: commit.message, created_at: commit.created_at})
+      end
+    }
   end
 
   # Return the branch associated with the commit

@@ -33,6 +33,14 @@ class Project < ActiveRecord::Base
   before_update :update_git, :update_ftp
   before_destroy :delete_git, :remove_ftp
 
+  # Flush cache for branches
+  #
+  # No param
+  # No return
+  def flushCache
+    Rails.cache.delete("projects/#{id}/branchs")
+  end
+
   private
 
   # Init branchs array
@@ -40,9 +48,10 @@ class Project < ActiveRecord::Base
   # No param
   # No return
   def branches
-      Branche.all(id)
+      Rails.cache.fetch("projects/#{id}/branchs", expires_in: 144.hours) do
+        Branche.all(id)
+      end
   end
-
 
   # Create gitlab project from current object attributes
   #

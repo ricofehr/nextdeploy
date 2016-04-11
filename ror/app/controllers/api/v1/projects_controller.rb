@@ -46,6 +46,10 @@ module API
       def show
         if params[:id] != '0'
           @project = Project.includes(:users).includes(:technos).find(params[:id])
+
+          # Renew cache for branchs list
+          @project.flushCache
+
           # Json output
           respond_to do |format|
             format.json { render json: @project, status: 200 }
