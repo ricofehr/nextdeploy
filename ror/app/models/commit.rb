@@ -54,7 +54,7 @@ class Commit
     commit_hash = tab.pop
     branche_id = tab.join('-')
 
-    Rails.cache.fetch("commits/#{commit_hash}", expires_in: 240.hours) do
+    Rails.cache.fetch("commits/#{branche_id}-#{commit_hash}", expires_in: 240.hours) do
       new(commit_hash, branche_id)
     end
   end
@@ -78,9 +78,9 @@ class Commit
       me.log
     end
 
-    commits.map! {|commit| 
-      Rails.cache.fetch("commits/#{commit.id}", expires_in: 240.hours) do
-        new(commit.id, branche_id, {shortid: commit.short_id, title: commit.title,
+    commits.map {|commit|
+      Rails.cache.fetch("commits/#{branche_id}-#{commit.id}", expires_in: 240.hours) do
+        new(commit.id, branche_id, {short_id: commit.short_id, title: commit.title,
                                                                 author_name: commit.author_name, author_email: commit.author_email,
                                                                 message: commit.message, created_at: commit.created_at})
       end
