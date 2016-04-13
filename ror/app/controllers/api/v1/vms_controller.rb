@@ -5,10 +5,10 @@ module API
     # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class API::V1::VmsController < ApplicationController
       # except setupcomplet to rest auth
-      before_filter :authenticate_user_from_token!, :except => [:setupcomplete, :resetpassword]
-      before_filter :authenticate_api_v1_user!, :except => [:setupcomplete, :resetpassword]
+      before_filter :authenticate_user_from_token!, :except => [:setupcomplete, :resetpassword, :refreshcommit]
+      before_filter :authenticate_api_v1_user!, :except => [:setupcomplete, :resetpassword, :refreshcommit]
       # Hook who set vm object
-      before_action :set_vm, only: [:show, :update, :destroy, :check_status]
+      before_action :set_vm, only: [:show, :update, :destroy, :check_status, :import, :export]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
       # Check user right for avoid no-authorized access
@@ -134,6 +134,25 @@ module API
         @vm.check_status
         (@vm.status > 1) ? (codestatus = 200) : (codestatus = 410)
         render plain: @vm.buildtime, status: codestatus
+      end
+
+      # Execute datas import into vm
+      def import
+        ret = @vm.import
+        render plain: ret[:message], status: ret[:status]
+      end
+
+      # Execute datas export into vm
+      def export
+        ret = @vm.export(params[:branchs])
+        render plain: ret[:message], status: ret[:status]
+      end
+
+      # Refresh commit id for vm
+      def refreshcommit
+        @vm = Vm.find_by(name: params[:name])
+        @vm.refreshcommit(params[:commitid])
+        render nothing: true
       end
 
       private

@@ -37,6 +37,23 @@ class Vm < ActiveRecord::Base
     save
   end
 
+  # Refresh commit value
+  #
+  # No param
+  # No return
+  def refreshcommit(commitid)
+    tab = "#{project.id}-#{commitid}".split('-')
+    commit_hash = tab.pop
+    branche_id = tab.join('-')
+    branche = Branche.find(branche_id)
+    commits = branche.commits
+
+    if commits && commits.any? { |commit| commit.commit_hash == commit_hash }
+      self.commit_id = "#{branche.id}-#{commit_hash}"
+      save
+    end
+  end
+
   # Update status field with time build
   #
   # No param
@@ -146,11 +163,9 @@ class Vm < ActiveRecord::Base
     end
 
     @commit =
-      Rails.cache.fetch("vms/#{commit_id}/commit_object", expires_in: 144.hours) do
+      Rails.cache.fetch("commits/#{commit_id}", expires_in: 144.hours) do
         Commit.find(commit_id)
       end
-
-    #check_status
   end
 
   # Stop and delete a vm from openstack

@@ -164,7 +164,6 @@ newproject() {
   cp "${RORSBIN}/files/app.js" nodejs/
   touch server/.keep
   cp "${RORSBIN}/files/gitignore_other" .gitignore
-  cp "${RORSBIN}/files/import.sh" scripts/
   cp "${RORSBIN}/files/postinstall.sh" scripts/
   # if custom postinstall for framework exists
   [[ -f "${RORSBIN}/files/postinstall_${framework}.sh" ]] && cp "${RORSBIN}/files/postinstall_${framework}.sh" scripts/postinstall.sh

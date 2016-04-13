@@ -231,4 +231,40 @@ module VmsHelper
     system("rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml")
   end
 
+  # Execute import datas into vms
+  #
+  # No param
+  # @return message for execution and codestatus for request
+  def import
+    docroot = "/var/www/#{project.name}/"
+    framework = project.framework.name.downcase
+    ftppasswd = project.password
+    ftpuser = project.gitpath
+    ismysql = technos.any? { |t| t.name.include?('mysql') } ? 1 : 0
+    ismongo = technos.any? { |t| t.name.include?('mongo') } ? 1 : 0
+
+    Rails.logger.warn "Import data for vm #{vm_name}"
+    bashret = system("ssh modem@#{@floating_ip} 'cd #{docroot} && import.sh --framework #{framework} --ftpuser #{ftpuser} --ftppasswd #{ftppasswd} --ismysql #{ismysql} --ismongo #{ismongo}'")
+    Rails.logger.warn "Error during Import data for vm #{vm_name} !" if ! bashret
+    ret = bashret ? {message: "Ok", status: 200} : {message: "Error", status: 500}
+  end
+
+  # Execute export datas into vms
+  #
+  # No param
+  # @return message for execution and codestatus for request
+  def export(branchs)
+    docroot = "/var/www/#{project.name}/"
+    framework = project.framework.name.downcase
+    ftppasswd = project.password
+    ftpuser = project.gitpath
+    ismysql = technos.any? { |t| t.name.include?('mysql') } ? 1 : 0
+    ismongo = technos.any? { |t| t.name.include?('mongo') } ? 1 : 0
+
+    Rails.logger.warn "Export data for vm #{vm_name}"
+    bashret = system("ssh modem@#{@floating_ip} 'cd #{docroot} && export.sh --framework #{framework} --ftpuser #{ftpuser} --ftppasswd #{ftppasswd} --ismysql #{ismysql} --ismongo #{ismongo} --branchs #{branchs}'")
+    Rails.logger.warn "Error during Export data for vm #{vm_name} !" if ! bashret
+    ret = bashret ? {message: "Ok", status: 200} : {message: "Error", status: 500}
+  end
+
 end

@@ -26,7 +26,10 @@ Rails.application.routes.draw do
       get '/systemimages/type/:systemimagetype_id' => 'systemimages#index_by_type', as: 'systemimages_by_type', constraints: { systemimagetype_id: /\d+/ }
       put '/vms/:name/setupcomplete' => 'vms#setupcomplete', as: 'vm_setupcomplete', constraints: { name: /[a-zA-Z0-9-]+/ }
       put '/vms/:name/resetpassword/:password' => 'vms#resetpassword', as: 'vm_resetpassword', constraints: { name: /[a-zA-Z0-9-]+/, password: /[a-zA-Z0-9-]+/ }
+      put '/vms/:name/commit/:commitid' => 'vms#refreshcommit', as: 'vm_refreshcommit', constraints: { name: /[a-zA-Z0-9-]+/ }
       get '/vms/:id/setupcomplete' => 'vms#check_status', as: 'vm_check_status', constraints: { id: /\d+/ }
+      post '/vms/:id/import' => 'vms#import', as: 'vm_import', constraints: { id: /\d+/ }
+      post '/vms/:id/export' => 'vms#export', as: 'vm_export', constraints: { id: /\d+/ }
 
       # branche routes
       get '/branches/:id' => 'branches#show', constraints: { id: /.+/ }
