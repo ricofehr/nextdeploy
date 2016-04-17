@@ -226,6 +226,9 @@ class pm::os::nv0_postinstall {
   exec { 'nova-secgroup-rule80':
     command => 'nova --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 secgroup-add-rule default tcp 80 80 0.0.0.0/0',
   } ->
+  exec { 'nova-secgroup-rule139':
+    command => 'nova --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 secgroup-add-rule default tcp 139 139 0.0.0.0/0',
+  } ->
   exec { 'nova-secgroup-ruleicmp':
     command => 'nova --os-username user --os-password wordpass --os-tenant-name tenant0 --os-auth-url http://controller-m:35357/v2.0 secgroup-add-rule default icmp -1 -1 0.0.0.0/0',
   } ->
