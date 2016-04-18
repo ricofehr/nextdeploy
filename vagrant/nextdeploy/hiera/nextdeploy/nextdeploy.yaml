@@ -96,6 +96,8 @@ vpnserver:
     city: Paris
     organization: os.nextdeploy
     email: usera@os.nextdeploy
+    proto: 'udp'
+    keepalive: '10 120'
     server: '10.0.171.0 255.255.255.0'
     push:
       - "route %{hiera('global::pubprefix')}.0 255.255.255.0"
