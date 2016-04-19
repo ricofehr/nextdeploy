@@ -12,4 +12,16 @@ class UserMailer < ActionMailer::Base
     @url  = "https://ui.#{Rails.application.config.nextdeployuri}/"
     mail(to: @user.email, subject: 'Welcome to NextDeploy')
   end
+
+  # Send alert to admin when a new user is creating
+  #
+  # @param user: New User object targeted
+  # @param admin: Admin user
+  # no return
+  def create_user(user, admin)
+    @user = user
+    @admin = admin
+    @url  = "https://ui.#{Rails.application.config.nextdeployuri}/"
+    mail(to: @admin.email, subject: "[NextDeploy] #{@user.email} added")
+  end
 end

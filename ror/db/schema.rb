@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160410234813) do
+ActiveRecord::Schema.define(version: 20160418160339) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -178,6 +178,7 @@ ActiveRecord::Schema.define(version: 20160410234813) do
     t.string   "lastname"
     t.boolean  "is_project_create",                 default: false
     t.string   "layout",                 limit: 15
+    t.boolean  "is_user_create",                    default: false
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree

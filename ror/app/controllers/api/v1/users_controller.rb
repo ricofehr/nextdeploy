@@ -12,7 +12,8 @@ module API
       # Hook who set user object
       before_action :set_user, only: [:show, :update, :destroy]
       # Check user right for avoid no-authorized access
-      before_action :only_admin, only: [:create, :destroy]
+      before_action :only_admin, only: [:destroy]
+      before_action :only_lead, only: [:create]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
 
@@ -127,21 +128,32 @@ module API
 
       # Create a new user
       def create
-        user_attrs = user_params
-        # get sending credentials flag
-        is_credentials_send = user_attrs.delete(:is_credentials_send)
-        @user_c = User.create!(user_attrs)
+        if !@user.lead? || !@user.is_user_create
+          format.json { render json: nil, status: 403 }
+        else
+          user_attrs = user_params
 
-        # Json output (return error if issue occurs)
-        respond_to do |format|
-          if @user_c
-            # Send a welcome email
-            if is_credentials_send
-              UserMailer.welcome_email(@user_c, user_params[:password]).deliver
+          # get sending credentials flag
+          is_credentials_send = user_attrs.delete(:is_credentials_send)
+          @user_c = User.create!(user_attrs)
+
+          # Json output (return error if issue occurs)
+          respond_to do |format|
+            if @user_c
+              # Send admin alerts
+              if !@user.admin?
+                Group.find_by(access_level: 50).users.each { |admin|
+                  UserMailer.create_user(@user_c, admin).deliver
+                }
+              end
+              # Send a welcome email
+              if is_credentials_send
+                UserMailer.welcome_email(@user_c, user_params[:password]).deliver
+              end
+              format.json { render json: @user_c, status: 200 }
+            else
+              format.json { render json: nil, status: :unprocessable_entity }
             end
-            format.json { render json: @user_c, status: 200 }
-          else
-            format.json { render json: nil, status: :unprocessable_entity }
           end
         end
       end
@@ -151,6 +163,14 @@ module API
         user_attrs = user_params
         # get sending credentials flag
         is_credentials_send = user_attrs.delete(:is_credentials_send)
+
+        # avoid no admin users change some settings
+        if !@user.admin?
+          user_attrs.delete(:is_project_create)
+          user_attrs.delete(:is_user_create)
+          user_attrs.delete(:group_id)
+          user_attrs.delete(:project_ids)
+        end
 
         # check old email value
         oldemail = @user_c.email
@@ -233,16 +253,27 @@ module API
         params_p.delete(:group)
         params_p.delete(:projects)
         params_p.delete(:own_projects)
-        params_p.delete(:group_id) if ! @user.admin?
-        params_p.delete(:quotavm) if ! @user.lead?
-        params_p.delete(:project_ids) if ! @user.admin?
+
+        if !@user.is_user_create
+          params_p.delete(:group_id)
+          params_p.delete(:quotavm)
+          params_p.delete(:project_ids)
+        elsif !@user.admin?
+          group = Group.find(params_p[:group_id])
+          params_p.delete(:group_id) if !group || group.access_level > 30
+          params_p[:quotavm] = 5 if params_p[:quotavm].to_i > 10
+          params_p[:project_ids].select! { |project_id| 
+            project = Project.find(project_id)
+            project && project.users.any? { |user_project| user_project.id == @user.id }
+          }
+        end
 
         params[:user] = params_p
       end
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def user_params
-        params.require(:user).permit(:email, :company, :quotavm, :layout, :firstname, :lastname, :password, :password_confirmation, :is_project_create, :is_credentials_send, :group_id, :project_ids => [])
+        params.require(:user).permit(:email, :company, :quotavm, :layout, :firstname, :lastname, :password, :password_confirmation, :is_project_create, :is_user_create, :is_credentials_send, :group_id, :project_ids => [])
       end
     end
   end

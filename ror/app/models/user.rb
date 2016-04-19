@@ -21,6 +21,7 @@ class User < ActiveRecord::Base
 
   # validates conditions
   validates :email, presence: true, length: {maximum: 255}, uniqueness: { case_sensitive: false }
+  validates :group, presence: true
 
   # Some hooks before chnages on user object
   before_save :ensure_authentication_token

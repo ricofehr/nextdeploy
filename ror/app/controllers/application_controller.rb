@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
   # check if the current user is included into group "lead developer"
   def check_lead
     if ! @user
-      raise Exceptions::GitlabApiException.new("Access forbidden for this user")
+      raise Exceptions::NextDeployException.new("Access forbidden for this user")
     end
 
     return true if @user.lead?
@@ -33,7 +33,7 @@ class ApplicationController < ActionController::Base
   # check if the current user is included into group "admin"
   def check_admin
     if ! @user
-      raise Exceptions::GitlabApiException.new("Access forbidden for this user")
+      raise Exceptions::NextDeployException.new("Access forbidden for this user")
     end
 
     return true if @user.admin?
@@ -54,7 +54,16 @@ class ApplicationController < ActionController::Base
   # check right about admin user
   def only_admin
     if ! @user.admin?
-      raise Exceptions::GitlabApiException.new("Access forbidden for this user")
+      raise Exceptions::NextDeployException.new("Access forbidden for this user")
+    end
+
+    true
+  end
+
+  # check right about lead user
+  def only_lead
+    if ! @user.lead?
+      raise Exceptions::NextDeployException.new("Access forbidden for this user")
     end
 
     true
