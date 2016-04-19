@@ -1,13 +1,43 @@
-/var/log/nginx-* {
+/var/log/nginx-access* {
+  daily
+  missingok
+  rotate 365
+  compress
+  copytruncate
+  notifempty
+  postrotate
+  endscript
+}
+
+/var/log/nginx-api* {
   weekly
   missingok
-  rotate 52
+  rotate 26
   compress
-  delaycompress
+  copytruncate
   notifempty
-  create 0640 www-data adm
-  sharedscripts
   postrotate
-    [ ! -f /var/opt/gitlab/nginx/nginx.pid ] || kill -USR1 `cat /var/opt/gitlab/nginx/nginx.pid`
+  endscript
+}
+
+/var/log/nginx-ui* {
+  weekly
+  missingok
+  rotate 26
+  compress
+  copytruncate
+  notifempty
+  postrotate
+  endscript
+}
+
+/var/log/nginx-error* {
+  weekly
+  missingok
+  rotate 10
+  compress
+  copytruncate
+  notifempty
+  postrotate
   endscript
 }
