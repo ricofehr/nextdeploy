@@ -66,6 +66,7 @@ class pm::base::gitlab {
     command => "/usr/bin/apt-get update",
     timeout => 1800
   } ->
+
   # Nginx settings
   file { '/etc/os-http.conf':
     ensure =>  file,
@@ -75,6 +76,7 @@ class pm::base::gitlab {
     group => 'root',
     before => Class['::gitlab']
   } ->
+
   file { '/etc/os-doc.conf':
     ensure =>  file,
     source => ["puppet:///modules/pm/nginx/os-doc.conf_${clientcert}",
@@ -83,6 +85,17 @@ class pm::base::gitlab {
     group => 'root',
     before => Class['::gitlab']
   } ->
+
+  file { '/etc/os-maintenance.conf':
+    ensure =>  file,
+    source => ["puppet:///modules/pm/nginx/os-maintenance.conf_${clientcert}",
+      'puppet:///modules/pm/nginx/os-maintenance.conf'],
+    replace => false,
+    owner => 'root',
+    group => 'root',
+    before => Class['::gitlab']
+  } ->
+
   file { '/etc/logrotate.d/nginx':
     ensure =>  file,
     source => ["puppet:///modules/pm/nginx/logrotate"],
@@ -90,29 +103,47 @@ class pm::base::gitlab {
     group => 'root',
     before => Class['::gitlab']
   } ->
+
   exec { 'nextdeploysuffix':
     command => "/bin/sed -i 's;%%NEXTDEPLOYSUF%%;${nextdeploysuf};g' /etc/os-http.conf",
     onlyif => 'grep NEXTDEPLOYSUF /etc/os-http.conf',
     user => 'root',
     before => Class['::gitlab']
   } ->
+
   exec { 'nextdeployuri':
     command => "/bin/sed -i 's;%%NEXTDEPLOYURI%%;${nextdeployuri};g' /etc/os-http.conf",
     onlyif => 'grep NEXTDEPLOYURI /etc/os-http.conf',
     user => 'root',
     before => Class['::gitlab']
   } ->
+
   exec { 'gitlaburi':
     command => "/bin/sed -i 's;%%GITLABURI%%;${gitlaburi};g' /etc/os-http.conf",
     onlyif => 'grep GITLABURI /etc/os-http.conf',
     user => 'root',
     before => Class['::gitlab']
   } ->
+
   exec { 'nextdeployuri2':
     command => "/bin/sed -i 's;%%NEXTDEPLOYURI%%;${nextdeployuri};g' /etc/os-doc.conf",
     onlyif => 'grep NEXTDEPLOYURI /etc/os-doc.conf',
     user => 'root',
     before => Class['::gitlab']
+  } ->
+
+  exec { 'nextdeployuri3':
+    command => "/bin/sed -i 's;%%NEXTDEPLOYURI%%;${nextdeployuri};g' /etc/os-maintenance.conf",
+    onlyif => 'grep NEXTDEPLOYURI /etc/os-maintenance.conf',
+    user => 'root',
+    before => Class['::gitlab']
+  } ->
+
+  file { '/opt/maintenance':
+    ensure => directory,
+    recurse => remote,
+    source => 'puppet:///modules/pm/nginx/maintenance',
+    owner => 'www-data'
   }
 }
 
