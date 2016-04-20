@@ -23,6 +23,8 @@ influxdb::server::wal_dir: '/home/influxdb/wal'
 influxdb::server::admin_bind_address: "%{hiera('global::pubprefix')}.50:8083"
 influxdb::server::http_bind_address: "%{hiera('global::pubprefix')}.50:8086"
 
+grafana::version: '2.6.0'
+grafana::package_source: 'https://grafanarel.s3.amazonaws.com/builds/grafana_2.6.0_amd64.deb'
 grafana::install_dir: '/home/grafana/install'
 grafana::data_dir: '/home/grafana/data'
 grafana::install_method: 'package'

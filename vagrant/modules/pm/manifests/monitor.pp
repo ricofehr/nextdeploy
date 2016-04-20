@@ -20,6 +20,7 @@ class pm::monitor::services {
     group => 'root',
     mode => '0777'
   } ->
+  
   # see parameters from hiera file
   class { 'influxdb::server':
     require => Exec['installcurl']
@@ -31,7 +32,13 @@ class pm::monitor::services {
     group => 'root',
     mode => '0777'
   } ->
-  class { 'grafana': }
+
+  class { 'grafana': } ->
+
+  service { 'grafana-server':
+    ensure     => running,
+    enable     => true
+  }
 
   exec { 'updinflux':
     command => 'apt-get -y update',
