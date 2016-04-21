@@ -74,7 +74,7 @@ nova::compute::vncproxy_host: "vnc.%{hiera('global::nextdeployuri')}"
 nova::compute::vncproxy_protocol: 'https'
 nova::compute::enabled: true
 nova::compute::vnc_enabled: true
-nova::compute::vnc_keymap: 'en-us'
+nova::compute::vnc_keymap: 'fr'
 
 #nova::compute::libvirt setting
 nova::compute::libvirt::migration_support: true
