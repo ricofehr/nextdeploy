@@ -33,12 +33,7 @@ class pm::monitor::services {
     mode => '0777'
   } ->
 
-  class { 'grafana': } ->
-
-  service { 'grafana-server':
-    ensure     => running,
-    enable     => true
-  }
+  class { 'grafana': }
 
   exec { 'updinflux':
     command => 'apt-get -y update',

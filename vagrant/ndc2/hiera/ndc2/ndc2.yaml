@@ -35,5 +35,7 @@ grafana::cfg:
   security:
     admin_user: admin
     admin_password: "%{hiera('global::adminpassword')}"
+  auth.anonymous:
+    enabled: true
   users:
     allow_sign_up: false
