@@ -33,7 +33,37 @@ class pm::monitor::services {
     mode => '0777'
   } ->
 
-  class { 'grafana': }
+  class { 'grafana': } ->
+
+  file { '/usr/share/grafana/public/views/index.html':
+    ensure => file,
+    source => ['puppet:///modules/pm/grafana/index.html'],
+    owner => 'root'
+  } ->
+
+  file { '/usr/share/grafana/public/app/app.ca0ab6f9.js':
+    ensure => file,
+    source => ['puppet:///modules/pm/grafana/app.ca0ab6f9.js'],
+    owner => 'root'
+  } ->
+
+  file { '/usr/share/grafana/public/app/plugins/datasource/influxdb/datasource.js':
+    ensure => file,
+    source => ['puppet:///modules/pm/grafana/datasource.js'],
+    owner => 'root'
+  } ->
+
+  file { '/usr/share/grafana/public/app/getdash':
+    ensure => directory,
+    source => ['puppet:///modules/pm/grafana/getdash'],
+    recurse => remote,
+    owner => 'root'
+  } ->
+
+  file { '/usr/share/grafana/public/dashboards/getdash.js':
+    ensure => link,
+    target => '/usr/share/grafana/public/app/getdash/getdash.js'
+  } ->
 
   exec { 'updinflux':
     command => 'apt-get -y update',
