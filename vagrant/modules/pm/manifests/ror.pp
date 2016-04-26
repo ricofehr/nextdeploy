@@ -17,7 +17,9 @@ class pm::ror {
   $gems = hiera('rvm::gem', [])
   create_resources('rvm_gem', $gems, { require => Exec['system-rvm'] })
   package { ['libmysqlclient-dev']: ensure => installed }
-  class { '::memcached': }
+  class { '::memcached': 
+    max_memory => '2048'
+  }
 
   Exec['installcurl'] -> Exec['system-rvm']
 }

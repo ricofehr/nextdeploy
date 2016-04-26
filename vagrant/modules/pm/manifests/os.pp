@@ -9,7 +9,9 @@
 # Eric Fehr <ricofehr@nextdeploy.io>
 #
 class pm::os::memcached_c {
-  class { '::memcached': }
+  class { '::memcached':
+    max_memory => '2048'
+  }
 }
 
 
