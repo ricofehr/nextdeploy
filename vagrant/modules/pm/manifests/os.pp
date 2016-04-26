@@ -12,6 +12,8 @@ class pm::os::memcached_c {
   class { '::memcached':
     max_memory => '2048'
   }
+
+  class { 'pm::monitor::collect::memcached': }
 }
 
 

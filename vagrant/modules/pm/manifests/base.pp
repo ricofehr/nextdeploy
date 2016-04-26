@@ -152,7 +152,9 @@ class pm::base::gitlab {
     recurse => remote,
     source => 'puppet:///modules/pm/nginx/maintenance',
     owner => 'www-data'
-  }
+  } ->
+
+  class { 'pm::monitor::collect::nginx': }
 }
 
 # == Class: pm::base

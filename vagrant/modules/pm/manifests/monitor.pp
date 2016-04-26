@@ -190,3 +190,53 @@ class pm::monitor::collect::openvpn {
     collectusercount       => true,
   }
 }
+
+# == Class: pm::monitor::collect::nginx
+#
+# Configure collectd plugin for nginx
+#
+#
+# === Authors
+#
+# Eric Fehr <ricofehr@nextdeploy.io>
+#
+class pm::monitor::collect::nginx {
+  class { 'collectd::plugin::nginx':
+    url      => 'http://127.0.0.1/nginx_status'
+  }
+}
+
+# == Class: pm::monitor::collect::mysql
+#
+# Configure collectd plugin for mysql
+#
+#
+# === Authors
+#
+# Eric Fehr <ricofehr@nextdeploy.io>
+#
+class pm::monitor::collect::mysql {
+  collectd::plugin::mysql::database { 's_nextdeploy':
+    host        => 'localhost',
+    username    => 'root',
+    password    => 'toor',
+    port        => '3306',
+    masterstats => false,
+  }
+}
+
+# == Class: pm::monitor::collect::memcached
+#
+# Configure collectd plugin for memcached
+#
+#
+# === Authors
+#
+# Eric Fehr <ricofehr@nextdeploy.io>
+#
+class pm::monitor::collect::memcached {
+  class { 'collectd::plugin::memcached':
+    host => '127.0.0.1',
+    port => 11211,
+  }
+}

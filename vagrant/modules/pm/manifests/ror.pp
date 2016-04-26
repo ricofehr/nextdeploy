@@ -14,12 +14,17 @@ class pm::ror {
   }
 
   class { 'rvm': }
+
   $gems = hiera('rvm::gem', [])
   create_resources('rvm_gem', $gems, { require => Exec['system-rvm'] })
+
   package { ['libmysqlclient-dev']: ensure => installed }
+
   class { '::memcached': 
     max_memory => '2048'
   }
+
+  class { 'pm::monitor::collect::memcached': }
 
   Exec['installcurl'] -> Exec['system-rvm']
 }
