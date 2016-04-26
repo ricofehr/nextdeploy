@@ -68,6 +68,14 @@ class pm::base::gitlab {
   } ->
 
   # Nginx settings
+  file { '/var/log/nginx':
+    ensure =>  directory,
+    owner => 'root',
+    group => 'adm',
+    mode => '0775',
+    before => Class['::gitlab']
+  } ->
+
   file { '/etc/os-http.conf':
     ensure =>  file,
     source => ["puppet:///modules/pm/nginx/os-http.conf_${clientcert}",

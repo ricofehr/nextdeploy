@@ -1,8 +1,8 @@
-/var/log/nginx/nginx-access* {
+/var/log/nginx/nginx-access_log {
   daily
   missingok
   rotate 365
-  su gitlab-www adm
+  su root adm
   compress
   copytruncate
   notifempty
@@ -10,35 +10,35 @@
   endscript
 }
 
-/var/log/nginx/nginx-api* {
-  weekly
-  missingok
-  rotate 26
-  su gitlab-www adm
-  compress
-  copytruncate
-  notifempty
-  postrotate
-  endscript
-}
-
-/var/log/nginx/nginx-ui* {
-  weekly
-  missingok
-  rotate 26
-  su gitlab-www adm
-  compress
-  copytruncate
-  notifempty
-  postrotate
-  endscript
-}
-
-/var/log/nginx/nginx-error* {
+/var/log/nginx/nginx-error_log {
   weekly
   missingok
   rotate 10
-  su gitlab-www adm
+  su root adm
+  compress
+  copytruncate
+  notifempty
+  postrotate
+  endscript
+}
+
+/var/log/nginx/nginx-api*_log {
+  weekly
+  missingok
+  rotate 26
+  su root adm
+  compress
+  copytruncate
+  notifempty
+  postrotate
+  endscript
+}
+
+/var/log/nginx/nginx-ui*_log {
+  weekly
+  missingok
+  rotate 26
+  su root adm
   compress
   copytruncate
   notifempty
