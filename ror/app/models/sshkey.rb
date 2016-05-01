@@ -23,6 +23,13 @@ class Sshkey < ActiveRecord::Base
 
   private
 
+  # generate an uniq and well formed keyname (for os and gitlab)
+  # 
+  # No param
+  # No return
+  def init_shortname
+    self.shortname = "k#{user.id}t#{Time.zone.now.to_i.to_s.sub(/^../,'')}"
+  end
 
   # add sshkey to openstack and gitlab
   #
@@ -32,12 +39,13 @@ class Sshkey < ActiveRecord::Base
     osapi = Apiexternal::Osapi.new
     gitlabapi = Apiexternal::Gitlabapi.new
 
+    init_shortname
     begin
       #openstack side
-      osapi.add_sshkey(name, key)
+      osapi.add_sshkey(shortname, key)
 
       #gitlab side
-      self.gitlab_id = gitlabapi.add_sshkey(user.gitlab_id, name, key)
+      self.gitlab_id = gitlabapi.add_sshkey(user.gitlab_id, shortname, key)
     rescue Exceptions::NextDeployException => me
       me.log
     end
@@ -65,12 +73,12 @@ class Sshkey < ActiveRecord::Base
 
     begin
       #openstack side
-      osapi.delete_sshkey(name)
-      osapi.add_sshkey(name, key)
+      osapi.delete_sshkey(shortname)
+      osapi.add_sshkey(shortname, key)
 
       #gitlab side
       gitlabapi.delete_sshkey(user.gitlab_id, gitlab_id)
-      self.gitlab_id = gitlabapi.add_sshkey(user.gitlab_id, name, key)
+      self.gitlab_id = gitlabapi.add_sshkey(user.gitlab_id, shortname, key)
     rescue Exceptions::NextDeployException => me
       me.log
     end
@@ -86,7 +94,7 @@ class Sshkey < ActiveRecord::Base
 
     begin
       #openstack side
-      osapi.delete_sshkey(name)
+      osapi.delete_sshkey(shortname)
 
       #gitlab side
       gitlabapi.delete_sshkey(user.gitlab_id, gitlab_id)

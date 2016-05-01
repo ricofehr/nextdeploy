@@ -134,7 +134,7 @@ class Vm < ActiveRecord::Base
       generate_hiera
       generate_vcl
       user_data = generate_userdata
-      sshname = user.sshkeys.first ? user.sshkeys.first.name : ''
+      sshname = user.sshkeys.first ? user.sshkeys.first.shortname : ''
       self.nova_id = osapi.boot_vm(name, systemimage.glance_id, sshname, vmsize.title, user_data)
       self.status = 0
     rescue Exceptions::NextDeployException => me

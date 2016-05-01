@@ -107,6 +107,7 @@ ActiveRecord::Schema.define(version: 20160418160339) do
     t.datetime "updated_at"
     t.string   "name"
     t.integer  "gitlab_id"
+    t.string   "shortname"
   end
 
   add_index "sshkeys", ["user_id"], name: "index_sshkeys_on_user_id", using: :btree
