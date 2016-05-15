@@ -20,7 +20,7 @@ class pm::ror {
 
   package { ['libmysqlclient-dev']: ensure => installed }
 
-  class { '::memcached': 
+  class { '::memcached':
     max_memory => '2048'
   }
 

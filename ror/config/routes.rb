@@ -26,10 +26,29 @@ Rails.application.routes.draw do
       get '/systemimages/type/:systemimagetype_id' => 'systemimages#index_by_type', as: 'systemimages_by_type', constraints: { systemimagetype_id: /\d+/ }
       put '/vms/:name/setupcomplete' => 'vms#setupcomplete', as: 'vm_setupcomplete', constraints: { name: /[a-zA-Z0-9-]+/ }
       put '/vms/:name/resetpassword/:password' => 'vms#resetpassword', as: 'vm_resetpassword', constraints: { name: /[a-zA-Z0-9-]+/, password: /[a-zA-Z0-9-]+/ }
-      put '/vms/:name/commit/:commitid' => 'vms#refreshcommit', as: 'vm_refreshcommit', constraints: { name: /[a-zA-Z0-9-]+/ }
+      put '/vms/:name/commit' => 'vms#refreshcommit', as: 'vm_refreshcommit', constraints: { name: /[a-zA-Z0-9-]+/ }
       get '/vms/:id/setupcomplete' => 'vms#check_status', as: 'vm_check_status', constraints: { id: /\d+/ }
+      post '/vms/short' => 'vms#create_short', as: 'create_short'
       post '/vms/:id/import' => 'vms#import', as: 'vm_import', constraints: { id: /\d+/ }
       post '/vms/:id/export' => 'vms#export', as: 'vm_export', constraints: { id: /\d+/ }
+      post '/vms/:id/gitpull' => 'vms#gitpull', as: 'vm_gitpull', constraints: { id: /\d+/ }
+      post '/vms/:id/logs' => 'vms#logs', as: 'vm_logs', constraints: { id: /\d+/ }
+      post '/vms/:id/boot' => 'vms#boot', as: 'vm_boot', constraints: { id: /\d+/ }
+      post '/vms/:id/toggleauth' => 'vms#toggleauth', as: 'vm_toggleauth', constraints: { id: /\d+/ }
+      post '/vms/:id/toggleprod' => 'vms#toggleprod', as: 'vm_toggleprod', constraints: { id: /\d+/ }
+      post '/vms/:id/togglecached' => 'vms#togglecached', as: 'vm_togglecached', constraints: { id: /\d+/ }
+      post '/vms/:id/toggleht' => 'vms#toggleht', as: 'vm_toggleht', constraints: { id: /\d+/ }
+      post '/uris/:id/import' => 'uris#import', as: 'uri_import', constraints: { id: /\d+/ }
+      post '/uris/:id/export' => 'uris#export', as: 'uri_export', constraints: { id: /\d+/ }
+      post '/uris/:id/npm' => 'uris#npm', as: 'uri_npm', constraints: { id: /\d+/ }
+      post '/uris/:id/nodejs' => 'uris#nodejs', as: 'uri_nodejs', constraints: { id: /\d+/ }
+      post '/uris/:id/reactjs' => 'uris#reactjs', as: 'uri_reacts', constraints: { id: /\d+/ }
+      post '/uris/:id/mvn' => 'uris#mvn', as: 'uri_mvn', constraints: { id: /\d+/ }
+      post '/uris/:id/composer' => 'uris#composer', as: 'uri_composer', constraints: { id: /\d+/ }
+      post '/uris/:id/drush' => 'uris#drush', as: 'uri_drush', constraints: { id: /\d+/ }
+      post '/uris/:id/sfcmd' => 'uris#sfcmd', as: 'uri_sfcmd', constraints: { id: /\d+/ }
+      post '/uris/:id/logs' => 'uris#logs', as: 'uri_logs', constraints: { id: /\d+/ }
+      post '/uris/:id/clearvarnish' => 'uris#clearvarnish', as: 'uri_clearvarnish', constraints: { id: /\d+/ }
 
       # branche routes
       get '/branches/:id' => 'branches#show', constraints: { id: /.+/ }
@@ -44,6 +63,8 @@ Rails.application.routes.draw do
         list_only.resources :groups
         list_only.resources :brands
         list_only.resources :projects
+        list_only.resources :endpoints
+        list_only.resources :uris
         list_only.resources :vms
         list_only.resources :sshkeys
         list_only.resources :users

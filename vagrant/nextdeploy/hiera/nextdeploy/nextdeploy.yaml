@@ -54,7 +54,7 @@ mysql::server::override_options:
     innodb_thread_concurrency: 24
 
 # gitlab parameters
-gitlab::package_ensure: '8.5.1-ce.0'
+gitlab::package_ensure: '8.7.5-ce.0'
 gitlab::gitlab_http_port: '8181'
 gitlab::gitlab_ssl_port: '8282'
 gitlab::external_url: "https://%{hiera('global::gitlaburi')}"

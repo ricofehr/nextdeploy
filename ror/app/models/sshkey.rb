@@ -24,7 +24,7 @@ class Sshkey < ActiveRecord::Base
   private
 
   # generate an uniq and well formed keyname (for os and gitlab)
-  # 
+  #
   # No param
   # No return
   def init_shortname

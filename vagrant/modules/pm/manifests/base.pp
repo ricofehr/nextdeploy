@@ -104,6 +104,13 @@ class pm::base::gitlab {
     before => Class['::gitlab']
   } ->
 
+  file { '/etc/nginx-ndprod':
+    ensure => directory,
+    owner => 'root',
+    group => 'root',
+    mode => '0777',
+  } ->
+
   file { '/etc/logrotate.d/nginx':
     ensure =>  file,
     source => ["puppet:///modules/pm/nginx/logrotate"],

@@ -6,12 +6,12 @@ class Project < ActiveRecord::Base
   include ProjectsHelper
 
   belongs_to :brand
-  belongs_to :framework
   belongs_to :owner, class_name: "User", foreign_key: "owner_id", inverse_of: :own_projects
 
+  has_many :endpoints, dependent: :destroy
+  #has_many :frameworks, through: :endpoints, inverse_of: :projects
   has_many :project_technos, dependent: :destroy
   has_many :technos, through: :project_technos
-  has_many :prefix_dns_s, dependent: :destroy
 
   has_many :user_project, dependent: :destroy
   has_many :users, through: :user_project, inverse_of: :projects
@@ -25,8 +25,8 @@ class Project < ActiveRecord::Base
   has_many :vms, dependent: :destroy
 
   # some properties are mandatory and must be well-formed
-  validates :name, :brand_id, :framework_id, :systemimage_ids, :gitpath, presence: true
-  validates :brand_id, :framework_id, numericality: {only_integer: true, greater_than: 0}
+  validates :name, :brand_id, :systemimage_ids, :gitpath, presence: true
+  validates :brand_id, numericality: {only_integer: true, greater_than: 0}
 
   # Git repository dependence
   before_create :create_git, :create_ftp

@@ -1,0 +1,7 @@
+/%%PATH%%/.idea/
+/%%PATH%%/node_modules/
+/%%PATH%%/dist/
+/%%PATH%%/*.iml
+/%%PATH%%/webpack-assets.json
+/%%PATH%%/webpack-stats.json
+/%%PATH%%/npm-debug.log

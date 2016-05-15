@@ -1,21 +1,11 @@
 #sf2 folders to exclude
-/server/web/bundles/
-/server/web/uploads/
-/server/app/bootstrap.php.cache
-/server/app/cache/*
-/server/app/config/parameters.yml
-/server/app/logs/*
-/server/build/
-/server/vendor/
-/server/composer.phar
-
-# IDE settings
-.buildpath
-.externalToolBuilders/
-.project
-.settings/
-.idea
-/server/.apdisk
-
-# Excluding unwanted files
-.DS_Store
+/%%PATH%%/web/bundles/
+/%%PATH%%/web/uploads/
+/%%PATH%%/app/bootstrap.php.cache
+/%%PATH%%/app/cache/*
+/%%PATH%%/app/config/parameters.yml
+/%%PATH%%/app/logs/*
+/%%PATH%%/build/
+/%%PATH%%/vendor/
+/%%PATH%%/composer.phar
+/%%PATH%%/.apdisk

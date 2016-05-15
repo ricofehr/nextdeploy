@@ -562,6 +562,7 @@ update_puppet() {
   rm -rf tmp/remote/puppet
   rm -rf tmp/remote/hosts
   rm -rf tmp/remote/nginx
+  rm -rf tmp/remote/sudoers
   rm -f tmp/remote/puma-start_*
   rm -f tmp/remote/rebuildember_*
   rm -f tmp/remote/default.vcl_*
@@ -572,6 +573,7 @@ update_puppet() {
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/puppet tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/hosts tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/nginx tmp/remote/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/sudoers tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma-start_* tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/rebuildember_* tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/default.vcl_* tmp/remote/
@@ -588,6 +590,7 @@ update_puppet() {
   [[ -d tmp/remote/puppet ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puppet root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   [[ -d tmp/remote/hosts ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   [[ -d tmp/remote/nginx ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nginx root@${PUPPETIP}:/etc/puppet/modules/pm/files/
+  [[ -d tmp/remote/nginx ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/sudoers root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   ls tmp/remote/puma-start_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puma-start_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
   ls tmp/remote/rebuildember_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/rebuildember_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
   ls tmp/remote/default.vcl_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/default.vcl_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/

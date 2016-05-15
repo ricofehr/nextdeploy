@@ -2,17 +2,17 @@
 #
 # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class ProjectSerializer < ActiveModel::Serializer
-  attributes :id, :name, :gitpath, :enabled, :login, :password, :created_at
+  attributes :id, :name, :gitpath, :enabled, :login, :password, :created_at, :is_ht
   delegate :current_user, to: :scope
 
   has_many :users, key: :users
+  has_many :endpoints, key: :endpoints
   has_many :technos, key: :technos
   has_many :vmsizes, key: :vmsizes
   has_many :systemimages, key: :systemimages
   has_many :branches, key: :branches
   has_one :owner, key: :owner
   has_one :brand, key: :brand
-  has_one :framework, key: :framework
 
   # avoid for no lead/admin users to see other users details
   def users

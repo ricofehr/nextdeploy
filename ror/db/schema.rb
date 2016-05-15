@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160418160339) do
+ActiveRecord::Schema.define(version: 20160514175725) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -20,13 +20,26 @@ ActiveRecord::Schema.define(version: 20160418160339) do
     t.datetime "updated_at"
   end
 
+  create_table "endpoints", force: true do |t|
+    t.integer "project_id"
+    t.integer "framework_id"
+    t.string  "prefix"
+    t.string  "path"
+    t.string  "envvars",      limit: 512
+    t.string  "aliases",      limit: 1024
+    t.integer "port"
+    t.string  "ipfilter",     limit: 512,  default: ""
+  end
+
+  add_index "endpoints", ["framework_id"], name: "index_endpoints_on_framework_id", using: :btree
+  add_index "endpoints", ["project_id"], name: "index_endpoints_on_project_id", using: :btree
+
   create_table "frameworks", force: true do |t|
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "publicfolder"
     t.text     "rewrites"
-    t.string   "puppetclass"
   end
 
   create_table "groups", force: true do |t|
@@ -45,15 +58,6 @@ ActiveRecord::Schema.define(version: 20160418160339) do
     t.integer "ordering"
     t.boolean "is_twitter"
   end
-
-  create_table "prefix_dns", force: true do |t|
-    t.string   "URI"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "project_id"
-  end
-
-  add_index "prefix_dns", ["project_id"], name: "index_prefix_dns_on_project_id", using: :btree
 
   create_table "project_systemimages", force: true do |t|
     t.integer "project_id"
@@ -87,17 +91,16 @@ ActiveRecord::Schema.define(version: 20160418160339) do
     t.string   "gitpath"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "framework_id"
     t.integer  "brand_id"
     t.boolean  "enabled"
     t.integer  "gitlab_id"
     t.string   "login"
     t.string   "password"
     t.integer  "owner_id"
+    t.boolean  "is_ht",      default: false
   end
 
   add_index "projects", ["brand_id"], name: "index_projects_on_brand_id", using: :btree
-  add_index "projects", ["framework_id"], name: "index_projects_on_framework_id", using: :btree
   add_index "projects", ["owner_id"], name: "index_projects_on_owner_id", using: :btree
 
   create_table "sshkeys", force: true do |t|
@@ -147,6 +150,20 @@ ActiveRecord::Schema.define(version: 20160418160339) do
     t.datetime "updated_at"
   end
 
+  create_table "uris", force: true do |t|
+    t.integer "vm_id"
+    t.integer "framework_id"
+    t.string  "absolute",     limit: 512
+    t.string  "path"
+    t.string  "envvars",      limit: 512
+    t.string  "aliases",      limit: 2048
+    t.integer "port"
+    t.string  "ipfilter",     limit: 512,  default: ""
+  end
+
+  add_index "uris", ["framework_id"], name: "index_uris_on_framework_id", using: :btree
+  add_index "uris", ["vm_id"], name: "index_uris_on_vm_id", using: :btree
+
   create_table "user_projects", force: true do |t|
     t.integer  "user_id"
     t.integer  "project_id"
@@ -180,6 +197,7 @@ ActiveRecord::Schema.define(version: 20160418160339) do
     t.boolean  "is_project_create",                 default: false
     t.string   "layout",                 limit: 15
     t.boolean  "is_user_create",                    default: false
+    t.integer  "quotaprod",                         default: 0
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
@@ -212,6 +230,9 @@ ActiveRecord::Schema.define(version: 20160418160339) do
     t.string   "htpassword"
     t.string   "termpassword"
     t.string   "layout",         limit: 15
+    t.boolean  "is_prod",                   default: false
+    t.boolean  "is_cached",                 default: false
+    t.boolean  "is_ht",                     default: false
   end
 
   add_index "vms", ["project_id"], name: "index_vms_on_project_id", using: :btree

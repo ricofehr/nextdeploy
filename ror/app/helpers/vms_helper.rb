@@ -9,17 +9,13 @@ module VmsHelper
   # No return
   def generate_hiera
     vhost = project.name
-    portV = 80
-    portA = 8080
-    portT = 8181
-    docroot = "/var/www/#{vhost}/server/#{project.framework.publicfolder}"
-    framework = project.framework
-    rewrites = framework.rewrites
     classes = []
     templates = []
     vmtechnos = technos.sort_by(&:ordering)
     # generate ftp password
     ftppasswd = project.password
+    rewrites = ""
+    basicAuth = Base64.strict_encode64(htlogin + ':' + htpassword) 
 
     #add base puppet class
     classes << '  - pm::base::apt'
@@ -31,21 +27,17 @@ module VmsHelper
 
     vmtechnos.each do |techno|
       classes << "  - #{techno.puppetclass}"
-      template = techno.hiera % {vhost: "#{vm_url}", docroot: docroot,
-                                 rewrites: rewrites, portV: portV,
-                                 portA: portA, portT: portT,
-                                 loginV: htlogin,
-                                 passwordV: htpassword,
-                                 projectname: project.name}
+      template = techno.hiera
       templates << template
     end
 
-    classes << "  - #{framework.puppetclass}" if framework.puppetclass && framework.puppetclass.length > 0
-    classes << "  - pm::deploy::nodejs" if technos.any? { |t| t.name.include?('nodejs') }
     classes << '  - pm::deploy::postinstall'
 
     begin
-      open("hiera/#{name}#{Rails.application.config.os_suffix}.yaml", "w") { |f|
+      open("hiera/#{name}#{Rails.application.config.os_suffix}.yaml", File::RDWR|File::CREAT) do |f|
+        f.flock(File::LOCK_EX)
+        f.rewind
+
         f.puts "---\n\nclasses:\n"
         f.puts classes.join("\n")
         f.puts templates.join("\n")
@@ -59,58 +51,111 @@ module VmsHelper
           f.puts "isauth: 0\n"
         end
 
+        if is_prod
+          f.puts "isprod: 1\n"
+          f.puts "webenv: 'prod'\n"
+        else
+          f.puts "isprod: 0\n"
+          f.puts "webenv: 'dev'\n"
+        end
+
+        if is_cached
+          f.puts "iscached: 1\n"
+        else
+          f.puts "iscached: 0\n"
+        end
+
+        if is_ht
+          f.puts "override: 'All'"
+        else
+          f.puts "override: 'None'"
+        end
+
+        f.puts "uris:\n"
+        uris.each do |uri|
+          rewrites = uri.framework.rewrites
+          # change some rewrites for prod env
+          if is_prod
+            rewrites.gsub!("app_dev", "app")
+          end
+          f.puts "  #{uri.absolute}:\n"
+          f.puts "    path: #{uri.path}\n"
+
+          if !uri.aliases.nil? && !uri.aliases.empty?
+            f.puts "    aliases:\n"
+            uri.aliases.split(' ').each { |aliase| f.puts "      - #{aliase}\n" }
+          end
+
+          if !uri.envvars.nil? && !uri.envvars.empty?
+            f.puts "    envvars:\n"
+            f.puts "      - HOME=/home/modem\n"
+            uri.envvars.split(' ').each do |envvar| 
+              uris.each { |uri2| envvar.gsub!("%{URI_#{uri2.path.upcase}}", uri2.absolute) }
+              f.puts "      - #{envvar}\n"
+            end
+          end
+
+          f.puts "    framework: #{uri.framework.name.downcase}\n"
+          f.puts "    publicfolder: '#{uri.framework.publicfolder}'\n"
+          f.puts "    rewrites: \"#{rewrites}\"\n"
+        end
+
+        f.puts "etchosts: '#{uris.flat_map(&:absolute).join(' ').strip} #{uris.flat_map(&:aliases).join(' ').strip}'\n"
+
+        f.puts "pm::varnish::backends:\n"
+        uris.each do |uri|
+          f.puts "  - absolute: #{uri.absolute}\n"
+          f.puts "    path: #{uri.path}\n"
+          f.puts "    port: #{uri.port}\n"
+          if !uri.aliases.nil? && !uri.aliases.empty?
+            f.puts "    aliases:\n"
+            uri.aliases.split(' ').each { |aliase| f.puts "      - #{aliase}\n" }
+          end
+
+          f.puts "    ipfilter: '#{uri.ipfilter.gsub('.0/24', '').gsub('.', '\.')}'\n"
+        end
+
+        if is_prod
+          f.puts "pm::varnish::staticttl: 24h\n"
+        else
+          f.puts "pm::varnish::staticttl: 30m\n"
+        end
+
+        f.puts "pm::varnish::isprod: #{is_prod}\n"
+        f.puts "pm::varnish::isauth: #{is_auth}\n"
+        f.puts "pm::varnish::iscached: #{is_cached}\n"
+        f.puts "pm::varnish::basicauth: #{basicAuth}\n"
+
         # varnish3 for older linux
         if systemimage.name == "Debian7" || systemimage.name == "Ubuntu1404"
-          f.puts "varnish_version: 3\n"
+          f.puts "pm::varnish::version: 3\n"
         else
-          f.puts "varnish_version: 4\n"
+          f.puts "pm::varnish::version: 4\n"
         end
 
         f.puts "name: #{name}\n"
+        f.puts "toolsuri: pmtools.#{name}#{Rails.application.config.os_suffix}\n"
         f.puts "commit: #{@commit.commit_hash}\n"
         f.puts "branch: #{@commit.branche.name}\n"
         f.puts "gitpath: #{Rails.application.config.gitlab_prefix}#{project.gitpath}\n"
         f.puts "email: #{user.email}\n"
         f.puts "layout: #{user.layout}\n"
         f.puts "docrootgit: /var/www/#{vhost}\n"
-        f.puts "weburi: #{vm_url}\n"
         f.puts "project: #{project.name}\n"
         f.puts "nextdeployuri: #{Rails.application.config.nextdeployuri}\n"
         f.puts "system: '#{systemimage.name}'"
         f.puts "ftpuser: #{project.gitpath}\n"
         f.puts "ftppasswd: #{ftppasswd}\n"
-        f.puts "framework: #{framework.name.downcase}\n"
         f.puts "ossecip: #{Rails.application.config.ndc2ip}\n"
         f.puts "influxip: #{Rails.application.config.ndc2ip}\n"
-      }
+
+        f.flush
+        f.truncate(f.pos)
+      end
     rescue => me
       raise Exceptions::NextDeployException.new("Create hiera file for #{name} failed, #{me.message}")
     end
 
-  end
-
-  # Generate varnish auth vcl
-  #
-  # No param
-  # @raise an exception if errors occurs during file writing
-  # No return
-  def generate_vcl
-    vclV = 4
-    vclName = "auth.vcl_#{name}#{Rails.application.config.os_suffix}"
-
-    # varnish3 for older linux
-    if systemimage.name == "Debian7" || systemimage.name == "Ubuntu1404"
-      vclV = 3
-    end
-
-    # prepare vcl file for current vm
-    # todo: avoid bash cmd
-    if is_auth
-      basicAuth = Base64.strict_encode64(htlogin + ':' + htpassword)
-      system("/bin/cat vcls/auth/auth.vcl.#{vclV} | /bin/sed 's,###AUTH###,,;s,%%BASICAUTH%%,#{basicAuth},' > vcls/auth/#{vclName}")
-    else
-      system("/bin/touch vcls/auth/#{vclName}")
-    end
   end
 
   # Generate user-data files for cloud-init service, using after booting the vm
@@ -142,17 +187,23 @@ module VmsHelper
   # @raise an exception if errors occurs during file writing
   # No return
   def generate_host_all
-    # Wait that vm is well running
-    sleep(15)
     vms = Vm.all
 
     begin
-      open("/etc/hosts.nextdeploy", "w") do |f|
+      open("/etc/hosts.nextdeploy", File::RDWR|File::CREAT) do |f|
+        f.flock(File::LOCK_EX)
+        f.rewind
+
         vms.each do |v|
+          absolutes = v.uris.flat_map(&:absolute)
+          aliases = v.uris.flat_map(&:aliases)
           if v.floating_ip && v.floating_ip.length > 0
-            f.puts "#{v.floating_ip} #{v.vm_url} admin.#{v.vm_url} m.#{v.vm_url} nodejs.#{v.vm_url}\n"
+            f.puts "#{v.floating_ip} #{absolutes.join(' ')} #{aliases.join(' ')} pmtools.#{v.name}#{Rails.application.config.os_suffix}\n"
           end
         end
+
+        f.flush
+        f.truncate(f.pos)
       end
 
     rescue
@@ -174,7 +225,7 @@ module VmsHelper
     begin
         response =
           Rails.cache.fetch("vms/#{nova_id}/status_ok", expires_in: 30.minutes) do
-            conn_status = Faraday.new(:url => "http://#{vm_url}") do |faraday|
+            conn_status = Faraday.new(:url => "http://#{vm.floating_ip}") do |faraday|
               faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
             end
 
@@ -194,7 +245,7 @@ module VmsHelper
         sleep(1)
 
         unless conn_status
-          conn_status = Faraday.new(:url => "http://#{vm_url}") do |faraday|
+          conn_status = Faraday.new(:url => "http://#{vm.floating_ip}") do |faraday|
             faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
           end
         end
@@ -209,7 +260,7 @@ module VmsHelper
       end
 
       if response.status != 200
-        Rails.logger.warn "http://#{vm_url}/status_ok"
+        Rails.logger.warn "http://#{vm.floating_ip}/status_ok"
         self.status = 1
       end
     end
@@ -225,46 +276,68 @@ module VmsHelper
   # No param
   # No return
   def clear_vmfiles
-    Rails.logger.warn "rm -f vcls/auth/auth.vcl_#{name}#{Rails.application.config.os_suffix}"
     Rails.logger.warn "rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml"
-    system("rm -f vcls/auth/auth.vcl_#{name}#{Rails.application.config.os_suffix}")
     system("rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml")
+    system("rm -f /tmp/vm#{id}.lock")
   end
 
-  # Execute import datas into vms
+  # Execute gitpull cmd into vms
   #
   # No param
   # @return message for execution and codestatus for request
-  def import
+  def gitpull
     docroot = "/var/www/#{project.name}/"
-    framework = project.framework.name.downcase
-    ftppasswd = project.password
-    ftpuser = project.gitpath
-    ismysql = technos.any? { |t| t.name.include?('mysql') } ? 1 : 0
-    ismongo = technos.any? { |t| t.name.include?('mongo') } ? 1 : 0
+    bashret = ''
 
-    Rails.logger.warn "Import data for vm #{vm_name}"
-    bashret = system("ssh modem@#{@floating_ip} 'cd #{docroot} && import.sh --uri #{vm_url} --framework #{framework} --ftpuser #{ftpuser} --ftppasswd #{ftppasswd} --ismysql #{ismysql} --ismongo #{ismongo}'")
-    Rails.logger.warn "Error during Import data for vm #{vm_name} !" if ! bashret
-    ret = bashret ? {message: "Ok", status: 200} : {message: "Error", status: 500}
+    Rails.logger.warn "Gitpull command for vm #{vm_name}"
+
+    # take a lock for vm action
+    begin
+      open("/tmp/vm#{id}.lock", File::RDWR|File::CREAT) do |f|
+        f.flock(File::LOCK_EX)
+        bashret = `ssh modem@#{floating_ip} 'cd #{docroot};git reset --hard HEAD;git pull --rebase'`
+      end
+
+    rescue
+      raise Exceptions::NextDeployException.new("Lock on gitpull command for #{name} failed")
+    end
+
+    # Return bash output
+    { message: bashret, status: 200 }
   end
 
-  # Execute export datas into vms
+  # Execute puppet cmd into vms
+  #
+  # No param
+  # No return
+  def puppetrefresh
+    Rails.logger.warn "ssh modem@#{floating_ip} 'sudo /usr/bin/puppet agent -t;(($? == 1)) && sleep 30 && sudo /usr/bin/puppet agent -t'"
+
+    # take a lock for vm action
+    begin
+      open("/tmp/vm#{id}.lock", File::RDWR|File::CREAT) do |f|
+        f.flock(File::LOCK_EX)
+        system("ssh modem@#{floating_ip} 'sudo /usr/bin/puppet agent -t;(($? == 1)) && sleep 30 && sudo /usr/bin/puppet agent -t'")
+      end
+
+    rescue
+      raise Exceptions::NextDeployException.new("Lock on puppetrefresh command for #{name} failed")
+    end
+
+  end
+
+  # Return some vm logs
   #
   # No param
   # @return message for execution and codestatus for request
-  def export(branchs)
-    docroot = "/var/www/#{project.name}/"
-    framework = project.framework.name.downcase
-    ftppasswd = project.password
-    ftpuser = project.gitpath
-    ismysql = technos.any? { |t| t.name.include?('mysql') } ? 1 : 0
-    ismongo = technos.any? { |t| t.name.include?('mongo') } ? 1 : 0
+  def logs
+    apache_logs = uris.flat_map(&:absolute).map { |absolute| "/var/log/apache2/#{absolute}_access.log /var/log/apache2/#{absolute}_error.log" }.join(' ')
+    
+    Rails.logger.warn "ssh modem@#{floating_ip} 'sudo tail -n 60 #{apache_logs} /var/log/mysql.err /var/log/mail.log'"
+    bashret = `ssh modem@#{floating_ip} "sudo tail -n 60 #{apache_logs} /var/log/mysql.err /var/log/mail.log"`
 
-    Rails.logger.warn "Export data for vm #{vm_name}"
-    bashret = system("ssh modem@#{@floating_ip} 'cd #{docroot} && export.sh --uri #{vm_url} --framework #{framework} --ftpuser #{ftpuser} --ftppasswd #{ftppasswd} --ismysql #{ismysql} --ismongo #{ismongo} --branchs #{branchs}'")
-    Rails.logger.warn "Error during Export data for vm #{vm_name} !" if ! bashret
-    ret = bashret ? {message: "Ok", status: 200} : {message: "Error", status: 500}
+    # Return bash output
+    { message: bashret, status: 200 }
   end
 
 end

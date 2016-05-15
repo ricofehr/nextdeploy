@@ -13,6 +13,8 @@ class Vm < ActiveRecord::Base
 
   has_many :vm_technos, dependent: :destroy
   has_many :technos, through: :vm_technos
+  has_many :uris, dependent: :destroy
+  has_many :frameworks, through: :uris
 
   # Some scope for find vms objects by commit, by project or by name
   scope :find_by_user_commit, ->(user_id, commit){ where("user_id=#{user_id} AND commit_id like '%#{commit}'") }
@@ -21,8 +23,8 @@ class Vm < ActiveRecord::Base
   attr_accessor :floating_ip, :commit, :vnc_url
 
   # Some hooks before vm changes
-  before_create :boot_os
-  after_create :generate_host_all
+  #before_create :boot_os
+  #after_create :generate_host_all
   before_destroy :delete_vm
 
   # Init external api objects and extra attributes
@@ -35,6 +37,67 @@ class Vm < ActiveRecord::Base
   def reset_password(password)
     self.termpassword = password
     save
+  end
+
+  # Toggle is_auth parameter
+  #
+  # No param
+  # No return
+  def toggleauth
+    self.is_auth = is_auth ? false : true
+    save
+    generate_hiera
+    puppetrefresh
+  end
+
+  # Toggle is_ht parameter
+  #
+  # No param
+  # No return
+  def toggleht
+    self.is_ht = is_ht ? false : true
+    save
+    generate_hiera
+    puppetrefresh
+  end
+
+  # Toggle is_prod parameter
+  #
+  # No param
+  # No return
+  def toggleprod
+    # ensure that we have still right for change a vm to prod status
+    if !is_prod
+      if !user.admin? &&
+          user.quotaprod > user.vms.select { |v| v.is_prod }.size
+        return
+      end
+    end
+
+    self.is_prod = is_prod ? false : true
+    save
+
+    if !is_prod
+      Uri.destroy_all(id: uris.flat_map(&:id)) if uris && uris.size > 0
+      reload
+
+      initDefaultUris
+      generate_host_all
+    end
+
+    generate_hiera
+    puppetrefresh
+  end
+
+  # Toggle is_cached parameter
+  #
+  # No param
+  # No return
+  def togglecached
+    self.is_cached = is_cached ? false : true
+    save
+    generate_hiera
+    puppetrefresh
   end
 
   # Refresh commit value
@@ -61,6 +124,24 @@ class Vm < ActiveRecord::Base
   def setupcomplete
     self.status = (Time.zone.now - created_at).to_i
     save
+  end
+
+  # Set uris by default with project endpoints
+  #
+  # No param
+  # No return
+  def initDefaultUris
+    project.endpoints.each do |endpoint|
+      absolute = (endpoint.prefix.length > 0) ? "#{endpoint.prefix}.#{name}" : "#{name}"
+      if !endpoint.aliases.nil? && !endpoint.aliases.empty?
+        aliases = endpoint.aliases.split(' ').map { |aliase| "#{aliase}.#{name}" }.join(' ')
+      else
+        aliases = ''
+      end
+      Uri.new(vm: self, framework: endpoint.framework, absolute: absolute, path: endpoint.path, envvars: endpoint.envvars, aliases: aliases, port: endpoint.port, ipfilter: endpoint.ipfilter).save
+    end
+
+    reload
   end
 
   # Get build time (=status if vm is running)
@@ -94,6 +175,41 @@ class Vm < ActiveRecord::Base
     end
   end
 
+  # Create a new vm to openstack with current object attributes
+  #
+  # No param
+  # No return
+  def boot
+    # Raise an exception if the limit of vms is reachable
+    raise Exceptions::NextDeployException.new("Vms limit is reachable") if Vm.all.length > Rails.application.config.limit_vm
+
+    osapi = Apiexternal::Osapi.new
+
+    begin
+      self.name = vm_name
+      self.technos = project.technos if technos.size == 0
+      generate_hiera
+      user_data = generate_userdata
+      sshname = user.sshkeys.first ? user.sshkeys.first.shortname : ''
+      self.nova_id = osapi.boot_vm(name, systemimage.glance_id, sshname, vmsize.title, user_data)
+      self.status = 0
+      save
+    rescue Exceptions::NextDeployException => me
+      me.log_e
+    end
+
+    # Wait that vm is well running
+    sleep(15)
+    init_extra_attr
+    # if foatingip is not yet setted by openstack, sleep 15s more
+    if @floating_ip.nil?
+      sleep(15)
+      init_extra_attr
+    end
+
+    generate_host_all
+  end
+
   protected
 
   # Return unique vm title
@@ -108,39 +224,7 @@ class Vm < ActiveRecord::Base
     end
   end
 
-  # Return main URL vm
-  #
-  # No param
-  # @return [String] url targetting the vm
-  def vm_url
-    "#{vm_name}#{Rails.application.config.os_suffix}"
-  end
-
   private
-
-  # Create a new vm to openstack with current object attributes
-  #
-  # No param
-  # No return
-  def boot_os
-    # Raise an exception if the limit of vms is reachable
-    raise Exceptions::NextDeployException.new("Vms limit is reachable") if Vm.all.length > Rails.application.config.limit_vm
-
-    osapi = Apiexternal::Osapi.new
-
-    begin
-      self.name = vm_name
-      self.technos = project.technos if technos.size == 0
-      generate_hiera
-      generate_vcl
-      user_data = generate_userdata
-      sshname = user.sshkeys.first ? user.sshkeys.first.shortname : ''
-      self.nova_id = osapi.boot_vm(name, systemimage.glance_id, sshname, vmsize.title, user_data)
-      self.status = 0
-    rescue Exceptions::NextDeployException => me
-      me.log_e
-    end
-  end
 
   # Init extra attributes
   #
@@ -160,6 +244,9 @@ class Vm < ActiveRecord::Base
           ret = osapi.get_floatingip(nova_id)
           (ret) ? (ret[:ip]) : nil
         end
+
+        # delete from cache if nil object
+        Rails.cache.delete("vms/#{nova_id}/floating_ip") if @floating_ip.nil?
     end
 
     @commit =
@@ -183,6 +270,7 @@ class Vm < ActiveRecord::Base
 
     # delete hiera and vcl files
     clear_vmfiles
+    generate_host_all
   end
 
 end

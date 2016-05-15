@@ -190,10 +190,13 @@ module API
         def ember_to_rails
           params_p = params[:project]
 
+          if params_p[:owner] && params_p[:owner].empty?
+            params_p.delete(:owner)
+          end
+
           params_p[:techno_ids] ||= params_p[:technos]
           params_p[:user_ids] ||= params_p[:users]
           params_p[:owner_id] ||= params_p[:owner]
-          params_p[:framework_id] ||= params_p[:framework]
           params_p[:brand_id] ||= params_p[:brand]
           params_p[:systemimage_ids] ||= params_p[:systemimages]
           params_p[:vmsize_ids] ||= params_p[:vmsizes]
@@ -209,17 +212,17 @@ module API
           params_p.delete(:technos)
           params_p.delete(:users)
           params_p.delete(:owner)
-          params_p.delete(:framework)
           params_p.delete(:brand)
           params_p.delete(:systemimages)
           params_p.delete(:vmsizes)
+          params_p.delete(:endpoints)
 
           params[:project] = params_p
         end
 
         # Never trust parameters from the scary internet, only allow the white list through.
         def project_params
-          params.require(:project).permit(:name, :gitpath, :brand_id, :framework_id, :enabled, :login, :password, :owner_id, :user_ids => [], :techno_ids => [], :vmsize_ids => [], :systemimage_ids => [])
+          params.require(:project).permit(:name, :gitpath, :brand_id, :enabled, :login, :password, :owner_id, :is_ht, :user_ids => [], :techno_ids => [], :vmsize_ids => [], :systemimage_ids => [])
         end
     end
   end

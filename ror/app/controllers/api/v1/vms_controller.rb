@@ -8,11 +8,13 @@ module API
       before_filter :authenticate_user_from_token!, :except => [:setupcomplete, :resetpassword, :refreshcommit]
       before_filter :authenticate_api_v1_user!, :except => [:setupcomplete, :resetpassword, :refreshcommit]
       # Hook who set vm object
-      before_action :set_vm, only: [:show, :update, :destroy, :check_status, :import, :export]
+      before_action :set_vm, only: [:show, :update, :destroy, :check_status, :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached, :toggleht]
+      # Hook who check rights before action
+      before_action :check_me, only: [:show, :update, :destroy, :check_status, :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached, :toggleht]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
       # Check user right for avoid no-authorized access
-      before_action :check_admin, only: [:create, :destroy]
+      before_action :check_admin, only: [:create, :create_short, :destroy, :boot]
 
       # List all vms
       def index
@@ -32,7 +34,7 @@ module API
               projects = @user.projects
               if projects
                 @vms = projects.flat_map(&:vms).uniq
-                @vms.select! { |v| !v.user.admin? }
+                #@vms.select! { |v| !v.user.admin? }
               end
             else
               @vms = @user.vms
@@ -63,6 +65,69 @@ module API
             format.json { render json: @vm.errors, status: :unprocessable_entity }
           end
         end
+      end
+
+      # Create a new vm request in short way
+      def create_short
+        # if user_id in param is guest (a guest cannot clone projects), so we replace sshkey for clone project into vm
+        # ! no good for security reason. TODO: better to replace with generic key specific for the project
+        user_vm = User.find(params[:vm][:user_id])
+        user_vm.copy_sshkey_modem(@user.email) if user_vm.guest?
+
+        @vm = Vm.new(vm_params)
+
+        # Json response (json error if issue occurs)
+        respond_to do |format|
+          if @vm.save
+            @vm.initDefaultUris
+            @vm.boot
+            format.json { render json: Vm.find(@vm.id), status: 200 }
+          else
+            format.json { render json: @vm.errors, status: :unprocessable_entity }
+          end
+        end
+      end
+
+      # boot the vm !
+      def update
+        @vm.boot if @vm.nova_id.nil?
+        # Json output
+        respond_to do |format|
+          format.json { render json: @vm, status: 200 }
+        end
+      end
+
+      # Boot vm
+      def boot
+        @vm.boot
+        # Json output
+        respond_to do |format|
+          format.json { render json: @vm, status: 200 }
+        end
+      end
+
+      # Toggle auth parameter
+      def toggleauth
+        @vm.toggleauth
+        render nothing: true
+      end
+
+      # Toggle isht parameter
+      def toggleht
+        @vm.toggleht
+        render nothing: true
+      end
+
+      # Toggle prod parameter
+      def toggleprod
+        @vm.toggleprod
+        render nothing: true
+      end
+
+      # Toggle cached parameter
+      def togglecached
+        @vm.togglecached
+        render nothing: true
       end
 
       # Details one vm properties
@@ -111,7 +176,7 @@ module API
           # Json output
           respond_to do |format|
             format.json { head :no_content, status: 403 }
-          end  
+          end
         end
       end
 
@@ -131,27 +196,26 @@ module API
 
       # Check status, get 200 if vm is running
       def check_status
-        @vm.check_status
         (@vm.status > 1) ? (codestatus = 200) : (codestatus = 410)
         render plain: @vm.buildtime, status: codestatus
       end
 
-      # Execute datas import into vm
-      def import
-        ret = @vm.import
+      # Execute gitpull cmd into vm
+      def gitpull
+        ret = @vm.gitpull
         render plain: ret[:message], status: ret[:status]
       end
 
-      # Execute datas export into vm
-      def export
-        ret = @vm.export(params[:branchs])
+      # Display current logs for the vm
+      def logs
+        ret = @vm.logs
         render plain: ret[:message], status: ret[:status]
       end
 
       # Refresh commit id for vm
       def refreshcommit
         @vm = Vm.find_by(name: params[:name])
-        @vm.refreshcommit(params[:commitid])
+        @vm.refreshcommit(params[:commit_id])
         render nothing: true
       end
 
@@ -160,6 +224,21 @@ module API
       # Use callbacks to share common setup or constraints between actions.
       def set_vm
         @vm = Vm.find(params[:id])
+      end
+
+      # ensure that only admin, lead or hisself can execute action
+      def check_me
+        isme = false
+        if @user.lead?
+          isme = @user.projects.any? { |project| project.id == @vm.project.id }
+        else
+          isme = (@user.id == @vm.user.id)
+        end
+
+        # only admins can make changes on admins vms
+        isme = false if @vm.user.admin? && !@user.admin?
+
+        raise Exceptions::NextDeployException.new("Access forbidden for this user") unless isme
       end
 
       # Use callbacks to share common setup or constraints between actions.
@@ -181,7 +260,7 @@ module API
 
         params_p.delete(:created_at)
         params_p.delete(:nova_id)
-        params_p.delete(:name)
+        #params_p.delete(:name)
         params_p.delete(:floating_ip)
         params_p.delete(:user)
         params_p.delete(:project)
@@ -189,16 +268,19 @@ module API
         params_p.delete(:commit)
         params_p.delete(:vmsize)
         params_p.delete(:technos)
+        params_p.delete(:vnc_url)
+        params_p.delete(:termpassword)
+        params_p.delete(:status)
 
         # force auth if we are not an admin user
-        params_p[:is_auth] = true unless @user.admin?
+        #params_p[:is_auth] = true unless @user.admin?
 
         params[:vm] = params_p
       end
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def vm_params
-        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :is_auth, :htlogin, :htpassword, :layout, :techno_ids => [])
+        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :name, :is_auth, :htlogin, :htpassword, :layout, :is_prod, :is_cached, :is_ht, :techno_ids => [])
       end
     end
   end

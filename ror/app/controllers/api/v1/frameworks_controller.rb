@@ -17,7 +17,7 @@ module API
         else
           projects = @user.projects
           if projects
-            @frameworks = projects.flat_map(&:framework).uniq
+            @frameworks = projects.flat_map(&:endpoints).flat_map(&:framework).uniq
           end
         end
 

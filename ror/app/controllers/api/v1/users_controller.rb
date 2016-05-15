@@ -262,7 +262,7 @@ module API
           group = Group.find(params_p[:group_id])
           params_p.delete(:group_id) if !group || group.access_level > 30
           params_p[:quotavm] = 5 if params_p[:quotavm].to_i > 10
-          params_p[:project_ids].select! { |project_id| 
+          params_p[:project_ids].select! { |project_id|
             project = Project.find(project_id)
             project && project.users.any? { |user_project| user_project.id == @user.id }
           }
@@ -273,7 +273,7 @@ module API
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def user_params
-        params.require(:user).permit(:email, :company, :quotavm, :layout, :firstname, :lastname, :password, :password_confirmation, :is_project_create, :is_user_create, :is_credentials_send, :group_id, :project_ids => [])
+        params.require(:user).permit(:email, :company, :quotavm, :quotaprod, :layout, :firstname, :lastname, :password, :password_confirmation, :is_project_create, :is_user_create, :is_credentials_send, :group_id, :project_ids => [])
       end
     end
   end

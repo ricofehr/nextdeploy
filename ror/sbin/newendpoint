@@ -1,0 +1,299 @@
+#!/bin/bash
+
+#global vars
+DEBUG=2
+PROJROOT="/home/modem/www/"
+RORSBIN="/ror/sbin"
+GITLABPREFIX="git@127.0.0.1:root/"
+DOCROOT="/directorydontexist"
+DOCONLINE="/directorydontexist"
+
+
+####################### main function ##########################
+
+#create a new project
+newendpoint() {
+  local projname=""
+  local gitpath=""
+  local framework=""
+  local pathuri=""
+
+  # We want sure that gitlab has well created project
+  sleep 5
+
+  # get options
+  while (($# != 0)); do
+    case "$1" in
+      -n)
+        shift
+        projname="$1"
+        shift
+        ;;
+      -u)
+        shift
+        GITLABPREFIX="$1"
+        shift
+        ;;
+      -g)
+        shift
+        gitpath="${GITLABPREFIX}$1"
+        shift
+        ;;
+      -f)
+        shift
+        framework="$1"
+        shift
+        ;;
+      -p)
+        shift
+        pathuri="$1"
+        shift
+        ;;
+      -*)
+        shift
+        ;;
+    esac
+  done
+
+  DOCROOT="${PROJROOT}${projname}/_online/${pathuri}"
+  DOCONLINE="${PROJROOT}${projname}/_online"
+
+  [[ -d "${DOCONLINE}" ]] && rm -rf "${DOCONLINE}"
+  /bin/mkdir -p "${DOCONLINE}"
+
+  #make init commit
+  pushd ${DOCONLINE} > /dev/null
+  git clone "${gitpath}" .
+
+  mkdir -p ${pathuri}
+  touch ${pathuri}/.keep
+  [[ -f "${RORSBIN}/files/gitignore_${framework,,}" ]] && cat "${RORSBIN}/files/gitignore_${framework,,}" >> .gitignore
+  sed -i "s;%%PATH%%;${pathuri};" .gitignore
+  [[ -f "${RORSBIN}/files/crontab_${framework,,}" ]] && cat "${RORSBIN}/files/crontab_${framework,,}" >> scripts/crontab
+  sed -i "s;%%DOCROOT%%;${DOCROOT};" scripts/crontab
+  [[ -f "${RORSBIN}/files/postinstall_${framework,,}.sh" ]] && cat "${RORSBIN}/files/postinstall_${framework,,}.sh" >> scripts/postinstall.sh
+  git add ${pathuri} .gitignore
+  popd > /dev/null
+
+  case "$framework" in
+    Drupal6)
+      newdrupal6 -n "$projname"
+      ;;
+    Drupal7)
+      newdrupal7 -n "$projname"
+      ;;
+    Drupal8)
+      newdrupal8 -n "$projname"
+      ;;
+    Symfony2)
+      newsymfony2 -n "$projname"
+      ;;
+    Symfony3)
+      newsymfony3 -n "$projname"
+      ;;
+    Ezpublish_2014.05)
+      newez -n "$projname"
+      ;;
+    Wordpress)
+      newwordpress
+      ;;
+    Static)
+      newstatic
+      ;;
+    ReactJS)
+      newreact
+      ;;
+    NodeJS)
+      newnodejs
+      ;;
+  esac
+
+  pushd ${DOCONLINE} > /dev/null
+  for branch in release hotfixes develop; do
+    git checkout -b $branch --track origin/${branch}
+    git merge master
+    git push origin $branch
+  done
+  popd > /dev/null
+
+  # Clean temporary working directory
+  /bin/rm -rf "${PROJROOT}${projname}"
+}
+
+####################### framework create function ##########################
+
+newstatic() {
+  touch ${DOCROOT}/index.html
+  pushd ${DOCONLINE} > /dev/null
+  git add  .
+  git commit -m "Init Static"
+  git push origin master
+  popd > /dev/null
+}
+
+newnodejs() {
+  cp "${RORSBIN}/files/app.js" ${DOCROOT}/
+  pushd ${DOCONLINE} > /dev/null
+  git add  .
+  git commit -m "Init NodeJS"
+  git push origin master
+  popd > /dev/null
+}
+
+newreact() {
+  pushd ${DOCROOT}/ > /dev/null
+  wget https://github.com/erikras/react-redux-universal-hot-example/archive/master.zip
+  unzip master.zip
+  rm -f master.zip
+  mv react-redux-universal-hot-example-master/* .
+  find react-redux-universal-hot-example-master -type f -exec mv "{}" . \;
+  rmdir react-redux-universal-hot-example-master
+  popd > /dev/null
+  pushd ${DOCONLINE} > /dev/null
+  git add  .
+  git commit -m "Init ReactJS"
+  git push origin master
+  popd > /dev/null
+}
+
+#install a new drupal
+newdrupal() {
+  local projname=""
+  local drupalfolder=""
+  local version=6
+
+  #get options
+  while (($# != 0)); do
+    case "$1" in
+      -v)
+        shift
+        version="$1"
+        shift
+        ;;
+      -n)
+        shift
+        projname="$1"
+        shift
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
+
+  #install drupal
+  pushd "${DOCROOT}" > /dev/null
+  drush dl drupal-${version}
+
+  #remove tmp drupal-x folder
+  drupalfolder="$(ls | grep "drupal")"
+  if [[ -d "$drupalfolder" ]]; then
+    mv ${PROJROOT}${projname}/_online/server/${drupalfolder}/* .
+    mv "${drupalfolder}/.htaccess" .
+    # fix for server-status
+    sed -i "s;^.*RewriteRule.*index.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" .htaccess
+    rm -rf ${PROJROOT}${projname}/_online/server/drupal*
+    # install memcache module
+    drush -y dl memcache
+
+    pushd "${DOCONLINE}" > /dev/null
+    # for d8, include vendor empty folder to git
+    [[ -d ${DOCROOT}/vendor ]] && touch ${DOCROOT}/vendor/.keep
+
+    # add https support
+    echo "if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') { \$_SERVER['HTTPS'] = 'on';}" >> ${DOCROOT}/sites/default/default.settings.php
+    # add and commit
+    git add .
+    git commit -m "init drupal"
+    git push origin master
+    popd > /dev/null
+  fi
+
+  popd > /dev/null
+}
+
+#create a drupal6 website
+newdrupal6() {
+  newdrupal -v 6 "$@"
+}
+
+#create a drupal7 website
+newdrupal7() {
+  newdrupal -v 7 "$@"
+}
+
+#create a drupal8 website
+newdrupal8() {
+  newdrupal -v 8 "$@"
+}
+
+#create symfony2 website
+newsymfony2() {
+  pushd "${DOCROOT}" > /dev/null
+  curl -s https://getcomposer.org/installer | php
+  php composer.phar create-project symfony/framework-standard-edition sf2 "2.*" --no-progress --no-interaction
+  mkdir -p vendor; mv sf2/vendor/* vendor/; rm -rf sf2/vendor
+  mv sf2/* .; rm sf2/.gitignore; rm -rf sf2
+  php composer.phar install --no-progress --no-interaction
+  sed -i "s;//umask(0000;umask(0002;" app/console
+  sed -i "s/^use.*Request;/& umask(0002);/" web/app.php
+  sed -i "s/^use.*Request;/& umask(0002);/" web/app_dev.php
+  # fix for server-status
+  sed -i "s;^.*RewriteRule.*app.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" web/.htaccess
+  popd > /dev/null
+
+  pushd "${DOCONLINE}" > /dev/null
+  git add .
+  git commit -m "init sf2"
+  git push origin master
+
+  popd > /dev/null
+}
+
+#create symfony3 website
+newsymfony3() {
+  pushd "${DOCROOT}" > /dev/null
+  curl -s https://getcomposer.org/installer | php
+  php composer.phar create-project symfony/framework-standard-edition sf3 "3.*" --no-progress --no-interaction
+  mkdir -p vendor; mv sf3/vendor/* vendor/; rm -rf sf3/vendor
+  mv sf3/* .; rm sf3/.gitignore; rm -rf sf3
+  php composer.phar install --no-progress --no-interaction
+  sed -i "s;//umask(0000;umask(0002;" bin/console
+  sed -i "s/^use.*Request;/& umask(0002);/" web/app.php
+  sed -i "s/^use.*Request;/& umask(0002);/" web/app_dev.php
+  # fix for server-status
+  sed -i "s;^.*RewriteRule.*app.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" web/.htaccess
+  popd > /dev/null
+
+  pushd "${DOCONLINE}" > /dev/null
+  git add .
+  git commit -m "init sf3"
+  git push origin master
+
+  popd > /dev/null
+}
+
+#create ez website
+#working progress ... or not
+newezpublish() {
+  echo "ezpublish"
+}
+
+#create wp website
+#working progress ... or not
+newwordpress() {
+  echo "wordpress"
+
+  pushd "${DOCROOT}" > /dev/null
+  wp core download --locale=fr_FR
+  popd > /dev/null
+
+  pushd "${DOCONLINE}" > /dev/null
+  git add .
+  git commit -m "init wp"
+  git push origin master
+  popd > /dev/null
+}
+
+echo "Parameters: $@"
+newendpoint "$@"

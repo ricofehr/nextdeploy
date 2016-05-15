@@ -143,7 +143,7 @@ module Apiexternal
     def create_branch(project_id, branch, ref)
       Gitlab.repo_create_branch(project_id, branch, ref)
     rescue => e
-        raise Exceptions::GitlabApiException.new("create_branch (#{project_id}, #{branch}) failed: #{e}")
+        raise Exceptions::GitlabApiException.new("create_branch (#{project_id}, #{branch}, #{ref}) failed: #{e}")
     end
 
     # Protect branch to a project

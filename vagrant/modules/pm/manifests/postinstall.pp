@@ -299,10 +299,15 @@ class pm::postinstall::nextdeploy {
     creates => '/home/modem/.installnextdeploy'
   } ->
 
-  # need sudo for manage ftp users
-  file_line { 'sudo_rule':
+  # sudoers
+  file { '/etc/sudoers':
     path => '/etc/sudoers',
-    line => 'modem ALL=(root) NOPASSWD: /usr/local/bin/./nextdeploy-*',
+    ensure => file,
+    mode   => 644,
+    source => ["puppet:///modules/pm/sudoers/sudoers_${clientcert}",
+      'puppet:///modules/pm/sudoers/sudoers'],
+    owner => 'root',
+    group => 'root'
   } ->
 
   # install ruby bundles
@@ -344,8 +349,8 @@ class pm::postinstall::nextdeploy {
   # ensure resolvconf and /var/run/puma create on each reboot
   file_line { 'resolvpumarclocal':
     path => '/etc/rc.local',
-    line => '[[ -f /var/run/resolvconf/resolv.conf ]] && rm -f /etc/resolv.conf && ln -s /var/run/resolvconf/resolv.conf /etc/resolv.conf && service dnsmasq restart;mkdir -p /var/run/puma && chown modem: /var/run/puma',
-    match => '^$',
+    line => '[[ -f /var/run/resolvconf/resolv.conf ]] && rm -f /etc/resolv.conf && ln -s /var/run/resolvconf/resolv.conf /etc/resolv.conf && service dnsmasq restart;mkdir -p /var/run/puma && chown modem: /var/run/puma;sleep 30 && service puppetmaster restart',
+    match => '^# By default this script does nothing.$',
     multiple => false
   } ->
 

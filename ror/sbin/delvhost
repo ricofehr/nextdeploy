@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#global vars
+NGINXFOLDER="/etc/nginx-ndprod"
+RORSBIN="/ror/sbin"
+
+####################### main function ##########################
+
+#create a new project
+newvhost() {
+  local ndid=""
+
+  # get options
+  while (($# != 0)); do
+    case "$1" in
+      -i)
+        shift
+        ndid="$1"
+        shift
+        ;;
+      -*)
+        shift
+        ;;
+    esac
+  done
+
+  # Ensure absolute and ndid are not empty
+  [[ "$ndid" = "" ]] && exit 1
+
+  # if no vhost for this uri, exit
+  [[ ! -f ${NGINXFOLDER}/nd${ndid}.conf ]] && exit 0
+
+  # prepare vhost for the prod vm
+  pushd ${NGINXFOLDER} > /dev/null
+  rm -f nd${ndid}.conf
+  popd > /dev/null
+
+  # check configuration and restart nginx
+  sudo /opt/gitlab/embedded/sbin/nginx -p /var/opt/gitlab/nginx -t && sudo gitlab-ctl status nginx && sudo gitlab-ctl hup nginx
+  exit $?
+}
+
+echo "Parameters: $@"
+newvhost "$@"

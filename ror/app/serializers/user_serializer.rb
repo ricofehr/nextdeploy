@@ -2,7 +2,7 @@
 #
 # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :email, :authentication_token, :is_project_create, :is_user_create, :company, :quotavm, :layout, :firstname, :lastname, :created_at
+  attributes :id, :email, :authentication_token, :is_project_create, :is_user_create, :company, :quotavm, :quotaprod, :layout, :firstname, :lastname, :created_at
   delegate :current_user, to: :scope
 
   has_many :vms, key: :vms
@@ -30,6 +30,6 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def vms
-    object.vms.select { |vm| !current_user || current_user.admin? || (!vm.user.admin? && vm.project.users.include?(current_user)) }
+    object.vms.select { |vm| !current_user || current_user.admin? || (vm.project.users.include?(current_user)) }
   end
 end

@@ -25,50 +25,51 @@ flavor_large = Vmsize.create!(title: 'm1.large', description: '4cpu/8192M/80G')
 framework_sf2 = Framework.create!(
                   name: 'Symfony2',
                   publicfolder: 'web/',
-                  rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /app_dev.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /app_dev.php [L]\\n",
-                  puppetclass: 'pm::deploy::symfony2'
+                  rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /app_dev.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /app_dev.php [L]\\n"
                 )
 
 framework_sf3 = Framework.create!(
                   name: 'Symfony3',
                   publicfolder: 'web/',
-                  rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /app_dev.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /app_dev.php [L]\\n",
-                  puppetclass: 'pm::deploy::symfony3'
+                  rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /app_dev.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /app_dev.php [L]\\n"
                 )
 
 framework_drupal = Framework.create!(
                      name: 'Drupal7',
                      publicfolder: '',
-                     rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/favicon.ico\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteRule ^ index.php [L]\\n",
-                     puppetclass: 'pm::deploy::drupal'
+                     rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/favicon.ico\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteRule ^ index.php [L]\\n"
                    )
 
 framework_drupal8 = Framework.create!(
                       name: 'Drupal8',
                       publicfolder: '',
-                      rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/favicon.ico\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteRule ^ index.php [L]\\n",
-                      puppetclass: 'pm::deploy::drupal'
+                      rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/favicon.ico\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteRule ^ index.php [L]\\n"
                     )
 
 framework_wordpress = Framework.create!(
                         name: 'Wordpress',
                         publicfolder: '',
-                        rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /index.php [L]\\n",
-                        puppetclass: 'pm::deploy::wordpress'
+                        rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /index.php [L]\\n"
                       )
+
+framework_nodejs = Framework.create( name: 'NodeJS', publicfolder: '', rewrites: '')
+
+framework_reactjs = Framework.create(
+                 name: 'ReactJS',
+                 publicfolder: '',
+                 rewrites: ''
+               )
 
 framework_no = Framework.create(
                  name: 'Static',
                  publicfolder: '',
-                 rewrites: '',
-                 puppetclass: 'pm::deploy::static'
+                 rewrites: ''
                )
 
 framework_noweb = Framework.create(
                  name: 'NoWeb',
                  publicfolder: '',
-                 rewrites: '',
-                 puppetclass: 'pm::deploy::noweb'
+                 rewrites: ''
                )
 
 puts "Created #{Framework.count} frameworks"
@@ -90,41 +91,7 @@ techno_apache = Techno.create!(
                   puppetclass: "pm::http",
                   ordering: 160,
                   technotype: wserver,
-                  hiera: "docroot: %{docroot}
-apache_vhost:
-  %{vhost}:
-    vhost_name: '*'
-    port: %{portA}
-    override:
-      - 'All'
-    options:
-      - 'Indexes'
-      - 'FollowSymLinks'
-    aliases:
-      - alias: '/_html/'
-        path: '/var/www/%{projectname}/html/'
-      - alias: '/pm_tools/'
-        path: '/var/www/pm_tools/'
-      - alias: '/robots.txt'
-        path: '/var/www/robots.txt'
-      - alias: '/status_ok'
-        path: '/var/www/status_ok'
-    ensure: present
-    docroot_owner: 'modem'
-    docroot_group: 'www-data'
-    docroot: %{docroot}
-    directories:
-      - path: '/var/www/%{projectname}/html/'
-        options:
-          - 'Indexes'
-          - 'FollowSymLinks'
-      - path: /var/www/pm_tools
-        allow_override:
-        - 'All'
-      - path: %{docroot}
-        allow_override:
-        - 'All'
-        custom_fragment: \"%{rewrites}\""
+                  hiera: "iswebserver: 1"
             )
 
 techno_rabbitmq = Techno.create!(
@@ -172,13 +139,7 @@ techno_mysql = Techno.create!(
                  puppetclass: "pm::sql",
                  ordering: 70,
                  technotype: bdd,
-                 hiera: "ismysql: 1
-mysql_db:
-  s_bdd:
-    user: s_bdd
-    password: s_bdd
-    host: 'localhost'
-    grant: 'all'"
+                 hiera: "ismysql: 1"
                )
 
 techno_nodejs010 = Techno.create!(
@@ -292,6 +253,7 @@ admin = User.create!(
           is_project_create: true,
           is_user_create: true,
           quotavm: 0,
+          quotaprod: 0,
           password: 'word123123',
           password_confirmation: 'word123123',
           group: admin_g,
@@ -306,6 +268,7 @@ user_lead = User.create!(
               is_project_create: true,
               is_user_create: true,
               quotavm: 10,
+              quotaprod: 4,
               password: 'word123123',
               password_confirmation: 'word123123',
               group: lead_g,
@@ -320,6 +283,7 @@ user_dev = User.create!(
              is_project_create: false,
              is_user_create: false,
              quotavm: 5,
+             quotaprod: 0,
              password: 'word123123',
              password_confirmation: 'word123123',
              group: dev_g,
@@ -334,6 +298,7 @@ user_pm = User.create!(
             is_project_create: false,
             is_user_create: false,
             quotavm: 5,
+            quotaprod: 0,
             password: 'word123123',
             password_confirmation: 'word123123',
             group: pm_g,
@@ -348,6 +313,7 @@ user_g = User.create!(
            is_project_create: false,
            is_user_create: false,
            quotavm: 3,
+           quotaprod: 0,
            password: 'word123123',
            password_confirmation: 'word123123',
            group: guest_g,
@@ -383,12 +349,12 @@ puts "Create #{Systemimage.count} system image"
 project_drupal = Project.create!(
                    name: "www.drupalmycompany.com",
                    brand: brand_cust1,
-                   framework: framework_drupal,
                    gitpath: "mycompany-www-drupalmycompany-com",
                    systemimages: [ubuntu14, debian8],
                    enabled: true,
                    login: "modem",
                    password: "modem",
+                   is_ht: false,
                    owner: admin,
                    vmsizes: [flavor_tiny, flavor_small],
                    users: [admin, user_lead, user_dev, user_pm, user_g],
@@ -406,13 +372,13 @@ project_symfony_c = Project.create!(
                       name: "www.symfonyyourcompany.com",
                       systemimages: [ubuntu14],
                       brand: brand_cust2,
-                      framework: framework_sf2,
                       login: "modem",
                       password: "modem",
                       owner: admin,
                       vmsizes: [flavor_tiny, flavor_small],
                       gitpath: "yourcompany-www-symfonyyourcompany-com",
                       enabled: true,
+                      is_ht: false,
                       users: [admin, user_dev, user_g],
                       technos: [
                         techno_varnish,
@@ -429,13 +395,13 @@ project_symfony_s = Project.create!(
                       name: "www.symfonyhiscompany.com",
                       systemimages: [ubuntu14, debian8],
                       brand: brand_cust3,
-                      framework: framework_sf2,
                       login: "modem",
                       password: "modem",
                       owner: admin,
                       vmsizes: [flavor_tiny],
                       gitpath: "hiscompany-www-symfonyhiscompany-com",
                       enabled: true,
+                      is_ht: false,
                       users: [admin, user_dev],
                       technos: [
                         techno_varnish,
@@ -450,7 +416,6 @@ project_no = Project.create!(
                name: "www.statichiscompany.com",
                systemimages: [ubuntu14, debian8],
                brand: brand_cust3,
-               framework: framework_no,
                login: "modem",
                password: "modem",
                owner: admin,
@@ -458,6 +423,7 @@ project_no = Project.create!(
                users: [admin, user_lead, user_dev],
                gitpath: "hiscompany-www-statichiscompany-com",
                enabled: true,
+               is_ht: false,
                technos: [techno_varnish, techno_nodejs, techno_apache]
              )
 
@@ -465,7 +431,6 @@ project_wordpress = Project.create!(
                       name: "www.wordpressmycompany.com",
                       systemimages: [ubuntu14, debian8],
                       brand: brand_cust1,
-                      framework: framework_wordpress,
                       login: "modem",
                       password: "modem",
                       owner: admin,
@@ -473,6 +438,7 @@ project_wordpress = Project.create!(
                       users: [admin, user_lead, user_g],
                       gitpath: "mycompany-www-wordpressmycompany-com",
                       enabled: true,
+                      is_ht: false,
                       technos: [techno_varnish, techno_nodejs, techno_apache, techno_mysql]
                     )
 
@@ -480,7 +446,6 @@ project_njs = Project.create!(
                 name: "www.njsyourcompany.com",
                 systemimages: [ubuntu14, debian8],
                 brand: brand_cust2,
-                framework: framework_no,
                 login: "modem",
                 password: "modem",
                 owner: admin,
@@ -488,11 +453,91 @@ project_njs = Project.create!(
                 users: [admin, user_lead, user_dev],
                 gitpath: "yourcompany-www-njsyourcompany-com",
                 enabled: true,
+                is_ht: false,
                 technos: [techno_varnish, techno_nodejs, techno_apache, techno_nodejs]
               )
 
 
 puts "Created #{Project.count} projects"
+
+ep_njs = Endpoint.create!(
+  framework: framework_nodejs,
+  project: project_njs,
+  prefix: "",
+  path: "nodejs",
+  envvars: "PORT=3100",
+  aliases: "nodejs njs",
+  port: 3100,
+  ipfilter: ''
+)
+
+ep_wp = Endpoint.create!(
+  framework: framework_wordpress,
+  project: project_wordpress,
+  prefix: "",
+  path: "server",
+  envvars: "",
+  aliases: "",
+  port: 8080,
+  ipfilter: ''
+)
+
+ep_wp_html = Endpoint.create!(
+  framework: framework_no,
+  project: project_wordpress,
+  prefix: "html",
+  path: "html",
+  envvars: "",
+  aliases: "",
+  port: 8080,
+  ipfilter: ''
+)
+
+ep_static = Endpoint.create!(
+  framework: framework_no,
+  project: project_no,
+  prefix: "",
+  path: "server",
+  envvars: "",
+  aliases: "",
+  port: 8080,
+  ipfilter: ''
+)
+
+ep_drupal = Endpoint.create!(
+  framework: framework_drupal8,
+  project: project_drupal,
+  prefix: "",
+  path: "server",
+  envvars: "",
+  aliases: "",
+  port: 8080,
+  ipfilter: ''
+)
+
+ep_sf2s = Endpoint.create!(
+  framework: framework_sf2,
+  project: project_symfony_s,
+  prefix: "",
+  path: "server",
+  envvars: "",
+  aliases: "sf2s",
+  port: 8080,
+  ipfilter: ''
+)
+
+ep_sf3c = Endpoint.create!(
+  framework: framework_sf3,
+  project: project_symfony_c,
+  prefix: "",
+  path: "server",
+  envvars: "",
+  aliases: "sf3c",
+  port: 8080,
+  ipfilter: ''
+)
+
+puts "Created #{Endpoint.count} endpoints"
 
 
 twitter_msg = Hpmessage.create!(

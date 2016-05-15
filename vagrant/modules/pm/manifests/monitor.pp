@@ -20,7 +20,7 @@ class pm::monitor::services {
     group => 'root',
     mode => '0777'
   } ->
-  
+
   # see parameters from hiera file
   class { 'influxdb::server':
     require => Exec['installcurl']

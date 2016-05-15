@@ -35,7 +35,7 @@ module API
           resource = user_token && User.find_by_authentication_token(user_token)
           resource.reset_authentication_token! if resource
         end
-        
+
         render :json=> {:success=>true}
       end
 
