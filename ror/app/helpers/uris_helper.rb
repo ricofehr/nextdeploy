@@ -84,7 +84,8 @@ module UrisHelper
     docroot = "/var/www/#{vm.project.name}/#{path}"
     frwname = framework.name.downcase
     envvalues = envvars
-    bashret = ''
+    retapp = ''
+    retserver = ''
 
     # build envvars string
     vm.uris.each { |uri2| envvalues.gsub!("%{URI_#{uri2.path.upcase}}", uri2.absolute) }
@@ -117,7 +118,8 @@ module UrisHelper
     docroot = "/var/www/#{vm.project.name}/#{path}"
     frwname = framework.name.downcase
     envvalues = envvars
-    bashret = ''
+    retreactserver = ''
+    retreactapi = ''
 
     # build envvars string
     vm.uris.each { |uri2| envvalues.gsub!("%{URI_#{uri2.path.upcase}}", uri2.absolute) }
