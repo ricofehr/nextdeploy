@@ -79,7 +79,7 @@ module API
         # Json response (json error if issue occurs)
         respond_to do |format|
           if @vm.save
-            @vm.initDefaultUris
+            @vm.init_defaulturis
             @vm.boot
             format.json { render json: Vm.find(@vm.id), status: 200 }
           else
@@ -88,9 +88,14 @@ module API
         end
       end
 
-      # boot the vm !
+      # boot the vm or update user !
       def update
-        @vm.boot if @vm.nova_id.nil?
+        if @vm.nova_id.nil?
+          @vm.boot
+        else
+          @vm.change_user(params[:vm][:user_id]) if @user.lead?
+        end
+
         # Json output
         respond_to do |format|
           format.json { render json: @vm, status: 200 }

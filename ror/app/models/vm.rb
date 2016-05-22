@@ -39,6 +39,18 @@ class Vm < ActiveRecord::Base
     save
   end
 
+  # Update vm user
+  #
+  # No param
+  # No return
+  def change_user(user_id)
+    self.user = User.find(user_id)
+    save
+
+    generate_hiera
+    puppetrefresh
+  end
+
   # Toggle is_auth parameter
   #
   # No param
@@ -81,7 +93,7 @@ class Vm < ActiveRecord::Base
       Uri.destroy_all(id: uris.flat_map(&:id)) if uris && uris.size > 0
       reload
 
-      initDefaultUris
+      init_defaulturis
       generate_host_all
     end
 
@@ -130,7 +142,7 @@ class Vm < ActiveRecord::Base
   #
   # No param
   # No return
-  def initDefaultUris
+  def init_defaulturis
     project.endpoints.each do |endpoint|
       absolute = (endpoint.prefix.length > 0) ? "#{endpoint.prefix}.#{name}" : "#{name}"
       if !endpoint.aliases.nil? && !endpoint.aliases.empty?
