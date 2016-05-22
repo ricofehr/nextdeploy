@@ -459,7 +459,10 @@ class pm::os::nt {
   file { '/root/ethtobr.sh':
     owner => 'root',
     mode => '700',
-    source => [ "puppet:///modules/pm/scripts/ethtobr.sh" ]
+    source => [
+      "puppet:///modules/pm/scripts/ethtobr.sh_${clientcert}",
+      "puppet:///modules/pm/scripts/ethtobr.sh"
+    ]
   } ->
   exec { 'ethtobr':
     command => "/root/./ethtobr.sh ${ext_dev}"
