@@ -563,6 +563,7 @@ update_puppet() {
   rm -rf tmp/remote/hosts
   rm -rf tmp/remote/nginx
   rm -rf tmp/remote/sudoers
+  rm -f tmp/remote/ethtobr.sh_*
   rm -f tmp/remote/puma-start_*
   rm -f tmp/remote/rebuildember_*
   rm -f tmp/remote/default.vcl_*
@@ -576,6 +577,7 @@ update_puppet() {
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/sudoers tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/puma-start_* tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/rebuildember_* tmp/remote/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/ethtobr.sh_* tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/default.vcl_* tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/pound/pound.cfg_* tmp/remote/
 
@@ -593,6 +595,7 @@ update_puppet() {
   [[ -d tmp/remote/nginx ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/sudoers root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   ls tmp/remote/puma-start_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puma-start_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
   ls tmp/remote/rebuildember_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/rebuildember_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
+  ls tmp/remote/ethtobr.sh_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/ethtobr.sh_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
   ls tmp/remote/default.vcl_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/default.vcl_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/
   ls tmp/remote/pound.cfg_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/pound.cfg_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/pound/
 

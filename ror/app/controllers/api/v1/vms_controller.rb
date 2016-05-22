@@ -8,9 +8,9 @@ module API
       before_filter :authenticate_user_from_token!, :except => [:setupcomplete, :resetpassword, :refreshcommit]
       before_filter :authenticate_api_v1_user!, :except => [:setupcomplete, :resetpassword, :refreshcommit]
       # Hook who set vm object
-      before_action :set_vm, only: [:show, :update, :destroy, :check_status, :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached, :toggleht]
+      before_action :set_vm, only: [:show, :update, :destroy, :check_status, :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached, :toggleht, :postinstall_display, :postinstall]
       # Hook who check rights before action
-      before_action :check_me, only: [:show, :update, :destroy, :check_status, :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached, :toggleht]
+      before_action :check_me, only: [:show, :update, :destroy, :check_status, :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached, :toggleht, :postinstall_display, :postinstall]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
       # Check user right for avoid no-authorized access
@@ -203,6 +203,18 @@ module API
       # Execute gitpull cmd into vm
       def gitpull
         ret = @vm.gitpull
+        render plain: ret[:message], status: ret[:status]
+      end
+
+      # Execute display of postinstall cmd into vm
+      def postinstall_display
+        ret = @vm.postinstall_display
+        render plain: ret[:message], status: ret[:status]
+      end
+
+      # Execute postinstall cmd into vm
+      def postinstall
+        ret = @vm.postinstall
         render plain: ret[:message], status: ret[:status]
       end
 

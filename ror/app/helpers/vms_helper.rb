@@ -306,6 +306,45 @@ module VmsHelper
     { message: bashret, status: 200 }
   end
 
+  # Display postinstall script before approvement
+  #
+  # No param
+  # @return message for execution and codestatus for request
+  def postinstall_display
+    docroot = "/var/www/#{project.name}/"
+    bashret = ''
+
+    Rails.logger.warn "Postinstall display command for vm #{vm_name}"
+    bashret = `ssh modem@#{floating_ip} 'cd #{docroot};cat scripts/postinstall.sh'`
+
+    # Return bash output
+    { message: bashret, status: 200 }
+  end
+
+  # Display postinstall script before approvement
+  #
+  # No param
+  # @return message for execution and codestatus for request
+  def postinstall
+    docroot = "/var/www/#{project.name}/"
+    bashret = ''
+
+    Rails.logger.warn "Postinstall command for vm #{vm_name}"
+    # take a lock for vm action
+    begin
+      open("/tmp/vm#{id}.lock", File::RDWR|File::CREAT) do |f|
+        f.flock(File::LOCK_EX)
+        bashret = `ssh modem@#{floating_ip} 'cd #{docroot};./scripts/./postinstall.sh'`
+      end
+
+    rescue
+      raise Exceptions::NextDeployException.new("Lock on gitpull command for #{name} failed")
+    end
+
+    # Return bash output
+    { message: bashret, status: 200 }
+  end
+
   # Execute puppet cmd into vms
   #
   # No param

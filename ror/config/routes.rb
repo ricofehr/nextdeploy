@@ -32,6 +32,8 @@ Rails.application.routes.draw do
       post '/vms/:id/import' => 'vms#import', as: 'vm_import', constraints: { id: /\d+/ }
       post '/vms/:id/export' => 'vms#export', as: 'vm_export', constraints: { id: /\d+/ }
       post '/vms/:id/gitpull' => 'vms#gitpull', as: 'vm_gitpull', constraints: { id: /\d+/ }
+      post '/vms/:id/postinstall_display' => 'vms#postinstall_display', as: 'vm_postinstall_display', constraints: { id: /\d+/ }
+      post '/vms/:id/postinstall' => 'vms#postinstall', as: 'vm_postinstall', constraints: { id: /\d+/ }
       post '/vms/:id/logs' => 'vms#logs', as: 'vm_logs', constraints: { id: /\d+/ }
       post '/vms/:id/boot' => 'vms#boot', as: 'vm_boot', constraints: { id: /\d+/ }
       post '/vms/:id/toggleauth' => 'vms#toggleauth', as: 'vm_toggleauth', constraints: { id: /\d+/ }
