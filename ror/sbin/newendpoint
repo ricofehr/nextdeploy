@@ -67,12 +67,20 @@ newendpoint() {
 
   mkdir -p ${pathuri}
   touch ${pathuri}/.keep
-  [[ -f "${RORSBIN}/files/gitignore_${framework,,}" ]] && cat "${RORSBIN}/files/gitignore_${framework,,}" >> .gitignore
-  sed -i "s;%%PATH%%;${pathuri};" .gitignore
-  [[ -f "${RORSBIN}/files/crontab_${framework,,}" ]] && cat "${RORSBIN}/files/crontab_${framework,,}" >> scripts/crontab
-  sed -i "s;%%DOCROOT%%;${DOCROOT};" scripts/crontab
-  [[ -f "${RORSBIN}/files/postinstall_${framework,,}.sh" ]] && cat "${RORSBIN}/files/postinstall_${framework,,}.sh" >> scripts/postinstall.sh
-  git add ${pathuri} .gitignore
+  if [[ -f "${RORSBIN}/files/gitignore_${framework,,}" ]]; then
+    cat "${RORSBIN}/files/gitignore_${framework,,}" >> .gitignore
+    sed -i "s;%%PATH%%;${pathuri};" .gitignore
+  fi
+
+  if [[ -f "${RORSBIN}/files/crontab_${framework,,}" ]]; then
+    cat "${RORSBIN}/files/crontab_${framework,,}" >> scripts/crontab
+    sed -i "s;%%DOCROOT%%;/var/www/${projname};" scripts/crontab
+  fi
+
+  if [[ -f "${RORSBIN}/files/postinstall_${framework,,}.sh" ]]; then
+    cat "${RORSBIN}/files/postinstall_${framework,,}.sh" >> scripts/postinstall.sh
+  fi
+
   popd > /dev/null
 
   case "$framework" in
@@ -106,6 +114,9 @@ newendpoint() {
     NodeJS)
       newnodejs
       ;;
+    NoWeb)
+      newnoweb
+      ;;
   esac
 
   pushd ${DOCONLINE} > /dev/null
@@ -121,6 +132,14 @@ newendpoint() {
 }
 
 ####################### framework create function ##########################
+
+newnoweb() {
+  pushd ${DOCONLINE} > /dev/null
+  git add  .
+  git commit -m "Init Noweb"
+  git push origin master
+  popd > /dev/null
+}
 
 newstatic() {
   touch ${DOCROOT}/index.html
@@ -190,8 +209,6 @@ newdrupal() {
   if [[ -d "$drupalfolder" ]]; then
     mv ${PROJROOT}${projname}/_online/server/${drupalfolder}/* .
     mv "${drupalfolder}/.htaccess" .
-    # fix for server-status
-    sed -i "s;^.*RewriteRule.*index.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" .htaccess
     rm -rf ${PROJROOT}${projname}/_online/server/drupal*
     # install memcache module
     drush -y dl memcache
@@ -238,8 +255,6 @@ newsymfony2() {
   sed -i "s;//umask(0000;umask(0002;" app/console
   sed -i "s/^use.*Request;/& umask(0002);/" web/app.php
   sed -i "s/^use.*Request;/& umask(0002);/" web/app_dev.php
-  # fix for server-status
-  sed -i "s;^.*RewriteRule.*app.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" web/.htaccess
   popd > /dev/null
 
   pushd "${DOCONLINE}" > /dev/null
@@ -261,8 +276,6 @@ newsymfony3() {
   sed -i "s;//umask(0000;umask(0002;" bin/console
   sed -i "s/^use.*Request;/& umask(0002);/" web/app.php
   sed -i "s/^use.*Request;/& umask(0002);/" web/app_dev.php
-  # fix for server-status
-  sed -i "s;^.*RewriteRule.*app.php.*$;RewriteCond %{REQUEST_URI} !=/server-status\n&;" web/.htaccess
   popd > /dev/null
 
   pushd "${DOCONLINE}" > /dev/null

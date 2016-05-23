@@ -8,13 +8,13 @@ module EndpointsHelper
   # No return
   def install_endpoint
     # todo: avoid bash cmd
-    Rails.logger.warn "/bin/bash /ror/sbin/newendpoint -u #{Rails.application.config.gitlab_prefix} -n #{prefix}#{project.name} -f #{framework.name} -g #{project.gitpath}  -p #{path}"
+    Rails.logger.warn "/bin/bash /ror/sbin/newendpoint -u #{Rails.application.config.gitlab_prefix} -n #{project.name} -f #{framework.name} -g #{project.gitpath}  -p #{path}"
 
     # take a lock for project action
     begin
       open("/tmp/project#{project.id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-        system("/bin/bash /ror/sbin/newendpoint -u #{Rails.application.config.gitlab_prefix} -n #{prefix}#{project.name} -f #{framework.name} -g #{project.gitpath} -p #{path}")
+        system("/bin/bash /ror/sbin/newendpoint -u #{Rails.application.config.gitlab_prefix} -n #{project.name} -f #{framework.name} -g #{project.gitpath} -p #{path}")
       end
 
     rescue
