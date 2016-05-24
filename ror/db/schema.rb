@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160514175725) do
+ActiveRecord::Schema.define(version: 20160523105759) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -233,6 +233,7 @@ ActiveRecord::Schema.define(version: 20160514175725) do
     t.boolean  "is_prod",                   default: false
     t.boolean  "is_cached",                 default: false
     t.boolean  "is_ht",                     default: false
+    t.boolean  "is_backup",                 default: false
   end
 
   add_index "vms", ["project_id"], name: "index_vms_on_project_id", using: :btree

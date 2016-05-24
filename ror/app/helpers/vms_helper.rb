@@ -65,6 +65,12 @@ module VmsHelper
           f.puts "iscached: 0\n"
         end
 
+        if is_backup
+          f.puts "isbackup: 1\n"
+        else
+          f.puts "isbackup: 0\n"
+        end
+
         if is_ht
           f.puts "override: 'All'"
         else

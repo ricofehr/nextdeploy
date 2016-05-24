@@ -73,6 +73,17 @@ class Vm < ActiveRecord::Base
     puppetrefresh
   end
 
+  # Toggle is_backup parameter
+  #
+  # No param
+  # No return
+  def togglebackup
+    self.is_backup = is_backup ? false : true
+    save
+    generate_hiera
+    puppetrefresh
+  end
+
   # Toggle is_prod parameter
   #
   # No param
