@@ -81,7 +81,6 @@ class Vm < ActiveRecord::Base
     self.is_backup = is_backup ? false : true
     save
     generate_hiera
-    puppetrefresh
   end
 
   # Toggle is_prod parameter
