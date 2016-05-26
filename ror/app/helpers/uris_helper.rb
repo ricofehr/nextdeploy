@@ -274,18 +274,18 @@ module UrisHelper
     bashret = ''
 
     if framework.name.match(/^Symfony.*$/)
-      Rails.logger.warn "ssh modem@#{vm.floating_ip} 'tail -n 60 #{docroot}/app/logs/*.log'"
-      bashret = `ssh modem@#{vm.floating_ip} 'tail -n 60 #{docroot}/app/logs/*.log'`
+      Rails.logger.warn "ssh modem@#{vm.floating_ip} 'tail -n 50 #{docroot}/app/logs/*.log'"
+      bashret = `ssh modem@#{vm.floating_ip} 'tail -n 50 #{docroot}/app/logs/*.log'`
     end
 
     if framework.name.match(/^Drupal.*$/)
       Rails.logger.warn "ssh modem@#{vm.floating_ip} 'cd #{docroot} && drush sqlq \"select message from watchdog\"'"
-      bashret = `ssh modem@#{vm.floating_ip} 'cd #{docroot} && drush sqlq "select message from watchdog"'`
+      #bashret = `ssh modem@#{vm.floating_ip} 'cd #{docroot} && drush sqlq "select message from watchdog"'`
     end
 
     if framework.name.match(/^NodeJS.*$/) || framework.name.match(/^ReactJS.*$/)
-      Rails.logger.warn "ssh modem@#{vm.floating_ip} 'tail -n 70 /home/modem/.pm2/*.log /home/modem/.pm2/logs/*.log'"
-      bashret = `ssh modem@#{vm.floating_ip} 'tail -n 70 /home/modem/.pm2/logs/*.log /home/modem/.pm2/pm2.log'`
+      Rails.logger.warn "ssh modem@#{vm.floating_ip} 'tail -n 50 /home/modem/.pm2/*.log /home/modem/.pm2/logs/*.log'"
+      bashret = `ssh modem@#{vm.floating_ip} 'tail -n 50 /home/modem/.pm2/logs/*.log /home/modem/.pm2/pm2.log'`
     end
 
     # Return bash output
