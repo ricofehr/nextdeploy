@@ -1,6 +1,4 @@
 #!/bin/bash
 
-URI="$1"
-URIADMIN="admin.${URI}"
-URIMOBILE="m.${URI}"
+VMNAME="$1"
 DOCROOT="$(pwd)/server"
