@@ -301,7 +301,7 @@ module VmsHelper
     begin
       open("/tmp/vm#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-        bashret = `ssh modem@#{floating_ip} 'cd #{docroot};git reset --hard HEAD;git pull --rebase'`
+        bashret = `ssh modem@#{floating_ip} 'cd #{docroot};git reset --hard HEAD >/dev/null;git pull --rebase 2>&1;git cat-file -p HEAD'`
       end
 
     rescue
