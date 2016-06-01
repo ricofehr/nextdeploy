@@ -153,6 +153,12 @@ class Vm < ActiveRecord::Base
   # No param
   # No return
   def init_defaulturis
+    # init name if empty
+    if !name || name.empty?
+      self.name = vm_name
+      save
+    end
+
     project.endpoints.each do |endpoint|
       absolute = (endpoint.prefix.length > 0) ? "#{endpoint.prefix}.#{name}" : "#{name}"
       if !endpoint.aliases.nil? && !endpoint.aliases.empty?
