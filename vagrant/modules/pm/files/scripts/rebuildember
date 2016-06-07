@@ -3,10 +3,14 @@
 # if we are root, exit
 (( $UID == 0 )) && echo "please execute with modem user, not root" && exit 1
 
+FORCE=0
+[[ -n "$1" && "$1" = "--force" ]] && FORCE=1
+
 [[ -n "$(find /tmp/.rebuildember -type f -mmin -10)" ]] && echo "rebuildember already executed" && exit 0
 touch /tmp/.rebuildember
 
-if [[ ! -f /ror/public/index.html ]] ||
+if (( FORCE == 1 )) ||
+[[ ! -f /ror/public/index.html ]] ||
 [[ -n "$(find /home/nextdeploy/webui/app/. -type f -mmin -5)" ]] ||
 [[ -n "$(find /home/nextdeploy/webui/config/. -type f -mmin -5)" ]] ||
 [[ -n "$(find /home/nextdeploy/webui/public/. -type f -mmin -5)" ]] ||
