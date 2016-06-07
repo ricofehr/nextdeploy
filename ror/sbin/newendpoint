@@ -206,10 +206,13 @@ newdrupal() {
 
   #remove tmp drupal-x folder
   drupalfolder="$(ls | grep "drupal")"
+  [[ -z "$drupalfolder" ]] && exit 1
+  [[ ! -f "${drupalfolder}/.htaccess" ]] && exit 1
+
   if [[ -d "$drupalfolder" ]]; then
-    mv ${PROJROOT}${projname}/_online/server/${drupalfolder}/* .
+    mv ${drupalfolder}/* .
     mv "${drupalfolder}/.htaccess" .
-    rm -rf ${PROJROOT}${projname}/_online/server/drupal*
+    rm -rf "${drupalfolder}"
     # install memcache module
     drush -y dl memcache
 
