@@ -143,7 +143,7 @@ module API
               # Send admin alerts
               if !@user.admin?
                 Group.find_by(access_level: 50).users.each { |admin|
-                  UserMailer.create_user(@user_c, admin).deliver
+                  UserMailer.create_user(@user_c, admin, @user).deliver
                 }
               end
               # Send a welcome email

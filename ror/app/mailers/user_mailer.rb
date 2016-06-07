@@ -18,9 +18,10 @@ class UserMailer < ActionMailer::Base
   # @param user: New User object targeted
   # @param admin: Admin user
   # no return
-  def create_user(user, admin)
+  def create_user(user, admin, lead)
     @user = user
     @admin = admin
+    @lead = lead
     @url  = "https://ui.#{Rails.application.config.nextdeployuri}/"
     mail(to: @admin.email, subject: "[NextDeploy] #{@user.email} added")
   end
