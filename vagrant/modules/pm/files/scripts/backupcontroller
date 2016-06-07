@@ -1,0 +1,24 @@
+#!/bin/bash
+
+BACKUPDATE="$(date +%y%m%d%H%M)"
+
+pushd /tmp >/dev/null
+mkdir controller-${BACKUPDATE}
+mysqldump --default-character-set=utf8 --single-transaction --quick cinderdb > controller-${BACKUPDATE}/cinderdb.sql 2>/dev/null
+(( $? != 0 )) && exit 1
+mysqldump --default-character-set=utf8 --single-transaction --quick glancedb > controller-${BACKUPDATE}/glancedb.sql 2>/dev/null
+(( $? != 0 )) && exit 1
+mysqldump --default-character-set=utf8 --single-transaction --quick keystonedb > controller-${BACKUPDATE}/keystonedb.sql 2>/dev/null
+(( $? != 0 )) && exit 1
+mysqldump --default-character-set=utf8 --single-transaction --quick neutrondb > controller-${BACKUPDATE}/neutrondb.sql 2>/dev/null
+(( $? != 0 )) && exit 1
+mysqldump --default-character-set=utf8 --single-transaction --quick novadb > controller-${BACKUPDATE}/novadb.sql 2>/dev/null
+(( $? != 0 )) && exit 1
+
+
+tar cvfz controller-${BACKUPDATE}.tar.gz controller-${BACKUPDATE} >/dev/null 2>&1
+(( $? != 0 )) && exit 1
+rm -rf controller-${BACKUPDATE}
+popd >/dev/null
+
+echo controller-${BACKUPDATE}.tar.gz

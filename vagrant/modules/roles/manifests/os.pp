@@ -22,6 +22,7 @@ class roles::os::uosc {
   class {'pm::os::nt_c':} ->
   class {'pm::os::cder_c':} ->
   class {'pm::os::hz':} ->
+  class {'pm::os::backup_c':} ->
   class {'pm::cron':} ->
   class {'pm::fw':}
 

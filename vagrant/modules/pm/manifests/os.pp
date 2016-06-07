@@ -1,5 +1,5 @@
 
-# == Class: pm::os::memcached
+# == Class: pm::os::memcached_c
 #
 # Install memcached (on controller node) with help of official module
 #
@@ -16,6 +16,24 @@ class pm::os::memcached_c {
   class { 'pm::monitor::collect::memcached': }
 }
 
+# == Class: pm::os::backup_c
+#
+# Backup script on controller node
+#
+#
+# === Authors
+#
+# Eric Fehr <ricofehr@nextdeploy.io>
+#
+class pm::os::backup_c {
+  file { '/usr/local/bin/backupcontroller':
+    ensure => 'file',
+    source => ['puppet:///modules/pm/scripts/backupcontroller'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+}
 
 # == Class: pm::os::keystone
 #
