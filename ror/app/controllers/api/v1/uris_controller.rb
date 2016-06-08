@@ -245,7 +245,7 @@ module API
 
         # Never trust parameters from the scary internet, only allow the white list through.
         def uri_params
-          params.require(:uri).permit(:absolute, :path, :aliases, :envvars, :vm_id, :framework_id, :port, :ipfilter)
+          params.require(:uri).permit(:absolute, :path, :aliases, :envvars, :vm_id, :framework_id, :port, :ipfilter, :customvhost)
         end
     end
   end

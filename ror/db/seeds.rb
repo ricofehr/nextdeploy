@@ -3,8 +3,12 @@ Framework.destroy_all
 puts "destroy framework"
 Techno.destroy_all
 puts "destroy techno"
+Technotype.destroy_all
+puts "destroy technoType"
 Brand.destroy_all
 puts "destroy brand"
+Endpoint.destroy_all
+puts "destroy endpoints"
 Project.destroy_all
 puts "destroy projects"
 User.destroy_all
@@ -15,6 +19,7 @@ Systemimagetype.destroy_all
 puts "destroy systemimages"
 Vmsize.destroy_all
 puts "destroy flavors"
+
 #flavor import rows
 flavor_tiny = Vmsize.create!(title: 'm1.tiny', description: '1cpu/512M/15G')
 flavor_small = Vmsize.create!(title: 'm1.small', description: '2cpu/1024M/15G')
@@ -468,7 +473,8 @@ ep_njs = Endpoint.create!(
   envvars: "PORT=3100",
   aliases: "nodejs njs",
   port: 3100,
-  ipfilter: ''
+  ipfilter: '',
+  customvhost: ''
 )
 
 ep_wp = Endpoint.create!(
@@ -479,7 +485,8 @@ ep_wp = Endpoint.create!(
   envvars: "",
   aliases: "",
   port: 8080,
-  ipfilter: ''
+  ipfilter: '',
+  customvhost: ''
 )
 
 ep_wp_html = Endpoint.create!(
@@ -490,7 +497,8 @@ ep_wp_html = Endpoint.create!(
   envvars: "",
   aliases: "",
   port: 8080,
-  ipfilter: ''
+  ipfilter: '',
+  customvhost: ''
 )
 
 ep_static = Endpoint.create!(
@@ -501,7 +509,8 @@ ep_static = Endpoint.create!(
   envvars: "",
   aliases: "",
   port: 8080,
-  ipfilter: ''
+  ipfilter: '',
+  customvhost: ''
 )
 
 ep_drupal = Endpoint.create!(
@@ -512,7 +521,8 @@ ep_drupal = Endpoint.create!(
   envvars: "",
   aliases: "",
   port: 8080,
-  ipfilter: ''
+  ipfilter: '',
+  customvhost: ''
 )
 
 ep_sf2s = Endpoint.create!(
@@ -523,7 +533,8 @@ ep_sf2s = Endpoint.create!(
   envvars: "",
   aliases: "sf2s",
   port: 8080,
-  ipfilter: ''
+  ipfilter: '',
+  customvhost: ''
 )
 
 ep_sf3c = Endpoint.create!(
@@ -534,7 +545,8 @@ ep_sf3c = Endpoint.create!(
   envvars: "",
   aliases: "sf3c",
   port: 8080,
-  ipfilter: ''
+  ipfilter: '',
+  customvhost: ''
 )
 
 puts "Created #{Endpoint.count} endpoints"
