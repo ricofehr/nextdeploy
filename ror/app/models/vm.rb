@@ -73,6 +73,16 @@ class Vm < ActiveRecord::Base
     puppetrefresh
   end
 
+  # Toggle is_ci parameter
+  #
+  # No param
+  # No return
+  def toggleci
+    self.is_ci = is_ci ? false : true
+    save
+    generate_hiera
+  end
+
   # Toggle is_backup parameter
   #
   # No param

@@ -8,9 +8,9 @@ module API
       before_filter :authenticate_user_from_token!, :except => [:setupcomplete, :resetpassword, :refreshcommit]
       before_filter :authenticate_api_v1_user!, :except => [:setupcomplete, :resetpassword, :refreshcommit]
       # Hook who set vm object
-      before_action :set_vm, only: [:show, :update, :destroy, :check_status, :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached, :toggleht, :togglebackup, :postinstall_display, :postinstall]
+      before_action :set_vm, only: [:show, :update, :destroy, :check_status, :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached, :toggleht, :toggleci, :togglebackup, :postinstall_display, :postinstall]
       # Hook who check rights before action
-      before_action :check_me, only: [:show, :update, :destroy, :check_status, :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached, :toggleht, :togglebackup, :postinstall_display, :postinstall]
+      before_action :check_me, only: [:show, :update, :destroy, :check_status, :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached, :toggleht, :toggleci, :togglebackup, :postinstall_display, :postinstall]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
       # Check user right for avoid no-authorized access
@@ -120,6 +120,12 @@ module API
       # Toggle isht parameter
       def toggleht
         @vm.toggleht
+        render nothing: true
+      end
+
+      # Toggle isci parameter
+      def toggleci
+        @vm.toggleci
         render nothing: true
       end
 
@@ -303,7 +309,7 @@ module API
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def vm_params
-        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :name, :is_auth, :htlogin, :htpassword, :layout, :is_prod, :is_cached, :is_ht, :techno_ids => [])
+        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :name, :is_auth, :htlogin, :htpassword, :layout, :is_prod, :is_cached, :is_ht, :is_ci, :techno_ids => [])
       end
     end
   end

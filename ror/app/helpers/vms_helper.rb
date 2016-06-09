@@ -65,6 +65,12 @@ module VmsHelper
           f.puts "iscached: 0\n"
         end
 
+        if is_ci
+          f.puts "isci: 1\n"
+        else
+          f.puts "isci: 0\n"
+        end
+
         if is_backup
           f.puts "isbackup: 1\n"
         else
