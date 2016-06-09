@@ -240,7 +240,7 @@ module API
             # wait max 10min to let ci finish his work
             while vm.checkci do
               break if ncp == 5
-              sleep 120
+              sleep(120)
               ncp += 1
             end
             vm.clearci

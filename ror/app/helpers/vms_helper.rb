@@ -327,9 +327,9 @@ module VmsHelper
     bashret = ''
 
     Rails.logger.warn "Checkci for vm #{vm_name}"
-    bashret = `ssh modem@#{floating_ip} 'test -f /tmp/commithash && echo NOK'`
+    bashret = `ssh modem@#{floating_ip} 'test -f /tmp/commithash1 && echo NOK'`
       
-    return true if bashret == 'NOK'
+    return true if bashret.match(/NOK/)
     return false
   end
 
@@ -339,7 +339,7 @@ module VmsHelper
   # @return nothing
   def clearci
     Rails.logger.warn "Remove ci lock for vm #{vm_name}"
-    bashret = `ssh modem@#{floating_ip} 'rm -f /tmp/commithash /tmp/commithash2'`
+    bashret = `ssh modem@#{floating_ip} 'rm -f /tmp/commithash1 /tmp/commithash2'`
   end
 
   # Display postinstall script before approvement
