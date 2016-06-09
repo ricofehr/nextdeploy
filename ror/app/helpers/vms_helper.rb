@@ -110,6 +110,7 @@ module VmsHelper
           f.puts "    framework: #{uri.framework.name.downcase}\n"
           f.puts "    publicfolder: '#{uri.framework.publicfolder}'\n"
           f.puts "    rewrites: \"#{rewrites}\"\n"
+          f.puts "    customvhost: \"#{uri.customvhost ? uri.customvhost.gsub("\n","\\n") : ''}\"\n"
         end
 
         f.puts "etchosts: '#{uris.flat_map(&:absolute).join(' ').strip} #{uris.flat_map(&:aliases).join(' ').strip}'\n"
@@ -125,7 +126,6 @@ module VmsHelper
           end
 
           f.puts "    ipfilter: '#{uri.ipfilter.gsub('.0/24', '').gsub('.', '\.')}'\n"
-          f.puts "    customvhost: '#{uri.customvhost}'\n"
         end
 
         if is_prod
