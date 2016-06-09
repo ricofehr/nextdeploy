@@ -64,7 +64,7 @@ module UrisHelper
     begin
       open("/tmp/vm#{vm.id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-        bashret =`ssh modem@#{vm.floating_ip} 'npm.sh #{docroot}'`
+        bashret =`ssh modem@#{vm.floating_ip} 'npm.sh #{docroot}' 2>&1`
       end
 
     rescue
@@ -185,7 +185,7 @@ module UrisHelper
     begin
       open("/tmp/vm#{vm.id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-        bashret = `ssh modem@#{vm.floating_ip} 'composer.sh #{docroot}'`
+        bashret = `ssh modem@#{vm.floating_ip} 'composer.sh #{docroot} 2>&1'`
       end
 
     rescue
@@ -206,12 +206,12 @@ module UrisHelper
     bashret = ''
 
     Rails.logger.warn "Drush command for vm #{vm.name} (#{frwname})"
-
+    
     # take a lock for vm action
     begin
       open("/tmp/vm#{vm.id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-        bashret = `ssh modem@#{vm.floating_ip} 'cd #{docroot} && drush -y #{command}'`
+        bashret = `ssh modem@#{vm.floating_ip} 'cd #{docroot} && drush -y #{command} 2>&1'`
       end
 
     rescue
@@ -237,7 +237,7 @@ module UrisHelper
     begin
       open("/tmp/vm#{vm.id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-        bashret = `ssh modem@#{vm.floating_ip} 'cd #{docroot} && php app/console #{command}'`
+        bashret = `ssh modem@#{vm.floating_ip} 'cd #{docroot} && php app/console #{command} 2>&1'`
       end
 
     rescue
@@ -260,6 +260,9 @@ module UrisHelper
 
     # clear for aliases too
     listaliases.each {|aliase| system("ssh modem@#{vm.floating_ip} 'varnishadm -T127.0.0.1:6082 ban req.http.host == #{aliase}'") }
+
+    # Fill message if is empty
+    bashret = "Flushed for #{absolute}" if bashret.strip.empty?
 
     # Return bash output
     { message: bashret, status: 200 }
