@@ -319,6 +319,29 @@ module VmsHelper
     { message: bashret, status: 200 }
   end
 
+  # Check if ci is currently executed
+  #
+  # No param
+  # @return message for execution and codestatus for request
+  def checkci
+    bashret = ''
+
+    Rails.logger.warn "Checkci for vm #{vm_name}"
+    bashret = `ssh modem@#{floating_ip} 'test -f /tmp/commithash && echo NOK'`
+      
+    return true if bashret == 'NOK'
+    return false
+  end
+
+  # Clear ci lock
+  #
+  # No param
+  # @return nothing
+  def clearci
+    Rails.logger.warn "Remove ci lock for vm #{vm_name}"
+    bashret = `ssh modem@#{floating_ip} 'rm -f /tmp/commithash /tmp/commithash2'`
+  end
+
   # Display postinstall script before approvement
   #
   # No param

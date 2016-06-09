@@ -15,6 +15,11 @@ module API
       before_action :ember_to_rails, only: [:create, :update]
       # Check user right for avoid no-authorized access
       before_action :check_admin, only: [:create, :create_short, :destroy, :boot]
+      # Hook who check ci right before tool action
+      before_action :check_ci, only: [:gitpull, :postinstall]
+      # Hook who reload ci right after tool action
+      after_action :reload_ci, only: [:gitpull, :postinstall]
+      
 
       # List all vms
       def index
@@ -249,6 +254,29 @@ module API
       end
 
       private
+
+      # check if ci is enabled for lock mecanism
+      def check_ci
+        ncp = 0
+        if @vm.is_ci
+          @vm.toggleci(false)
+          # wait max 10min to let ci finish his work
+          while @vm.checkci do
+            break if ncp == 5
+            sleep 120
+            ncp += 1
+          end
+          @vm.clearci
+        end
+
+        return true
+      end
+
+      # reload ci if enabled for lock mecanism
+      def reload_ci
+        @vm.reload
+        @vm.generate_hiera if @vm.is_ci
+      end
 
       # Use callbacks to share common setup or constraints between actions.
       def set_vm

@@ -10,6 +10,10 @@ module API
       before_action :check_me, only: [:create, :destroy, :update, :import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :logs, :drush, :sfcmd, :clearvarnish]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
+      # Hook who check ci right before tool action
+      before_action :check_ci, only: [:import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :drush, :sfcmd]
+      # Hook who reload ci right after tool action
+      after_action :reload_ci, only: [:import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :drush, :sfcmd]
 
       # List all uris
       def index
@@ -224,6 +228,32 @@ module API
           isme = false if vm.user.admin? && !@user.admin?
 
           raise Exceptions::NextDeployException.new("Access forbidden for this user") unless isme
+        end
+
+        # check if ci is enabled for lock mecanism
+        def check_ci
+          vm = @uri.vm
+          ncp = 0
+
+          if vm.is_ci
+            vm.toggleci(false)
+            # wait max 10min to let ci finish his work
+            while vm.checkci do
+              break if ncp == 5
+              sleep 120
+              ncp += 1
+            end
+            vm.clearci
+          end
+
+          return true
+        end
+
+        # reload ci if enabled for lock mecanism
+        def reload_ci
+          vm = @uri.vm
+          vm.reload
+          vm.generate_hiera if vm.is_ci
         end
 
         # Use callbacks to share common setup or constraints between actions.

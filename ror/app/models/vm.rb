@@ -77,9 +77,9 @@ class Vm < ActiveRecord::Base
   #
   # No param
   # No return
-  def toggleci
+  def toggleci(dosave=true)
     self.is_ci = is_ci ? false : true
-    save
+    save if dosave
     generate_hiera
   end
 
