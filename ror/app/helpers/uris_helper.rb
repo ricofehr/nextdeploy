@@ -97,9 +97,9 @@ module UrisHelper
       open("/tmp/vm#{vm.id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
 
-        `ssh modem@#{vm.floating_ip} 'cd #{docroot};pm2 delete #{path}-server;pm2 delete #{path}-app;npm install;npm run build;'`
+        `ssh modem@#{vm.floating_ip} 'cd #{docroot};touch /tmp/.lockpuppet;npm install 2>/tmp/lognpm;npm run build 2>>/tmp/lognpm;pm2 delete #{path}-server;pm2 delete #{path}-app;'`
         retapp = `ssh modem@#{vm.floating_ip} 'cd #{docroot};[[ -f app.js ]] && #{envvalues} pm2 start -f app.js --name "#{path}-app";'`
-        retserver = `ssh modem@#{vm.floating_ip} 'cd #{docroot};[[ -f server.js ]] && #{envvalues} pm2 start -f server.js --name "#{path}-server";'`
+        retserver = `ssh modem@#{vm.floating_ip} '[[ -f /tmp/lognpm ]] && cat /tmp/lognpm;cd #{docroot};[[ -f server.js ]] && #{envvalues} pm2 start -f server.js --name "#{path}-server";rm -f /tmp/.lockpuppet'`
       end
 
     rescue
@@ -131,8 +131,8 @@ module UrisHelper
       open("/tmp/vm#{vm.id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
 
-        `ssh modem@#{vm.floating_ip} 'cd #{docroot};pm2 delete #{path}-server;pm2 delete #{path}-api;npm install;npm run build;'`
-        retreactserver = `ssh modem@#{vm.floating_ip} 'cd #{docroot};[[ -f bin/server.js ]] && #{envvalues} pm2 start -f bin/server.js --name "#{path}-server";'`
+        `ssh modem@#{vm.floating_ip} 'cd #{docroot};touch /tmp/.lockpuppet;npm install 2>/tmp/lognpm;npm run build 2>>/tmp/lognpm;pm2 delete #{path}-server;pm2 delete #{path}-api;'`
+        retreactserver = `ssh modem@#{vm.floating_ip} '[[ -f /tmp/lognpm ]] && cat /tmp/lognpm;cd #{docroot};[[ -f bin/server.js ]] && #{envvalues} pm2 start -f bin/server.js --name "#{path}-server";rm -f /tmp/.lockpuppet'`
         retreactapi = `ssh modem@#{vm.floating_ip} 'cd #{docroot};[[ -f bin/api.js ]] && #{envvalues} pm2 start -f bin/api.js --name "#{path}-api"'`
       end
 
