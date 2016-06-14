@@ -190,7 +190,8 @@ class pm::base {
         'git-core',
         'geoip-bin',
         'ethtool',
-        'mailutils'
+        'mailutils',
+        'unzip'
         ]:
         ensure => installed,
         require => Exec['apt-update']
