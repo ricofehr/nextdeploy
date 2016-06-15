@@ -269,6 +269,12 @@ class pm::postinstall::nextdeploy {
     line => 'StrictHostKeyChecking no'
   } ->
 
+  # disable knowhost verification on nextdeploy
+  file_line { 'disable_userknowhost_ssh':
+    path => '/etc/ssh/ssh_config',
+    line => 'UserKnownHostsFile /dev/null'
+  } ->
+
   # git config email
   exec { 'gitconfig1':
     command => 'git config --global user.email admin@example.com',
