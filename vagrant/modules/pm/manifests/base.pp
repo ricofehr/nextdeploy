@@ -190,12 +190,14 @@ class pm::base {
         'git-core',
         'geoip-bin',
         'ethtool',
-        'mailutils',
-        'unzip'
+        'mailutils'
         ]:
         ensure => installed,
         require => Exec['apt-update']
   }
+
+  # ensure this packages are installed (ignore if they are already defined)
+  ensure_packages(['unzip', 'wget'])
 
   #env locals settings
   file { '/etc/environment':
