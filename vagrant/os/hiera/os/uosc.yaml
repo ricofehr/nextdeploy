@@ -311,6 +311,7 @@ mysql::server::override_options:
   mysqld_safe:
     log_error: /var/log/mysql/mysql.err
   mysqld:
+    max_connections: 1024
     bind_address: "%{hiera('global::managementprefix')}.70"
     datadir: /var/lib/mysql
     skip-external-locking: true
