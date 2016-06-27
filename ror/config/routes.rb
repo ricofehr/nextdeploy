@@ -51,6 +51,8 @@ Rails.application.routes.draw do
       post '/uris/:id/composer' => 'uris#composer', as: 'uri_composer', constraints: { id: /\d+/ }
       post '/uris/:id/drush' => 'uris#drush', as: 'uri_drush', constraints: { id: /\d+/ }
       post '/uris/:id/sfcmd' => 'uris#sfcmd', as: 'uri_sfcmd', constraints: { id: /\d+/ }
+      post '/uris/:id/listscript' => 'uris#listscript', as: 'uri_listscript', constraints: { id: /\d+/ }
+      post '/uris/:id/script' => 'uris#script', as: 'uri_script', constraints: { id: /\d+/ }
       post '/uris/:id/logs' => 'uris#logs', as: 'uri_logs', constraints: { id: /\d+/ }
       post '/uris/:id/clearvarnish' => 'uris#clearvarnish', as: 'uri_clearvarnish', constraints: { id: /\d+/ }
 

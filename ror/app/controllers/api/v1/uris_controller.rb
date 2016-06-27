@@ -5,15 +5,15 @@ module API
     # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class UrisController < ApplicationController
       # Hook who set uri object
-      before_action :set_uri, only: [:show, :update, :destroy, :import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :logs, :drush, :sfcmd, :clearvarnish]
+      before_action :set_uri, only: [:show, :update, :destroy, :import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :logs, :drush, :sfcmd, :clearvarnish, :script, :listscript]
       # Check user right for avoid no-authorized access
-      before_action :check_me, only: [:create, :destroy, :update, :import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :logs, :drush, :sfcmd, :clearvarnish]
+      before_action :check_me, only: [:create, :destroy, :update, :import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :logs, :drush, :sfcmd, :clearvarnish, :script, :listscript]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
       # Hook who check ci right before tool action
-      before_action :check_ci, only: [:import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :drush, :sfcmd]
+      before_action :check_ci, only: [:import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :drush, :sfcmd, :script, :listscript]
       # Hook who reload ci right after tool action
-      after_action :reload_ci, only: [:import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :drush, :sfcmd]
+      after_action :reload_ci, only: [:import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :drush, :sfcmd, :script, :listscript]
 
       # List all uris
       def index
@@ -111,6 +111,21 @@ module API
       def drush
         ret = @uri.drush params[:command]
         render plain: ret[:message], status: ret[:status]
+      end
+
+      # Execute custom bash script
+      def script
+        # secure command parameter
+        params[:command] = params[:command].gsub('..', '').gsub(';', '');
+        
+        ret = @uri.script(params[:command].split(',')[0], params[:command].split(',')[1])
+        render plain: ret[:message], status: ret[:status]
+      end
+
+      # List custom bash script
+      def listscript
+        ret = @uri.listscript
+        render plain: ret[:message]
       end
 
       # Execute symfony command into vm
@@ -275,7 +290,7 @@ module API
 
         # Never trust parameters from the scary internet, only allow the white list through.
         def uri_params
-          params.require(:uri).permit(:absolute, :path, :aliases, :envvars, :vm_id, :framework_id, :port, :ipfilter, :customvhost)
+          params.require(:uri).permit(:absolute, :path, :aliases, :envvars, :vm_id, :framework_id, :port, :ipfilter, :customvhost, :is_sh)
         end
     end
   end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160608205813) do
+ActiveRecord::Schema.define(version: 20160627113616) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(version: 20160608205813) do
     t.integer "port"
     t.string  "ipfilter",     limit: 512,  default: ""
     t.string  "customvhost",  limit: 4096, default: ""
+    t.boolean "is_sh",                     default: false
   end
 
   add_index "endpoints", ["framework_id"], name: "index_endpoints_on_framework_id", using: :btree
@@ -161,6 +162,7 @@ ActiveRecord::Schema.define(version: 20160608205813) do
     t.integer "port"
     t.string  "ipfilter",     limit: 512,  default: ""
     t.string  "customvhost",  limit: 4096, default: ""
+    t.boolean "is_sh",                     default: false
   end
 
   add_index "uris", ["framework_id"], name: "index_uris_on_framework_id", using: :btree

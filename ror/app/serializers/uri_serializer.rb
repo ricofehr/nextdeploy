@@ -2,7 +2,7 @@
 #
 # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class UriSerializer < ActiveModel::Serializer
-  attributes :id, :absolute, :path, :envvars, :aliases, :ipfilter, :port, :customvhost
+  attributes :id, :absolute, :path, :envvars, :aliases, :ipfilter, :port, :customvhost, :is_sh
 
   has_one :vm, key: :vm
   has_one :framework, key: :framework

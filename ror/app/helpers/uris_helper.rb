@@ -355,4 +355,40 @@ module UrisHelper
     {message: bashret, status: 200}
   end
 
+  # Execute project script
+  #
+  # No param
+  # @return message for execution and codestatus for request
+  def script(sfolder, sbin)
+    docroot = "/var/www/#{vm.project.name}/#{path}/#{sfolder}"
+    bashret = ''
+
+    Rails.logger.warn "Execute script #{path}/#{sfolder}/#{sbin} for vm #{vm.name}"
+    # take a lock for vm action
+    begin
+      open("/tmp/vm#{vm.id}.lock", File::RDWR|File::CREAT) do |f|
+        f.flock(File::LOCK_EX)
+        bashret = `ssh modem@#{vm.floating_ip} 'cd #{docroot};./#{sbin}'`
+      end
+
+    rescue
+      raise Exceptions::NextDeployException.new("Lock on script command for #{name} failed")
+    end
+
+    # Return bash output
+    { message: bashret, status: 200 }
+  end
+
+  # List project scripts
+  #
+  # No param
+  # @return message for execution and codestatus for request
+  def listscript
+    docroot = "/var/www/#{vm.project.name}/#{path}"
+    bashret = `ssh modem@#{vm.floating_ip} 'cd #{docroot} && findscripts.sh'`
+    
+    # Return bash output
+    { message: bashret, status: 200 }
+  end
+
 end

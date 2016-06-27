@@ -110,7 +110,7 @@ module API
 
         # Never trust parameters from the scary internet, only allow the white list through.
         def endpoint_params
-          params.require(:endpoint).permit(:prefix, :path, :envvars, :aliases, :project_id, :framework_id, :is_install, :port, :ipfilter, :customvhost)
+          params.require(:endpoint).permit(:prefix, :path, :envvars, :aliases, :project_id, :framework_id, :is_install, :port, :ipfilter, :customvhost, :is_sh)
         end
     end
   end
