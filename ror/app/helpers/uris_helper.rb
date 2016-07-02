@@ -97,7 +97,7 @@ module UrisHelper
       open("/tmp/vm#{vm.id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
 
-        `ssh modem@#{vm.floating_ip} 'cd #{docroot};touch /tmp/.lockpuppet;npm install 2>/tmp/lognpm;npm run build 2>>/tmp/lognpm;pm2 delete #{path}-server;pm2 delete #{path}-app;'`
+        `ssh modem@#{vm.floating_ip} 'cd #{docroot};touch /tmp/.lockpuppet;npm install 2>/tmp/lognpm;grep build package.json >/dev/null 2>&1 && npm run build 2>>/tmp/lognpm;pm2 delete #{path}-server;pm2 delete #{path}-app;'`
         retapp = `ssh modem@#{vm.floating_ip} 'cd #{docroot};[[ -f app.js ]] && #{envvalues} pm2 start -f app.js --name "#{path}-app";'`
         retserver = `ssh modem@#{vm.floating_ip} '[[ -f /tmp/lognpm ]] && cat /tmp/lognpm;cd #{docroot};[[ -f server.js ]] && #{envvalues} pm2 start -f server.js --name "#{path}-server";rm -f /tmp/.lockpuppet'`
       end
