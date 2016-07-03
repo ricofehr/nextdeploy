@@ -8,3 +8,6 @@
 # Excluding unwanted files
 .DS_Store
 *~
+
+node_modules
+npm-debug.log
