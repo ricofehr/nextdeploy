@@ -90,8 +90,35 @@ keyvalue = Technotype.create!(name: "Keyvalue Service")
 index = Technotype.create!(name: "Index Service")
 java = Technotype.create!(name: "Java")
 wkhtml = Technotype.create!(name: "Wkhtmltopdf")
+apc = Technotype.create!(name: "Apc")
+kibana = Technotype.create!(name: "Kibana")
 
 #Techno import rows
+techno_wkhtml0123 = Techno.create!(
+    name: "wkhtmltopdf-0.12.3",
+    ordering: 220,
+    technotype: wkhtml,
+    hiera: "pm::tool::wkhtmltopdf::major: '0.12'
+pm::tool::wkhtmltopdf::minor: '3'",
+    puppetclass: "pm::tool::wkhtmltopdf"
+  )
+
+kibana4 = Techno.create!(
+    name: "kibana4",
+    ordering: 50,
+    technotype: kibana,
+    hiera: "",
+    puppetclass: "pm::kibana"
+  )
+
+phpapc = Techno.create!(
+    name: "php-apc",
+    ordering: 170,
+    technotype: apc,
+    hiera: "",
+    puppetclass: "pm::tool::phpapc"
+  )
+
 techno_wkhtml0123 = Techno.create!(
     name: "wkhtmltopdf-0.12.3",
     ordering: 220,
