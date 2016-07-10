@@ -184,9 +184,10 @@ module API
       # Stop and destroy a vm
       def destroy
         # ensute we have permission to destroy the vm
-        if  @user.vms.any? { |v| v.id == @vm.id } ||
-            @user.lead? && @vm.project.vms.any? { |v| v.id == @vm.id && !@vm.user.admin? } ||
-            @user.admin?
+        if  !@vm.is_prod &&
+            (@user.vms.any? { |v| v.id == @vm.id } ||
+            (@user.lead? && @vm.project.vms.any? { |v| v.id == @vm.id && !@vm.user.admin? }) ||
+            @user.admin?)
 
             @vm.destroy
             # Json output
