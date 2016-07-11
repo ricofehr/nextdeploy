@@ -192,7 +192,7 @@ class Vm < ActiveRecord::Base
 
     ret = (Time.zone.now - created_at).to_i
     # more 2hours with setup status is equal to error status
-    (ret > 7200) ? (1) : (-ret)
+    (ret > 360000) ? (1) : (-ret)
   end
 
   # Init vnc_url attribute
