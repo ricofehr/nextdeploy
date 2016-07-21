@@ -2,7 +2,7 @@
 #
 # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class FrameworkSerializer < ActiveModel::Serializer
-  attributes :id, :name, :publicfolder, :rewrites
+  attributes :id, :name, :publicfolder, :rewrites, :dockercompose
   delegate :current_user, to: :scope
 
   has_many :endpoints, key: :endpoints

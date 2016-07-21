@@ -2,7 +2,7 @@
 #
 # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class TechnoSerializer < ActiveModel::Serializer
-  attributes :id, :name
+  attributes :id, :name, :dockercompose
   delegate :current_user, to: :scope
 
   has_one :technotype, key: :technotype

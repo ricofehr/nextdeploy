@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160627113616) do
+ActiveRecord::Schema.define(version: 20160721084127) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -42,6 +42,7 @@ ActiveRecord::Schema.define(version: 20160627113616) do
     t.datetime "updated_at"
     t.string   "publicfolder"
     t.text     "rewrites"
+    t.string   "dockercompose", limit: 8192
   end
 
   create_table "groups", force: true do |t|
@@ -142,6 +143,7 @@ ActiveRecord::Schema.define(version: 20160627113616) do
     t.text     "hiera"
     t.integer  "ordering"
     t.integer  "technotype_id"
+    t.string   "dockercompose"
   end
 
   add_index "technos", ["technotype_id"], name: "index_technos_on_technotype_id", using: :btree

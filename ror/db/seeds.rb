@@ -30,46 +30,118 @@ flavor_large = Vmsize.create!(title: 'm1.large', description: '4cpu/8192M/80G')
 framework_sf2 = Framework.create!(
                   name: 'Symfony2',
                   publicfolder: 'web/',
-                  rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /app_dev.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /app_dev.php [L]\\n"
-                )
+                  rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /app_dev.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /app_dev.php [L]\\n",
+                  dockercompose: '%%CONTAINERNAME%%:
+  image: nextdeploy/symfony
+  container_name: %%CONTAINERNAME%%
+%%ENVVARS%%
+  ports:
+    - %%PORT%%:80
+  volumes:
+    - %%DOCROOT%%:/var/www/html
+ ')
 
 framework_sf3 = Framework.create!(
                   name: 'Symfony3',
                   publicfolder: 'web/',
-                  rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /app_dev.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /app_dev.php [L]\\n"
+                  rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /app_dev.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /app_dev.php [L]\\n",
+                  dockercompose: '%%CONTAINERNAME%%:
+  image: nextdeploy/symfony
+  container_name: %%CONTAINERNAME%%
+%%ENVVARS%%
+  ports:
+    - %%PORT%%:80
+  volumes:
+    - %%DOCROOT%%:/var/www/html
+ '
                 )
 
 framework_drupal = Framework.create!(
                      name: 'Drupal7',
                      publicfolder: '',
-                     rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/favicon.ico\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteRule ^ index.php [L]\\n"
+                     rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/favicon.ico\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteRule ^ index.php [L]\\n",
+                     dockercompose: '%%CONTAINERNAME%%:
+  image: nextdeploy/drupal
+  container_name: %%CONTAINERNAME%%
+%%ENVVARS%%
+  ports:
+    - %%PORT%%:80
+  volumes:
+    - %%DOCROOT%%:/var/www/html
+'
                    )
 
 framework_drupal8 = Framework.create!(
                       name: 'Drupal8',
                       publicfolder: '',
-                      rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/favicon.ico\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteRule ^ index.php [L]\\n"
+                      rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/favicon.ico\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteRule ^ index.php [L]\\n",
+                      dockercompose: '%%CONTAINERNAME%%:
+  image: nextdeploy/drupal
+  container_name: %%CONTAINERNAME%%
+%%ENVVARS%%
+  ports:
+    - %%PORT%%:80
+  volumes:
+    - %%DOCROOT%%:/var/www/html
+'
                     )
 
 framework_wordpress = Framework.create!(
                         name: 'Wordpress-4.5.2',
                         publicfolder: '',
-                        rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /index.php [L]\\n"
+                        rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\nRewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-f\\nRewriteCond %%{literal('%')}{REQUEST_FILENAME} !-d\\nRewriteRule .* /index.php [L]\\n",
+                        dockercompose: '%%CONTAINERNAME%%:
+  image: nextdeploy/wordpress
+  container_name: %%CONTAINERNAME%%
+  environment:
+    WORDPRESS_DB_HOST: \'mysql_%%PROJECTNAME%%\'
+    WORDPRESS_DB_USER: \'root\'
+    WORDPRESS_DB_PASSWORD: \'toor\'
+%%ENVVARS%%
+  ports:
+    - %%PORT%%:80
+  volumes:
+    - %%DOCROOT%%:/var/www/html
+'
                       )
 
-framework_nodejs = Framework.create( name: 'NodeJS', publicfolder: '', rewrites: '')
+framework_nodejs = Framework.create( name: 'NodeJS', publicfolder: '', rewrites: '', dockercompose: '%%CONTAINERNAME%%:
+  image: node:4-onbuild
+  container_name: %%CONTAINERNAME%%
+%%ENVVARS%%
+  ports:
+    - %%PORT%%:%%PORTEP%%
+  volumes:
+    - %%DOCROOT%%:/usr/src/app
+  command: node app.js')
 
 framework_reactjs = Framework.create(
                  name: 'ReactJS',
                  publicfolder: '',
-                 rewrites: ''
-               )
+                 rewrites: '',
+                 dockercompose: '%%CONTAINERNAME%%:
+  image: node:4-onbuild
+  container_name: %%CONTAINERNAME%%
+%%ENVVARS%%
+  ports:
+    - %%PORT%%:%%PORTEP%%
+  volumes:
+    - %%DOCROOT%%:/usr/src/app
+  command: node bin/server.js')
 
 framework_no = Framework.create(
                  name: 'Static',
                  publicfolder: '',
-                 rewrites: ''
-               )
+                 rewrites: '',
+                 dockercompose: '%%CONTAINERNAME%%:
+  image: nextdeploy/webphp
+  container_name: %%CONTAINERNAME%%
+%%ENVVARS%%
+  ports:
+    - %%PORT%%:80
+  volumes:
+    - %%DOCROOT%%:/var/www/html
+')
 
 framework_noweb = Framework.create(
                  name: 'NoWeb',
@@ -94,21 +166,15 @@ apc = Technotype.create!(name: "Apc")
 kibana = Technotype.create!(name: "Kibana")
 
 #Techno import rows
-techno_wkhtml0123 = Techno.create!(
-    name: "wkhtmltopdf-0.12.3",
-    ordering: 220,
-    technotype: wkhtml,
-    hiera: "pm::tool::wkhtmltopdf::major: '0.12'
-pm::tool::wkhtmltopdf::minor: '3'",
-    puppetclass: "pm::tool::wkhtmltopdf"
-  )
-
 kibana4 = Techno.create!(
     name: "kibana4",
     ordering: 50,
     technotype: kibana,
     hiera: "",
-    puppetclass: "pm::kibana"
+    puppetclass: "pm::kibana",
+    dockercompose: '%%CONTAINERNAME%%:
+  image: kibana:4
+  container_name: %%CONTAINERNAME%%'
   )
 
 phpapc = Techno.create!(
@@ -141,7 +207,10 @@ techno_rabbitmq = Techno.create!(
                     puppetclass: "pm::rabbit",
                     ordering: 60,
                     technotype: messaging,
-                    hiera: ""
+                    hiera: "",
+                    dockercompose: '%%CONTAINERNAME%%:
+  image: rabbitmq:3
+  container_name: %%CONTAINERNAME%%'
                   )
 
 techno_elasticsearch = Techno.create!(
@@ -149,7 +218,13 @@ techno_elasticsearch = Techno.create!(
                          puppetclass: "pm::elastic",
                          ordering: 40,
                          technotype: index,
-                         hiera: ""
+                         hiera: "",
+                         dockercompose: '%%CONTAINERNAME%%:
+  image: elasticsearch:1.5
+  container_name: %%CONTAINERNAME%%
+  volumes:
+    - %%TECHNOFOLDER%%:/usr/share/elasticsearch/data
+  command: elasticsearch -Des.network.bind_host=0.0.0.0'
                        )
 
 techno_memcached = Techno.create!(
@@ -157,7 +232,10 @@ techno_memcached = Techno.create!(
                      puppetclass: "pm::nosql::memcache",
                      ordering: 100,
                      technotype: keyvalue,
-                     hiera: "iscache: 1"
+                     hiera: "iscache: 1",
+                     dockercompose: '%%CONTAINERNAME%%:
+  image: memcached:1.4
+  container_name: %%CONTAINERNAME%%'
                    )
 
 techno_redis = Techno.create!(
@@ -165,7 +243,10 @@ techno_redis = Techno.create!(
                  puppetclass: "pm::nosql::redis",
                  ordering: 80,
                  technotype: keyvalue,
-                 hiera: ""
+                 hiera: "",
+                 dockercompose: '%%CONTAINERNAME%%:
+  image: redis:3
+  container_name: %%CONTAINERNAME%%'
                )
 
 techno_varnish = Techno.create!(
@@ -173,7 +254,8 @@ techno_varnish = Techno.create!(
                    puppetclass: "pm::varnish",
                    ordering: 200,
                    technotype: cache,
-                   hiera: ""
+                   hiera: "",
+                   dockercompose: ''
                  )
 
 techno_mysql = Techno.create!(
@@ -181,7 +263,14 @@ techno_mysql = Techno.create!(
                  puppetclass: "pm::sql",
                  ordering: 70,
                  technotype: bdd,
-                 hiera: "ismysql: 1"
+                 hiera: "ismysql: 1",
+                 dockercompose: '%%CONTAINERNAME%%:
+  container_name: %%CONTAINERNAME%%
+  volumes:
+    - %%TECHNOFOLDER%%:/var/lib/mysql
+  image: mariadb
+  environment:
+    MYSQL_ROOT_PASSWORD: toor'
                )
 
 techno_nodejs010 = Techno.create!(
@@ -189,7 +278,8 @@ techno_nodejs010 = Techno.create!(
                   puppetclass: "pm::nodejs",
                   ordering: 140,
                   technotype: node,
-                  hiera: "node_version: 0.10"
+                  hiera: "node_version: 0.10",
+                  dockercompose: ''
                 )
 
 techno_nodejs012 = Techno.create!(
@@ -197,7 +287,8 @@ techno_nodejs012 = Techno.create!(
                   puppetclass: "pm::nodejs",
                   ordering: 140,
                   technotype: node,
-                  hiera: "node_version: 0.12"
+                  hiera: "node_version: 0.12",
+                  dockercompose: ''
                 )
 
 techno_nodejs = Techno.create!(
@@ -205,7 +296,8 @@ techno_nodejs = Techno.create!(
                   puppetclass: "pm::nodejs",
                   ordering: 140,
                   technotype: node,
-                  hiera: "node_version: 4.x"
+                  hiera: "node_version: 4.x",
+                  dockercompose: ''
                 )
 
 techno_nodejs5 = Techno.create!(
@@ -213,7 +305,8 @@ techno_nodejs5 = Techno.create!(
                   puppetclass: "pm::nodejs",
                   ordering: 140,
                   technotype: node,
-                  hiera: "node_version: 5.x"
+                  hiera: "node_version: 5.x",
+                  dockercompose: ''
                 )
 
 techno_mongodb = Techno.create!(
@@ -222,7 +315,13 @@ techno_mongodb = Techno.create!(
                    ordering: 40,
                    technotype: bigdata,
                    hiera: "ismongo: 1
-mongodb::globals::version: '2.6.11'"
+mongodb::globals::version: '2.6.11'",
+                  dockercompose: '%%CONTAINERNAME%%:
+  image: mongo:2.6
+  container_name: %%CONTAINERNAME%%
+  volumes:
+    - %%TECHNOFOLDER%%:/data/db
+'
                  )
 
 techno_mongodb3 = Techno.create!(
@@ -231,7 +330,13 @@ techno_mongodb3 = Techno.create!(
                     ordering: 40,
                     technotype: bigdata,
                     hiera: "ismongo: 1
-mongodb::globals::version: '3.0.7'"
+mongodb::globals::version: '3.0.7'",
+                  dockercompose: '%%CONTAINERNAME%%:
+  image: mongo:3.0
+  container_name: %%CONTAINERNAME%%
+  volumes:
+    - %%TECHNOFOLDER%%:/data/db
+'
                   )
 
 techno_mongodb32 = Techno.create!(
@@ -240,7 +345,13 @@ techno_mongodb32 = Techno.create!(
                      ordering: 40,
                      technotype: bigdata,
                      hiera: "ismongo: 1
-mongodb::globals::version: '3.2.0'"
+mongodb::globals::version: '3.2.0'",
+                  dockercompose: '%%CONTAINERNAME%%:
+  image: mongo:3.2
+  container_name: %%CONTAINERNAME%%
+  volumes:
+    - %%TECHNOFOLDER%%:/data/db
+'
                    )
 
 techno_java6 = Techno.create!(
@@ -248,7 +359,8 @@ techno_java6 = Techno.create!(
                    puppetclass: "pm::java",
                    ordering: 20,
                    technotype: java,
-                   hiera: "pm::java::version: '6'"
+                   hiera: "pm::java::version: '6'",
+                   dockercompose: ''
                  )
 
 techno_java7 = Techno.create!(
@@ -256,7 +368,8 @@ techno_java7 = Techno.create!(
                    puppetclass: "pm::java",
                    ordering: 20,
                    technotype: java,
-                   hiera: "pm::java::version: '7'"
+                   hiera: "pm::java::version: '7'",
+                   dockercompose: ''
                  )
 
 techno_java8 = Techno.create!(
@@ -264,7 +377,8 @@ techno_java8 = Techno.create!(
                    puppetclass: "pm::java",
                    ordering: 20,
                    technotype: java,
-                   hiera: "pm::java::version: '8'"
+                   hiera: "pm::java::version: '8'",
+                   dockercompose: ''
                  )
 
 puts "Created #{Techno.count} technos"
@@ -496,7 +610,7 @@ project_njs = Project.create!(
                 gitpath: "yourcompany-www-njsyourcompany-com",
                 enabled: true,
                 is_ht: false,
-                technos: [techno_varnish, techno_nodejs, techno_apache, techno_nodejs]
+                technos: [techno_varnish, techno_nodejs]
               )
 
 
@@ -511,8 +625,10 @@ ep_njs = Endpoint.create!(
   aliases: "nodejs njs",
   port: 3100,
   ipfilter: '',
-  customvhost: ''
+  customvhost: '',
+  is_sh: false
 )
+ep_njs.install_endpoint
 
 ep_wp = Endpoint.create!(
   framework: framework_wordpress,
@@ -523,8 +639,10 @@ ep_wp = Endpoint.create!(
   aliases: "",
   port: 8080,
   ipfilter: '',
-  customvhost: ''
+  customvhost: '',
+  is_sh: false
 )
+ep_wp.install_endpoint
 
 ep_wp_html = Endpoint.create!(
   framework: framework_no,
@@ -535,8 +653,10 @@ ep_wp_html = Endpoint.create!(
   aliases: "",
   port: 8080,
   ipfilter: '',
-  customvhost: ''
+  customvhost: '',
+  is_sh: false
 )
+ep_wp_html.install_endpoint
 
 ep_static = Endpoint.create!(
   framework: framework_no,
@@ -547,8 +667,10 @@ ep_static = Endpoint.create!(
   aliases: "",
   port: 8080,
   ipfilter: '',
-  customvhost: ''
+  customvhost: '',
+  is_sh: false
 )
+ep_static.install_endpoint
 
 ep_drupal = Endpoint.create!(
   framework: framework_drupal8,
@@ -559,8 +681,10 @@ ep_drupal = Endpoint.create!(
   aliases: "",
   port: 8080,
   ipfilter: '',
-  customvhost: ''
+  customvhost: '',
+  is_sh: false
 )
+ep_drupal.install_endpoint
 
 ep_sf2s = Endpoint.create!(
   framework: framework_sf2,
@@ -571,8 +695,10 @@ ep_sf2s = Endpoint.create!(
   aliases: "sf2s",
   port: 8080,
   ipfilter: '',
-  customvhost: ''
+  customvhost: '',
+  is_sh: false
 )
+ep_sf2s.install_endpoint
 
 ep_sf3c = Endpoint.create!(
   framework: framework_sf3,
@@ -583,8 +709,10 @@ ep_sf3c = Endpoint.create!(
   aliases: "sf3c",
   port: 8080,
   ipfilter: '',
-  customvhost: ''
+  customvhost: '',
+  is_sh: false
 )
+ep_sf3c.install_endpoint
 
 puts "Created #{Endpoint.count} endpoints"
 
@@ -600,5 +728,3 @@ twitter_msg = Hpmessage.create!(
 )
 
 puts "Create #{Hpmessage.count} messages"
-
-
