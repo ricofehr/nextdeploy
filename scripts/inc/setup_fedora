@@ -18,10 +18,11 @@ install_vagrant() {
   vagrant version >/dev/null 2>&1
   if (($?!=0)); then
     output -q "Vagrant Installation ..."
-    curl -OsSL "https://dl.bintray.com/mitchellh/vagrant/vagrant_1.6.5_x86_64.rpm"
-    sudo dnf install -y vagrant_1.6.5_x86_64.rpm
+    curl -OsSL "https://releases.hashicorp.com/vagrant/1.8.4/vagrant_1.8.4_x86_64.rpm"
+    sudo dnf install -y vagrant_1.8.4_x86_64.rpm
     (($?!=0)) && output -e 'Vagrant installation has failed'
-    rm -f vagrant_1.6.5_x86_64.rpm
+    rm -f vagrant_1.8.4_x86_64.rpm
+    #sudo dnf install -y vagrant
   fi
 
   install_libvirt
@@ -55,7 +56,8 @@ install_vagrantlibvirt() {
 
   #sudo dnf install -y vagrant-libvirt
   output -q "Libvirt Vagrant Plugin Installation ..."
-  sudo dnf install -y libxml2-devel libxslt-devel libvirt-devel
+  sudo dnf install -y libxslt-devel libxml2-devel libvirt-devel libguestfs-tools-c ruby-devel
+  sudo alternatives --set ld /usr/bin/ld.gold
   vagrant plugin install vagrant-libvirt
   (($?!=0)) && output -e 'Libvirt plugin for vagrant installation has failed'
 }
