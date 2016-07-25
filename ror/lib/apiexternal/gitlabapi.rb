@@ -166,7 +166,7 @@ module Apiexternal
     # @return nothing
     def unprotect_branch(project_id, branch)
       Gitlab.unprotect_branch(project_id, branch)
-    rescue Exceptions => e
+    rescue => e
       raise Exceptions::GitlabApiException.new("unprotect_branch (#{project_id}, #{branch}) failed: #{e}")
     end
 
@@ -195,7 +195,7 @@ module Apiexternal
       access_level = 40 if access_level == 50
       Gitlab.add_team_member(project_id, user_id, access_level)
 
-    rescue Exceptions => e
+    rescue => e
       raise Exceptions::GitlabApiException.new("add_user_to_project failed, #{e}")
     end
 
@@ -207,7 +207,7 @@ module Apiexternal
     # @return [Array] commits list
     def get_commits(id, branchname)
       return Gitlab.commits(id, ref_name: branchname)
-    rescue Exceptions => e
+    rescue => e
       raise Exceptions::GitlabApiException.new("get_commits #{id} failed, #{e}")
     end
 
@@ -219,7 +219,7 @@ module Apiexternal
     # @return [Hash] commit details
     def get_commit(id, commithash)
       return Gitlab.commit(id, commithash)
-    rescue Exceptions => e
+    rescue => e
       raise Exceptions::GitlabApiException.new("get_commit #{commithash} failed, #{e}")
     end
 
@@ -230,7 +230,7 @@ module Apiexternal
     # @return [Array] Branchs lists
     def get_branches(id)
       return Gitlab.branches(id)
-    rescue Exceptions => e
+    rescue => e
       raise Exceptions::GitlabApiException.new("get_branchs #{id} failed, #{e}")
     end
 
@@ -241,7 +241,7 @@ module Apiexternal
     # @return [Hash] Branch details
     def get_branche(id, branchname)
       return Gitlab.branche(id, branchname)
-    rescue Exceptions => e
+    rescue => e
       raise Exceptions::GitlabApiException.new("get_branch #{id} (#{branchname}) failed, #{e}")
     end
 
