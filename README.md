@@ -2,24 +2,26 @@
 
 [![Build Status](http://build.nextdeploy.io/buildStatus/icon?job=nextdeploy)](http://build.nextdeploy.io/job/nextdeploy/)
 
-NextDeploy is a deployment system of virtualized development environments in a compute cloud. Generic installation templates are defined for different frameworks or cms. When creating a project, a git repository is associated with this installation template. Thus, virtual machines can be run on demand by deploying the site on a preinstalled system following prerequisites specified in the template.
+NextDeploy is a deployment system of virtualized web development (or production) environments in a compute cloud. Generic installation templates are defined for different frameworks or cms. When creating a project, a git repository is associated with this installation template. Thus, virtual machines can be run on demand by deploying the site on a preinstalled system following prerequisites specified in the template.
 
-The project uses a cloud to host vms. The api is working actually with openstack. In the future, HP and AWS cloud will also be taken into account. Installation templates are defined for the puppet tool. Git is used for versioning developments on projects and Gitlab manager is installed for these deposits. A REST API (in ruby on rails) is the intermediary between these systems and can manage user authentication, project creation, adding users, and of course the launch of vms.
+The project uses a cloud to host vms. The api is working actually with openstack. In future, AWS and GCE public cloud will also be taken into account. Installation templates are defined for the puppet tool. Git is used for versioning developments on projects and Gitlab manager is installed for these deposits. A REST API (in ruby on rails) is the intermediary between these systems and can manage user authentication, project creation, adding users, and of course the launch of vms.
 
 The REST api can be reached with 3 different ways
-* a local client (ruby script) to be use with commandline (Repository here: https://github.com/ricofehr/nextdeploy-cli)
+* a CLI Software (Repository here: https://github.com/ricofehr/nextdeploy-cli)
 * an WebUI developped with EMBER (Repository here: https://github.com/ricofehr/nextdeploy-webui)
 * an android application (Repository here: https://github.com/ricofehr/nextdeploy-android)
 
 ## Features
 
-* Vms created into openstack cloud
-* Actually, 3 cms are supporting: drupal, wordpress and symfony2
+* Vms created into a private openstack cloud
+* Actually, 3 cms are supporting: drupal, wordpress and symfony
+* Support for nodejs projects
 * Gitlab for versioning repository
 * Rest api developped with rails
 * A WebUI, a CLI software and an android application
+* Docker integration (thanks to CLI software) for launching user's projects in laptop
 * Based on vagrant, there is a complete process for install the project on his laptop.
-* Working progress, more features in future (more cms and technos supported, ldap connector for authentification, lot of linux image, Aws connector, ...)
+* Working progress, more features in future (more cms and technos supported, lot of linux image, Aws connector, ...)
 
 ## Repository Structure
 ```
@@ -37,7 +39,7 @@ nextdeploy/
 ```
 
 ## Submodules and Clone
-The cli application (client folder), the webui (ror/public folder), the vm installation templates (/puppet folder) and some puppet modules of the community used by installation and setting of nextdeploy, are included in the project in the form of Submodules git.
+The cli application (client folder), the webui (ror/public folder), the vm installation templates (/puppet folder) are included in the project in the form of Submodules git.
 
 To retrieve, use this clone cmd.
 ```
@@ -51,7 +53,7 @@ git submodule update --init --recursive
 
 ## Local Installation
 
-For the installation of the project on the computer for testing or development
+For the complete installation of NextDeploy on the computer for testing or development
 ```
 ./scripts/./setup
 ```
@@ -92,7 +94,7 @@ A set of groups, users and projects are created during installation.
 
 ## Remote installation
 
-For a remote installation, you must have at least 6 physical machines availables: 4 for the cloud, 1 for nextdeploy manager and 1 for the monitoring node. From this set, the following script makes much of the installation work and configuration based on puppet templates associated with vms vagrant.
+For a remote installation (for a real use), you must have at least 6 physical machines availables: 4 for the cloud, 1 for nextdeploy manager and 1 for the monitoring node. From this set, the following script makes much of the installation work and configuration based on puppet templates.
 ```
 Usage: ./scripts/./setup-remote [options]
 
@@ -134,7 +136,7 @@ Usage: ./scripts/./setup-remote [options]
 
 5 groups are defined at nextdeploy:
 * Admin: all rights
-* Lead Dev: all rights to the projects associated with it
+* Project Lead: all rights to the projects associated with it, can add users and manage users on his projects
 * Dev: only rights to edit their profile, access to the git repository, launch vms and ssh on them.
 * Pm: only rights to edit their profile or launch vms
 * Guest: only rights to recover access to urls vms
@@ -149,13 +151,13 @@ When local nextdeploy facility (see above Local Installation), the following use
 
 ## Vm installation pattern
 
-The tool used for managing templates facilities associated with the project is puppet. Currently supported technologies are mainly directed php with Symfony2, drupal and wordpress. It is also possible to start a vm "php" without involving a framework or cms. To follow, support for Java technology (ame), windows (sitecore), ...
+The tool used for managing templates facilities associated with the project is puppet. Currently supported technologies are mainly php with Symfony2, drupal and wordpress. It is also possible to start a vm "php" without involving a framework or cms. To follow, support for Java technology (aem), ruby (ror), python (django), ...
 
 The git repository for this templates: https://github.com/ricofehr/nextdeploy-puppet
 
 ## Android Application
 
-The android application is on a separate repository.
+The android application is on a separate repository. But on a early stage of development.
 Go here: http://github.com/ricofehr/nextdeploy-android
 
 
@@ -240,22 +242,25 @@ endpoint: api.nextdeploy.local
 
 The ruby client manages the following commands
 ```
-ndeploy clone [projectname]                         # clone project in current folder
+ndeploy clone [name]                                # clone project in current folder
 ndeploy config [endpoint] [username] [password]     # get/set properties settings for nextdeploy
-ndeploy destroy                                     # destroy current vm
-ndeploy getftp assets|dump [project]                # get an assets archive or a dump for the [project]
-ndeploy git [cmd]                                   # Executes a git command
+ndeploy destroy [idvm]                              # destroy a vm
+ndeploy details [idvm]                              # Display some details for a vm
+ndeploy docker                                      # [BETA] launch containers for execute current project
+ndeploy folder [idvm] [workspace]                   # Share project folder from a vm
+ndeploy getftp assets|dump|backup [project] [file]  # Get a file from project ftp
 ndeploy help [COMMAND]                              # Describe available commands or one specific command
-ndeploy launch [projectname] [branch] [commit]      # launch [commit] on the [branch] for [projectname] into remote nextdeploy platform
-ndeploy list                                        # list launched vms for current user
-ndeploy listftp assets|dump [project]               # list assets archive or a dump for the [project]
+ndeploy launch [name] [branch]                      # Launch a new vm
+ndeploy list [--all] [--head n]                     # list launched vms for current user.
+ndeploy listftp assets|dump|backup [project]        # List files from project ftp
+ndeploy logs [idvm]                                 # Display some logs for a vm
 ndeploy projects                                    # list projects for current user
-ndeploy putftp assets|dump [project] [file]         # putftp an assets archive [file] or a dump [file] for the [project]
-ndeploy ssh                                         # ssh into remote vm
+ndeploy putftp assets|dump [project] [file]         # Put a file onto project ftp
+ndeploy ssh [idvm]                                  # ssh into a vm
 ndeploy sshkey                                      # Put your public ssh key (id_rsa.pub) onto NextDeploy
 ndeploy sshkeys                                     # List sshkeys actually associated to the current user
-ndeploy up                                          # launch current commit to remote nextdeploy
-ndeploy upgrade                                     # upgrade ndeploy with the last version
+ndeploy up                                          # launch a new vm with current commit (in current folder)
+ndeploy upgrade [--force]                           # upgrade ndeploy with the last version
 ndeploy version                                     # print current version of ndeploy
 ```
 
@@ -287,8 +292,6 @@ cd ror && yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
 * More operating systems
 * Connectors for public cloud: aws, gce, ...
 * Connectors for external code repositories: bitbucket, github, ...
-* Improving the quality of code
-* Improve monitoring and supervision
 * Implement some extra functionnalities for the vms: security test, code quality parser, ..
 
 More details on the trello dashboard: https://trello.com/b/dVdgtJxE/nextdeploy
