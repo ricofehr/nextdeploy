@@ -15,7 +15,7 @@ module VmsHelper
     # generate ftp password
     ftppasswd = project.password
     rewrites = ""
-    basicAuth = Base64.strict_encode64(htlogin + ':' + htpassword) 
+    basicAuth = Base64.strict_encode64(htlogin + ':' + htpassword)
 
     #add base puppet class
     classes << '  - pm::base::apt'
@@ -101,8 +101,9 @@ module VmsHelper
           if !uri.envvars.nil? && !uri.envvars.empty?
             f.puts "    envvars:\n"
             f.puts "      - HOME=/home/modem\n"
-            uri.envvars.split(' ').each do |envvar| 
-              uris.each { |uri2| envvar.gsub!("%{URI_#{uri2.path.upcase}}", uri2.absolute) }
+            uri.envvars.split(' ').each do |envvar|
+              eppath = uri2.path.upcase
+              uris.each { |uri2| envvar.gsub!("%{URI_#{eppath}}", uri2.absolute).gsub!("%{PORT_#{eppath}}", uri2.port) }
               f.puts "      - #{envvar}\n"
             end
           end
@@ -328,7 +329,7 @@ module VmsHelper
 
     Rails.logger.warn "Checkci for vm #{vm_name}"
     bashret = `ssh modem@#{floating_ip} 'test -f /tmp/commithash1 && echo NOK'`
-      
+
     return true if bashret.match(/NOK/)
     return false
   end
@@ -407,7 +408,7 @@ module VmsHelper
   # @return message for execution and codestatus for request
   def logs
     apache_logs = uris.flat_map(&:absolute).map { |absolute| "/var/log/apache2/#{absolute}_access.log /var/log/apache2/#{absolute}_error.log" }.join(' ')
-    
+
     Rails.logger.warn "ssh modem@#{floating_ip} 'sudo tail -n 60 #{apache_logs} /var/log/mysql.err /var/log/mail.log'"
     bashret = `ssh modem@#{floating_ip} "sudo tail -n 60 #{apache_logs} /var/log/mysql.err /var/log/mail.log"`
 
