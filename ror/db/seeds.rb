@@ -96,7 +96,8 @@ framework_wordpress = Framework.create!(
   environment:
     WORDPRESS_DB_HOST: \'mysql_%%PROJECTNAME%%\'
     WORDPRESS_DB_USER: \'root\'
-    WORDPRESS_DB_PASSWORD: \'toor\'
+    WORDPRESS_DB_PASSWORD: \'8to9or1\'
+    WORDPRESS_DB_NAME: \'%%EPPATH%%\'
 %%ENVVARS%%
   ports:
     - %%PORT%%:80
@@ -106,7 +107,7 @@ framework_wordpress = Framework.create!(
                       )
 
 framework_nodejs = Framework.create( name: 'NodeJS', publicfolder: '', rewrites: '', dockercompose: '%%CONTAINERNAME%%:
-  image: node:4-onbuild
+  image: nextdeploy/node
   container_name: %%CONTAINERNAME%%
 %%ENVVARS%%
   ports:
@@ -120,7 +121,7 @@ framework_reactjs = Framework.create(
                  publicfolder: '',
                  rewrites: '',
                  dockercompose: '%%CONTAINERNAME%%:
-  image: node:4-onbuild
+  image: nextdeploy/node
   container_name: %%CONTAINERNAME%%
 %%ENVVARS%%
   ports:
@@ -270,7 +271,7 @@ techno_mysql = Techno.create!(
     - %%TECHNOFOLDER%%:/var/lib/mysql
   image: mariadb
   environment:
-    MYSQL_ROOT_PASSWORD: toor'
+    MYSQL_ROOT_PASSWORD: 8to9or1'
                )
 
 techno_nodejs010 = Techno.create!(
