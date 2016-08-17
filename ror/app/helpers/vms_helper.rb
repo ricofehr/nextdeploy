@@ -102,8 +102,11 @@ module VmsHelper
             f.puts "    envvars:\n"
             f.puts "      - HOME=/home/modem\n"
             uri.envvars.split(' ').each do |envvar|
-              eppath = uri2.path.upcase
-              uris.each { |uri2| envvar.gsub!("%{URI_#{eppath}}", uri2.absolute).gsub!("%{PORT_#{eppath}}", uri2.port) }
+              uris.each do |uri2|
+                eppath = uri2.path.upcase
+                envvar.gsub!("%{URI_#{eppath}}", uri2.absolute)
+                envvar.gsub!("%{PORT_#{eppath}}", "#{uri2.port}")
+              end
               f.puts "      - #{envvar}\n"
             end
           end
