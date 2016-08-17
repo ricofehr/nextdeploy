@@ -19,7 +19,7 @@ module API
       before_action :check_ci, only: [:gitpull, :postinstall]
       # Hook who reload ci right after tool action
       after_action :reload_ci, only: [:gitpull, :postinstall]
-      
+
 
       # List all vms
       def index
@@ -250,7 +250,11 @@ module API
       # Refresh commit id for vm
       def refreshcommit
         @vm = Vm.find_by(name: params[:name])
-        @vm.refreshcommit(params[:commit_id])
+        if @vm
+          @vm.refreshcommit(params[:commit_id])
+        else
+          Rails.logger.warn "Refreshcommit, no vm identified by name: #{params[:name]}"
+        end
         render nothing: true
       end
 
