@@ -83,8 +83,8 @@ gitlab::nginx:
   proxy_set_headers:
     'X-Forwarded-Proto': "https"
     'X-Forwarded-Ssl': "on"
-  log_format: '$http_x_forwarded_for - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"'
-  custom_nginx_config: "log_format oshttp \\'$http_x_forwarded_for - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\"\\';server_names_hash_bucket_size 128;client_max_body_size 64m;large_client_header_buffers 32 128k;include /etc/os-maintenance.conf;include /etc/os-doc.conf;include /etc/os-http.conf;"
+  log_format: '$remote_addr - $http_x_forwarded_for - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"'
+  custom_nginx_config: "log_format oshttp \\'$remote_addr - $http_x_forwarded_for - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\"\\';server_names_hash_bucket_size 128;client_max_body_size 64m;large_client_header_buffers 32 128k;include /etc/os-maintenance.conf;include /etc/os-doc.conf;include /etc/os-http.conf;"
 gitlab::sidekiq:
   shutdown_timeout: 5
 
