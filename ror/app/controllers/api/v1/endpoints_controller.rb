@@ -7,7 +7,7 @@ module API
       # Hook who set endpoint object
       before_action :set_endpoint, only: [:show, :update, :destroy]
       # Check user right for avoid no-authorized access
-      before_action :only_create, only: [:create, :destroy] 
+      before_action :only_create, only: [:create, :destroy]
       before_action :filter_lead, only: [:update]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]

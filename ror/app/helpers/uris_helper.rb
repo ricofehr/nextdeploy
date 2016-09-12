@@ -206,7 +206,7 @@ module UrisHelper
     bashret = ''
 
     Rails.logger.warn "Drush command for vm #{vm.name} (#{frwname})"
-    
+
     # take a lock for vm action
     begin
       open("/tmp/vm#{vm.id}.lock", File::RDWR|File::CREAT) do |f|
@@ -386,7 +386,7 @@ module UrisHelper
   def listscript
     docroot = "/var/www/#{vm.project.name}/#{path}"
     bashret = `ssh modem@#{vm.floating_ip} 'cd #{docroot} && findscripts.sh'`
-    
+
     # Return bash output
     { message: bashret, status: 200 }
   end

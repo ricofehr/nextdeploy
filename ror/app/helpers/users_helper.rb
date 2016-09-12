@@ -23,7 +23,7 @@ module UsersHelper
     begin
       open("/tmp/user#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-    
+
         # todo: avoid bash cmd
         system('mkdir -p sshkeys')
         system("rm -f sshkeys/#{email}.authorized_keys")
@@ -164,11 +164,11 @@ module UsersHelper
   # @param emailsrc (String): user from which we copy modemkeys
   # No return
   def copy_sshkey_modem(emailsrc)
-   
+
     begin
       open("/tmp/user#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-        
+
         # todo: avoid bash cmd
         system("mkdir -p sshkeys")
         system("cp -f sshkeys/#{emailsrc} sshkeys/#{email}")

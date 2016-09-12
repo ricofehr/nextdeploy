@@ -117,7 +117,7 @@ module API
       def script
         # secure command parameter
         params[:command] = params[:command].gsub('..', '').gsub(';', '');
-        
+
         ret = @uri.script(params[:command].split(',')[0], params[:command].split(',')[1])
         render plain: ret[:message], status: ret[:status]
       end

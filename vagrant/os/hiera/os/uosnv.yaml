@@ -78,7 +78,7 @@ nova::compute::vnc_keymap: 'fr'
 
 #nova::compute::libvirt setting
 nova::compute::libvirt::migration_support: true
-nova::compute::libvirt::libvirt_disk_cachemodes: 
+nova::compute::libvirt::libvirt_disk_cachemodes:
   - 'file=writeback'
 nova::compute::libvirt::libvirt_virt_type: "%{hiera('global::nova_hv')}"
 nova::compute::libvirt::vncserver_listen: '0.0.0.0'

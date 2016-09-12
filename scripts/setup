@@ -585,7 +585,7 @@ install_nextdeploy() {
   sleep 180
   vagrant up --provider=${HVISOR}
   (( $? != 0 )) && output -e 'Manager node creation has some error(s)'
-  
+
   sleep 200
   output -q "The manager instance is up"
   popd > /dev/null
