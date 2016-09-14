@@ -94,10 +94,6 @@
 [submodule "vagrant/modules/apt"]
 	path = vagrant/modules/apt
 	url = https://github.com/puppetlabs/puppetlabs-apt.git
-[submodule "vagrant/modules/neutron"]
-	path = vagrant/modules/neutron
-	url = https://github.com/stackforge/puppet-neutron.git
-	branch = stable/kilo
 [submodule "vagrant/modules/nova"]
 	path = vagrant/modules/nova
 	url = https://github.com/stackforge/puppet-nova.git
@@ -132,3 +128,7 @@
 [submodule "webui"]
 	path = webui
 	url = git@github.com:ricofehr/nextdeploy-webui
+[submodule "vagrant/modules/neutron"]
+	path = vagrant/modules/neutron
+	url = https://github.com/ricofehr/puppet-neutron
+	branch = nextdeploy

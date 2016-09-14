@@ -98,6 +98,7 @@ neutron_subnet:
     network_name: 'public'
     tenant_name: 'services'
     allocation_pools:
+      - "start=%{hiera('global::pubprefix')}.11,end=%{hiera('global::pubprefix')}.59"
       - "start=%{hiera('global::pubprefix')}.80,end=%{hiera('global::pubprefix')}.250"
     dns_nameservers:
       - "%{hiera('global::pubprefix')}.60"
