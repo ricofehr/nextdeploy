@@ -240,7 +240,7 @@ while (($# > 0)); do
       ;;
     --nova5-ip)
       shift
-      NOVAI5P="$1"
+      NOVA5IP="$1"
       ISOTHERNOVA=1
       shift
       ;;
