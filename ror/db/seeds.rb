@@ -486,6 +486,9 @@ glance_id_j.strip!
 glance_id_t = %x(glance --os-username user --os-password wordpass --os-tenant-name tenant0 --os-image-api-version 1 --os-auth-url http://controller-m:35357/v2.0 image-show osvm-trusty | grep "id" | sed "s; [^ ]*$;;" | sed "s;^.* ;;")
 glance_id_t.strip!
 
+glance_id_x = %x(glance --os-username user --os-password wordpass --os-tenant-name tenant0 --os-image-api-version 1 --os-auth-url http://controller-m:35357/v2.0 image-show osvm-xenial | grep "id" | sed "s; [^ ]*$;;" | sed "s;^.* ;;")
+glance_id_x.strip!
+
 ubuntu14 = Systemimage.create!(
              name: 'Ubuntu1404',
              glance_id: glance_id_t,
@@ -500,6 +503,14 @@ debian8 = Systemimage.create!(
             systemimagetype: linux
           )
 
+ubuntu16 = Systemimage.create!(
+            name: 'Ubuntu1604',
+            glance_id: glance_id_x,
+            enabled: true,
+            systemimagetype: linux
+          )
+
+
 puts "Create #{Systemimage.count} system image"
 
 #Project import rows
@@ -507,7 +518,7 @@ project_drupal = Project.create!(
                    name: "www.drupalmycompany.com",
                    brand: brand_cust1,
                    gitpath: "mycompany-www-drupalmycompany-com",
-                   systemimages: [ubuntu14, debian8],
+                   systemimages: [ubuntu16, debian8],
                    enabled: true,
                    login: "modem",
                    password: "modem",
@@ -571,7 +582,7 @@ project_symfony_s = Project.create!(
 
 project_no = Project.create!(
                name: "www.statichiscompany.com",
-               systemimages: [ubuntu14, debian8],
+               systemimages: [ubuntu16],
                brand: brand_cust3,
                login: "modem",
                password: "modem",

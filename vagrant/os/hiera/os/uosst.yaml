@@ -46,6 +46,13 @@ glance_image:
     container_format: 'bare'
     disk_format: 'qcow2'
     source: 'http://imgs.nextdeploy.io/os/osvm-trusty2.img'
+  osvm-xenial:
+    ensure: present
+    name: 'osvm-xenial'
+    is_public: 'yes'
+    container_format: 'bare'
+    disk_format: 'qcow2'
+    source: 'http://imgs.nextdeploy.io/os/osvm-xenial.img'
 
 #keystone setting
 keystone::enabled: false
