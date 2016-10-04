@@ -518,7 +518,7 @@ project_drupal = Project.create!(
                    name: "www.drupalmycompany.com",
                    brand: brand_cust1,
                    gitpath: "mycompany-www-drupalmycompany-com",
-                   systemimages: [ubuntu16, debian8],
+                   systemimages: [ubuntu14, debian8],
                    enabled: true,
                    login: "modem",
                    password: "modem",
@@ -582,7 +582,7 @@ project_symfony_s = Project.create!(
 
 project_no = Project.create!(
                name: "www.statichiscompany.com",
-               systemimages: [ubuntu16],
+               systemimages: [ubuntu14],
                brand: brand_cust3,
                login: "modem",
                password: "modem",
@@ -612,7 +612,7 @@ project_wordpress = Project.create!(
 
 project_njs = Project.create!(
                 name: "www.njsyourcompany.com",
-                systemimages: [ubuntu14, debian8],
+                systemimages: [ubuntu16],
                 brand: brand_cust2,
                 login: "modem",
                 password: "modem",
