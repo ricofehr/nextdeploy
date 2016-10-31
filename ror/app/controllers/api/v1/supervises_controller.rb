@@ -1,0 +1,37 @@
+module API
+  module V1
+    # VmTechnos controller for the rest API (V1).
+    # Actually, Technotype objects are managed directly in database.
+    # Controller is needed only for display properties into json format for rest compliance
+    #
+    # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
+    class SupervisesController < ApplicationController
+      # List all vmtechnotypes objects for a vm
+      def index
+        @supervises = Supervise.all
+        #.find(params[:vm_id]).vm_technos
+
+        # Json output
+        respond_to do |format|
+            format.json { render json: @supervises, status: 200 }
+        end
+      end
+
+      # Execute datas export into vm
+      def status
+        changed = Supervise.find_by_foreigns(params[:vm_id], params[:techno_id]).first.change_status(params[:status])
+        if changed == 1
+          SuperviseMailer.supervise_email(@user, Vm.find(params[:vm_id]), Techno.find(params[:techno_id]), params[:status])
+        end
+
+        render nothing: true
+      end
+
+      private
+        # Never trust parameters from the scary internet, only allow the white list through.
+        def technotype_params
+          params.require(:supervise).permit(:vm_id, :techno_id, :status)
+        end
+    end
+  end
+end

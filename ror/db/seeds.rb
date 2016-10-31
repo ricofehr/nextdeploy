@@ -168,40 +168,84 @@ kibana = Technotype.create!(name: "Kibana")
 
 #Techno import rows
 kibana4 = Techno.create!(
-    name: "kibana4",
-    ordering: 50,
-    technotype: kibana,
-    hiera: "",
-    puppetclass: "pm::kibana",
-    dockercompose: '%%CONTAINERNAME%%:
+            name: "kibana4",
+            ordering: 50,
+            technotype: kibana,
+            hiera: "",
+            puppetclass: "pm::kibana",
+            dockercompose: '%%CONTAINERNAME%%:
   image: kibana:4
-  container_name: %%CONTAINERNAME%%'
-  )
+  container_name: %%CONTAINERNAME%%',
+            playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Kibana
+      shell: nmap 127.0.0.1 -p 5601 | grep open >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 phpapc = Techno.create!(
-    name: "php-apc",
-    ordering: 170,
-    technotype: apc,
-    hiera: "",
-    puppetclass: "pm::tool::phpapc"
-  )
+           name: "php-apc",
+           ordering: 170,
+           technotype: apc,
+           hiera: "",
+           puppetclass: "pm::tool::phpapc",
+           playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Apc
+      shell: php -i | grep apc >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_wkhtml0123 = Techno.create!(
-    name: "wkhtmltopdf-0.12.3",
-    ordering: 220,
-    technotype: wkhtml,
-    hiera: "pm::tool::wkhtmltopdf::major: '0.12'
+                      name: "wkhtmltopdf-0.12.3",
+                      ordering: 220,
+                      technotype: wkhtml,
+                      hiera: "pm::tool::wkhtmltopdf::major: '0.12'
 pm::tool::wkhtmltopdf::minor: '3'",
-    puppetclass: "pm::tool::wkhtmltopdf"
-  )
+                      puppetclass: "pm::tool::wkhtmltopdf",
+                      playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Wkhtmltopdf
+      shell: test -x /usr/bin/wkhtmltopdf >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_apache = Techno.create!(
                   name: "apache",
                   puppetclass: "pm::http",
                   ordering: 160,
                   technotype: wserver,
-                  hiera: "iswebserver: 1"
-            )
+                  hiera: "iswebserver: 1",
+                  playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Apache
+      shell: ps aux | grep /usr/sbin/apache2 | grep -v grep >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_rabbitmq = Techno.create!(
                     name: "rabbitmq",
@@ -211,8 +255,19 @@ techno_rabbitmq = Techno.create!(
                     hiera: "",
                     dockercompose: '%%CONTAINERNAME%%:
   image: rabbitmq:3
-  container_name: %%CONTAINERNAME%%'
-                  )
+  container_name: %%CONTAINERNAME%%',
+                    playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check RabbitMQ
+      shell: nmap 127.0.0.1 -p 5672 | grep open >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_elasticsearch = Techno.create!(
                          name: "elasticsearch",
@@ -225,8 +280,19 @@ techno_elasticsearch = Techno.create!(
   container_name: %%CONTAINERNAME%%
   volumes:
     - %%TECHNOFOLDER%%:/usr/share/elasticsearch/data
-  command: elasticsearch -Des.network.bind_host=0.0.0.0'
-                       )
+  command: elasticsearch -Des.network.bind_host=0.0.0.0',
+                        playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check ElasticSearch
+      shell: nmap 127.0.0.1 -p 9300 | grep open >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_memcached = Techno.create!(
                      name: "memcached",
@@ -236,8 +302,19 @@ techno_memcached = Techno.create!(
                      hiera: "iscache: 1",
                      dockercompose: '%%CONTAINERNAME%%:
   image: memcached:1.4
-  container_name: %%CONTAINERNAME%%'
-                   )
+  container_name: %%CONTAINERNAME%%',
+                playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Memcached
+      shell: nmap 127.0.0.1 -p 11211 | grep open >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_redis = Techno.create!(
                  name: "redis",
@@ -247,8 +324,19 @@ techno_redis = Techno.create!(
                  hiera: "",
                  dockercompose: '%%CONTAINERNAME%%:
   image: redis:3
-  container_name: %%CONTAINERNAME%%'
-               )
+  container_name: %%CONTAINERNAME%%',
+                 playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Redis
+      shell: nmap 127.0.0.1 -p 6379 | grep open >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_varnish = Techno.create!(
                    name: "varnish",
@@ -256,8 +344,19 @@ techno_varnish = Techno.create!(
                    ordering: 200,
                    technotype: cache,
                    hiera: "",
-                   dockercompose: ''
-                 )
+                   dockercompose: '',
+                   playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Varnish
+      shell: nmap 127.0.0.1 -p 80 | grep open >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_mysql = Techno.create!(
                  name: "mysql",
@@ -271,26 +370,59 @@ techno_mysql = Techno.create!(
     - %%TECHNOFOLDER%%:/var/lib/mysql
   image: mariadb
   environment:
-    MYSQL_ROOT_PASSWORD: 8to9or1'
-               )
+    MYSQL_ROOT_PASSWORD: 8to9or1',
+                playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Mysql
+      shell: nmap 127.0.0.1 -p 3306 | grep open >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_nodejs010 = Techno.create!(
-                  name: "nodejs-0.10",
-                  puppetclass: "pm::nodejs",
-                  ordering: 140,
-                  technotype: node,
-                  hiera: "node_version: 0.10",
-                  dockercompose: ''
-                )
+                     name: "nodejs-0.10",
+                     puppetclass: "pm::nodejs",
+                     ordering: 140,
+                     technotype: node,
+                     hiera: "node_version: 0.10",
+                     dockercompose: '',
+                     playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Node Binary
+      shell: test -x /usr/bin/node >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_nodejs012 = Techno.create!(
-                  name: "nodejs-0.12",
-                  puppetclass: "pm::nodejs",
-                  ordering: 140,
-                  technotype: node,
-                  hiera: "node_version: 0.12",
-                  dockercompose: ''
-                )
+                     name: "nodejs-0.12",
+                     puppetclass: "pm::nodejs",
+                     ordering: 140,
+                     technotype: node,
+                     hiera: "node_version: 0.12",
+                     dockercompose: '',
+                     playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Node Binary
+      shell: test -x /usr/bin/node >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_nodejs = Techno.create!(
                   name: "nodejs-4",
@@ -298,17 +430,39 @@ techno_nodejs = Techno.create!(
                   ordering: 140,
                   technotype: node,
                   hiera: "node_version: 4.x",
-                  dockercompose: ''
-                )
+                  dockercompose: '',
+                  playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Node Binary
+      shell: test -x /usr/bin/node >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_nodejs5 = Techno.create!(
-                  name: "nodejs-5",
-                  puppetclass: "pm::nodejs",
-                  ordering: 140,
-                  technotype: node,
-                  hiera: "node_version: 5.x",
-                  dockercompose: ''
-                )
+                   name: "nodejs-5",
+                   puppetclass: "pm::nodejs",
+                   ordering: 140,
+                   technotype: node,
+                   hiera: "node_version: 5.x",
+                   dockercompose: '',
+                   playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Node Binary
+      shell: test -x /usr/bin/node >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_mongodb = Techno.create!(
                    name: "mongodb-2.6",
@@ -317,13 +471,24 @@ techno_mongodb = Techno.create!(
                    technotype: bigdata,
                    hiera: "ismongo: 1
 mongodb::globals::version: '2.6.11'",
-                  dockercompose: '%%CONTAINERNAME%%:
+                   dockercompose: '%%CONTAINERNAME%%:
   image: mongo:2.6
   container_name: %%CONTAINERNAME%%
   volumes:
     - %%TECHNOFOLDER%%:/data/db
-'
-                 )
+',
+                   playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check MongoDB
+      shell: nmap 127.0.0.1 -p 27017 | grep open >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_mongodb3 = Techno.create!(
                     name: "mongodb-3.0",
@@ -337,8 +502,19 @@ mongodb::globals::version: '3.0.7'",
   container_name: %%CONTAINERNAME%%
   volumes:
     - %%TECHNOFOLDER%%:/data/db
-'
-                  )
+',
+                   playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check MongoDB
+      shell: nmap 127.0.0.1 -p 27017 | grep open >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_mongodb32 = Techno.create!(
                      name: "mongodb-3.2",
@@ -352,8 +528,19 @@ mongodb::globals::version: '3.2.0'",
   container_name: %%CONTAINERNAME%%
   volumes:
     - %%TECHNOFOLDER%%:/data/db
-'
-                   )
+',
+                   playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check MongoDB
+      shell: nmap 127.0.0.1 -p 27017 | grep open >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_java6 = Techno.create!(
                    name: "java-6",
@@ -361,8 +548,19 @@ techno_java6 = Techno.create!(
                    ordering: 20,
                    technotype: java,
                    hiera: "pm::java::version: '6'",
-                   dockercompose: ''
-                 )
+                   dockercompose: '',
+                   playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Java Binary
+      shell: test -x /usr/bin/java >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_java7 = Techno.create!(
                    name: "java-7",
@@ -370,8 +568,19 @@ techno_java7 = Techno.create!(
                    ordering: 20,
                    technotype: java,
                    hiera: "pm::java::version: '7'",
-                   dockercompose: ''
-                 )
+                   dockercompose: '',
+                   playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Java Binary
+      shell: test -x /usr/bin/java >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 techno_java8 = Techno.create!(
                    name: "java-8",
@@ -379,8 +588,19 @@ techno_java8 = Techno.create!(
                    ordering: 20,
                    technotype: java,
                    hiera: "pm::java::version: '8'",
-                   dockercompose: ''
-                 )
+                   dockercompose: '',
+                   playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Java Binary
+      shell: test -x /usr/bin/java >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
 
 puts "Created #{Techno.count} technos"
 

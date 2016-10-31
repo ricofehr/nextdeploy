@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>Hello <%= @user.firstname %> <%= @user.lastname %>,</h1>
+    <p>
+    <%= if @status == 0 %>
+      A problem is detected on your vm for the techno <%= @techno.name %> (<%= @technotype.name %>)
+    <% else %>
+      The problem is resolved on your vm for the techno <%= @techno.name %> (<%= @technotype.name %>)
+    <% end %>
+   </p>
+    <p>
+      Nextdeploy, <%= @url %>.
+    </p>
+    <p>Thanks for your attention and have a great day!</p>
+  </body>
+</html>

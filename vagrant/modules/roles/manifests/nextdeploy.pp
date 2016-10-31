@@ -16,6 +16,8 @@ class roles::nextdeploy {
   class {'pm::base':} ->
   class {'pm::hosts':} ->
   class {'pm::monitor::collect':} ->
+  class {'pm::monitor::ansible':} ->
+  class {'pm::monitor::ndeploy':} ->
   class {'pm::hids::agent':} ->
   class {'pm::pound':} ->
   class {'pm::ror':} ->

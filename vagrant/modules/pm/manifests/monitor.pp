@@ -240,3 +240,102 @@ class pm::monitor::collect::memcached {
     port => 11211,
   }
 }
+
+# == Class: pm::monitor::ansible
+#
+# Install ansible
+#
+#
+# === Authors
+#
+# Eric Fehr <ricofehr@nextdeploy.io>
+#
+class pm::monitor::ansible {
+  Exec {
+    path => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/rvm/bin:/opt/ruby/bin',
+    user => 'root',
+  }
+
+#  file {  '/etc/apt/sources.list.d/ansible.list':
+#    ensure => 'file',
+#    content => 'deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main',
+#    owner => 'root',
+#    group => 'root',
+#    mode => '0644'
+#  }
+#  ->
+  exec { 'ansible-ppa':
+    command => 'add-apt-repository ppa:ansible/ansible',
+    creates => '/usr/bin/ansible'
+  }
+  ->
+  exec { 'apt-ansible-update':
+    command => 'apt-get update',
+    timeout => 0,
+    creates => '/usr/bin/ansible'
+  }
+  ->
+  package { 'ansible':
+    ensure => 'installed'
+  }
+}
+
+# == Class: pm::monitor::ndeploy
+#
+# Install ndeploy tools and ensure that is always last version
+#
+#
+# === Authors
+#
+# Eric Fehr <ricofehr@nextdeploy.io>
+#
+class pm::monitor::ndeploy {
+  Exec {
+    path => '/usr/local/rvm/gems/ruby-2.1.0/bin:/usr/local/rvm/gems/ruby-2.1.0@global/bin:/usr/local/rvm/rubies/ruby-2.1.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/rvm/bin:/opt/ruby/bin/',
+   environment => [
+          'rvm_bin_path=/usr/local/rvm/bin',
+          'SHELL=/bin/bash',
+          'USER=modem',
+          'rvm_path=/usr/local/rvm',
+          'rvm_prefix=/usr/local',
+          'LC_ALL=en_US.UTF-8',
+          'LANG=en_US.utf8',
+          'HOME=/home/modem',
+          'LANGUAGE=en_US',
+          'GEM_HOME=/usr/local/rvm/gems/ruby-2.1.0',
+          'IRBRC=/usr/local/rvm/rubies/ruby-2.1.0/.irbrc',
+          'MY_RUBY_HOME=/usr/local/rvm/rubies/ruby-2.1.0',
+          'GEM_PATH=/usr/local/rvm/gems/ruby-2.1.0:/usr/local/rvm/gems/ruby-2.1.0@global',
+          'RUBY_VERSION=ruby-2.1.0'
+      ], 
+    user => 'modem',
+    group => 'modem'
+  }
+
+  exec { 'ndeploy-install':
+    command => 'curl -sSL http://cli.nextdeploy.io/ | bash',
+    timeout => 0,
+    creates => '/usr/local/bin/ndeploy',
+    require => Class['rvm'],
+  }
+  ->
+  exec { 'rm-default-setting':
+    command => 'rm -f /home/modem/.nextdeploy.conf',
+    creates => '/etc/nextdeploy.conf'
+  }
+  ->
+  exec { 'ndeploy-update':
+    command => 'ndeploy upgrade'
+  }
+  ->
+  file { '/etc/nextdeploy.conf':
+    ensure => file,
+    mode   => 644,
+    source => [
+      "puppet:///modules/pm/ndeploy/nextdeploy.conf_${clientcert}",
+      "puppet:///modules/pm/ndeploy/nextdeploy.conf"
+    ],
+    owner => 'root',
+    group => 'root'
+  }
+}

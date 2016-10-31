@@ -64,6 +64,10 @@ Rails.application.routes.draw do
       get '/commits/:id' => 'commits#show', constraints: { id: /.+/ }
       get '/commits' => 'commits#index'
 
+      # vmtechnos routes
+      get '/supervises' => 'supervises#index', constraints: { vm_id: /\d+/ }
+      post '/supervises/:vm_id/status' => 'supervises#status', constraints: { vm_id: /\d+/ }
+
       # Complete routes
       with_options only: [:create, :index, :show, :update, :destroy] do |list_only|
         list_only.resources :groups

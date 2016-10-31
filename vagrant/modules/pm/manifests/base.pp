@@ -197,7 +197,7 @@ class pm::base {
   }
 
   # ensure this packages are installed (ignore if they are already defined)
-  ensure_packages(['unzip', 'wget'])
+  ensure_packages(['unzip', 'wget', 'software-properties-common'])
 
   #env locals settings
   file { '/etc/environment':

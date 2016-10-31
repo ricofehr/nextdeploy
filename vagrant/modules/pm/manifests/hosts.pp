@@ -13,6 +13,7 @@ class pm::hosts {
   $managementprefix = hiera('global::managementprefix', '172.16.170')
   $dataprefix = hiera('global::dataprefix', '172.16.171')
   $gitlabns = hiera('global::gitlabns', 'gitlab.local')
+  $nduri = hiera('global::nextdeployuri', 'nextdeploy.local')
 
   file { '/etc/hosts':
     ensure => file,
@@ -24,7 +25,7 @@ class pm::hosts {
     group => 'root'
   } ->
   exec { 'hostnametolocalhost':
-    command => "/bin/sed -i 's;%%GITLABNS%%;${gitlabns};' /etc/hosts",
+    command => "/bin/sed -i 's/%%GITLABNS%%/${gitlabns}/;s/%%APIURI%%/api.${nduri}/' /etc/hosts",
     onlyif => '/bin/grep GITLABNS /etc/hosts'
   } ->
   exec { 'hostnametolocalhost2':

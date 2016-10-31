@@ -11,8 +11,8 @@ class Vm < ActiveRecord::Base
   belongs_to :user
   belongs_to :systemimage
 
-  has_many :vm_technos, dependent: :destroy
-  has_many :technos, through: :vm_technos
+  has_many :supervises, dependent: :destroy
+  has_many :technos, through: :supervises
   has_many :uris, dependent: :destroy
   has_many :frameworks, through: :uris
 

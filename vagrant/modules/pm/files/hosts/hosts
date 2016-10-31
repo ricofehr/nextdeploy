@@ -1,5 +1,5 @@
 127.0.0.1 localhost %%HOSTNAME%%
-%%PUBPREFIX%%.60 %%GITLABNS%%
+%%PUBPREFIX%%.60 %%GITLABNS%% %%APIURI%%
 %%APIPREFIX%%.75 nova-a
 %%APIPREFIX%%.70 controller-a horizon-a keystone-a
 %%APIPREFIX%%.71 neutron-a
