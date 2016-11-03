@@ -267,13 +267,13 @@ class pm::os::nv0_postinstall {
     command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 flavor-create m1.small 2 1024 15 2',
   } ->
   exec { 'nova-quota-instances':
-    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --instances 170 default',
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --instances 217 default',
   } ->
   exec { 'nova-quota-keypairs':
     command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --key-pairs 1700 default',
   } ->
   exec { 'nova-quota-floatingips':
-    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --floating-ips 170 default',
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --floating-ips 217 default',
   } ->
   exec { 'nova-quota-cores':
     command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --cores 416 default',
@@ -285,25 +285,25 @@ class pm::os::nv0_postinstall {
     command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --metadata-items 1280 default',
   } ->
   exec { 'nova-quota-servergroups':
-    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --server-groups 170 default',
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --server-groups 217 default',
   } ->
   exec { 'nova-quota-servergroupmembers':
-    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --server-group-members 170 default',
+    command => 'nova --os-username nova --os-password osnova --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-class-update --server-group-members 217 default',
   } ->
   exec { 'cinder-quota-gb':
     command => 'cinder --os-username cinder --os-password oscinder --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --gigabytes 4000 default',
   } ->
   exec { 'cinder-quota-volumes':
-    command => 'cinder --os-username cinder --os-password oscinder --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --volumes 170 default',
+    command => 'cinder --os-username cinder --os-password oscinder --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --volumes 217 default',
   } ->
   exec { 'cinder-quota-snapshots':
-    command => 'cinder --os-username cinder --os-password oscinder --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --snapshots 170 default',
+    command => 'cinder --os-username cinder --os-password oscinder --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --snapshots 217 default',
   } ->
   exec { 'neutron-quota-port':
-    command => 'neutron --os-username neutron --os-password osneutron --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --port 170 --tenant-id "$(openstack --os-username neutron --os-password osneutron --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 project show -f value tenant0 -c id | tr -d "\n")"',
+    command => 'neutron --os-username neutron --os-password osneutron --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --port 217 --tenant-id "$(openstack --os-username neutron --os-password osneutron --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 project show -f value tenant0 -c id | tr -d "\n")"',
   } ->
   exec { 'neutron-quota-floatingip':
-    command => 'neutron --os-username neutron --os-password osneutron --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --floatingip 170 --tenant-id "$(openstack --os-username neutron --os-password osneutron --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 project show -f value tenant0 -c id | tr -d "\n")"',
+    command => 'neutron --os-username neutron --os-password osneutron --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 quota-update --floatingip 217 --tenant-id "$(openstack --os-username neutron --os-password osneutron --os-tenant-name services --os-auth-url http://controller-m:35357/v2.0 project show -f value tenant0 -c id | tr -d "\n")"',
   } ->
   exec { 'touchnovapostinstall0':
     command => 'touch /home/modem/.novapostinstall0',
