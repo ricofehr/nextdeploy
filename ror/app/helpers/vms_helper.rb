@@ -141,6 +141,7 @@ module VmsHelper
         f.puts "pm::varnish::isprod: #{is_prod}\n"
         f.puts "pm::varnish::isauth: #{is_auth}\n"
         f.puts "pm::varnish::iscached: #{is_cached}\n"
+        f.puts "pm::varnish::iscors: #{is_cors}\n"
         f.puts "pm::varnish::basicauth: #{basicAuth}\n"
 
         # varnish3 for older linux

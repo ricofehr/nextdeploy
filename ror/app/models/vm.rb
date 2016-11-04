@@ -132,6 +132,17 @@ class Vm < ActiveRecord::Base
     puppetrefresh
   end
 
+  # Toggle is_cors parameter
+  #
+  # No param
+  # No return
+  def togglecors
+    self.is_cors = is_cors ? false : true
+    save
+    generate_hiera
+    puppetrefresh
+  end
+
   # Refresh commit value
   #
   # No param
