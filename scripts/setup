@@ -619,6 +619,12 @@ complete_step() {
   output -q -l "Grafana WebUI (admin/admin): https://grafana.${NEXTDEPLOYURI}/"
   output -q -l "Rails Documentation: https://doc.${NEXTDEPLOYURI}/"
   output -q -l "Assets Ftp: f.${NEXTDEPLOYURI}"
+  output -q -l ""
+  output -q -l "The NextDeploy installation for local env uses self-signed ssl certificates."
+  output -q -l "For avoid some browser security restrictions, please open these urls on your browser once"
+  output -q -l "https://api.${NEXTDEPLOYURI}/"
+  output -q -l "https://grafana.${NEXTDEPLOYURI}/"
+  output -q -l "https://vnc.${NEXTDEPLOYURI}/"
 }
 
 

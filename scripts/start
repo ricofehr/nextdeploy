@@ -9,6 +9,8 @@ source scripts/inc/utils
 # define provider
 HVISOR="$(get_hypervisor)"
 DNSIP='192.168.171.60'
+# endpoint for nextdeploy
+NEXTDEPLOYURI='nextdeploy.local'
 
 while (($# > 0)); do
   case "$1" in
@@ -44,6 +46,17 @@ popd > /dev/null
 pushd vagrant/nextdeploy > /dev/null
 vagrant up --provider=${HVISOR}
 popd > /dev/null
+
+cat <<EOF
+The NextDeploy installation for local env uses self-signed ssl certificates.
+For avoid some browser security restrictions, please open these urls on your browser once
+https://api.${NEXTDEPLOYURI}/
+https://grafana.${NEXTDEPLOYURI}/
+https://vnc.${NEXTDEPLOYURI}/
+
+After that, you can use the "webui" without ssl issues
+https://ui.${NEXTDEPLOYURI}/
+EOF
 
 # Wait that manager is up and target dns resolv to manger node
 #sleep 30
