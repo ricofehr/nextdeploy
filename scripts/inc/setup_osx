@@ -39,17 +39,17 @@ install_vbox() {
   # Install virtualbox only it isnt yes installed
   if [[ ! -e /usr/bin/VBoxManage ]] && [[ ! -e /usr/local/bin/VBoxManage ]]; then
     output -q "VirtualBox Installation ..."
-    curl -OsSL http://download.virtualbox.org/virtualbox/5.0.16/VirtualBox-5.0.16-105871-OSX.dmg
-    hdiutil mount VirtualBox-5.0.16-105871-OSX.dmg
+    curl -OsSL http://download.virtualbox.org/virtualbox/5.1.8/VirtualBox-5.1.8-111374-OSX.dmg
+    hdiutil mount VirtualBox-5.1.8-111374-OSX.dmg
     sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
     (( $? != 0 )) && output -e 'Virtualbox installation has failed'
     hdiutil unmount /Volumes/VirtualBox/
-    rm -f VirtualBox-5.0.16-105871-OSX.dmg
+    rm -f VirtualBox-5.1.8-111374-OSX.dmg
 
-    curl -OsSL "http://download.virtualbox.org/virtualbox/5.0.16/Oracle_VM_VirtualBox_Extension_Pack-5.0.16-105871.vbox-extpack"
-    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.0.16-105871.vbox-extpack
+    curl -OsSL "http://download.virtualbox.org/virtualbox/5.1.8/Oracle_VM_VirtualBox_Extension_Pack-5.1.8-111374.vbox-extpack"
+    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.1.8-111374.vbox-extpack
     (( $? !=0 )) && output -w 'Virtualbox extension installation has failed'
-    rm -f Oracle_VM_VirtualBox_Extension_Pack-5.0.16-105871.vbox-extpack
+    rm -f Oracle_VM_VirtualBox_Extension_Pack-5.1.8-111374.vbox-extpack
   fi
 }
 
@@ -103,4 +103,3 @@ install_specific_os() {
     install_xcode
     install_brew
 }
-

@@ -8,19 +8,19 @@ install_vbox() {
   [[ -f /usr/bin/VBox ]] && return
   output -q "Virtualbox Installation ..."
   sudo apt-get install -y --force-yes virtualbox
-  (($?!=0)) && output -e 'Virtualbox installation has failed'
+  (($? != 0)) && output -e 'Virtualbox installation has failed'
 }
 
 # vagrant install
 install_vagrant() {
   # check if vagrant 1.7 is already installed
-  vagrant version 2>/dev/null | grep "Installed Version: 1.7.4" >/dev/null
-  if (($?!=0)); then
+  vagrant version 2>/dev/null | grep "Installed Version: 1.8.7" >/dev/null
+  if (($? != 0)); then
     output -q "Vagrant Installation ..."
-    curl -OsSL https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.4_x86_64.deb
-    sudo dpkg -i --force-confdef vagrant_1.7.4_x86_64.deb
-    (($?!=0)) && output -e 'Vagrant installation has failed'
-    rm -f vagrant_1.7.4_x86_64.deb
+    curl -OsSL https://releases.hashicorp.com/vagrant/1.8.7/vagrant_1.8.7_x86_64.deb
+    sudo dpkg -i --force-confdef vagrant_1.8.7_x86_64.deb
+    (($? != 0)) && output -e 'Vagrant installation has failed'
+    rm -f vagrant_1.8.7_x86_64.deb
   fi
 
   install_libvirt
@@ -35,76 +35,76 @@ install_libvirt() {
   output -q "Libvirt Installation ..."
 
   sudo apt-get -y --force-yes install virt-manager
-  (($?!=0)) && output -e 'Libvirt installation has failed'
+  (($? != 0)) && output -e 'Libvirt installation has failed'
   sudo usermod -G "$(grep libvirt /etc/group | grep -v qemu | cut -d: -f 1)" -a $USER
-  (($?!=0)) && output -e 'Cant add current user to libvirt group'
+  (($? != 0)) && output -e 'Cant add current user to libvirt group'
   sudo service libvirtd restart
-  (($?!=0)) && sudo service libvirt-bin restart
+  (($? != 0)) && sudo service libvirt-bin restart
 
   # check if libvirt is already on user group
   groups | grep libvirt
-  (($?!=0)) && output -e 'libvirt is not already on your group list. Please exit term, log you again with current user and start again ./scripts/./setup'
+  (($? != 0)) && output -e 'libvirt is not already on your group list. Please exit term, log you again with current user and start again ./scripts/./setup'
 }
 
 # libvirt plugin for vagrant install
 install_vagrantlibvirt() {
   # test if plugin is already installed
   vagrant plugin list | grep libvirt >/dev/null
-  (($?==0)) && return
+  (($? == 0)) && return
 
   output -q "Libvirt Vagrant Plugin Installation ..."
   sudo apt-get -y --force-yes install libxslt-dev libxml2-dev libvirt-dev
   vagrant plugin install vagrant-libvirt
-  (($?!=0)) && output -e 'Libvirt plugin for vagrant installation has failed'
+  (($? != 0)) && output -e 'Libvirt plugin for vagrant installation has failed'
 }
 
 # git install
 install_git() {
   output -q "Git Installation ..."
   sudo apt-get install -y --force-yes git
-  (($?!=0)) && output -e 'Git installation has failed'
+  (($? != 0)) && output -e 'Git installation has failed'
 }
 
 # kvm install
 install_kvm() {
   # test if kvm is already installed
-  lsmod | grep kvm_intel >/dev/null
-  (($?==0)) && return
+  dpkg -l | grep qemu-kvm >/dev/null
+  (($? == 0)) && return
 
   output -q "Kvm Installation ..."
   sudo apt-get install -y --force-yes qemu-kvm
-  (($?!=0)) && output -e 'Kvm installation has failed'
+  (($? != 0)) && output -e 'Kvm installation has failed'
 }
 
 # reload kvm module
 kvm_reload() {
   # test if we can avoid reload module
   cat /sys/module/kvm_intel/parameters/nested | grep Y >/dev/null
-  (($?==0)) && return
+  (($? == 0)) && return
 
   # reload kvm modules for avoid permission issue
   sudo modprobe -r kvm_intel
   sudo modprobe -r kvm
-  (($?!=0)) && output -w 'Kvm reload is on error. Please reload kvm later and restart nova (uosnv) node after.'
+  (($? != 0)) && output -w 'Kvm reload is on error. Please reload kvm later and restart nova (uosnv) node after.'
   # kvm_amd ?
   sudo /bin/bash -c 'echo "options kvm_intel nested=1" > /etc/modprobe.d/kvm-intel.conf'
   sudo modprobe kvm
   sudo modprobe kvm_intel
-  (($?!=0)) && output -w 'Kvm reload is on error. Please reload kvm later and restart nova (uosnv) node after.'
+  (($? != 0)) && output -w 'Kvm reload is on error. Please reload kvm later and restart nova (uosnv) node after.'
 }
 
 # nfs install
 install_nfs() {
   output -q "Nfs installation"
   sudo apt-get -y --force-yes install nfs-kernel-server nfs-common
-  (($?!=0)) && output -e 'Nfs installation has failed'
+  (($? != 0)) && output -e 'Nfs installation has failed'
   sleep 5
   sudo service nfs-kernel-server restart
-  (($?!=0)) && output -e 'Nfs start has failed'
+  (($? != 0)) && output -e 'Nfs start has failed'
   sleep 2
   # little ugly but sometimes in ubuntu statd is not starting
   ps aux | grep statd | grep -v grep > /dev/null
-  (($?!=0)) && sudo rpc.statd
+  (($? != 0)) && sudo rpc.statd
 }
 
 # enable ip forward
@@ -122,7 +122,7 @@ ip_forward() {
 # libmysql install
 install_libmysqlclient() {
   sudo apt-get -y --force-yes install libmysqlclient-dev
-  (($?!=0)) && output -w 'libmysqlclient-dev installation is on error. This library is needed by rails application'
+  (($? != 0)) && output -w 'libmysqlclient-dev installation is on error. This library is needed by rails application'
 }
 
 # specific linux installs

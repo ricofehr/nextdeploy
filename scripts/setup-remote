@@ -580,6 +580,7 @@ update_puppet() {
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/ethtobr.sh_* tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/default.vcl_* tmp/remote/
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/pound/pound.cfg_* tmp/remote/
+  rsync -avzPe "ssh -p ${PUPPETSSHPORT}" root@${PUPPETIP}:/etc/puppet/modules/pm/files/ndeploy/nextdeploy.conf_* tmp/remote/
 
   # clean puppet master
   ssh -t -t -p ${PUPPETSSHPORT} root@${PUPPETIP} 'rm -rf /etc/puppet/modules'
@@ -592,12 +593,13 @@ update_puppet() {
   [[ -d tmp/remote/puppet ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puppet root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   [[ -d tmp/remote/hosts ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/hosts root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   [[ -d tmp/remote/nginx ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nginx root@${PUPPETIP}:/etc/puppet/modules/pm/files/
-  [[ -d tmp/remote/nginx ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/sudoers root@${PUPPETIP}:/etc/puppet/modules/pm/files/
+  [[ -d tmp/remote/sudoers ]] && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/sudoers root@${PUPPETIP}:/etc/puppet/modules/pm/files/
   ls tmp/remote/puma-start_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/puma-start_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
   ls tmp/remote/rebuildember_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/rebuildember_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
   ls tmp/remote/ethtobr.sh_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/ethtobr.sh_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/scripts/
   ls tmp/remote/default.vcl_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/default.vcl_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/varnish/custom/
   ls tmp/remote/pound.cfg_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/pound.cfg_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/pound/
+  ls tmp/remote/nextdeploy.conf_* >/dev/null 2>&1 && rsync -avzPe "ssh -p ${PUPPETSSHPORT}" tmp/remote/nextdeploy.conf_* root@${PUPPETIP}:/etc/puppet/modules/pm/files/ndeploy/
 
   # a second time to ensure that default hosts / puppet / fw / nginx files are updated
   rsync -avzPe "ssh -p ${PUPPETSSHPORT}" vagrant/modules root@${PUPPETIP}:/etc/puppet/

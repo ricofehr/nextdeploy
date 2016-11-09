@@ -25,7 +25,7 @@ class pm::hosts {
     group => 'root'
   } ->
   exec { 'hostnametolocalhost':
-    command => "/bin/sed -i 's/%%GITLABNS%%/${gitlabns}/;s/%%APIURI%%/api.${nduri}/' /etc/hosts",
+    command => "/bin/sed -i 's/%%GITLABNS%%/${gitlabns}/;s/%%APIURI%%/api.${nduri}/;s/%%NDURI%%/${nduri}/' /etc/hosts",
     onlyif => '/bin/grep GITLABNS /etc/hosts'
   } ->
   exec { 'hostnametolocalhost2':

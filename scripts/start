@@ -19,6 +19,16 @@ while (($# > 0)); do
       DNSIP="$1"
       shift
       ;;
+    -hv)
+      shift
+      HVISOR="$1"
+      shift
+      ;;
+    -m)
+      shift
+      NEXTDEPLOYURI="$1"
+      shift
+      ;;
     *)
       shift
       ;;
@@ -52,7 +62,7 @@ The NextDeploy installation for local env uses self-signed ssl certificates.
 For avoid some browser security restrictions, please open these urls on your browser once
 https://api.${NEXTDEPLOYURI}/
 https://grafana.${NEXTDEPLOYURI}/
-https://vnc.${NEXTDEPLOYURI}/
+https://vnc.${NEXTDEPLOYURI}:6080/
 
 After that, you can use the "webui" without ssl issues
 https://ui.${NEXTDEPLOYURI}/

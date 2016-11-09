@@ -1,7 +1,7 @@
 127.0.0.1 localhost %%HOSTNAME%%
 %%PUBPREFIX%%.60 %%GITLABNS%% %%APIURI%%
 %%APIPREFIX%%.75 nova-a
-%%APIPREFIX%%.70 controller-a horizon-a keystone-a
+%%APIPREFIX%%.70 controller-a horizon-a keystone-a vnc.%%NDURI%%
 %%APIPREFIX%%.71 neutron-a
 %%APIPREFIX%%.72 cinder-a swift-a glance-a
 %%MANAGEMENTPREFIX%%.75 nova-m

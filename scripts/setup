@@ -209,7 +209,7 @@ NDC2URI="${NDC2URI%/}"
 rm -f "${OUT}"
 
 # If high debug, show all commands output
-((DEBUG==2)) && OUT=''
+((DEBUG == 2)) && OUT=''
 
 # Redirect output to log file
 if [[ -n "$OUT" ]]; then
@@ -229,7 +229,7 @@ install_client() {
   output -q "Nextdeploy Client Installation ..."
   pushd client > /dev/null
   ./install.sh
-  (($?!=0)) && output -w 'Client installation has failed'
+  (($? != 0)) && output -w 'Client installation has failed'
   popd > /dev/null
 
   output -l "Client Setting File ~/.nextdeploy.conf"
@@ -240,12 +240,12 @@ install_client() {
 start_vm() {
   output -l "Start a vm for project $(ndeploy projects | head -n 1 | tr -d "\n")"
   ndeploy launch "$(ndeploy projects | head -n 1 | tr -d "\n")"
-  (($?!=0)) && output -e 'Vm start has failed'
+  (($? != 0)) && output -e 'Vm start has failed'
 }
 
 # Add nextdeploy platform uris into hosts file
 file_hosts() {
-  if (( CHANGEDNS == 1 )); then
+  if ((CHANGEDNS == 1)); then
     output -q "Added 4 lines in /etc/hosts file"
     sudo $BINSED -i "s;^192.168.171.50.*;;" /etc/hosts
     sudo $BINSED -i "s;^192.168.170.60.*;;" /etc/hosts
@@ -268,7 +268,7 @@ file_hosts() {
 welcome_step() {
   output -q -l "Welcome to setup process for nextdeploy platform in local environment"
   output -q -l "Remember, the project needs lot of ram for running in virtualisation mode on local workstation computer"
-  output -q -l "At least 12Go are needed and 16Go are recommended"
+  output -q -l "At least 16Go are needed and 24Go are recommended"
   output -q -l "The installation process needs long time (at least 90min),"
   output -q -l "needs curl command and ask sometimes root password (assume that sudo command is installed)"
   confirm "Ok for continue"
@@ -303,7 +303,7 @@ check_os() {
 # install some prerequisites for the local operating system
 install_prerequisites() {
   output -q -l "Install prerequisites on your System ? (y/n)"
-  if ((YES==1)); then
+  if ((YES == 1)); then
     response="y"
   else
     read response
@@ -314,7 +314,7 @@ install_prerequisites() {
   # init HVISOR var
   if [[ -z "$HVISOR" ]]; then
     output -q -l "Which targeted hypervisor on your system ? (libvirt/virtualbox)"
-    if ((YES==1)); then
+    if ((YES == 1)); then
       HVISOR="virtualbox"
     else
       read HVISOR
@@ -347,7 +347,7 @@ preparefiles() {
   pushd vagrant/os > /dev/null
   rm -f Vagrantfile
   cp vagrantfiles/${HVISOR}.dist Vagrantfile
-  (($?!=0)) && output -e 'Cant create Vagrantfile for openstack nodes'
+  (($? != 0)) && output -e 'Cant create Vagrantfile for openstack nodes'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" Vagrantfile
   $BINSED -i "s;%%OSPUBSUF%%;${PUBPREFIX##*.};" Vagrantfile
   $BINSED -i "s;%%DATAPREFIX%%;${DATAPREFIX};" Vagrantfile
@@ -356,7 +356,7 @@ preparefiles() {
   $BINSED -i "s;%%OSAPISUF%%;${APIPREFIX##*.};" Vagrantfile
   $BINSED -i "s;%%MANAGEMENTPREFIX%%;${MANAGEMENTPREFIX};" Vagrantfile
   $BINSED -i "s;%%OSMANAGEMENTSUF%%;${MANAGEMENTPREFIX##*.};" Vagrantfile
-  if ((NESTED==1)); then
+  if ((NESTED == 1)); then
     $BINSED -i "s;%%NESTED%%;true;" Vagrantfile
   else
     $BINSED -i "s;%%NESTED%%;false;" Vagrantfile
@@ -367,7 +367,7 @@ preparefiles() {
   pushd vagrant/nextdeploy > /dev/null
   rm -f Vagrantfile
   cp vagrantfiles/${HVISOR}.dist Vagrantfile
-  (($?!=0)) && output -e 'Cant create Vagrantfile for nextdeploy node'
+  (($? != 0)) && output -e 'Cant create Vagrantfile for nextdeploy node'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" Vagrantfile
   $BINSED -i "s;%%OSPUBSUF%%;${PUBPREFIX##*.};" Vagrantfile
   $BINSED -i "s;%%DATAPREFIX%%;${DATAPREFIX};" Vagrantfile
@@ -385,7 +385,7 @@ preparefiles() {
   pushd vagrant/ndc2 > /dev/null
   rm -f Vagrantfile
   cp vagrantfiles/${HVISOR}.dist Vagrantfile
-  (($?!=0)) && output -e 'Cant create Vagrantfile for ndc2 node'
+  (($? != 0)) && output -e 'Cant create Vagrantfile for ndc2 node'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" Vagrantfile
   $BINSED -i "s;%%OSPUBSUF%%;${PUBPREFIX##*.};" Vagrantfile
   popd > /dev/null
@@ -394,14 +394,14 @@ preparefiles() {
   pushd vagrant/os/hiera > /dev/null
   rm -f global.yaml
   cp global.yaml.dist global.yaml
-  (($?!=0)) && output -e 'Cant create global.yml for openstack nodes'
+  (($? != 0)) && output -e 'Cant create global.yml for openstack nodes'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" global.yaml
   $BINSED -i "s;%%DATAPREFIX%%;${DATAPREFIX};" global.yaml
   $BINSED -i "s;%%APIPREFIX%%;${APIPREFIX};" global.yaml
   $BINSED -i "s;%%MANAGEMENTPREFIX%%;${MANAGEMENTPREFIX};" global.yaml
   $BINSED -i "s;%%EXTDEV%%;${NEUTRONEXTDEV};" global.yaml
   $BINSED -i "s;%%PUBDEV%%;${NEUTRONPUBDEV};" global.yaml
-  if ((NESTED==1)); then
+  if ((NESTED == 1)); then
     $BINSED -i "s;%%NOVAHV%%;kvm;" global.yaml
   else
     $BINSED -i "s;%%NOVAHV%%;qemu;" global.yaml
@@ -416,7 +416,7 @@ preparefiles() {
   pushd vagrant/nextdeploy/hiera > /dev/null
   rm -f global.yaml
   cp global.yaml.dist global.yaml
-  (($?!=0)) && output -e 'Cant create global.yml for nextdeploy nodes'
+  (($? != 0)) && output -e 'Cant create global.yml for nextdeploy nodes'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" global.yaml
   $BINSED -i "s;%%DATAPREFIX%%;${DATAPREFIX};" global.yaml
   $BINSED -i "s;%%APIPREFIX%%;${APIPREFIX};" global.yaml
@@ -433,7 +433,7 @@ preparefiles() {
   pushd vagrant/ndc2/hiera > /dev/null
   rm -f global.yaml
   cp global.yaml.dist global.yaml
-  (($?!=0)) && output -e 'Cant create global.yml for ndc2 nodes'
+  (($? != 0)) && output -e 'Cant create global.yml for ndc2 nodes'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" global.yaml
   $BINSED -i "s;%%NEXTDEPLOYURI%%;${NEXTDEPLOYURI};" global.yaml
   $BINSED -i "s;%%MAILADMIN%%;${MAILADMIN};" global.yaml
@@ -457,7 +457,7 @@ preparefiles() {
   pushd ror/config/environments > /dev/null
   rm -f  development.rb
   cp development.rb.dist development.rb
-  (($?!=0)) && output -e 'Cant create development.rb'
+  (($? != 0)) && output -e 'Cant create development.rb'
   $BINSED -i "s;%%PUBPREFIX%%;${PUBPREFIX};" development.rb
   $BINSED -i "s;%%NEXTDEPLOYSUF%%;${NEXTDEPLOYSUF};" development.rb
   $BINSED -i "s;%%NEXTDEPLOYURI%%;${NEXTDEPLOYURI};" development.rb
@@ -483,9 +483,9 @@ install_nextdeploy() {
   popd > /dev/null
 
   pushd vagrant/ndc2 > /dev/null
-  if ((DESTROYVM==1)) && [[ -d .vagrant ]]; then
+  if ((DESTROYVM == 1)) && [[ -d .vagrant ]]; then
     output -q -l "Do you want to Destroy old ndc2 vm created ? (y/n)"
-    if ((YES==1)); then
+    if ((YES == 1)); then
       response="y"
     else
       read response
@@ -493,14 +493,14 @@ install_nextdeploy() {
 
     if [[ "$response" = "y" ]]; then
       vagrant destroy -f
-      (($?!=0)) && output -w 'Destroy ndc2 node has failed'
+      (($? != 0)) && output -w 'Destroy ndc2 node has failed'
       rm -rf .vagrant
     fi
   fi
 
   output -q "Creating the ndc2 vm, please wait a moment ..."
   vagrant up --provider=${HVISOR}
-  (($?!=0)) && output -e 'Ndc2 node creation has some error(s)'
+  (($? != 0)) && output -e 'Ndc2 node creation has some error(s)'
   output -q "The ndc2 manager instance is up"
   popd > /dev/null
 
@@ -513,9 +513,9 @@ install_nextdeploy() {
   popd > /dev/null
 
   pushd vagrant/os > /dev/null
-  if ((DESTROYVM==1)) && [[ -d .vagrant ]]; then
+  if ((DESTROYVM == 1)) && [[ -d .vagrant ]]; then
     output -q -l "Do you want to Destroy old openstack vm created ? (y/n)"
-    if ((YES==1)); then
+    if ((YES == 1)); then
       response="y"
     else
       read response
@@ -537,22 +537,22 @@ install_nextdeploy() {
 
   output -q "Creating openstack controller vm, please wait a moment..."
   vagrant up --provider=${HVISOR}
-  (($?!=0)) && output -e 'Controller creation has failed'
+  (($? != 0)) && output -e 'Controller creation has failed'
   output -q "Openstack controller is up"
 
   output -q "Creating openstack neutron (network node) vm, please wait a moment..."
   vagrant up uosnt --provider=${HVISOR}
-  (($?!=0)) && output -e 'Neutron creation has failed'
+  (($? != 0)) && output -e 'Neutron creation has failed'
   output -q "Openstack neutron is up"
 
   output -q "Creating openstack glance (image node) vm, please wait a moment..."
   vagrant up uosst --provider=${HVISOR}
-  (($?!=0)) && output -e 'Glance creation has failed'
+  (($? != 0)) && output -e 'Glance creation has failed'
   output -q "Openstack glance is up"
 
   output -q "Creating openstack nova (compute node) vm, please wait a moment..."
   vagrant up uosnv --provider=${HVISOR}
-  (($?!=0)) && output -e 'Nova creation has failed'
+  (($? != 0)) && output -e 'Nova creation has failed'
   output -q "Openstack nova is up"
   popd > /dev/null
 
@@ -566,9 +566,9 @@ install_nextdeploy() {
   popd > /dev/null
 
   pushd vagrant/nextdeploy > /dev/null
-  if ((DESTROYVM==1)) && [[ -d .vagrant ]]; then
+  if ((DESTROYVM == 1)) && [[ -d .vagrant ]]; then
     output -q -l "Do you want to Destroy old manager vm created ? (y/n)"
-    if ((YES==1)); then
+    if ((YES == 1)); then
       response="y"
     else
       read response
@@ -576,7 +576,7 @@ install_nextdeploy() {
 
     if [[ "$response" = "y" ]]; then
       vagrant destroy -f
-      (($?!=0)) && output -w 'Destroy manager node has failed'
+      (($? != 0)) && output -w 'Destroy manager node has failed'
       rm -rf .vagrant
     fi
   fi
@@ -591,9 +591,9 @@ install_nextdeploy() {
   popd > /dev/null
 
   # init HVISOR var
-  if ((CHANGEDNS==1)); then
+  if ((CHANGEDNS == 1)); then
     output -q -l "Change your dns server to the manager nextdeploy node (for resolve $NEXTDEPLOYSUF uri) and the hosts file for manage local endpoint ? (y/n)"
-    if ((YES==1)); then
+    if ((YES == 1)); then
       response="y"
     else
       read response
@@ -624,7 +624,7 @@ complete_step() {
   output -q -l "For avoid some browser security restrictions, please open these urls on your browser once"
   output -q -l "https://api.${NEXTDEPLOYURI}/"
   output -q -l "https://grafana.${NEXTDEPLOYURI}/"
-  output -q -l "https://vnc.${NEXTDEPLOYURI}/"
+  output -q -l "https://vnc.${NEXTDEPLOYURI}:6080/"
 }
 
 
@@ -634,5 +634,5 @@ check_os
 install_prerequisites
 install_nextdeploy
 install_client
-((STARTVM==1)) && start_vm
+((STARTVM == 1)) && start_vm
 complete_step
