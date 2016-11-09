@@ -70,6 +70,26 @@ module Apiexternal
       return nova_id
     end
 
+    # Make a rest call to openstack for reboot a virtual machine
+    #
+    # @param nova_id [String] the vm name identifier
+    # @param type [String] type of reboot (SOFT|HARD)
+    # @raise Exceptions::OSApiException if error occurs
+    # No return
+    def reboot_vm(nova_id, type)
+
+      #json request for boot new vm
+      reboot_req = { reboot: { type: type } }
+
+      response = @conn[:nova].post do |req|
+        req.url "/v2/#{@tenant}/servers/#{nova_id}/action"
+        req.headers = self.headers
+        req.body = reboot_req.to_json
+      end
+
+      raise Exceptions::OSApiException.new("reboot vm failed, error code: #{response.status}, #{response.body}, #{reboot_req.to_json}") if response.status != 202
+    end
+
     # Rest call to openstack for getting floatingip from the nova identifier
     #
     # @param nova_id [String] the nova identifier for the vm

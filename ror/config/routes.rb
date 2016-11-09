@@ -29,8 +29,6 @@ Rails.application.routes.draw do
       put '/vms/:name/commit' => 'vms#refreshcommit', as: 'vm_refreshcommit', constraints: { name: /[a-zA-Z0-9-]+/ }
       get '/vms/:id/setupcomplete' => 'vms#check_status', as: 'vm_check_status', constraints: { id: /\d+/ }
       post '/vms/short' => 'vms#create_short', as: 'create_short'
-      post '/vms/:id/import' => 'vms#import', as: 'vm_import', constraints: { id: /\d+/ }
-      post '/vms/:id/export' => 'vms#export', as: 'vm_export', constraints: { id: /\d+/ }
       post '/vms/:id/gitpull' => 'vms#gitpull', as: 'vm_gitpull', constraints: { id: /\d+/ }
       post '/vms/:id/postinstall_display' => 'vms#postinstall_display', as: 'vm_postinstall_display', constraints: { id: /\d+/ }
       post '/vms/:id/postinstall' => 'vms#postinstall', as: 'vm_postinstall', constraints: { id: /\d+/ }
@@ -43,6 +41,7 @@ Rails.application.routes.draw do
       post '/vms/:id/toggleci' => 'vms#toggleci', as: 'vm_toggleci', constraints: { id: /\d+/ }
       post '/vms/:id/togglebackup' => 'vms#togglebackup', as: 'vm_togglebackup', constraints: { id: /\d+/ }
       post '/vms/:id/togglecors' => 'vms#togglecors', as: 'vm_togglecors', constraints: { id: /\d+/ }
+      post '/vms/:id/reboot' => 'vms#reboot', as: 'vm_reboot', constraints: { id: /\d+/ }
       post '/uris/:id/import' => 'uris#import', as: 'uri_import', constraints: { id: /\d+/ }
       post '/uris/:id/export' => 'uris#export', as: 'uri_export', constraints: { id: /\d+/ }
       post '/uris/:id/npm' => 'uris#npm', as: 'uri_npm', constraints: { id: /\d+/ }

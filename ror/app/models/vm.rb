@@ -32,7 +32,7 @@ class Vm < ActiveRecord::Base
 
   # Update vm password in database
   #
-  # No param
+  # @param password (String): password to replace
   # No return
   def reset_password(password)
     self.termpassword = password
@@ -41,7 +41,7 @@ class Vm < ActiveRecord::Base
 
   # Update vm user
   #
-  # No param
+  # @param user_id (Integer): new owner of the vm
   # No return
   def change_user(user_id)
     self.user = User.find(user_id)
@@ -75,7 +75,7 @@ class Vm < ActiveRecord::Base
 
   # Toggle is_ci parameter
   #
-  # No param
+  # @param dosave (Boolean): set if object must be saved in database
   # No return
   def toggleci(dosave=true)
     self.is_ci = is_ci ? false : true
@@ -145,7 +145,7 @@ class Vm < ActiveRecord::Base
 
   # Refresh commit value
   #
-  # No param
+  # @param commitid (String): commit to refresh
   # No return
   def refreshcommit(commitid)
     tab = "#{project.id}-#{commitid}".split('-')
@@ -257,6 +257,20 @@ class Vm < ActiveRecord::Base
     end
 
     generate_host_all
+  end
+
+  # Reboot vm
+  #
+  # @param type (String): type of reboot (SOFT|HARD)
+  # No return
+  def reboot(type)
+    if nova_id
+      # init api object
+      osapi = Apiexternal::Osapi.new
+      # rewuest openstack for reboot
+      osapi.reboot_vm(nova_id, type)
+    end
+    sleep(5)
   end
 
   protected

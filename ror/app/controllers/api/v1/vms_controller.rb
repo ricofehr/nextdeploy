@@ -11,12 +11,12 @@ module API
       before_action :set_vm, only: [:show, :update, :destroy, :check_status,
                     :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached,
                     :toggleht, :toggleci, :togglebackup, :togglecors, :postinstall_display,
-                    :postinstall]
+                    :postinstall, :reboot]
       # Hook who check rights before action
       before_action :check_me, only: [:show, :update, :destroy, :check_status,
                                       :boot, :gitpull, :logs, :toggleauth, :toggleprod,
                                       :togglecached, :toggleht, :toggleci, :togglebackup,
-                                      :togglecors, :postinstall_display, :postinstall]
+                                      :togglecors, :postinstall_display, :postinstall, :reboot]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
       # Check user right for avoid no-authorized access
@@ -251,6 +251,12 @@ module API
       def postinstall
         ret = @vm.postinstall
         render plain: ret[:message], status: ret[:status]
+      end
+
+      # Execute a reboot
+      def reboot
+        @vm.reboot(params[:type])
+        render nothing: true
       end
 
       # Display current logs for the vm
