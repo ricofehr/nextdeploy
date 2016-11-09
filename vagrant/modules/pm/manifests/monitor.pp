@@ -26,6 +26,22 @@ class pm::monitor::services {
     require => Exec['installcurl']
   }
 
+  file { '/var/lib/grafana':
+    ensure =>  directory,
+    owner => 'root',
+    group => 'root',
+    mode => '0755'
+  } ->
+
+  file { '/var/lib/grafana/grafana.db':
+    ensure => file,
+    source => ['puppet:///modules/pm/grafana/grafana.db'],
+    owner => 'root',
+    group => 'root',
+    replace => false,
+    mode => '0644'
+  } ->
+
   file { '/home/grafana':
     ensure =>  directory,
     owner => 'root',
@@ -34,6 +50,11 @@ class pm::monitor::services {
   } ->
 
   class { 'grafana': } ->
+
+  exec { 'chown-grafana':
+    command => 'chown -R grafana:grafana /var/lib/grafana',
+    creates => '/usr/share/grafana/public/app/app.ca0ab6f9.js'
+  } ->
 
   file { '/usr/share/grafana/public/views/index.html':
     ensure => file,
@@ -307,7 +328,7 @@ class pm::monitor::ndeploy {
           'MY_RUBY_HOME=/usr/local/rvm/rubies/ruby-2.1.0',
           'GEM_PATH=/usr/local/rvm/gems/ruby-2.1.0:/usr/local/rvm/gems/ruby-2.1.0@global',
           'RUBY_VERSION=ruby-2.1.0'
-      ], 
+      ],
     user => 'modem',
     group => 'modem'
   }
