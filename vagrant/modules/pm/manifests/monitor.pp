@@ -338,6 +338,7 @@ class pm::monitor::ndeploy {
     timeout => 0,
     creates => '/usr/local/bin/ndeploy',
     require => Class['rvm'],
+    cwd => '/tmp'
   }
   ->
   exec { 'rm-default-setting':
@@ -346,7 +347,8 @@ class pm::monitor::ndeploy {
   }
   ->
   exec { 'ndeploy-update':
-    command => 'ndeploy upgrade'
+    command => '/usr/local/bin/./ndeploy upgrade',
+    cwd => '/tmp'
   }
   ->
   file { '/etc/nextdeploy.conf':
