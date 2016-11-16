@@ -15,7 +15,7 @@ class SuperviseMailer < ActionMailer::Base
     @technotype = techno.technotype
     @status = status
     @url  = "https://ui.#{Rails.application.config.nextdeployuri}/"
-    subject = status ? 'Problem resolved in your vm' : 'Problem detect in your vm'
-    mail(to: @user.email, subject: 'Problem detected in your vm')
+    subject = status ? 'Problem resolved in your vm' : 'Problem detected in your vm'
+    mail(to: @user.email, subject: subject)
   end
 end

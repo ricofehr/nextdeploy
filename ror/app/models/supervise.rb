@@ -9,9 +9,9 @@ class Supervise < ActiveRecord::Base
 
   scope :find_by_foreigns, ->(vm_id, techno_id){ where("vm_id=#{vm_id} AND techno_id=#{techno_id}") }
 
-  def change_status(status)
-    unless self.status == status
-      self.status = status
+  def change_status(new_status)
+    if status != new_status
+      self.status = new_status
       save
       1
     else

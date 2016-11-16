@@ -19,9 +19,12 @@ module API
 
       # Execute datas export into vm
       def status
-        changed = Supervise.find_by_foreigns(params[:vm_id], params[:techno_id]).first.change_status(params[:status])
+        # ensure :satus is boolean
+        status = (params[:status] == 1 || params[:status] == true) ? true : false
+
+        changed = Supervise.find_by_foreigns(params[:vm_id], params[:techno_id]).first.change_status(status)
         if changed == 1
-          SuperviseMailer.supervise_email(@user, Vm.find(params[:vm_id]), Techno.find(params[:techno_id]), params[:status])
+          SuperviseMailer.supervise_email(@user, Vm.find(params[:vm_id]), Techno.find(params[:techno_id]), status).deliver
         end
 
         render nothing: true

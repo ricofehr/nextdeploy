@@ -6,10 +6,10 @@
   <body>
     <h1>Hello <%= @user.firstname %> <%= @user.lastname %>,</h1>
     <p>
-    <% if @status == 0 %>
-      A problem is detected on your vm for the techno <%= @techno.name %> (<%= @technotype.name %>)
+    <% if @status %>
+      The problem is resolved on your vm <%= @vm.name %> for the techno <%= @techno.name %> (<%= @technotype.name %>)
     <% else %>
-      The problem is resolved on your vm for the techno <%= @techno.name %> (<%= @technotype.name %>)
+      A problem is detected on your vm <%= @vm.name %> for the techno <%= @techno.name %> (<%= @technotype.name %>)
     <% end %>
    </p>
     <p>
