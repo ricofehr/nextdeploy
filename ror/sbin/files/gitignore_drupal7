@@ -1,0 +1,13 @@
+# Drupal specific excludes
+# If settings.local.php exists, we can remove settings.php on this list
+/%%PATH%%/sites/*/temp/
+/%%PATH%%/sites/*/settings.local.php
+/%%PATH%%/sites/*/settings.php
+/%%PATH%%/sites/*/files/
+/%%PATH%%/sites/sites.php
+
+# Ignore vendor folder (d8)
+/%%PATH%%/vendor/*
+!/%%PATH%%/vendor/.keep
+
+/%%PATH%%/.apdisk
