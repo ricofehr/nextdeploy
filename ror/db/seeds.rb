@@ -165,6 +165,7 @@ java = Technotype.create!(name: "Java")
 wkhtml = Technotype.create!(name: "Wkhtmltopdf")
 apc = Technotype.create!(name: "Apc")
 kibana = Technotype.create!(name: "Kibana")
+imagick = Technotype.create!(name: "Imagemagick")
 
 #Techno import rows
 kibana4 = Techno.create!(
@@ -220,6 +221,25 @@ pm::tool::wkhtmltopdf::minor: '3'",
   tasks:
     - name: Check Wkhtmltopdf
       shell: test -x /usr/bin/wkhtmltopdf >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+)
+
+techno_imagick = Techno.create!(
+                      name: "imagick",
+                      ordering: 220,
+                      technotype: imagick,
+                      hiera: "",
+                      puppetclass: "pm::tool::imagemagick",
+                      playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Imagemagick
+      shell: test -x /usr/bin/convert >/dev/null 2>&1 && echo -en 1 || echo -en 0
       args:
         executable: /bin/bash
       register: check
