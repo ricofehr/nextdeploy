@@ -50,6 +50,7 @@ Rails.application.routes.draw do
       post '/uris/:id/mvn' => 'uris#mvn', as: 'uri_mvn', constraints: { id: /\d+/ }
       post '/uris/:id/composer' => 'uris#composer', as: 'uri_composer', constraints: { id: /\d+/ }
       post '/uris/:id/drush' => 'uris#drush', as: 'uri_drush', constraints: { id: /\d+/ }
+      post '/uris/:id/siteinstall' => 'uris#siteinstall', as: 'uri_siteinstall', constraints: { id: /\d+/ }
       post '/uris/:id/sfcmd' => 'uris#sfcmd', as: 'uri_sfcmd', constraints: { id: /\d+/ }
       post '/uris/:id/listscript' => 'uris#listscript', as: 'uri_listscript', constraints: { id: /\d+/ }
       post '/uris/:id/script' => 'uris#script', as: 'uri_script', constraints: { id: /\d+/ }

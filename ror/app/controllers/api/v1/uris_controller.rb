@@ -5,15 +5,15 @@ module API
     # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class UrisController < ApplicationController
       # Hook who set uri object
-      before_action :set_uri, only: [:show, :update, :destroy, :import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :logs, :drush, :sfcmd, :clearvarnish, :script, :listscript]
+      before_action :set_uri, only: [:show, :update, :destroy, :import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :logs, :drush, :siteinstall, :sfcmd, :clearvarnish, :script, :listscript]
       # Check user right for avoid no-authorized access
-      before_action :check_me, only: [:create, :destroy, :update, :import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :logs, :drush, :sfcmd, :clearvarnish, :script, :listscript]
+      before_action :check_me, only: [:create, :destroy, :update, :import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :logs, :drush, :siteinstall, :sfcmd, :clearvarnish, :script, :listscript]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
       # Hook who check ci right before tool action
-      before_action :check_ci, only: [:import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :drush, :sfcmd, :script, :listscript]
+      before_action :check_ci, only: [:import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :drush, :siteinstall, :sfcmd, :script, :listscript]
       # Hook who reload ci right after tool action
-      after_action :reload_ci, only: [:import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :drush, :sfcmd, :script, :listscript]
+      after_action :reload_ci, only: [:import, :export, :npm, :mvn, :nodejs, :reactjs, :composer, :drush, :siteinstall, :sfcmd, :script, :listscript]
 
       # List all uris
       def index
@@ -110,6 +110,12 @@ module API
       # Execute drush cmd into vm
       def drush
         ret = @uri.drush params[:command]
+        render plain: ret[:message], status: ret[:status]
+      end
+
+      # Execute siteinstall cmd into vm
+      def siteinstall
+        ret = @uri.siteinstall
         render plain: ret[:message], status: ret[:status]
       end
 

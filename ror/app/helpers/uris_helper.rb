@@ -202,10 +202,9 @@ module UrisHelper
   # @return message for execution and codestatus for request
   def drush(command)
     docroot = "/var/www/#{vm.project.name}/#{path}"
-    frwname = framework.name.downcase
     bashret = ''
 
-    Rails.logger.warn "Drush command for vm #{vm.name} (#{frwname})"
+    Rails.logger.warn "Drush command for vm #{vm.name}"
 
     # take a lock for vm action
     begin
@@ -216,6 +215,30 @@ module UrisHelper
 
     rescue
       raise Exceptions::NextDeployException.new("Lock on drush command for #{absolute} failed")
+    end
+    # Return bash output
+    { message: bashret, status: 200 }
+  end
+
+  # Execute site-install cmd into vms
+  #
+  # No param
+  # @return message for execution and codestatus for request
+  def siteinstall
+    docroot = "/var/www/#{vm.project.name}/#{path}"
+    bashret = ''
+
+    Rails.logger.warn "Siteinstall command for vm #{vm.name}"
+
+    # take a lock for vm action
+    begin
+      open("/tmp/vm#{vm.id}.lock", File::RDWR|File::CREAT) do |f|
+        f.flock(File::LOCK_EX)
+        bashret = `ssh modem@#{vm.floating_ip} 'cd #{docroot} && chmod +w sites/default && chmod +w sites/default/settings.php && siteinstall.sh --docroot #{docroot} --eppath #{path} --username #{vm.htlogin} --adminpass #{vm.htpassword} --project #{vm.project.name} --email #{vm.user.email} && cat /home/modem/logsiteinstall 2>&1'`
+      end
+
+    rescue
+      raise Exceptions::NextDeployException.new("Lock on siteinstall command for #{absolute} failed")
     end
 
     # Return bash output
