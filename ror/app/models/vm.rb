@@ -270,7 +270,7 @@ class Vm < ActiveRecord::Base
       # rewuest openstack for reboot
       osapi.reboot_vm(nova_id, type)
     end
-    sleep(5)
+    sleep(12)
   end
 
   protected
