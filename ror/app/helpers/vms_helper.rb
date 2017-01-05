@@ -344,7 +344,7 @@ module VmsHelper
   # @return nothing
   def clearci
     Rails.logger.warn "Remove ci lock for vm #{vm_name}"
-    bashret = `ssh modem@#{floating_ip} 'rm -f /tmp/commithash1 /tmp/commithash2'`
+    `ssh modem@#{floating_ip} 'rm -f /tmp/commithash1 /tmp/commithash2'`
   end
 
   # Display postinstall script before approvement
