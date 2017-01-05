@@ -11,6 +11,13 @@ class UserSerializer < ActiveModel::Serializer
   has_many :projects, key: :projects
   has_many :own_projects, key: :own_projects
 
+  # add shortname attribute
+  def attributes
+    data = super
+    data[:shortname] = "#{object.firstname[0].upcase}. #{object.lastname.split.first}"
+    data
+  end
+
   # give auth_token only for current user
   def authentication_token
     object.authentication_token if !current_user || object.id == current_user.id

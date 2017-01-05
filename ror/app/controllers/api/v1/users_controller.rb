@@ -248,6 +248,7 @@ module API
         # permit empty project_ids array if we want remove all projects from this user
         params_p[:project_ids] ||= []
 
+        params_p.delete(:shortname)
         params_p.delete(:created_at)
         params_p.delete(:authentication_token)
         params_p.delete(:group)
@@ -273,7 +274,7 @@ module API
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def user_params
-        params.require(:user).permit(:email, :company, :quotavm, :quotaprod, :layout, :firstname, :lastname, :password, :password_confirmation, :is_project_create, :is_user_create, :is_credentials_send, :group_id, :project_ids => [])
+        params.require(:user).permit(:email, :company, :quotavm, :quotaprod, :layout, :firstname, :lastname, :shortname, :password, :password_confirmation, :is_project_create, :is_user_create, :is_credentials_send, :group_id, :project_ids => [])
       end
     end
   end
