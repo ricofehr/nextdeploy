@@ -51,6 +51,15 @@ class Vm < ActiveRecord::Base
     puppetrefresh
   end
 
+  # Update vm topic
+  #
+  # @param topic (String): new topic
+  # No return
+  def set_topic(topic)
+    self.topic = topic
+    save
+  end
+
   # Toggle is_auth parameter
   #
   # No param

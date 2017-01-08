@@ -27,6 +27,7 @@ Rails.application.routes.draw do
       put '/vms/:name/setupcomplete' => 'vms#setupcomplete', as: 'vm_setupcomplete', constraints: { name: /[a-zA-Z0-9-]+/ }
       put '/vms/:name/resetpassword/:password' => 'vms#resetpassword', as: 'vm_resetpassword', constraints: { name: /[a-zA-Z0-9-]+/, password: /[a-zA-Z0-9-]+/ }
       put '/vms/:name/commit' => 'vms#refreshcommit', as: 'vm_refreshcommit', constraints: { name: /[a-zA-Z0-9-]+/ }
+      put '/vms/:id/topic' => 'vms#topic', as: 'vm_topic', constraints: { id: /\d+/ }
       get '/vms/:id/setupcomplete' => 'vms#check_status', as: 'vm_check_status', constraints: { id: /\d+/ }
       post '/vms/short' => 'vms#create_short', as: 'create_short'
       post '/vms/:id/gitpull' => 'vms#gitpull', as: 'vm_gitpull', constraints: { id: /\d+/ }

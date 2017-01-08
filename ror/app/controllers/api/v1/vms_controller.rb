@@ -8,12 +8,12 @@ module API
       before_filter :authenticate_user_from_token!, :except => [:setupcomplete, :resetpassword, :refreshcommit]
       before_filter :authenticate_api_v1_user!, :except => [:setupcomplete, :resetpassword, :refreshcommit]
       # Hook who set vm object
-      before_action :set_vm, only: [:show, :update, :destroy, :check_status,
+      before_action :set_vm, only: [:show, :update, :topic, :destroy, :check_status,
                     :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached,
                     :toggleht, :toggleci, :togglebackup, :togglecors, :postinstall_display,
                     :postinstall, :reboot]
       # Hook who check rights before action
-      before_action :check_me, only: [:show, :update, :destroy, :check_status,
+      before_action :check_me, only: [:show, :update, :topic, :destroy, :check_status,
                                       :boot, :gitpull, :logs, :toggleauth, :toggleprod,
                                       :togglecached, :toggleht, :toggleci, :togglebackup,
                                       :togglecors, :postinstall_display, :postinstall, :reboot]
@@ -111,6 +111,12 @@ module API
         respond_to do |format|
           format.json { render json: @vm, status: 200 }
         end
+      end
+
+      # Change topic content
+      def topic
+        @vm.set_topic(params[:topic])
+        render nothing: true
       end
 
       # Boot vm
@@ -360,7 +366,7 @@ module API
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def vm_params
-        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :name, :is_auth, :htlogin, :htpassword, :layout, :is_prod, :is_cached, :is_ht, :is_ci, :is_cors, :techno_ids => [])
+        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :name, :topic, :is_auth, :htlogin, :htpassword, :layout, :is_prod, :is_cached, :is_ht, :is_ci, :is_cors, :techno_ids => [])
       end
     end
   end
