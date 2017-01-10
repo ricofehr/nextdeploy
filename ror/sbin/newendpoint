@@ -258,6 +258,8 @@ newsymfony2() {
   sed -i "s;//umask(0000;umask(0002;" app/console
   sed -i "s/^use.*Request;/& umask(0002);/" web/app.php
   sed -i "s/^use.*Request;/& umask(0002);/" web/app_dev.php
+  sed -i "s;^if (isset(;/*& ;" web/app_dev.php
+  sed -i "s;^}$;& */;" web/app_dev.php
   popd > /dev/null
 
   pushd "${DOCONLINE}" > /dev/null
@@ -279,6 +281,15 @@ newsymfony3() {
   sed -i "s;//umask(0000;umask(0002;" bin/console
   sed -i "s/^use.*Request;/& umask(0002);/" web/app.php
   sed -i "s/^use.*Request;/& umask(0002);/" web/app_dev.php
+  sed -i "s;^if (isset(;/*& ;" web/app_dev.php
+  sed -i "s;^}$;& */;" web/app_dev.php
+
+  mkdir -p var/sesssions
+  touch var/sessions/.gitkeep
+  mkdir -p var/cache
+  touch var/cache/.gitkeep
+  mkdir -p var/logs
+  touch var/logs/.gitkeep
   popd > /dev/null
 
   pushd "${DOCONLINE}" > /dev/null

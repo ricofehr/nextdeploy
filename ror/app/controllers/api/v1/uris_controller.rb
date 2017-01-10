@@ -144,8 +144,10 @@ module API
         if command == 'cc'
           ret = @uri.sfcmd "assets:install --symlink --env=#{env}"
           messages.push ret[:message]
-          ret = @uri.sfcmd "assetic:dump --env=#{env}"
-          messages.push ret[:message]
+          if @uri.framework.name == 'Symfony2'
+            ret = @uri.sfcmd "assetic:dump --env=#{env}"
+            messages.push ret[:message]
+          end
           ret = @uri.sfcmd "cache:clear --env=#{env}"
           messages.push ret[:message]
           rstatus = ret[:status]
@@ -157,9 +159,11 @@ module API
           ret = @uri.sfcmd "assets:install --symlink --env=#{env}"
           messages.push ret[:message]
 
-          ret = @uri.sfcmd "assetic:dump --env=#{env}"
-          messages.push ret[:message]
-
+          if @uri.framework.name == 'Symfony2'
+            ret = @uri.sfcmd "assetic:dump --env=#{env}"
+            messages.push ret[:message]
+          end
+          
           ret = @uri.sfcmd "cache:clear --env=#{env}"
           messages.push ret[:message]
         elsif command == 'migration'

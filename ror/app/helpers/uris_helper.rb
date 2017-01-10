@@ -260,7 +260,7 @@ module UrisHelper
     begin
       open("/tmp/vm#{vm.id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-        bashret = `ssh modem@#{vm.floating_ip} 'cd #{docroot} && php app/console #{command} 2>&1'`
+        bashret = `ssh modem@#{vm.floating_ip} 'cd #{docroot};[[ -f app/console ]] && php app/console #{command}; [[ -f bin/console ]] && php bin/console #{command} 2>&1'`
       end
 
     rescue

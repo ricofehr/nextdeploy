@@ -1,11 +1,41 @@
-#sf2 folders to exclude
+# Email spool folder
+/%%PATH%%/app/spool/*
+/%%PATH%%/.apdisk
+
+# Cache, session files and logs (Symfony3)
+/%%PATH%%/var/SymfonyRequirements.php
+/%%PATH%%/var/cache/*
+/%%PATH%%/var/logs/*
+/%%PATH%%/var/sessions/*
+!/%%PATH%%/var/cache/.gitkeep
+!/%%PATH%%/var/logs/.gitkeep
+!/%%PATH%%/var/sessions/.gitkeep
+
+# Parameters
+/%%PATH%%/app/config/parameters.yml
+/%%PATH%%/app/config/parameters.ini
+
+# Managed by Composer
+/%%PATH%%/app/bootstrap.php.cache
+/%%PATH%%/var/bootstrap.php.cache
+/%%PATH%%/bin/*
+!/%%PATH%%/bin/console
+!/%%PATH%%/bin/symfony_requirements
+/%%PATH%%/vendor/
+
+# Assets and user uploads
 /%%PATH%%/web/bundles/
 /%%PATH%%/web/uploads/
-/%%PATH%%/app/bootstrap.php.cache
-/%%PATH%%/app/cache/*
-/%%PATH%%/app/config/parameters.yml
-/%%PATH%%/app/logs/*
+
+# PHPUnit
+/%%PATH%%/app/phpunit.xml
+/%%PATH%%/phpunit.xml
+
+# Build data
 /%%PATH%%/build/
-/%%PATH%%/vendor/
+
+# Composer PHAR
 /%%PATH%%/composer.phar
-/%%PATH%%/.apdisk
+
+# Backup entities generated with doctrine:generate:entities command
+**/Entity/*~
