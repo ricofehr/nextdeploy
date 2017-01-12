@@ -122,6 +122,11 @@ vsftpd::directives:
     pam_service_name: 'vsftpd'
     nopriv_user: 'ftp'
     guest_username: 'ftp'
+    pasv_enable: 'YES'
+    pasv_promiscuous: 'YES'
+    pasv_min_port: '40110'
+    pasv_max_port: '40610'
+    port_promiscuous: 'YES'
     ftpd_banner: 'NextDeploy Assets FTP Server'
 
 # rvm parameters
