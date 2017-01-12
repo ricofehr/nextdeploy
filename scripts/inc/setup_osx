@@ -36,49 +36,51 @@ install_brew() {
 
 # virtualbox install
 install_vbox() {
-  # Install virtualbox only it isnt yes installed
-  if [[ ! -e /usr/bin/VBoxManage ]] && [[ ! -e /usr/local/bin/VBoxManage ]]; then
+  # Install virtualbox only it isnt yet installed
+  VboxManage | grep "5.1.12" >/dev/null 2>&1
+
+  if (( $? != 0 )); then
     output -q "VirtualBox Installation ..."
-    curl -OsSL http://download.virtualbox.org/virtualbox/5.1.8/VirtualBox-5.1.8-111374-OSX.dmg
-    hdiutil mount VirtualBox-5.1.8-111374-OSX.dmg
+    curl -OsSL http://download.virtualbox.org/virtualbox/5.1.12/VirtualBox-5.1.12-112440-OSX.dmg
+    hdiutil mount VirtualBox-5.1.12-112440-OSX.dmg
     sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
     (( $? != 0 )) && output -e 'Virtualbox installation has failed'
     hdiutil unmount /Volumes/VirtualBox/
-    rm -f VirtualBox-5.1.8-111374-OSX.dmg
+    rm -f VirtualBox-5.1.12-112440-OSX.dmg
 
-    curl -OsSL "http://download.virtualbox.org/virtualbox/5.1.8/Oracle_VM_VirtualBox_Extension_Pack-5.1.8-111374.vbox-extpack"
-    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.1.8-111374.vbox-extpack
+    curl -OsSL "http://download.virtualbox.org/virtualbox/5.1.12/Oracle_VM_VirtualBox_Extension_Pack-5.1.12-112440.vbox-extpack"
+    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.1.12-112440.vbox-extpack
     (( $? !=0 )) && output -w 'Virtualbox extension installation has failed'
-    rm -f Oracle_VM_VirtualBox_Extension_Pack-5.1.8-111374.vbox-extpack
+    rm -f Oracle_VM_VirtualBox_Extension_Pack-5.1.12-112440.vbox-extpack
   fi
 }
 
 # vagrant install
 install_vagrant() {
-  vagrant version | grep 1.8.1 >/dev/null 2>&1
+  vagrant version | grep 'Installed  Version' | grep '1.9.1' >/dev/null 2>&1
 
   if (( $? != 0 )); then
     output -q "Vagrant Installation ..."
-    curl -OsSL "https://releases.hashicorp.com/vagrant/1.8.1/vagrant_1.8.1.dmg"
-    hdiutil mount vagrant_1.8.1.dmg
+    curl -OsSL "https://releases.hashicorp.com/vagrant/1.9.1/vagrant_1.9.1.dmg"
+    hdiutil mount vagrant_1.9.1.dmg
     sudo installer -pkg /Volumes/Vagrant/Vagrant.pkg -target /
     (( $? != 0 )) && output -e 'Vagrant installation has failed'
     hdiutil unmount /Volumes/Vagrant
-    rm -f vagrant_1.8.1.dmg
+    rm -f vagrant_1.9.1.dmg
   fi
 }
 
 # git install
 install_git() {
-  git version | grep 2.7 >/dev/null 2>&1
+  git version | grep 2.10 >/dev/null 2>&1
   if (( $? != 0 )); then
     output -q "Git Installation ..."
-    curl -OsSL "http://downloads.sourceforge.net/project/git-osx-installer/git-2.7.1-intel-universal-mavericks.dmg"
-    hdiutil mount git-2.7.1-intel-universal-mavericks.dmg
-    sudo installer -pkg /Volumes/Git\ 2.7.1\ Mavericks\ Intel\ Universal/git-2.7.1-intel-universal-mavericks.pkg -target /
+    curl -OsSL "http://downloads.sourceforge.net/project/git-osx-installer/git-2.10.1-intel-universal-mavericks.dmg"
+    hdiutil mount git-2.10.1-intel-universal-mavericks.dmg
+    sudo installer -pkg /Volumes/Git\ 2.10.1\ Mavericks\ Intel\ Universal/git-2.10.1-intel-universal-mavericks.pkg -target /
     (( $? != 0 )) && output -e 'Git installation has failed'
-    hdiutil unmount /Volumes/Git\ 2.7.1\ Mavericks\ Intel\ Universal
-    rm -f git-2.7.1-intel-universal-mavericks.dmg
+    hdiutil unmount /Volumes/Git\ 2.10.1\ Mavericks\ Intel\ Universal
+    rm -f git-2.10.1-intel-universal-mavericks.dmg
   fi
 }
 
