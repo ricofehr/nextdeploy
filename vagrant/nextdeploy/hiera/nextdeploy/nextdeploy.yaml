@@ -96,6 +96,8 @@ vpnserver:
     city: Paris
     organization: os.nextdeploy
     email: usera@os.nextdeploy
+    logfile: '/var/log/openvpn/nexdeploy.log'
+    duplicate_cn: true
     proto: 'udp'
     keepalive: '10 120'
     server: '10.0.171.0 255.255.255.0'
