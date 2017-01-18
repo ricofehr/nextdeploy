@@ -183,7 +183,7 @@ cron_cmd:
     hour: '03'
     weekday: '*'
   supervise:
-    command: 'HOME=/home/modem RUBY_VERSION=ruby-2.1.0 MY_RUBY_HOME=/usr/local/rvm/rubies/ruby-2.1.0 GEM_HOME=/usr/local/rvm/gems/ruby-2.1.0 GEM_PATH=/usr/local/rvm/gems/ruby-2.1.0:/usr/local/rvm/gems/ruby-2.1.0@global PATH=/usr/local/rvm/gems/ruby-2.1.0/bin:/usr/local/rvm/gems/ruby-2.1.0@global/bin:/usr/local/rvm/rubies/ruby-2.1.0/bin:/usr/local/rvm/bin:/opt/ruby/bin/:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin ndeploy supervise'
+    command: 'PATH=$PATH:/usr/local/bin supervise'
     user: 'modem'
     minute: '*/15'
     hour: '*'

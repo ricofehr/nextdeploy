@@ -126,6 +126,15 @@ hostsmin=$(find /etc/hosts.nextdeploy -mmin -1)
     group => 'root'
   }
 
+  # execute ndeploy supervise command
+  file { '/usr/local/bin/supervise':
+    ensure => 'file',
+    source => ['puppet:///modules/pm/scripts/supervise'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+
 }
 
 # == Class: pm::postinstall::nextdeploy
