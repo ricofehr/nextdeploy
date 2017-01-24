@@ -14,7 +14,7 @@ class UserSerializer < ActiveModel::Serializer
   # add shortname attribute
   def attributes
     data = super
-    data[:shortname] = "#{object.firstname[0].upcase}. #{object.lastname.split.first}"
+    data[:shortname] = "#{object.firstname[0].upcase}. #{object.lastname}"
     data
   end
 
