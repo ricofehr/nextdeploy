@@ -60,6 +60,15 @@ class Vm < ActiveRecord::Base
     save
   end
 
+  # Toggle is_ro parameter
+  #
+  # No param
+  # No return
+  def togglero
+    self.is_ro = is_ro ? false : true
+    save
+  end
+
   # Toggle is_auth parameter
   #
   # No param

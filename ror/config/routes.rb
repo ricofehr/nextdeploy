@@ -42,6 +42,7 @@ Rails.application.routes.draw do
       post '/vms/:id/toggleci' => 'vms#toggleci', as: 'vm_toggleci', constraints: { id: /\d+/ }
       post '/vms/:id/togglebackup' => 'vms#togglebackup', as: 'vm_togglebackup', constraints: { id: /\d+/ }
       post '/vms/:id/togglecors' => 'vms#togglecors', as: 'vm_togglecors', constraints: { id: /\d+/ }
+      post '/vms/:id/togglero' => 'vms#togglero', as: 'vm_togglero', constraints: { id: /\d+/ }
       post '/vms/:id/reboot' => 'vms#reboot', as: 'vm_reboot', constraints: { id: /\d+/ }
       post '/uris/:id/import' => 'uris#import', as: 'uri_import', constraints: { id: /\d+/ }
       post '/uris/:id/export' => 'uris#export', as: 'uri_export', constraints: { id: /\d+/ }
