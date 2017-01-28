@@ -163,7 +163,7 @@ module API
             ret = @uri.sfcmd "assetic:dump --env=#{env}"
             messages.push ret[:message]
           end
-          
+
           ret = @uri.sfcmd "cache:clear --env=#{env}"
           messages.push ret[:message]
         elsif command == 'migration'
@@ -300,7 +300,8 @@ module API
 
         # Never trust parameters from the scary internet, only allow the white list through.
         def uri_params
-          params.require(:uri).permit(:absolute, :path, :aliases, :envvars, :vm_id, :framework_id, :port, :ipfilter, :customvhost, :is_sh)
+          params.require(:uri).permit(:absolute, :path, :aliases, :envvars, :vm_id,
+                                      :framework_id, :port, :ipfilter, :customvhost, :is_sh, :is_import)
         end
     end
   end
