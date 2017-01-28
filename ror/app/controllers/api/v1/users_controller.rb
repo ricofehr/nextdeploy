@@ -274,7 +274,10 @@ module API
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def user_params
-        params.require(:user).permit(:email, :company, :quotavm, :quotaprod, :layout, :firstname, :lastname, :shortname, :password, :password_confirmation, :is_project_create, :is_user_create, :is_credentials_send, :group_id, :project_ids => [])
+        params.require(:user).permit(:email, :company, :quotavm, :quotaprod, :nbpages,
+                                     :layout, :firstname, :lastname, :shortname, :password,
+                                     :password_confirmation, :is_project_create, :is_user_create,
+                                     :is_credentials_send, :group_id, :project_ids => [])
       end
     end
   end

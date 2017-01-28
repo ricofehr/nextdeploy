@@ -2,7 +2,10 @@
 #
 # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class UserSerializer < ActiveModel::Serializer
-  attributes :id, :email, :authentication_token, :is_project_create, :is_user_create, :company, :quotavm, :quotaprod, :layout, :firstname, :lastname, :created_at
+  attributes :id, :email, :authentication_token, :is_project_create, :is_user_create,
+             :company, :quotavm, :quotaprod, :nbpages, :layout, :firstname,
+             :lastname, :created_at
+  
   delegate :current_user, to: :scope
 
   has_many :vms, key: :vms
