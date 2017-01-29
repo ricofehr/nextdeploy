@@ -128,7 +128,7 @@ module VmsHelper
             f.puts "    aliases:\n"
             uri.aliases.split(' ').each { |aliase| f.puts "      - #{aliase}\n" }
           end
-
+          f.puts "    is_redir_alias: #{uri.is_redir_alias}\n"
           f.puts "    ipfilter: '#{uri.ipfilter.gsub('.0/24', '').gsub('.', '\.')}'\n"
         end
 

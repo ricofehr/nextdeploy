@@ -301,7 +301,8 @@ module API
         # Never trust parameters from the scary internet, only allow the white list through.
         def uri_params
           params.require(:uri).permit(:absolute, :path, :aliases, :envvars, :vm_id,
-                                      :framework_id, :port, :ipfilter, :customvhost, :is_sh, :is_import)
+                                      :framework_id, :port, :ipfilter, :customvhost,
+                                      :is_sh, :is_import, :is_redir_alias)
         end
     end
   end

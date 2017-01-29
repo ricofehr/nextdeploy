@@ -207,7 +207,7 @@ class Vm < ActiveRecord::Base
       end
       Uri.new(vm: self, framework: endpoint.framework, absolute: absolute, path: endpoint.path,
               envvars: endpoint.envvars, aliases: aliases, port: endpoint.port, ipfilter: endpoint.ipfilter,
-              is_sh: endpoint.is_sh, is_import: endpoint.is_import).save
+              is_sh: endpoint.is_sh, is_import: endpoint.is_import, is_redir_alias: false).save
     end
 
     reload
