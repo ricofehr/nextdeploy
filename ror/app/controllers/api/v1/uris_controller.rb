@@ -250,7 +250,8 @@ module API
           end
 
           # only admins can make changes on admins vms
-          isme = false if vm.user.admin? && !@user.admin?
+          # ... change mind about that, permit (next line commented)
+          # isme = false if vm.user.admin? && !@user.admin?
 
           raise Exceptions::NextDeployException.new("Access forbidden for this user") unless isme
         end
