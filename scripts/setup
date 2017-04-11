@@ -114,7 +114,7 @@ while (($# > 0)); do
       shift
       DESTROYVM=0
       ;;
-    -d)
+    --debug)
       shift
       DEBUG=2
       ;;
