@@ -2,6 +2,36 @@
 #
 # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 module VmsHelper
+
+  # Generate authorized ssh key
+  #
+  # No param
+  # No return
+  def generate_authorizedkeys
+
+    begin
+      open("/tmp/vm#{id}.lock", File::RDWR|File::CREAT) do |f|
+        f.flock(File::LOCK_EX)
+
+        # todo: avoid bash cmd
+        system('mkdir -p sshkeys/vms')
+        system("rm -f sshkeys/vms/#{name}.authorized_keys")
+        system("touch sshkeys/vms/#{name}.authorized_keys")
+        # add server nextdeploy public key to authorized_keys
+        system("cat ~/.ssh/id_rsa.pub > sshkeys/vms/#{name}.authorized_keys")
+        Sshkey.admins.each { |k| system("echo #{k.key} >> sshkeys/vms/#{name}.authorized_keys") }
+        user.sshkeys.each { |k| system("echo #{k.key} >> sshkeys/vms/#{name}.authorized_keys") }
+        project.users.select { |u| u.lead? }.each do |u|
+          u.sshkeys.each { |k| system("echo #{k.key} >> sshkeys/vms/#{name}.authorized_keys") }
+        end
+        system("chmod 644 sshkeys/vms/#{name}.authorized_keys")
+      end
+
+    rescue
+      raise Exceptions::NextDeployException.new("Lock on authkeys for #{name} failed")
+    end
+  end
+
   # Generate Hiera files with current attributes like technos array
   #
   # No param

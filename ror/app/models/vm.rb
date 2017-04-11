@@ -263,6 +263,7 @@ class Vm < ActiveRecord::Base
       self.nova_id = osapi.boot_vm(name, systemimage.glance_id, sshname, vmsize.title, user_data)
       self.status = 0
       save
+      generate_authorizedkeys
     rescue Exceptions::NextDeployException => me
       me.log_e
     end

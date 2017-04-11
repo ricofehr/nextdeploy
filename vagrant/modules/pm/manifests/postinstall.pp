@@ -304,7 +304,7 @@ class pm::postinstall::nextdeploy {
 
   # clean sshkeys
   exec { 'sshkeys-clean':
-    command => 'rm -f sshkeys/*',
+    command => 'rm -rf sshkeys/*',
     creates => '/home/modem/.installnextdeploy'
   } ->
 

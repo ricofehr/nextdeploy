@@ -57,9 +57,7 @@ class Sshkey < ActiveRecord::Base
   # No return
   def update_authorizedkeys
       #regenerate authorizedkeys
-      user.generate_authorizedkeys
-      user.generate_all_authorizedkeys if user.admin?
-      user.upload_authorizedkeys
+      user.update_authorizedkeys
   end
 
 

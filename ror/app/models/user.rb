@@ -26,7 +26,7 @@ class User < ActiveRecord::Base
   # Some hooks before chnages on user object
   before_save :ensure_authentication_token
 
-  before_create :init_user, :generate_sshkey_modem, :generate_authorizedkeys, :generate_authentication_token, :generate_openvpn_keys
+  before_create :init_user, :generate_sshkey_modem, :generate_authentication_token, :generate_openvpn_keys
   before_destroy :purge_user
 
   # Return current token and generates one before it if needed
