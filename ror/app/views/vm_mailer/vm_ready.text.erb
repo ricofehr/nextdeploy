@@ -1,0 +1,16 @@
+The vm is installed and ready to work
+===============================================
+You can now test the website into NextDeploy
+Project: <%= @project.name %>
+User: <%= @user.firstname %> <%= @user.lastname %>
+Branche: <%= @commit.branche.name %>
+Commit: <%= @commit.message %>
+
+URIS
+<% @uris.each do |uri| %>
+http://<%= @htlogin %>:<%= @htpassword %>@<%= uri.absolute %>/
+
+<% end %>
+===============================================
+To login to NextDeploy, just follow this link: <%= @url %>.
+Thanks and have a great day!

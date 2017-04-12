@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>The vm is installed onto <a href="<%= @url %>" target="blank">NextDeploy</a><br /> and ready to work</h1>
+    <p>
+      Project: <%= @project.name %><br />
+      User: <%= @user.firstname %> <%= @user.lastname %><br />
+      Branche: <%= @commit.branche.name %><br />
+      Commit: <%= @commit.message %><br />
+    </p>
+    <p>
+      <b>URIS</b><br />
+      <% @uris.each do |uri| %>
+        <a href="http://<%= @htlogin %>:<%= @htpassword %>@<%= uri.absolute %>/" target="_blank"><%= uri.absolute %></a><br/><br />
+      <% end %>
+    </p>
+    <p>
+      To login to NextDeploy, just follow this link: <%= @url %>.
+    </p>
+    <p>Thanks and have a great day!</p>
+  </body>
+</html>

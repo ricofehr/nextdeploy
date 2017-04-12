@@ -179,10 +179,19 @@ class Vm < ActiveRecord::Base
   end
 
   # Update status field with time build
+  # And send alert mail to users
   #
   # No param
   # No return
   def setupcomplete
+    if status <= 1
+        project.users.each do |u|
+          if u.is_recv_vms || u.id == user.id
+            VmMailer.vm_ready(u, project, user, commit, uris, htlogin, htpassword).deliver
+          end
+        end
+    end
+
     self.status = (Time.zone.now - created_at).to_i
     save
   end

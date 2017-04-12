@@ -277,7 +277,7 @@ module API
         params.require(:user).permit(:email, :company, :quotavm, :quotaprod, :nbpages,
                                      :layout, :firstname, :lastname, :shortname, :password,
                                      :password_confirmation, :is_project_create, :is_user_create,
-                                     :is_credentials_send, :group_id, :project_ids => [])
+                                     :is_credentials_send, :is_recv_vms, :group_id, :project_ids => [])
       end
     end
   end
