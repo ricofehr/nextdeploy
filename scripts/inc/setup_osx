@@ -37,36 +37,36 @@ install_brew() {
 # virtualbox install
 install_vbox() {
   # Install virtualbox only it isnt yet installed
-  VboxManage | grep "5.1.12" >/dev/null 2>&1
+  VboxManage | grep "5.1.18" >/dev/null 2>&1
 
   if (( $? != 0 )); then
     output -q "VirtualBox Installation ..."
-    curl -OsSL http://download.virtualbox.org/virtualbox/5.1.12/VirtualBox-5.1.12-112440-OSX.dmg
-    hdiutil mount VirtualBox-5.1.12-112440-OSX.dmg
+    curl -OsSL http://download.virtualbox.org/virtualbox/5.1.18/VirtualBox-5.1.18-114002-OSX.dmg
+    hdiutil mount VirtualBox-5.1.18-114002-OSX.dmg
     sudo installer -pkg /Volumes/VirtualBox/VirtualBox.pkg -target /
     (( $? != 0 )) && output -e 'Virtualbox installation has failed'
     hdiutil unmount /Volumes/VirtualBox/
-    rm -f VirtualBox-5.1.12-112440-OSX.dmg
+    rm -f VirtualBox-5.1.18-114002-OSX.dmg
 
-    curl -OsSL "http://download.virtualbox.org/virtualbox/5.1.12/Oracle_VM_VirtualBox_Extension_Pack-5.1.12-112440.vbox-extpack"
-    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.1.12-112440.vbox-extpack
+    curl -OsSL "http://download.virtualbox.org/virtualbox/5.1.18/Oracle_VM_VirtualBox_Extension_Pack-5.1.18-114002.vbox-extpack"
+    sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.1.18-114002.vbox-extpack
     (( $? !=0 )) && output -w 'Virtualbox extension installation has failed'
-    rm -f Oracle_VM_VirtualBox_Extension_Pack-5.1.12-112440.vbox-extpack
+    rm -f Oracle_VM_VirtualBox_Extension_Pack-5.1.18-114002.vbox-extpack
   fi
 }
 
 # vagrant install
 install_vagrant() {
-  vagrant version | grep 'Installed  Version' | grep '1.9.1' >/dev/null 2>&1
+  vagrant version | grep 'Installed  Version' | grep '1.9.3' >/dev/null 2>&1
 
   if (( $? != 0 )); then
     output -q "Vagrant Installation ..."
-    curl -OsSL "https://releases.hashicorp.com/vagrant/1.9.1/vagrant_1.9.1.dmg"
-    hdiutil mount vagrant_1.9.1.dmg
+    curl -OsSL "https://releases.hashicorp.com/vagrant/1.9.3/vagrant_1.9.3.dmg"
+    hdiutil mount vagrant_1.9.3.dmg
     sudo installer -pkg /Volumes/Vagrant/Vagrant.pkg -target /
     (( $? != 0 )) && output -e 'Vagrant installation has failed'
     hdiutil unmount /Volumes/Vagrant
-    rm -f vagrant_1.9.1.dmg
+    rm -f vagrant_1.9.3.dmg
   fi
 }
 
