@@ -2,7 +2,7 @@
 #
 # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class VmSerializer < ActiveModel::Serializer
-  attributes :id, :nova_id, :floating_ip, :vnc_url, :created_at, :name, :topic, :status,
+  attributes :id, :nova_id, :floating_ip, :vnc_url, :thumb, :created_at, :name, :topic, :status,
              :is_auth, :htlogin, :htpassword, :termpassword, :layout, :is_prod,
              :is_cached, :is_ht, :is_ci, :is_backup, :is_cors, :is_ro
 

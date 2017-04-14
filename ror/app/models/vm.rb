@@ -13,18 +13,16 @@ class Vm < ActiveRecord::Base
 
   has_many :supervises, dependent: :destroy
   has_many :technos, through: :supervises
-  has_many :uris, dependent: :destroy
+  has_many :uris, -> { order(is_main: :desc) }, dependent: :destroy
   has_many :frameworks, through: :uris
 
   # Some scope for find vms objects by commit, by project or by name
   scope :find_by_user_commit, ->(user_id, commit){ where("user_id=#{user_id} AND commit_id like '%#{commit}'") }
   scope :find_by_user_project, ->(user_id, project_id){ where(user_id: user_id, project_id: project_id) }
 
-  attr_accessor :floating_ip, :commit, :vnc_url
+  attr_accessor :floating_ip, :commit, :vnc_url, :thumb
 
   # Some hooks before vm changes
-  #before_create :boot_os
-  #after_create :generate_host_all
   before_destroy :delete_vm
 
   # Init external api objects and extra attributes
@@ -216,7 +214,7 @@ class Vm < ActiveRecord::Base
       end
       Uri.new(vm: self, framework: endpoint.framework, absolute: absolute, path: endpoint.path,
               envvars: endpoint.envvars, aliases: aliases, port: endpoint.port, ipfilter: endpoint.ipfilter,
-              is_sh: endpoint.is_sh, is_import: endpoint.is_import, is_redir_alias: false).save
+              is_sh: endpoint.is_sh, is_import: endpoint.is_import, is_main: endpoint.is_main, is_redir_alias: false).save
     end
 
     reload
@@ -340,6 +338,14 @@ class Vm < ActiveRecord::Base
 
         # delete from cache if nil object
         Rails.cache.delete("vms/#{nova_id}/floating_ip") if @floating_ip.nil?
+
+        webshot
+        @thumb = if File.exist?("thumbs/#{id}.png")
+          "/thumbs/#{id}.png"
+        else
+          Rails.cache.delete("vms/#{id}/webshot")
+          "/thumbs/default.png"
+        end
     end
 
     @commit =

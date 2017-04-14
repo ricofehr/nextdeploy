@@ -303,7 +303,7 @@ module API
         def uri_params
           params.require(:uri).permit(:absolute, :path, :aliases, :envvars, :vm_id,
                                       :framework_id, :port, :ipfilter, :customvhost,
-                                      :is_sh, :is_import, :is_redir_alias)
+                                      :is_sh, :is_import, :is_redir_alias, :is_main)
         end
     end
   end

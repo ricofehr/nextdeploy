@@ -28,6 +28,7 @@ class roles::nextdeploy {
   class {'pm::dnsmasq':} ->
   class {'pm::openvpn':} ->
   class {'pm::ftp':} ->
+  class {'pm::phantom':} ->
   class {'pm::postinstall::exploitation':} ->
   class {'pm::postinstall::nextdeploy':} ->
   class {'pm::cron':} ->

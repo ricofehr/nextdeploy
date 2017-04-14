@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160721084127) do
+ActiveRecord::Schema.define(version: 20170413134410) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -31,6 +31,8 @@ ActiveRecord::Schema.define(version: 20160721084127) do
     t.string  "ipfilter",     limit: 512,  default: ""
     t.string  "customvhost",  limit: 4096, default: ""
     t.boolean "is_sh",                     default: false
+    t.boolean "is_import",                 default: true
+    t.boolean "is_main",                   default: false
   end
 
   add_index "endpoints", ["framework_id"], name: "index_endpoints_on_framework_id", using: :btree
@@ -60,6 +62,7 @@ ActiveRecord::Schema.define(version: 20160721084127) do
     t.integer "expiration"
     t.integer "ordering"
     t.boolean "is_twitter"
+    t.string  "date",             default: ""
   end
 
   create_table "project_systemimages", force: true do |t|
@@ -144,6 +147,7 @@ ActiveRecord::Schema.define(version: 20160721084127) do
     t.integer  "ordering"
     t.integer  "technotype_id"
     t.string   "dockercompose"
+    t.string   "playbook",      limit: 8192
   end
 
   add_index "technos", ["technotype_id"], name: "index_technos_on_technotype_id", using: :btree
@@ -157,14 +161,17 @@ ActiveRecord::Schema.define(version: 20160721084127) do
   create_table "uris", force: true do |t|
     t.integer "vm_id"
     t.integer "framework_id"
-    t.string  "absolute",     limit: 512
+    t.string  "absolute",       limit: 512
     t.string  "path"
-    t.string  "envvars",      limit: 512
-    t.string  "aliases",      limit: 2048
+    t.string  "envvars",        limit: 512
+    t.string  "aliases",        limit: 2048
     t.integer "port"
-    t.string  "ipfilter",     limit: 512,  default: ""
-    t.string  "customvhost",  limit: 4096, default: ""
-    t.boolean "is_sh",                     default: false
+    t.string  "ipfilter",       limit: 512,  default: ""
+    t.string  "customvhost",    limit: 4096, default: ""
+    t.boolean "is_sh",                       default: false
+    t.boolean "is_import",                   default: true
+    t.boolean "is_redir_alias",              default: false
+    t.boolean "is_main",                     default: false
   end
 
   add_index "uris", ["framework_id"], name: "index_uris_on_framework_id", using: :btree
@@ -204,6 +211,8 @@ ActiveRecord::Schema.define(version: 20160721084127) do
     t.string   "layout",                 limit: 15
     t.boolean  "is_user_create",                    default: false
     t.integer  "quotaprod",                         default: 0
+    t.integer  "nbpages",                           default: 11
+    t.boolean  "is_recv_vms",                       default: false
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
@@ -215,6 +224,7 @@ ActiveRecord::Schema.define(version: 20160721084127) do
     t.integer  "techno_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "status",     default: true
   end
 
   add_index "vm_technos", ["techno_id"], name: "index_vm_technos_on_techno_id", using: :btree
@@ -241,6 +251,9 @@ ActiveRecord::Schema.define(version: 20160721084127) do
     t.boolean  "is_ht",                     default: false
     t.boolean  "is_backup",                 default: false
     t.boolean  "is_ci",                     default: false
+    t.boolean  "is_cors"
+    t.string   "topic"
+    t.boolean  "is_ro",                     default: false
   end
 
   add_index "vms", ["project_id"], name: "index_vms_on_project_id", using: :btree

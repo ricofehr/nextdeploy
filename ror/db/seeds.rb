@@ -884,7 +884,8 @@ ep_njs = Endpoint.create!(
   ipfilter: '',
   customvhost: '',
   is_sh: false,
-  is_import: false
+  is_import: false,
+  is_main: true
 )
 ep_njs.install_endpoint
 
@@ -899,7 +900,8 @@ ep_wp = Endpoint.create!(
   ipfilter: '',
   customvhost: '',
   is_sh: false,
-  is_import: true
+  is_import: true,
+  is_main: true
 )
 ep_wp.install_endpoint
 
@@ -914,7 +916,8 @@ ep_wp_html = Endpoint.create!(
   ipfilter: '',
   customvhost: '',
   is_sh: false,
-  is_import: false
+  is_import: false,
+  is_main: false
 )
 ep_wp_html.install_endpoint
 
@@ -929,7 +932,8 @@ ep_static = Endpoint.create!(
   ipfilter: '',
   customvhost: '',
   is_sh: false,
-  is_import: false
+  is_import: false,
+  is_main: true
 )
 ep_static.install_endpoint
 
@@ -944,7 +948,8 @@ ep_drupal = Endpoint.create!(
   ipfilter: '',
   customvhost: '',
   is_sh: false,
-  is_import: true
+  is_import: true,
+  is_main: true
 )
 ep_drupal.install_endpoint
 
@@ -959,7 +964,8 @@ ep_sf2s = Endpoint.create!(
   ipfilter: '',
   customvhost: '',
   is_sh: false,
-  is_import: true
+  is_import: true,
+  is_main: true
 )
 ep_sf2s.install_endpoint
 
@@ -974,7 +980,8 @@ ep_sf3c = Endpoint.create!(
   ipfilter: '',
   customvhost: '',
   is_sh: false,
-  is_import: true
+  is_import: true,
+  is_main: true
 )
 ep_sf3c.install_endpoint
 

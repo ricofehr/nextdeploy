@@ -52,3 +52,6 @@ gem 'dalli'
 
 #yard for document code
 gem 'yard'
+
+# take screenshot from url
+gem "webshot"

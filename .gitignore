@@ -15,6 +15,10 @@
 /ror/public/*
 !/ror/public/.keep
 
+# Ignore thumb folder
+/ror/thumbs/*
+!/ror/thumbs/default.png
+
 # Ignore nohup file
 nohup.out
 

@@ -123,7 +123,7 @@ module API
         def endpoint_params
           params.require(:endpoint).permit(:prefix, :path, :envvars, :aliases, :project_id,
                                            :framework_id, :is_install, :port, :ipfilter,
-                                           :customvhost, :is_sh, :is_import)
+                                           :customvhost, :is_sh, :is_import, :is_main)
         end
     end
   end

@@ -355,6 +355,7 @@ module API
         params_p.delete(:nova_id)
         #params_p.delete(:name)
         params_p.delete(:floating_ip)
+        params_p.delete(:thumb)
         params_p.delete(:user)
         params_p.delete(:project)
         params_p.delete(:systemimage)

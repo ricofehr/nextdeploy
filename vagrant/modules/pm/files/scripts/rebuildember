@@ -13,7 +13,6 @@ if (( FORCE == 1 )) ||
 [[ ! -f /ror/public/index.html ]] ||
 [[ -n "$(find /home/nextdeploy/webui/app/. -type f -mmin -5)" ]] ||
 [[ -n "$(find /home/nextdeploy/webui/config/. -type f -mmin -5)" ]] ||
-[[ -n "$(find /home/nextdeploy/webui/public/. -type f -mmin -5)" ]] ||
 [[ -n "$(find /home/nextdeploy/webui/package.json -type f -mmin -5)" ]] ||
 [[ -n "$(find /home/nextdeploy/webui/bower.json -type f -mmin -5)" ]]; then
   pushd /tmp > /dev/null
@@ -24,6 +23,7 @@ if (( FORCE == 1 )) ||
   bower install
   ember build --environment %%EMBERENV%% --output-path /ror/public/
   [[ ! -f /ror/public/.keep ]] && touch /ror/public/.keep
+  rm -rf /ror/public/thumbs && ln -s /ror/thumbs /ror/public/thumbs
   popd > /dev/null
   rm -rf webui
   popd > /dev/null

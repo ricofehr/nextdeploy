@@ -326,6 +326,7 @@ module VmsHelper
   def clear_vmfiles
     Rails.logger.warn "rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml"
     system("rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml")
+    system("rm -f thumbs/#{id}.png")
     system("rm -f /tmp/vm#{id}.lock")
   end
 
@@ -448,6 +449,29 @@ module VmsHelper
 
     # Return bash output
     { message: bashret, status: 200 }
+  end
+
+  def webshot
+    uri = uris.first
+
+    Rails.cache.fetch("vms/#{id}/webshot", expires_in: 600.minutes) do
+      # take a lock for once shot at time
+      begin
+        open("/tmp/webshot.lock", File::RDWR|File::CREAT) do |f|
+          f.flock(File::LOCK_EX)
+          begin
+            # Setup Capybara
+            ws = Webshot::Screenshot.instance
+            # Customize thumbnail
+            suppress(Exception) do
+	          ws.capture "http://#{htlogin}:#{htpassword}@#{uri.absolute}/", "thumbs/#{id}.png", width: 360, height: 240, quality: 85
+            end
+          end
+        end
+      rescue => e
+        raise Exceptions::NextDeployException.new("Lock on webshot command for #{name} failed, #{e.message}")
+      end
+    end
   end
 
 end
