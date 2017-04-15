@@ -229,8 +229,8 @@ class Vm < ActiveRecord::Base
     return status if status != 0
 
     ret = (Time.zone.now - created_at).to_i
-    # more 2hours with setup status is equal to error status
-    (ret > 360000) ? (1) : (-ret)
+    # more 10hours with setup status is equal to error status
+    (ret > 36000) ? (1) : (-ret)
   end
 
   # Init vnc_url attribute
@@ -272,6 +272,8 @@ class Vm < ActiveRecord::Base
       save
       generate_authorizedkeys
     rescue Exceptions::NextDeployException => me
+      self.status = 1
+      save
       me.log_e
     end
 

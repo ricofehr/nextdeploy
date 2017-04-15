@@ -260,65 +260,6 @@ module VmsHelper
 
   end
 
-  # Check status for current vm and update it if needed
-  #
-  # No param
-  # No return
-  def check_status
-    # dont check status if we are on setup process
-    return if (status == 0 && created_at > (Time.zone.now - 240.minutes))
-
-    conn_status = nil
-
-    begin
-        response =
-          Rails.cache.fetch("vms/#{nova_id}/status_ok", expires_in: 30.minutes) do
-            conn_status = Faraday.new(:url => "http://#{vm.floating_ip}") do |faraday|
-              faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
-            end
-
-            conn_status.get do |req|
-              req.url "/status_ok"
-              req.options[:timeout] = 15
-              req.options[:open_timeout] = 10
-            end
-          end
-    rescue
-      return
-    end
-
-    if response.status != 200
-      # try a second time
-      begin
-        sleep(1)
-
-        unless conn_status
-          conn_status = Faraday.new(:url => "http://#{vm.floating_ip}") do |faraday|
-            faraday.adapter  Faraday.default_adapter  # make requests with Net::HTTP
-          end
-        end
-
-        response = conn_status.get do |req|
-          req.url "/status_ok"
-          req.options[:timeout] = 15
-          req.options[:open_timeout] = 10
-        end
-      rescue
-        return
-      end
-
-      if response.status != 200
-        Rails.logger.warn "http://#{vm.floating_ip}/status_ok"
-        self.status = 1
-      end
-    end
-
-    if response.status == 200 && status == 1
-      self.status = Time.zone.now - created_at
-      save
-    end
-  end
-
   # Clear vcls and hiera files
   #
   # No param
