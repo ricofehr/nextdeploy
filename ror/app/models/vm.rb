@@ -345,7 +345,6 @@ class Vm < ActiveRecord::Base
         @thumb = if File.exist?("thumbs/#{id}.png")
           "/thumbs/#{id}.png"
         else
-          Rails.cache.delete("vms/#{id}/webshot")
           "/thumbs/default.png"
         end
     end

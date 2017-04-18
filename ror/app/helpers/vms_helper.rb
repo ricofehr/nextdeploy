@@ -395,23 +395,26 @@ module VmsHelper
   def webshot
     uri = uris.first
 
-    Rails.cache.fetch("vms/#{id}/webshot", expires_in: 600.minutes) do
-      # take a lock for once shot at time
-      begin
-        open("/tmp/webshot.lock", File::RDWR|File::CREAT) do |f|
-          f.flock(File::LOCK_EX)
-          begin
-            # Setup Capybara
-            ws = Webshot::Screenshot.instance
-            # Customize thumbnail
-            suppress(Exception) do
-	          ws.capture "http://#{htlogin}:#{htpassword}@#{uri.absolute}/", "thumbs/#{id}.png", width: 360, height: 240, quality: 85
-            end
-          end
+    # Wait vm is installed
+    return if status < 2
+
+    # Delete thumb every 5 hours
+    system("/usr/bin/find thumbs/. -type f -name #{id}.png -cmin +300 -exec /bin/rm -f {} \\;")
+    return if File.exist?("thumbs/#{id}.png")
+
+    #take a lock for once shot at time
+    begin
+      open("/tmp/webshot.lock", File::RDWR|File::CREAT) do |f|
+        f.flock(File::LOCK_EX)
+        suppress(Exception) do
+          # Setup Capybara
+          ws = Webshot::Screenshot.instance
+          # Customize thumbnail
+          ws.capture "http://#{htlogin}:#{htpassword}@#{uri.absolute}/", "thumbs/#{id}.png", width: 360, height: 240, quality: 85
         end
-      rescue => e
-        raise Exceptions::NextDeployException.new("Lock on webshot command for #{name} failed, #{e.message}")
       end
+    rescue => e
+      raise Exceptions::NextDeployException.new("Lock on webshot command for #{name} failed, #{e.message}")
     end
   end
 
