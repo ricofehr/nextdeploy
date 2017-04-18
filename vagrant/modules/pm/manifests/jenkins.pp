@@ -17,7 +17,7 @@ class pm::jenkins {
 
   file { '/etc/apt/sources.list.d/jenkins.list':
     ensure => file,
-    content => 'deb http://pkg.jenkins-ci.org/debian binary/'
+    content => 'deb http://pkg.jenkins-ci.org/debian-stable binary/'
   } ->
 
   exec { 'aptupdatejenkins':
