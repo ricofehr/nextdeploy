@@ -1,0 +1,22 @@
+.tmp/
+.map
+vendor
+node_modules
+npm-debug.log
+.sass-cache/
+
+/%%PATH%%/scripts
+/%%PATH%%/js/test/test-bundle.js
+
+/%%PATH%%/styles/*.map
+/%%PATH%%/styles/*.css
+
+.DS_Store
+*Thumbs.db
+
+# IDE settings
+.buildpath
+.externalToolBuilders/
+.project
+.settings/
+.idea

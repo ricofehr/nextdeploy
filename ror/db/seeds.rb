@@ -144,6 +144,20 @@ framework_no = Framework.create(
     - %%DOCROOT%%:/var/www/html
 ')
 
+framework_basenurun = Framework.create(
+                 name: 'BaseNurun',
+                 publicfolder: '',
+                 rewrites: "RewriteEngine On\\nRewriteCond %%{literal('%')}{REQUEST_URI} !(.*/inc/.*)\\nRewriteRule ^(.*\\\\.php)$ includer.php?page=$1 [QSA]\\n",
+                 dockercompose: '%%CONTAINERNAME%%:
+  image: nextdeploy/webphp
+  container_name: %%CONTAINERNAME%%
+%%ENVVARS%%
+  ports:
+    - %%PORT%%:80
+  volumes:
+    - %%DOCROOT%%:/var/www/html
+')
+
 framework_noweb = Framework.create(
                  name: 'NoWeb',
                  publicfolder: '',

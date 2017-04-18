@@ -74,7 +74,7 @@ newendpoint() {
 
   if [[ -f "${RORSBIN}/files/crontab_${framework,,}" ]]; then
     cat "${RORSBIN}/files/crontab_${framework,,}" >> scripts/crontab
-    sed -i "s;%%DOCROOT%%;/var/www/${projname};" scripts/crontab
+    sed -i "s;%%DOCROOT%%;/var/www/${projname}/${pathuri};" scripts/crontab
   fi
 
   if [[ -f "${RORSBIN}/files/postinstall_${framework,,}.sh" ]]; then
@@ -107,6 +107,9 @@ newendpoint() {
       ;;
     Static)
       newstatic
+      ;;
+    BaseNurun)
+      newbasenurun
       ;;
     ReactJS)
       newreact
@@ -148,6 +151,25 @@ newstatic() {
   git commit -m "Init Static"
   git push origin master
   popd > /dev/null
+}
+
+newbasenurun() {
+  rm -rf /tmp/basenurun
+  git clone https://github.com/romuleald/base-nurun /tmp/basenurun
+  rsync -avq /tmp/basenurun/html/ ${DOCROOT}/
+
+  pushd ${DOCROOT} > /dev/null
+  curl -sS https://getcomposer.org/installer | php
+  /usr/bin/php composer.phar install -n --prefer-dist
+  /bin/rm -f composer.phar
+  popd > /dev/null
+
+  pushd ${DOCONLINE} > /dev/null
+  git add  .
+  git commit -m "Init Base Nurun"
+  git push origin master
+  popd > /dev/null
+  rm -rf /tmp/basenurun
 }
 
 newnodejs() {
