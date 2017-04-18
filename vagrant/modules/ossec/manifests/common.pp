@@ -5,21 +5,26 @@ class ossec::common {
       $hidsagentservice  = 'ossec'
       $hidsagentpackage  = 'ossec-hids-agent'
       $servicehasstatus  = false
+      # apt-key added by issue #34
+      apt::key { 'puppetlabs':
+        id     => '9FE55537D1713CA519DFB85114B9C8DB9A1B1C65',
+        source => 'https://ossec.wazuh.com/repos/apt/conf/ossec-key.gpg.key'
+      }
 
       case $::lsbdistcodename {
-        /(lucid|precise|trusty)/: {
+        /(precise|trusty|vivid|wily|xenial|yakketi)/: {
           $hidsserverservice = 'ossec'
           $hidsserverpackage = 'ossec-hids'
 
           apt::source { 'alienvault-ossec':
             ensure   => present,
-            comment  => 'This is the AlienVault Ubuntu repository for Ossec',
-            location => 'http://ossec.alienvault.com/repos/apt/ubuntu',
+            comment  => 'This is the WAZUH Ubuntu repository for Ossec',
+            location => 'https://ossec.wazuh.com/repos/apt/ubuntu',
             release  => $::lsbdistcodename,
             repos    => 'main',
-            key      => {
-              id     => '9FE55537D1713CA519DFB85114B9C8DB9A1B1C65',
-              source => 'http://ossec.alienvault.com/repos/apt/conf/ossec-key.gpg.key',
+            include  => {
+              'src' => false,
+              'deb' => true,
             },
           }
           ~>
@@ -28,20 +33,20 @@ class ossec::common {
             refreshonly => true
           }
         }
-        /^(jessie|wheezy)$/: {
+        /^(jessie|wheezy|stretch|sid)$/: {
           $hidsserverservice = 'ossec'
           $hidsserverpackage = 'ossec-hids'
 
           apt::source { 'alienvault-ossec':
             ensure      => present,
-            comment     => 'This is the AlienVault Debian repository for Ossec',
-            location    => 'http://ossec.alienvault.com/repos/apt/debian',
-            release     => $::lsbdistcodename,
-            repos       => 'main',
-            include_src => false,
-            include_deb => true,
-            key         => '9A1B1C65',
-            key_source  => 'http://ossec.alienvault.com/repos/apt/conf/ossec-key.gpg.key',
+            comment  => 'This is the WAZUH Debian repository for Ossec',
+            location => 'https://ossec.wazuh.com/repos/apt/debian',
+            release  => $::lsbdistcodename,
+            repos    => 'main',
+            include  => {
+              'src' => false,
+              'deb' => true,
+            },
           }
           ~>
           exec { 'update-apt-alienvault-repo':
