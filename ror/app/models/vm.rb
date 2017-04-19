@@ -192,6 +192,8 @@ class Vm < ActiveRecord::Base
 
     self.status = (Time.zone.now - created_at).to_i
     save
+
+    webshot
   end
 
   # Set uris by default with project endpoints
