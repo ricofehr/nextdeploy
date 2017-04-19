@@ -174,6 +174,10 @@ class Vm < ActiveRecord::Base
       self.commit_id = "#{branche.id}-#{commit_hash}"
       save
     end
+
+
+    # update screenshot frequently ... ugly !
+    webshot if Time.zone.now.to_i % 3 == 0
   end
 
   # Update status field with time build
@@ -191,9 +195,8 @@ class Vm < ActiveRecord::Base
     end
 
     self.status = (Time.zone.now - created_at).to_i
-    save
-
     webshot
+    save
   end
 
   # Set uris by default with project endpoints
@@ -343,12 +346,12 @@ class Vm < ActiveRecord::Base
         # delete from cache if nil object
         Rails.cache.delete("vms/#{nova_id}/floating_ip") if @floating_ip.nil?
 
-        webshot
-        @thumb = if File.exist?("thumbs/#{id}.png")
-          "/thumbs/#{id}.png"
-        else
-          "/thumbs/default.png"
-        end
+        @thumb =
+          if File.exist?("thumbs/#{id}.png")
+            "/thumbs/#{id}.png"
+          else
+            "/thumbs/default.png"
+          end
     end
 
     @commit =

@@ -404,10 +404,6 @@ module VmsHelper
     # Wait vm is installed
     return if status < 2
 
-    # Delete thumb every 5 hours
-    system("/usr/bin/find thumbs/. -type f -name #{id}.png -cmin +300 -exec /bin/rm -f {} \\;")
-    return if File.exist?("thumbs/#{id}.png")
-
     #take a lock for once shot at time
     begin
       open("/tmp/webshot.lock", File::RDWR|File::CREAT) do |f|
@@ -416,7 +412,7 @@ module VmsHelper
           # Setup Capybara
           ws = Webshot::Screenshot.instance
           # Customize thumbnail
-          ws.capture "http://#{htlogin}:#{htpassword}@#{uri.absolute}/", "thumbs/#{id}.png", width: 360, height: 240, quality: 85
+          ws.capture "http://#{htlogin}:#{htpassword}@#{uri.absolute}/", "thumbs/#{id}.png", width: 360, height: 240, quality: 85, timeout: 1
         end
       end
     rescue => e
