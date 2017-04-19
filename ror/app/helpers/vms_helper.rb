@@ -25,6 +25,12 @@ module VmsHelper
           u.sshkeys.each { |k| system("echo #{k.key} >> sshkeys/vms/#{name}.authorized_keys") }
         end
         system("chmod 644 sshkeys/vms/#{name}.authorized_keys")
+
+        # if vm is already running, transfer to it
+        if status > 1
+          Rails.logger.warn "rsync -avzPe \"ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{id}.authorized_keys modem@#{floating_ip}:~/.ssh/authorized_keys"
+          system("rsync -avzPe \"ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{id}.authorized_keys modem@#{floating_ip}:~/.ssh/authorized_keys")
+        end
       end
 
     rescue
