@@ -28,8 +28,8 @@ module VmsHelper
 
         # if vm is already running, transfer to it
         if status > 1
-          Rails.logger.warn "rsync -avzPe \"ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{id}.authorized_keys modem@#{floating_ip}:~/.ssh/authorized_keys"
-          system("rsync -avzPe \"ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{id}.authorized_keys modem@#{floating_ip}:~/.ssh/authorized_keys")
+          Rails.logger.warn "rsync -avzPe \"ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{name}.authorized_keys modem@#{floating_ip}:~/.ssh/authorized_keys"
+          system("rsync -avzPe \"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{name}.authorized_keys modem@#{floating_ip}:~/.ssh/authorized_keys")
         end
       end
 
@@ -273,6 +273,7 @@ module VmsHelper
   def clear_vmfiles
     Rails.logger.warn "rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml"
     system("rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml")
+    system("rm -f sshkeys/vms/#{name}.authorized_keys")
     system("rm -f thumbs/#{id}.png")
     system("rm -f /tmp/vm#{id}.lock")
   end
