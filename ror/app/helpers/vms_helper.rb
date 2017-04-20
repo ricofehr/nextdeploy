@@ -402,9 +402,6 @@ module VmsHelper
   def webshot
     uri = uris.first
 
-    # Wait vm is installed
-    return if status < 2
-
     #take a lock for once shot at time
     begin
       open("/tmp/webshot.lock", File::RDWR|File::CREAT) do |f|
