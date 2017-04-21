@@ -188,3 +188,9 @@ cron_cmd:
     minute: '*/15'
     hour: '*'
     weekday: '*'
+  cleanthumbs:
+    command: 'PATH=$PATH:/usr/local/bin cleanthumbs'
+    user: 'modem'
+    minute: '10'
+    hour: '02'
+    weekday: '*'

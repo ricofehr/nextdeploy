@@ -275,6 +275,8 @@ module VmsHelper
     system("rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml")
     system("rm -f sshkeys/vms/#{name}.authorized_keys")
     system("rm -f thumbs/#{id}.png")
+    # keep temporary a requested thumb file for avoid 404 on cached browser items
+    system("cd thumbs && ln -sf default.png #{id}.png")
     system("rm -f /tmp/vm#{id}.lock")
   end
 

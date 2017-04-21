@@ -135,6 +135,15 @@ hostsmin=$(find /etc/hosts.nextdeploy -mmin -1)
     group => 'root'
   }
 
+  # clean thumbs files
+  file { '/usr/local/bin/cleanthumbs':
+    ensure => 'file',
+    source => ['puppet:///modules/pm/scripts/cleanthumbs'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+
 }
 
 # == Class: pm::postinstall::nextdeploy

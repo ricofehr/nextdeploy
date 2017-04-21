@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/usr/bin/find /ror/thumbs/. -type l -regex '.*png$' -cmin +120 -exec /bin/rm -f {} \;
