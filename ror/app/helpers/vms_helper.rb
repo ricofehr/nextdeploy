@@ -410,7 +410,7 @@ module VmsHelper
           # Setup Capybara
           ws = Webshot::Screenshot.instance
           # Customize thumbnail
-          ws.capture "http://#{htlogin}:#{htpassword}@#{uri.absolute}/", "thumbs/#{id}.png", width: 360, height: 240, quality: 85, timeout: 1
+          ws.capture "http://#{htlogin}:#{htpassword}@#{uri.absolute}/", "thumbs/#{id}.png", width: 360, height: 240, quality: 85, timeout: 1, allowed_status_codes: [200, 500, 302, 301, 403, 401]
         end
       end
     rescue => e
