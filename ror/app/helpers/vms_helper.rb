@@ -26,9 +26,15 @@ module VmsHelper
 
         f.puts ndk
         Sshkey.admins.each { |k| f.puts k.key }
-        user.sshkeys.each { |k| f.puts k.key }
+
         project.users.select { |u| u.lead? }.each do |u|
-          u.sshkeys.each { |k| f.puts k.key }
+          unless u.admin?
+            u.sshkeys.each { |k| f.puts k.key }
+          end
+        end
+
+        unless user.lead?
+          user.sshkeys.each { |k| f.puts k.key }
         end
 
         # if vm is already running, transfer to it
