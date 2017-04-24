@@ -331,6 +331,7 @@ class Vm < ActiveRecord::Base
   def init_extra_attr
     @floating_ip = nil
     @vnc_url = nil
+    @thumb = "/thumbs/default.png"
 
     if nova_id
       # store floating_ip in rails cache
@@ -343,15 +344,13 @@ class Vm < ActiveRecord::Base
           (ret) ? (ret[:ip]) : nil
         end
 
-        # delete from cache if nil object
-        Rails.cache.delete("vms/#{nova_id}/floating_ip") if @floating_ip.nil?
+      # delete from cache if nil object
+      Rails.cache.delete("vms/#{nova_id}/floating_ip") if @floating_ip.nil?
 
-        @thumb =
-          if File.exist?("thumbs/#{id}.png")
-            "/thumbs/#{id}.png"
-          else
-            "/thumbs/default.png"
-          end
+      # init thumb if vm installed
+      if status > 1
+        @thumb = "/thumbs/#{id}.png"
+      end
     end
 
     @commit =

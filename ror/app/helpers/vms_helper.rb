@@ -9,22 +9,27 @@ module VmsHelper
   # No return
   def generate_authorizedkeys
 
-    begin
-      open("/tmp/vm#{id}.lock", File::RDWR|File::CREAT) do |f|
-        f.flock(File::LOCK_EX)
+    system('mkdir -p sshkeys/vms')
 
-        # todo: avoid bash cmd
-        system('mkdir -p sshkeys/vms')
-        system("rm -f sshkeys/vms/#{name}.authorized_keys")
-        system("touch sshkeys/vms/#{name}.authorized_keys")
-        # add server nextdeploy public key to authorized_keys
-        system("cat ~/.ssh/id_rsa.pub > sshkeys/vms/#{name}.authorized_keys")
-        Sshkey.admins.each { |k| system("echo #{k.key} >> sshkeys/vms/#{name}.authorized_keys") }
-        user.sshkeys.each { |k| system("echo #{k.key} >> sshkeys/vms/#{name}.authorized_keys") }
+    # Read nextdeploy server public key
+    ndk = ''
+    begin
+      ndk = open("/home/modem/.ssh/id_rsa.pub", "rb") {|io| io.read}
+    rescue
+      raise Exceptions::NextDeployException.new("Read nextdeploy server key failed")
+    end
+
+    begin
+      open("sshkeys/vms/#{name}.authorized_keys", File::RDWR|File::CREAT, 0644) do |f|
+        f.flock(File::LOCK_EX)
+        f.rewind
+
+        f.puts ndk
+        Sshkey.admins.each { |k| f.puts k.key }
+        user.sshkeys.each { |k| f.puts k.key }
         project.users.select { |u| u.lead? }.each do |u|
-          u.sshkeys.each { |k| system("echo #{k.key} >> sshkeys/vms/#{name}.authorized_keys") }
+          u.sshkeys.each { |k| f.puts k.key }
         end
-        system("chmod 644 sshkeys/vms/#{name}.authorized_keys")
 
         # if vm is already running, transfer to it
         if status > 1
@@ -280,6 +285,14 @@ module VmsHelper
     system("rm -f /tmp/vm#{id}.lock")
   end
 
+  # Generate default webshot
+  #
+  # No param
+  # No return
+  def generate_defaultwebshot
+    system("cp -f thumbs/default.png thumbs/#{id}.png")
+  end
+
   # Execute gitpull cmd into vms
   #
   # No param
@@ -404,9 +417,12 @@ module VmsHelper
   def webshot
     uri = uris.first
 
+    # permit 2 phantomjs process in paralell
+    lockid = id % 2;
+
     #take a lock for once shot at time
     begin
-      open("/tmp/webshot.lock", File::RDWR|File::CREAT) do |f|
+      open("/tmp/webshot#{lockid}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
         suppress(Exception) do
           # Setup Capybara
@@ -418,6 +434,8 @@ module VmsHelper
     rescue => e
       raise Exceptions::NextDeployException.new("Lock on webshot command for #{name} failed, #{e.message}")
     end
+
+    generate_defaultwebshot unless File.exists?("thumbs/#{id}.png")
   end
 
 end
