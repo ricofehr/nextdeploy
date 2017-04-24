@@ -21,6 +21,7 @@ if (( FORCE == 1 )) ||
   pushd webui > /dev/null
   npm install
   bower install
+  rm -f /ror/public/thumbs
   ember build --environment %%EMBERENV%% --output-path /ror/public/
   [[ ! -f /ror/public/.keep ]] && touch /ror/public/.keep
   rm -rf /ror/public/thumbs && ln -s /ror/thumbs /ror/public/thumbs
