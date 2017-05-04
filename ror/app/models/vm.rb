@@ -117,7 +117,7 @@ class Vm < ActiveRecord::Base
     # ensure that we have still right for change a vm to prod status
     if !is_prod
       if !user.admin? &&
-          user.quotaprod > user.vms.select { |v| v.is_prod }.size
+          user.quotaprod < user.vms.select { |v| v.is_prod }.size
         return
       end
     end
