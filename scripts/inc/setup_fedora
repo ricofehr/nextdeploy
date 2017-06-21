@@ -7,15 +7,15 @@
 install_vbox() {
   [[ -f /usr/bin/VBox ]] && return
   output -q "Virtualbox Installation ..."
-  curl -OsSL "http://download.virtualbox.org/virtualbox/5.1.18/VirtualBox-5.1-5.1.18_114002_fedora25-1.x86_64.rpm"
-  sudo dnf install -y VirtualBox-5.1-5.1.18_114002_fedora25-1.x86_64.rpm
+  curl -OsSL "http://download.virtualbox.org/virtualbox/5.1.22/VirtualBox-5.1-5.1.22_115126_fedora25-1.x86_64.rpm"
+  sudo dnf install -y VirtualBox-5.1-5.1.22_115126_fedora25-1.x86_64.rpm
   (($? != 0)) && output -e 'Virtualbox installation has failed'
-  rm -f VirtualBox-5.1-5.1.18_114002_fedora25-1.x86_64.rpm
+  rm -f VirtualBox-5.1-5.1.22_115126_fedora25-1.x86_64.rpm
 
-  curl -OsSL "http://download.virtualbox.org/virtualbox/5.1.18/Oracle_VM_VirtualBox_Extension_Pack-5.1.18-114002.vbox-extpack"
-  sudo VBoxManage extpack install Oracle_VM_VirtualBox_Extension_Pack-5.1.18-114002.vbox-extpack
+  curl -OsSL "http://download.virtualbox.org/virtualbox/5.1.22/Oracle_VM_VirtualBox_Extension_Pack-5.1.22-115126.vbox-extpack"
+  yes | sudo VBoxManage extpack install --replace Oracle_VM_VirtualBox_Extension_Pack-5.1.22-115126.vbox-extpack
   (( $? !=0 )) && output -w 'Virtualbox extension installation has failed'
-  rm -f Oracle_VM_VirtualBox_Extension_Pack-5.1.18-114002.vbox-extpack
+  rm -f Oracle_VM_VirtualBox_Extension_Pack-5.1.22-115126.vbox-extpack
 }
 
 # vagrant install
