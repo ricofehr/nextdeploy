@@ -4,6 +4,9 @@ module API
     #
     # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class ProjectsController < ApplicationController
+      # except buildtrigger to rest auth
+      before_filter :authenticate_user_from_token!, :except => [:buildtrigger]
+      before_filter :authenticate_api_v1_user!, :except => [:buildtrigger]
       # Hook who set project object
       before_action :set_project, only: [:update, :destroy]
       # Format ember parameters into rails parameters
@@ -146,6 +149,19 @@ module API
         respond_to do |format|
           format.json { head :no_content }
         end
+      end
+
+      # Trigger build from gitlab
+      def buildtrigger
+        branch = params[:ref].sub('refs/heads/', '')
+        gitlab_id = params[:project_id]
+
+        @project = Project.find_by(gitlab_id: gitlab_id)
+        @project.vms.select { |v| v.is_jenkins && v.commit.branche.name == branch }.each do |vm|
+          vm.buildtrigger
+        end
+
+        render nothing: true
       end
 
       private

@@ -127,6 +127,18 @@ module Apiexternal
                          public: false
                        )
 
+      Gitlab.add_project_hook(
+        gitlab_project.id,
+        "https://api.#{Rails.application.config.nextdeployuri}/api/v1/projects/buildtrigger",
+        {
+          push_events: true,
+          issues_events: false,
+          merge_requests_events: false,
+          tag_push_events: false,
+          enable_ssl_verification: false
+        }
+      )
+
       return gitlab_project.id
 
     rescue => e

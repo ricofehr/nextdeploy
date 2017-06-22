@@ -789,9 +789,7 @@ project_drupal = Project.create!(
                      techno_varnish,
                      techno_nodejs,
                      techno_apache,
-                     techno_mysql,
-                     techno_redis,
-                     techno_memcached
+                     techno_mysql
                    ]
                  )
 

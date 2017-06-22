@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170413134410) do
+ActiveRecord::Schema.define(version: 20170425110928) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -254,6 +254,7 @@ ActiveRecord::Schema.define(version: 20170413134410) do
     t.boolean  "is_cors"
     t.string   "topic"
     t.boolean  "is_ro",                     default: false
+    t.boolean  "is_jenkins",                default: false
   end
 
   add_index "vms", ["project_id"], name: "index_vms_on_project_id", using: :btree

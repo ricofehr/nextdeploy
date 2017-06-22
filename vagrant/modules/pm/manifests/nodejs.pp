@@ -14,7 +14,7 @@ Exec {
 
   # nodejs and ember_build prerequisites
   class { '::nodejs':
-    repo_url_suffix => '4.x',
+    repo_url_suffix => '6.x',
   }
   ->
   file { '/usr/bin/node':

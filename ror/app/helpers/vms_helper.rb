@@ -78,6 +78,13 @@ module VmsHelper
       templates << template
     end
 
+    if is_jenkins && status <= 1
+      classes << '  - pm::ci::cijenkins'
+      classes << '  - pm::ci::cisonar'
+      classes << '  - pm::ci::cidoc'
+      classes << '  - pm::ci::ciw3af'
+    end
+
     classes << '  - pm::deploy::postinstall'
 
     begin
@@ -200,7 +207,14 @@ module VmsHelper
 
         f.puts "name: #{name}\n"
         f.puts "toolsuri: pmtools.#{name}#{Rails.application.config.os_suffix}\n"
-        f.puts "commit: #{@commit.commit_hash}\n"
+
+        if is_jenkins
+          f.puts "docuri: pmdoc.#{name}#{Rails.application.config.os_suffix}\n"
+          f.puts "commit: HEAD\n"
+        else
+          f.puts "commit: #{@commit.commit_hash}\n"
+        end
+
         f.puts "branch: #{@commit.branche.name}\n"
         f.puts "gitpath: #{Rails.application.config.gitlab_prefix}#{project.gitpath}\n"
         f.puts "email: #{user.email}\n"
@@ -260,10 +274,15 @@ module VmsHelper
         f.rewind
 
         vms.each do |v|
+          uri_suffix = "#{v.name}#{Rails.application.config.os_suffix}"
           absolutes = v.uris.flat_map(&:absolute)
           aliases = v.uris.flat_map(&:aliases)
           if v.floating_ip && v.floating_ip.length > 0
-            f.puts "#{v.floating_ip} #{absolutes.join(' ')} #{aliases.join(' ')} pmtools.#{v.name}#{Rails.application.config.os_suffix}\n"
+            if v.is_jenkins
+              f.puts "#{v.floating_ip} #{absolutes.join(' ')} #{aliases.join(' ')} pmtools.#{uri_suffix} pmdoc.#{uri_suffix} sonar.#{uri_suffix}\n"
+            else
+              f.puts "#{v.floating_ip} #{absolutes.join(' ')} #{aliases.join(' ')} pmtools.#{uri_suffix}\n"
+            end
           end
         end
 
@@ -423,12 +442,9 @@ module VmsHelper
   def webshot
     uri = uris.first
 
-    # permit 2 phantomjs process in paralell
-    lockid = id % 2;
-
     #take a lock for once shot at time
     begin
-      open("/tmp/webshot#{lockid}.lock", File::RDWR|File::CREAT) do |f|
+      open("/tmp/webshot.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
         suppress(Exception) do
           # Setup Capybara
@@ -444,4 +460,8 @@ module VmsHelper
     generate_defaultwebshot unless File.exists?("thumbs/#{id}.png")
   end
 
+  def buildtrigger
+    Rails.logger.warn "ssh modem@#{floating_ip} '/usr/bin/java -jar /usr/share/jenkins/jenkins-cli.jar -s http://localhost:9294 build build'"
+    `ssh modem@#{floating_ip} "/usr/bin/java -jar /usr/share/jenkins/jenkins-cli.jar -s http://localhost:9294 build build"`
+  end
 end

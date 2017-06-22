@@ -59,6 +59,9 @@ Rails.application.routes.draw do
       post '/uris/:id/logs' => 'uris#logs', as: 'uri_logs', constraints: { id: /\d+/ }
       post '/uris/:id/clearvarnish' => 'uris#clearvarnish', as: 'uri_clearvarnish', constraints: { id: /\d+/ }
 
+      # Gitlab webhook
+      post '/projects/buildtrigger' => 'projects#buildtrigger', as: 'projects_buildtrigger'
+
       # branche routes
       get '/branches/:id' => 'branches#show', constraints: { id: /.+/ }
       get '/branches' => 'branches#index'

@@ -405,6 +405,12 @@ class pm::postinstall::nextdeploy {
     require => [ Exec['apt-update'], File['/usr/bin/node'] ]
   } ->
 
+  package { 'babel-plugin-transform-es2015-block-scoping':
+    ensure   => present,
+    provider => 'npm',
+    require => [ Exec['apt-update'], File['/usr/bin/node'] ]
+  } ->
+
   package { 'ember-cli':
     ensure   => present,
     provider => 'npm',

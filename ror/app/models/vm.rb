@@ -195,6 +195,7 @@ class Vm < ActiveRecord::Base
     end
 
     self.status = (Time.zone.now - created_at).to_i
+    generate_hiera
     webshot
     save
   end
@@ -269,11 +270,11 @@ class Vm < ActiveRecord::Base
     begin
       self.name = vm_name
       self.technos = project.technos if technos.size == 0
+      self.status = 0
       generate_hiera
       user_data = generate_userdata
       sshname = user.sshkeys.first ? user.sshkeys.first.shortname : ''
       self.nova_id = osapi.boot_vm(name, systemimage.glance_id, sshname, vmsize.title, user_data)
-      self.status = 0
       save
       generate_authorizedkeys
     rescue Exceptions::NextDeployException => me
