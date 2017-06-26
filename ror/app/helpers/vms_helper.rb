@@ -184,6 +184,7 @@ module VmsHelper
           end
 
           f.puts "    is_redir_alias: #{uri.is_redir_alias}\n"
+          f.puts "    is_ssl: #{uri.is_ssl}\n"
           f.puts "    ipfilter: '#{uri.ipfilter.gsub('.0/24', '').gsub('.', '\.')}'\n"
         end
 
@@ -197,6 +198,7 @@ module VmsHelper
         f.puts "pm::varnish::isauth: #{is_auth}\n"
         f.puts "pm::varnish::iscached: #{is_cached}\n"
         f.puts "pm::varnish::iscors: #{is_cors}\n"
+        f.puts "pm::varnish::isoffline: #{is_offline}\n"
         f.puts "pm::varnish::basicauth: #{basicAuth}\n"
 
         # varnish3 for older linux

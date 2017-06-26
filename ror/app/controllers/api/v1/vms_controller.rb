@@ -11,12 +11,13 @@ module API
       before_action :set_vm, only: [:show, :update, :topic, :destroy, :check_status,
                     :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached,
                     :toggleht, :toggleci, :togglebackup, :togglecors, :postinstall_display,
-                    :postinstall, :reboot, :togglero]
+                    :postinstall, :reboot, :togglero, :toggleoffline]
       # Hook who check rights before action
       before_action :check_me, only: [:show, :update, :topic, :destroy, :check_status,
                                       :boot, :gitpull, :logs, :toggleauth, :toggleprod,
                                       :togglecached, :toggleht, :toggleci, :togglebackup,
-                                      :togglecors, :postinstall_display, :postinstall, :reboot, :togglero]
+                                      :togglecors, :postinstall_display, :postinstall, :reboot,
+                                      :togglero, :toggleoffline]
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
       # Check user right for avoid no-authorized access
@@ -167,6 +168,12 @@ module API
       # Toggle cors parameter
       def togglecors
         @vm.togglecors
+        render nothing: true
+      end
+
+      # Toggle offline parameter
+      def toggleoffline
+        @vm.toggleoffline
         render nothing: true
       end
 
@@ -374,7 +381,9 @@ module API
 
       # Never trust parameters from the scary internet, only allow the white list through.
       def vm_params
-        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :name, :topic, :is_auth, :htlogin, :htpassword, :layout, :is_prod, :is_cached, :is_ht, :is_ci, :is_cors, :is_ro, :is_jenkins, :techno_ids => [])
+        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :name, :topic,
+                                   :is_auth, :htlogin, :htpassword, :layout, :is_prod, :is_cached, :is_ht, :is_ci,
+                                   :is_cors, :is_ro, :is_jenkins, :is_offline, :techno_ids => [])
       end
     end
   end

@@ -159,6 +159,17 @@ class Vm < ActiveRecord::Base
     puppetrefresh
   end
 
+  # Toggle is_offline parameter
+  #
+  # No param
+  # No return
+  def toggleoffline
+    self.is_offline = is_offline ? false : true
+    save
+    generate_hiera
+    puppetrefresh
+  end
+
   # Refresh commit value
   #
   # @param commitid (String): commit to refresh
