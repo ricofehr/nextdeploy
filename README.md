@@ -2,7 +2,7 @@
 
 [![Build Status](http://build.nextdeploy.io/buildStatus/icon?job=nextdeploy)](http://build.nextdeploy.io/job/nextdeploy/)
 
-NextDeploy is a deployment system of virtualized web development (or production) environments in a compute cloud. Generic installation templates are defined for different frameworks or cms. When creating a project, a git repository is associated with this installation template. Thus, virtual machines can be run on demand by deploying the site on a preinstalled system following prerequisites specified in the template.
+NextDeploy is a deployment system of virtualized web environments (development or production) in a compute cloud. Generic installation templates are defined for different frameworks or cms. When creating a project, a git repository is associated with this installation template. Thus, virtual machines can be run on demand by deploying the site on a preinstalled system following prerequisites specified.
 
 The project uses a cloud to host vms. The api is working actually with openstack. In future, AWS and GCE public cloud will also be taken into account. Installation templates are defined for the puppet tool. Git is used for versioning developments on projects and Gitlab manager is installed for these deposits. A REST API (in ruby on rails) is the intermediary between these systems and can manage user authentication, project creation, adding users, and of course the launch of vms.
 
@@ -17,10 +17,12 @@ The REST api can be reached with 3 different ways
 * Actually, 3 cms are supporting: drupal, wordpress and symfony
 * Support for nodejs projects
 * Gitlab for versioning repository
+* Continuous Integration on user projects: sonar scan, phpdocumentor, unit tests, security scans, ...
+* Monitoring (with grafana) and supervise (with ansible) for each vm
 * Rest api developped with rails
 * A WebUI, a CLI software and an android application
 * Docker integration (thanks to CLI software) for launching user's projects in laptop
-* Based on vagrant, there is a complete process for install the project on his laptop.
+* Based on vagrant, there is a complete process for install NextDeploy on his laptop for contributing.
 * Working progress, more features in future (more cms and technos supported, lot of linux image, Aws connector, ...)
 
 ## Repository Structure
@@ -29,7 +31,7 @@ nextdeploy/
 +--client/      The Ruby client for exchange with the rest api thanks to commandline (submodule, https://github.com/ricofehr/nextdeploy-cli)
 +--out/         Some logs, specially during the setup of the platform
 +--puppet/      Installation templates for the vms into the cloud. (submodule, https://github.com/ricofehr/nextdeploy-puppet)
-   +---pm/      Customs class
+   +---pm/      Customs puppet classes
 +--ror/         The rails application who serves the rest api
    +---public/  Destination folder for the EmberJs build of the webui app
 +--scripts/     Some jobs for setup completely the project in local workstation or remote servers
@@ -53,7 +55,8 @@ git submodule update --init --recursive
 
 ## Local Installation
 
-For the complete installation of NextDeploy on the computer for testing or development
+For test or contributing purpose, you can launch a complete installation of NextDeploy.
+It will install an openstack cloud in local, so it's not relevant for an use in real life.
 ```
 ./scripts/./setup
 ```
@@ -151,20 +154,20 @@ When local nextdeploy facility (see above Local Installation), the following use
 
 ## Vm installation pattern
 
-The tool used for managing templates facilities associated with the project is puppet. Currently supported technologies are mainly php with Symfony2, drupal and wordpress. It is also possible to start a vm "php" without involving a framework or cms. To follow, support for Java technology (aem), ruby (ror), python (django), ...
+The tool used for managing templates facilities associated with the project is puppet. Currently supported technologies are mainly php with Symfony2, drupal and wordpress. In next steps, support for Java technology (aem), ruby (ror), python (django), ...
 
 The git repository for this templates: https://github.com/ricofehr/nextdeploy-puppet
 
 ## Android Application
 
-The android application is on a separate repository. But on a early stage of development.
+The android application is on a separate repository. But on a early stage of development (currently, not updated with last api changes).
 Go here: http://github.com/ricofehr/nextdeploy-android
 
 
 ## REST API
 
 The API is the scheduler and project facilitator. Developed in rails, the api manages user authentication, maintains nextdeploy data model and interfaces with apis of gitlab and cloud (OpenStack at this time). Puma rails server is launched to handle requests.
-Thus, we will find the following calls:
+Thus, we will find mainly the following calls:
 ```
                          Prefix Verb   URI Pattern
             api_v1_user_current GET    /api/v1/user
@@ -269,8 +272,8 @@ The git repository for cli application: https://github.com/ricofehr/nextdeploy-c
 
 ## Ember
 
-The Web Gui is developed with Ember framework.
-The Ember stack is localised in webui/ folder and builded in rails standard location, into public folder.
+The Web UI is developed with Ember framework.
+The Ember stack is located in webui/ folder and builded in rails standard location, into public folder.
 From this webui folder, we find MVC classes respectively into models / templates / controllers folders.
 For build static app into ror/public (needs node, bower and ember-cli)
 ```
@@ -292,7 +295,6 @@ cd ror && yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
 * More operating systems
 * Connectors for public cloud: aws, gce, ...
 * Connectors for external code repositories: bitbucket, github, ...
-* Implement some extra functionnalities for the vms: security test, code quality parser, ..
 
 More details on the trello dashboard: https://trello.com/b/dVdgtJxE/nextdeploy
 
