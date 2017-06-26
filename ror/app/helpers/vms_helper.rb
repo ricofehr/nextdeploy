@@ -182,6 +182,7 @@ module VmsHelper
             f.puts "    aliases:\n"
             uri.aliases.split(' ').each { |aliase| f.puts "      - #{aliase}\n" }
           end
+
           f.puts "    is_redir_alias: #{uri.is_redir_alias}\n"
           f.puts "    ipfilter: '#{uri.ipfilter.gsub('.0/24', '').gsub('.', '\.')}'\n"
         end
@@ -206,10 +207,10 @@ module VmsHelper
         end
 
         f.puts "name: #{name}\n"
-        f.puts "toolsuri: pmtools.#{name}#{Rails.application.config.os_suffix}\n"
+        f.puts "toolsuri: pmtools-#{name}#{Rails.application.config.os_suffix}\n"
 
         if is_jenkins
-          f.puts "docuri: pmdoc.#{name}#{Rails.application.config.os_suffix}\n"
+          f.puts "docuri: pmdoc-#{name}#{Rails.application.config.os_suffix}\n"
           f.puts "commit: HEAD\n"
         else
           f.puts "commit: #{@commit.commit_hash}\n"
@@ -279,9 +280,9 @@ module VmsHelper
           aliases = v.uris.flat_map(&:aliases)
           if v.floating_ip && v.floating_ip.length > 0
             if v.is_jenkins
-              f.puts "#{v.floating_ip} #{absolutes.join(' ')} #{aliases.join(' ')} pmtools.#{uri_suffix} pmdoc.#{uri_suffix} sonar.#{uri_suffix}\n"
+              f.puts "#{v.floating_ip} #{absolutes.join(' ')} #{aliases.join(' ')} pmtools-#{uri_suffix} pmdoc-#{uri_suffix} sonar-#{uri_suffix} jenkins-#{uri_suffix}\n"
             else
-              f.puts "#{v.floating_ip} #{absolutes.join(' ')} #{aliases.join(' ')} pmtools.#{uri_suffix}\n"
+              f.puts "#{v.floating_ip} #{absolutes.join(' ')} #{aliases.join(' ')} pmtools-#{uri_suffix}\n"
             end
           end
         end

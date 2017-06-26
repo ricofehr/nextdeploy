@@ -212,9 +212,9 @@ class Vm < ActiveRecord::Base
     end
 
     project.endpoints.each do |endpoint|
-      absolute = (endpoint.prefix.length > 0) ? "#{endpoint.prefix}.#{name}" : "#{name}"
+      absolute = (endpoint.prefix.length > 0) ? "#{endpoint.prefix}-#{name}" : "#{name}"
       if !endpoint.aliases.nil? && !endpoint.aliases.empty?
-        aliases = endpoint.aliases.split(' ').map { |aliase| "#{aliase}.#{name}" }.join(' ')
+        aliases = endpoint.aliases.split(' ').map { |aliase| "#{aliase}-#{name}" }.join(' ')
       else
         aliases = ''
       end
