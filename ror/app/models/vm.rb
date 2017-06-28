@@ -45,6 +45,7 @@ class Vm < ActiveRecord::Base
     self.user = User.find(user_id)
     save
 
+    user.update_authorizedkeys unless user.lead?
     generate_hiera
     puppetrefresh
   end
