@@ -78,9 +78,12 @@ module VmsHelper
       templates << template
     end
 
-    if is_jenkins && status <= 1
-      classes << '  - pm::ci::cijenkins'
-      classes << '  - pm::ci::cisonar'
+    if is_jenkins
+      if status <= 1
+        classes << '  - pm::ci::cijenkins'
+        classes << '  - pm::ci::cisonar'
+      end
+
       classes << '  - pm::ci::cidoc'
       classes << '  - pm::ci::ciw3af'
     end
