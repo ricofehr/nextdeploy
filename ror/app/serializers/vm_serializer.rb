@@ -19,6 +19,7 @@ class VmSerializer < ActiveModel::Serializer
 
   has_many :technos, key: :technos
   has_many :uris, key: :uris
+  has_many :supervises, key: :supervises
   has_one :commit, key: :commit
   has_one :project, key: :project
   has_one :vmsize, key: :vmsize
