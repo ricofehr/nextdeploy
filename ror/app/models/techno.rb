@@ -8,7 +8,8 @@ class Techno < ActiveRecord::Base
   has_many :projects, through: :project_technos
   # Technos are associated with vm object
   has_many :vm_technos, dependent: :destroy
-  has_many :vms, through: :supervise
+  has_many :supervises, dependent: :destroy
+  has_many :vms, through: :supervises
 
   # some properties are mandatory and must be well-formed
   validates :name, :puppetclass, presence: true
