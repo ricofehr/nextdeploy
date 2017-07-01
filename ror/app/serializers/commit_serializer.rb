@@ -14,6 +14,8 @@ class CommitSerializer < ActiveModel::Serializer
       object.vms
     elsif current_user.lead?
       object.vms.select { |vm| vm.project.users.include?(current_user) }
+    elsif current_user.dev?
+      object.vms.select { |vm| vm.user.id == current_user.id || vm.is_jenkins }
     else
       object.vms.select { |vm| vm.user.id == current_user.id }
     end

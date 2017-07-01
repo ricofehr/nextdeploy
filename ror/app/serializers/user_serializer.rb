@@ -40,6 +40,20 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def vms
-    object.vms.select { |vm| !current_user || current_user.admin? || (vm.project.users.include?(current_user)) }
+    object.vms.select do |vm|
+      !current_user ||
+      current_user.id == vm.user.id ||
+      current_user.admin? ||
+      (current_user.lead? && vm.project.users.include?(current_user)) ||
+      (current_user.dev? && vm.project.users.include?(current_user) && vm.is_jenkins)
+    end
+  end
+
+  def sshkeys
+    object.sshkeys.select do |sshk|
+      !current_user ||
+      current_user.id == sshk.user.id ||
+      current_user.lead?
+    end
   end
 end

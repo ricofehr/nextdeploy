@@ -73,9 +73,17 @@ class User < ActiveRecord::Base
   # Return true if lead or admin
   #
   # No param
-  # @return [Boolean] if admin
+  # @return [Boolean] if >= lead
   def lead?
     group.lead?
+  end
+
+  # Return true if dev, lead or admin
+  #
+  # No param
+  # @return [Boolean] if >= dev
+  def dev?
+    group.dev?
   end
 
   # Return true if guest

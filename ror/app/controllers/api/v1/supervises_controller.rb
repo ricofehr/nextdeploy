@@ -21,8 +21,17 @@ module API
               @supervises = vms.flat_map(&:supervises).uniq if vms.size
             end
           else
-            vms = @user.vms
-            @supervises = vms.flat_map(&:supervises).uniq if vms.size
+            if @user.dev?
+              projects = @user.projects
+              if projects
+                vms = projects.flat_map(&:vms).uniq
+                vms.select! { |v| v.user.id == @user.id || v.is_jenkins }
+                @supervises = vms.flat_map(&:supervises).uniq if vms.size
+              end
+            else
+              vms = @user.vms
+              @supervises = vms.flat_map(&:supervises).uniq if vms.size
+            end
           end
         end
 

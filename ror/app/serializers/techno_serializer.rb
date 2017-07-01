@@ -25,6 +25,8 @@ class TechnoSerializer < ActiveModel::Serializer
       object.vms
     elsif current_user.lead?
       object.vms.select { |vm| vm.project.users.include?(current_user) }
+    elsif current_user.dev?
+      object.vms.select { |vm| vm.user.id == current_user.id || vm.is_jenkins }
     else
       object.vms.select { |vm| vm.user.id == current_user.id }
     end
@@ -36,6 +38,8 @@ class TechnoSerializer < ActiveModel::Serializer
       object.supervises
     elsif current_user.lead?
       object.supervises.select { |superv| superv.vm.project.users.include?(current_user) }
+    elsif current_user.dev?
+      object.supervises.select { |superv| superv.vm.user.id == current_user.id || superv.vm.is_jenkins }
     else
       object.supervises.select { |superv| superv.vm.user.id == current_user.id }
     end

@@ -23,4 +23,12 @@ class Group < ActiveRecord::Base
     access_level > 30
   end
 
+  # Return true if dev
+  #
+  # No param
+  # @return [Boolean] if admin or lead or dev
+  def dev?
+    access_level > 20
+  end
+
 end

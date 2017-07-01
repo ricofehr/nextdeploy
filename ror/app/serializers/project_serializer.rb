@@ -19,6 +19,10 @@ class ProjectSerializer < ActiveModel::Serializer
     if current_user.lead?
       users_a = object.users.select { |u| u.id != current_user.id }
       users_a.unshift(current_user)
+    elsif current_user.dev?
+      vms_v = object.vms.select { |vm| vm.is_jenkins }
+      users_a = vms_v.flat_map(&:user).uniq.select { |u| u.id != current_user.id }
+      users_a.unshift(current_user)
     else
       [] << current_user
     end

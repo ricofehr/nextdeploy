@@ -12,7 +12,7 @@ module API
       # List all groups
       def index
         # select only objects allowed by current user
-        if @user.lead?
+        if @user.dev?
           @groups = Group.all
         else
           @groups = [] << @user.group

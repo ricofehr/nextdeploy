@@ -27,7 +27,17 @@ module API
               @uris = projects.flat_map(&:vms).uniq.flat_map(&:uris)
             end
           else
-            @uris = @user.vms.flat_map(&:uris)
+            if @user.dev?
+              projects = @user.projects
+              if projects
+                vms = projects.flat_map(&:vms).uniq
+                vms.select! { |vm| vm.user.id == @user.id || vm.is_jenkins }
+                @uris = vms.flat_map(&:uris).uniq if vms.size
+              end
+            else
+              vms = @user.vms
+              @uris = vms.flat_map(&:uris).uniq if vms.size
+            end
           end
         end
 

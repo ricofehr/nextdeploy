@@ -37,7 +37,13 @@ module API
 
         #filter by user_id for limited access
         else
-          @users = [] << User.includes(:projects).find(@user.id)
+          @users = []
+          if @user.dev?
+            vms = @user.projects.flat_map(&:vms)
+            vms.select! { |vm| vm.is_jenkins } if vms.size
+            @users = vms.flat_map(&:user).uniq if vms.size
+          end
+          @users << User.includes(:projects).find(@user.id)
         end
 
         # Json output
