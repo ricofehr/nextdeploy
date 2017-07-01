@@ -8,8 +8,23 @@ module API
     class SupervisesController < ApplicationController
       # List all vmtechnotypes objects for a vm
       def index
-        @supervises = Supervise.all
+        @supervises = []
         #.find(params[:vm_id]).vm_technos
+
+        if @user.admin?
+          @supervises = Supervise.all
+        else
+          if @user.lead?
+            projects = @user.projects
+            if projects
+              vms = projects.flat_map(&:vms).uniq
+              @supervises = vms.flat_map(&:supervises).uniq if vms.size
+            end
+          else
+            vms = @user.vms
+            @supervises = vms.flat_map(&:supervises).uniq if vms.size
+          end
+        end
 
         # Json output
         respond_to do |format|
