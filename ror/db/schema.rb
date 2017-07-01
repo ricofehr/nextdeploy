@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170425110928) do
+ActiveRecord::Schema.define(version: 20170626135653) do
 
   create_table "brands", force: true do |t|
     t.string   "name"
@@ -33,6 +33,7 @@ ActiveRecord::Schema.define(version: 20170425110928) do
     t.boolean "is_sh",                     default: false
     t.boolean "is_import",                 default: true
     t.boolean "is_main",                   default: false
+    t.boolean "is_ssl",                    default: false
   end
 
   add_index "endpoints", ["framework_id"], name: "index_endpoints_on_framework_id", using: :btree
@@ -172,6 +173,7 @@ ActiveRecord::Schema.define(version: 20170425110928) do
     t.boolean "is_import",                   default: true
     t.boolean "is_redir_alias",              default: false
     t.boolean "is_main",                     default: false
+    t.boolean "is_ssl",                      default: false
   end
 
   add_index "uris", ["framework_id"], name: "index_uris_on_framework_id", using: :btree
@@ -255,6 +257,7 @@ ActiveRecord::Schema.define(version: 20170425110928) do
     t.string   "topic"
     t.boolean  "is_ro",                     default: false
     t.boolean  "is_jenkins",                default: false
+    t.boolean  "is_offline",                default: false
   end
 
   add_index "vms", ["project_id"], name: "index_vms_on_project_id", using: :btree
