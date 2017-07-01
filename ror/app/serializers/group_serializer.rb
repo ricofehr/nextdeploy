@@ -16,7 +16,13 @@ class GroupSerializer < ActiveModel::Serializer
       users_a = current_user.projects.flat_map(&:users).uniq.select { |u| u.id != current_user.id && u.group.id == object.id }
       users_a.unshift(current_user) if object.id == current_user.group.id
     else
-      [] << current_user
+      users_a = [] << current_user if object.id == current_user.group.id
+    end
+
+    if users_a.size != 0
+      users_a
+    else
+      []
     end
   end
 end
