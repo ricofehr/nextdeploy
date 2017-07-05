@@ -10,14 +10,14 @@ module UrisHelper
     # vhost is only for prod vms
     return true unless vm.is_prod
 
-    aliasesparam = (!aliases || aliases.empty?) ? '' : " -s #{aliases.gsub(' ', ',')}"
-    # todo: avoid bash cmd
-    Rails.logger.warn "/bin/bash /ror/sbin/newvhost -i #{id} -a #{absolute}#{aliasesparam}"
-
     # take a lock for vm action
     begin
       open("/tmp/vhost.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
+
+        aliasesparam = (!aliases || aliases.empty?) ? '' : " -s #{aliases.gsub(' ', ',')}"
+        Rails.logger.warn "/bin/bash /ror/sbin/newvhost -i #{id} -a #{absolute}#{aliasesparam}"
+
         system("/bin/bash /ror/sbin/newvhost -i #{id} -a #{absolute}#{aliasesparam}")
       end
 

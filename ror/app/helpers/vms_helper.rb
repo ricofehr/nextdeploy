@@ -272,14 +272,13 @@ module VmsHelper
   # @raise an exception if errors occurs during file writing
   # No return
   def generate_host_all
-    vms = Vm.all
 
     begin
       open("/etc/hosts.nextdeploy", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
         f.rewind
 
-        vms.each do |v|
+        Vm.all.each do |v|
           uri_suffix = "#{v.name}#{Rails.application.config.os_suffix}"
           absolutes = v.uris.flat_map(&:absolute)
           aliases = v.uris.flat_map(&:aliases)
@@ -446,9 +445,8 @@ module VmsHelper
   end
 
   def webshot
-    uri = uris.first
 
-    #take a lock for once shot at time
+    # take a lock for once shot at time
     begin
       open("/tmp/webshot.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
@@ -456,6 +454,7 @@ module VmsHelper
           # Setup Capybara
           ws = Webshot::Screenshot.instance
           # Customize thumbnail
+          uri = uris.first
           ws.capture "http://#{htlogin}:#{htpassword}@#{uri.absolute}/", "thumbs/#{id}.png", width: 360, height: 240, quality: 85, timeout: 1, allowed_status_codes: [200, 500, 302, 301, 403, 401]
         end
       end
