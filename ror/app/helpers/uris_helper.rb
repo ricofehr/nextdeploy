@@ -82,15 +82,20 @@ module UrisHelper
   # @return message for execution and codestatus for request
   def nodejs
     docroot = "/var/www/#{vm.project.name}/#{path}"
-    frwname = framework.name.downcase
+    framework_name = framework.name.downcase
     envvalues = envvars
     retapp = ''
     retserver = ''
 
+    cnt_instances = 1
+    if envvars.match('CLUSTERING=')
+      cnt_instances = envvars.gsub(/^.*CLUSTERING=/,'').gsub(/ .*$/,'').to_i
+    end
+
     # build envvars string
     vm.uris.each { |uri2| envvalues.gsub!("%{URI_#{uri2.path.upcase}}", uri2.absolute) }
 
-    Rails.logger.warn "Rebuild nodejs app for vm #{vm.name} (#{frwname})"
+    Rails.logger.warn "Rebuild nodejs app for vm #{vm.name} (#{framework_name})"
 
     # take a lock for vm action
     begin
@@ -98,8 +103,8 @@ module UrisHelper
         f.flock(File::LOCK_EX)
 
         `ssh modem@#{vm.floating_ip} 'cd #{docroot};touch /tmp/.lockpuppet;npm install 2>/tmp/lognpm;grep build package.json >/dev/null 2>&1 && npm run build 2>>/tmp/lognpm;pm2 delete #{path}-server;pm2 delete #{path}-app;'`
-        retapp = `ssh modem@#{vm.floating_ip} 'cd #{docroot};[[ -f app.js ]] && #{envvalues} pm2 start -f app.js --name "#{path}-app" -i 0;'`
-        retserver = `ssh modem@#{vm.floating_ip} '[[ -f /tmp/lognpm ]] && cat /tmp/lognpm;cd #{docroot};[[ -f server.js ]] && #{envvalues} pm2 start -f server.js --name "#{path}-server" -i 0;rm -f /tmp/.lockpuppet'`
+        retapp = `ssh modem@#{vm.floating_ip} 'cd #{docroot};[[ -f app.js ]] && #{envvalues} pm2 start -f app.js --name "#{path}-app" -i #{cnt_instances};'`
+        retserver = `ssh modem@#{vm.floating_ip} '[[ -f /tmp/lognpm ]] && cat /tmp/lognpm;cd #{docroot};[[ -f server.js ]] && #{envvalues} pm2 start -f server.js --name "#{path}-server" -i #{cnt_instances};rm -f /tmp/.lockpuppet'`
       end
 
     rescue
@@ -116,15 +121,20 @@ module UrisHelper
   # @return message for execution and codestatus for request
   def reactjs
     docroot = "/var/www/#{vm.project.name}/#{path}"
-    frwname = framework.name.downcase
+    framework_name = framework.name.downcase
     envvalues = envvars
     retreactserver = ''
     retreactapi = ''
 
+    cnt_instances = 1
+    if envvars.match('CLUSTERING=')
+      cnt_instances = envvars.gsub(/^.*CLUSTERING=/,'').gsub(/ .*$/,'').to_i
+    end
+
     # build envvars string
     vm.uris.each { |uri2| envvalues.gsub!("%{URI_#{uri2.path.upcase}}", uri2.absolute) }
 
-    Rails.logger.warn "Rebuild reactjs app for vm #{vm.name} (#{frwname})"
+    Rails.logger.warn "Rebuild reactjs app for vm #{vm.name} (#{framework_name})"
 
     # take a lock for vm action
     begin
@@ -132,8 +142,8 @@ module UrisHelper
         f.flock(File::LOCK_EX)
 
         `ssh modem@#{vm.floating_ip} 'cd #{docroot};touch /tmp/.lockpuppet;npm install 2>/tmp/lognpm;npm run build 2>>/tmp/lognpm;pm2 delete #{path}-server;pm2 delete #{path}-api;'`
-        retreactserver = `ssh modem@#{vm.floating_ip} '[[ -f /tmp/lognpm ]] && cat /tmp/lognpm;cd #{docroot};[[ -f bin/server.js ]] && #{envvalues} pm2 start -f bin/server.js --name "#{path}-server" -i 0;rm -f /tmp/.lockpuppet'`
-        retreactapi = `ssh modem@#{vm.floating_ip} 'cd #{docroot};[[ -f bin/api.js ]] && #{envvalues} pm2 start -f bin/api.js --name "#{path}-api" -i 0'`
+        retreactserver = `ssh modem@#{vm.floating_ip} '[[ -f /tmp/lognpm ]] && cat /tmp/lognpm;cd #{docroot};[[ -f bin/server.js ]] && #{envvalues} pm2 start -f bin/server.js --name "#{path}-server" -i #{cnt_instances};rm -f /tmp/.lockpuppet'`
+        retreactapi = `ssh modem@#{vm.floating_ip} 'cd #{docroot};[[ -f bin/api.js ]] && #{envvalues} pm2 start -f bin/api.js --name "#{path}-api" -i #{cnt_instances}'`
       end
 
     rescue

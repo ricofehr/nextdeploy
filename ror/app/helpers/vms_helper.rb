@@ -169,6 +169,11 @@ module VmsHelper
           end
 
           f.puts "    framework: #{uri.framework.name.downcase}\n"
+          cnt_instances = 1
+          if uri.envvars.match('CLUSTERING=')
+            cnt_instances = uri.envvars.gsub(/^.*CLUSTERING=/,'').gsub(/ .*$/,'').to_i
+          end
+          f.puts "    clustering: #{cnt_instances}\n"
           f.puts "    publicfolder: '#{uri.framework.publicfolder}'\n"
           f.puts "    rewrites: \"#{rewrites}\"\n"
           f.puts "    customvhost: \"#{uri.customvhost ? uri.customvhost.gsub("\n","\\n") : ''}\"\n"
