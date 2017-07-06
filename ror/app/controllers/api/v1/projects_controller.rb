@@ -157,7 +157,7 @@ module API
         gitlab_id = params[:project_id]
 
         @project = Project.find_by(gitlab_id: gitlab_id)
-        @project.vms.select { |v| v.is_jenkins && v.commit.branche.name == branch }.each do |vm|
+        @project.vms.select { |vm| vm.status > 1 && vm.is_jenkins && vm.commit.branche.name == branch }.each do |vm|
           vm.buildtrigger
         end
 
