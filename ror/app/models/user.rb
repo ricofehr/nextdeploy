@@ -15,7 +15,6 @@ class User < ActiveRecord::Base
   has_many :own_projects, class_name: "Project", foreign_key: "owner_id", inverse_of: :owner
   has_many :vms, dependent: :destroy
   has_many :sshkeys, dependent: :destroy
-  #attr_accessor :email, :authentication_token
 
   belongs_to :group
 

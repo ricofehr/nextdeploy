@@ -7,7 +7,6 @@ class Techno < ActiveRecord::Base
   has_many :project_technos, dependent: :destroy
   has_many :projects, through: :project_technos
   # Technos are associated with vm object
-  has_many :vm_technos, dependent: :destroy
   has_many :supervises, dependent: :destroy
   has_many :vms, through: :supervises
 

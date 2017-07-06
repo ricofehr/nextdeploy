@@ -50,9 +50,6 @@ module API
         if params[:id] != '0'
           @project = Project.includes(:users).includes(:technos).find(params[:id])
 
-          # Renew cache for branchs list
-          @project.flushCache
-
           # Json output
           respond_to do |format|
             format.json { render json: @project, status: 200 }
@@ -157,6 +154,8 @@ module API
         gitlab_id = params[:project_id]
 
         @project = Project.find_by(gitlab_id: gitlab_id)
+        @project.flush_branche(branch)
+
         @project.vms.select { |vm| vm.status > 1 && vm.is_jenkins && vm.commit.branche.name == branch }.each do |vm|
           vm.buildtrigger
         end

@@ -187,8 +187,7 @@ class Vm < ActiveRecord::Base
       save
     end
 
-
-    # update screenshot frequently ... ugly !
+    # HACK: update screenshot frequently ... ugly !
     webshot if Time.zone.now.to_i % 3 == 0
   end
 
@@ -260,7 +259,7 @@ class Vm < ActiveRecord::Base
 
     if nova_id
       @vnc_url =
-        Rails.cache.fetch("vms/#{nova_id}/vnc_url", expires_in: 120.seconds) do
+        Rails.cache.fetch("vms/#{nova_id}/vnc_url", expires_in: 180.seconds) do
           # init api object
           osapi = Apiexternal::Osapi.new
           # get vnc_url from openstack
@@ -349,7 +348,7 @@ class Vm < ActiveRecord::Base
     if nova_id
       # store floating_ip in rails cache
       @floating_ip =
-        Rails.cache.fetch("vms/#{nova_id}/floating_ip", expires_in: 144.hours) do
+        Rails.cache.fetch("vms/#{nova_id}/floating_ip", expires_in: 240.hours) do
           # init api object
           osapi = Apiexternal::Osapi.new
           # get floatingip from openstack
@@ -367,7 +366,7 @@ class Vm < ActiveRecord::Base
     end
 
     @commit =
-      Rails.cache.fetch("commits/#{commit_id}", expires_in: 144.hours) do
+      Rails.cache.fetch("commits/#{commit_id}", expires_in: 240.hours) do
         Commit.find(commit_id)
       end
   end

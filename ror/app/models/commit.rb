@@ -91,7 +91,9 @@ class Commit
   #
   # @return [Branche]
   def branche
-    Branche.find(@branche_id)
+    Rails.cache.fetch("commits/#{branche_id}-#{commit_hash}/branche", expires_in: 240.hours) do
+      Branche.find(@branche_id)
+    end
   end
 
   # Return the vms associated with the commit

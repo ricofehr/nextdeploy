@@ -33,12 +33,9 @@ class Project < ActiveRecord::Base
   before_update :update_git, :update_ftp
   before_destroy :delete_git, :remove_ftp
 
-  # Flush cache for branches
-  #
-  # No param
-  # No return
-  def flushCache
+  def flush_branche(branch)
     Rails.cache.delete("projects/#{id}/branchs")
+    Rails.cache.delete("branches/#{id}-#{branch}/commits")
   end
 
   private
@@ -48,7 +45,7 @@ class Project < ActiveRecord::Base
   # No param
   # No return
   def branches
-      Rails.cache.fetch("projects/#{id}/branchs", expires_in: 144.hours) do
+      Rails.cache.fetch("projects/#{id}/branchs", expires_in: 240.hours) do
         Branche.all(id)
       end
   end

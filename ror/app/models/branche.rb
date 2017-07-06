@@ -23,7 +23,9 @@ class Branche
   # No params
   # @return [Array[Commits]]
   def commits
-    Commit.all(@id)
+    Rails.cache.fetch("branches/#{@id}/commits", expires_in: 240.hours) do
+      Commit.all(@id)
+    end
   end
 
   # Find function. Return a branch object from his id
@@ -44,14 +46,15 @@ class Branche
   # @param project_id [Integer] id of the project
   # @return [Array[Branche]]
   def self.all(project_id)
-    # Init gitlab external api
-    gitlabapi = Apiexternal::Gitlabapi.new
-
     # get project from project_id
-    project = Project.find(project_id)
+    gitlab_id = Rails.cache.fetch("projects/#{project_id}/gitlab_id", expires_in: 240.hours) do
+      Project.find(project_id).gitlab_id
+    end
 
     begin
-      branches = gitlabapi.get_branches(project.gitlab_id)
+      # Init gitlab external api
+      gitlabapi = Apiexternal::Gitlabapi.new
+      branches = gitlabapi.get_branches(gitlab_id)
     rescue Exceptions::NextDeployException => me
       me.log
     end
@@ -63,7 +66,9 @@ class Branche
   #
   # @return [Project]
   def project
-     Project.find(@project_id)
+    Rails.cache.fetch("branches/#{@id}/project", expires_in: 240.hours) do
+      Project.find(@project_id)
+    end
   end
 
   private
