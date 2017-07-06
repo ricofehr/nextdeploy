@@ -72,8 +72,7 @@ Rails.application.routes.draw do
       get '/commits' => 'commits#index'
 
       # vmtechnos routes
-      get '/supervises' => 'supervises#index', constraints: { vm_id: /\d+/ }
-      post '/supervises/:vm_id/status' => 'supervises#status', constraints: { vm_id: /\d+/ }
+      post '/supervises/:vm_id/status' => 'supervises#status', constraints: { vm_id: /\d+/, techno_id: /\d+/ }
 
       # Complete routes
       with_options only: [:create, :index, :show, :update, :destroy] do |list_only|
@@ -96,6 +95,7 @@ Rails.application.routes.draw do
         list_only.resources :frameworks
         list_only.resources :systemimages
         list_only.resources :hpmessages
+        list_only.resources :supervises
       end
     end
   end

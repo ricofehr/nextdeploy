@@ -41,6 +41,14 @@ module API
         end
       end
 
+      # Display details about one supervise object
+      def show
+        @supervise = Supervise.find(params[:id])
+        respond_to do |format|
+            format.json { render json: @supervise, status: 200 }
+        end
+      end
+
       # Execute datas export into vm
       def status
         # ensure :satus is boolean
