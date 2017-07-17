@@ -19,6 +19,9 @@ module API
           @vmsizes = @user.projects.flat_map(&:vmsizes).uniq
         end
 
+        # HACK need an AR array (even empty) for AMS
+        @vmsizes = Vmsize.none if @vmsizes.length == 0
+
         respond_to do |format|
           format.json { render json: @vmsizes, status: 200 }
         end

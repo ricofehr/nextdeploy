@@ -50,6 +50,9 @@ module API
           @users << User.find(@user.id)
         end
 
+        # HACK need an AR array (even empty) for AMS
+        @users = User.none if @users.length == 0
+
         respond_to do |format|
           format.json { render json: @users, status: 200 }
         end

@@ -7,47 +7,61 @@ class TechnoSerializer < ActiveModel::Serializer
 
   has_one :technotype, key: :technotype
   has_many :projects, key: :projects
-  has_many :supervises, key: :supervises
   has_many :vms, key: :vms
+  has_many :supervises, key: :supervises
+
+  # HACK return technotype id (no embed option in AMS 0.10)
+  #
+  # @return [Number]
+  def technotype
+    object.technotype.id
+  end
 
   # Filter project records for current user
+  # HACK return ids list (no embed option in AMS 0.10)
   #
-  # @return [Array<Project>]
+  # @return [Array<Number>]
   def projects
-    if current_user.admin?
-      object.projects
-    else
-      object.projects.select { |project| project.users.include?(current_user) }
+    projects = object.projects
+    unless current_user.admin?
+      projects = object.projects.select { |project| project.users.include?(current_user) }
     end
+    projects.map { |p| p.id }
   end
 
   # Filter vm records for current user
+  # HACK return ids list (no embed option in AMS 0.10)
   #
-  # @return [Array<Vm>]
+  # @return [Array<Number>]
   def vms
+    vms = []
     if current_user.admin?
-      object.vms
+      vms = object.vms
     elsif current_user.lead?
-      object.vms.select { |vm| vm.project.users.include?(current_user) }
+      vms = object.vms.select { |vm| vm.project.users.include?(current_user) }
     elsif current_user.dev?
-      object.vms.select { |vm| vm.user.id == current_user.id || vm.is_jenkins }
+      vms = object.vms.select { |vm| vm.user.id == current_user.id || vm.is_jenkins }
     else
-      object.vms.select { |vm| vm.user.id == current_user.id }
+      vms = object.vms.select { |vm| vm.user.id == current_user.id }
     end
+    vms.map { |v| v.id }
   end
 
   # Filter supervise records for current user
+  # HACK return ids list (no embed option in AMS 0.10)
   #
-  # @return [Array<Supervise>]
+  # @return [Array<Number>]
   def supervises
+    supervises = []
     if current_user.admin?
-      object.supervises
+      supervises = object.supervises
     elsif current_user.lead?
-      object.supervises.select { |superv| superv.vm.project.users.include?(current_user) }
+      supervises = object.supervises.select { |superv| superv.vm.project.users.include?(current_user) }
     elsif current_user.dev?
-      object.supervises.select { |superv| superv.vm.user.id == current_user.id || superv.vm.is_jenkins }
+      supervises = object.supervises.select { |superv| superv.vm.user.id == current_user.id || superv.vm.is_jenkins }
     else
-      object.supervises.select { |superv| superv.vm.user.id == current_user.id }
+      supervises = object.supervises.select { |superv| superv.vm.user.id == current_user.id }
     end
+    supervises.map { |s| s.id }
   end
 end

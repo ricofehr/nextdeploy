@@ -8,6 +8,20 @@ class EndpointSerializer < ActiveModel::Serializer
   has_one :project, key: :project
   has_one :framework, key: :framework
 
+  # HACK return project id (no embed option in AMS 0.10)
+  #
+  # @return [Number]
+  def project
+    object.project.id
+  end
+
+  # HACK return framework id (no embed option in AMS 0.10)
+  #
+  # @return [Number]
+  def framework
+    object.framework.id
+  end
+
   # Return false for is_install
   #
   # @return [Boolean] false

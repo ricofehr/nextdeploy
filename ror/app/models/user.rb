@@ -10,8 +10,8 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
-  has_many :user_project, dependent: :destroy
-  has_many :projects, through: :user_project, inverse_of: :users
+  has_many :user_projects, dependent: :destroy
+  has_many :projects, through: :user_projects, inverse_of: :users
   has_many :own_projects, class_name: "Project", foreign_key: "owner_id", inverse_of: :owner
   has_many :vms, dependent: :destroy
   has_many :sshkeys, dependent: :destroy

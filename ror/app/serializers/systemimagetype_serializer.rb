@@ -6,4 +6,11 @@ class SystemimagetypeSerializer < ActiveModel::Serializer
   delegate :current_user, to: :scope
 
   has_many :systemimages, key: :systemimages
+
+  # HACK return systemimage ids list (no embed option in AMS 0.10)
+  #
+  # @return [Array<Number>]
+  def systemimages
+    object.systemimages.map { |s| s.id }
+  end
 end

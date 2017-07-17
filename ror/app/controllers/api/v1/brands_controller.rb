@@ -20,6 +20,9 @@ module API
           @brands = @user.projects.flat_map(&:brand).uniq
         end
 
+        # HACK need an AR array (even empty) for AMS
+        @brands = Brand.none if @brands.length == 0
+
         respond_to do |format|
           format.json { render json: @brands, status: 200 }
         end

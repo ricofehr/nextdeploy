@@ -19,10 +19,8 @@ module NextDeploy
     config.time_zone = "Europe/Paris"
     config.active_record.default_timezone = :local
 
-    # Set embed property for serializers objects
-    ActiveModel::Serializer.setup do |config|
-       config.embed = :ids
-    end
+    # AMS adapter
+    ActiveModelSerializers.config.adapter = :json
 
     # disable sql logging
     ActiveRecord::Base.logger = nil

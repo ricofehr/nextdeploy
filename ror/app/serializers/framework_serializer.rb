@@ -9,26 +9,30 @@ class FrameworkSerializer < ActiveModel::Serializer
   has_many :uris, key: :uris
 
   # Filter endpoint records for current user
+  # HACK return ids list (no embed option in AMS 0.10)
   #
-  # @return [Array<Endpoint>]
+  # @return [Array<Number>]
   def endpoints
-    if current_user.admin?
-      object.endpoints
-    else
-      object.endpoints.select { |ep| ep.project.users.include?(current_user) }
+    endpoints = object.endpoints
+    unless current_user.admin?
+      endpoints = object.endpoints.select { |ep| ep.project.users.include?(current_user) }
     end
+    endpoints.map { |e| e.id }
   end
 
   # Filter uri records for current user
+  # HACK return ids list (no embed option in AMS 0.10)
   #
-  # @return [Array<Uri>]
+  # @return [Array<Number>]
   def uris
+    uris = []
     if current_user.admin?
-      object.uris
+      uris = object.uris
     elsif current_user.lead?
-      object.uris.select { |uri| uri.vm.project.users.include?(current_user) }
+      uris = object.uris.select { |uri| uri.vm.project.users.include?(current_user) }
     else
-     object.uris.select { |uri| uri.vm.user.id == current_user.id }
+      uris = object.uris.select { |uri| uri.vm.user.id == current_user.id }
     end
+    uris.map { |u| u.id }
   end
 end

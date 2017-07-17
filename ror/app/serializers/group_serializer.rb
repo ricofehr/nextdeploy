@@ -8,28 +8,29 @@ class GroupSerializer < ActiveModel::Serializer
   has_many :users, key: :users
 
   # Filter user records for current user
+  # HACK return ids list (no embed option in AMS 0.10)
   #
-  # @return [Array<User>]
+  # @return [Array<Number>]
   def users
-    users_a = []
+    users = []
     if current_user.admin?
-      users_a = object.users.select { |u| u.id != current_user.id }
-      users_a.unshift(current_user) if object.id == current_user.group.id
+      users = object.users.select { |u| u.id != current_user.id }
+      users.unshift(current_user) if object.id == current_user.group.id
     elsif current_user.lead?
-      users_a = current_user.projects.flat_map(&:users).uniq.select do |u|
+      users = current_user.projects.flat_map(&:users).uniq.select do |u|
         u.id != current_user.id && u.group.id == object.id
       end
-      users_a.unshift(current_user) if object.id == current_user.group.id
+      users.unshift(current_user) if object.id == current_user.group.id
     elsif current_user.dev?
       vms = current_user.projects.flat_map(&:vms).uniq.select { |vm| vm.is_jenkins }
-      users_a = vms.flat_map(&:user).uniq.select do |u|
+      users = vms.flat_map(&:user).uniq.select do |u|
         u.id != current_user.id && u.group.id == object.id
       end
-      users_a.unshift(current_user) if object.id == current_user.group.id
+      users.unshift(current_user) if object.id == current_user.group.id
     else
-      users_a = [] << current_user if object.id == current_user.group.id
+      users = [] << current_user if object.id == current_user.group.id
     end
 
-    users_a
+    users.map { |u| u.id }
   end
 end

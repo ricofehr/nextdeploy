@@ -8,20 +8,11 @@ class UserSerializer < ActiveModel::Serializer
 
   delegate :current_user, to: :scope
 
+  has_one :group, key: :group
   has_many :vms, key: :vms
   has_many :sshkeys, key: :sshkeys
-  has_one :group, key: :group
   has_many :projects, key: :projects
   has_many :own_projects, key: :own_projects
-
-  # Add shortname attribute
-  #
-  # @return [Hash{Symbol => String}]
-  def attributes
-    data = super
-    data[:shortname] = "#{object.firstname[0].upcase}. #{object.lastname}"
-    data
-  end
 
   # Give auth_token only for current user
   #
@@ -30,45 +21,68 @@ class UserSerializer < ActiveModel::Serializer
     object.authentication_token if !current_user || object.id == current_user.id
   end
 
-  # Filter project records for current user
+  # HACK return group id (no embed option in AMS 0.10)
   #
-  # @return [Array<Project>]
+  # @return [Number]
+  def group
+    object.group.id
+  end
+
+  # Filter project records for current user
+  # HACK return ids list (no embed option in AMS 0.10)
+  #
+  # @return [Array<Number>]
   def projects
-    object.projects.select { |project| !current_user || project.users.include?(current_user) }
+    projects = object.projects.select { |p| !current_user || p.users.include?(current_user) }
+    projects.map { |p| p.id }
   end
 
   # Filter own_project records for current user
+  # HACK return ids list (no embed option in AMS 0.10)
   #
-  # @return [Array<Project>]
+  # @return [Array<Number>]
   def own_projects
     if !current_user || current_user.admin? || object.id == current_user.id
-      object.own_projects
+      object.own_projects.map { |o| o.id }
     else
       []
     end
   end
 
   # Filter vm records for current user
+  # HACK return ids list (no embed option in AMS 0.10)
   #
-  # @return [Array<Vm>]
+  # @return [Array<Number>]
   def vms
-    object.vms.select do |vm|
+    vms = object.vms.select do |vm|
       !current_user ||
       current_user.id == vm.user.id ||
       current_user.admin? ||
       (current_user.lead? && vm.project.users.include?(current_user)) ||
       (current_user.dev? && vm.project.users.include?(current_user) && vm.is_jenkins)
     end
+    vms.map { |v| v.id }
   end
 
   # Filter sshkey records for current user
+  # HACK return ids list (no embed option in AMS 0.10)
   #
-  # @return [Array<Sshkey>]
+  # @return [Array<Number>]
   def sshkeys
-    object.sshkeys.select do |sshk|
+    sshkeys = object.sshkeys.select do |sshk|
       !current_user ||
       current_user.id == sshk.user.id ||
       current_user.lead?
     end
+    sshkeys.map { |s| s.id }
+  end
+
+  # Add shortname attribute
+  #
+  # @return [Hash{Symbol => String}]
+  def attributes(*args)
+    data = super
+    data[:shortname] = "#{object.firstname[0].upcase}. #{object.lastname}"
+    data
   end
 end

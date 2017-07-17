@@ -8,4 +8,18 @@ class UriSerializer < ActiveModel::Serializer
 
   has_one :vm, key: :vm
   has_one :framework, key: :framework
+
+  # HACK return vm id (no embed option in AMS 0.10)
+  #
+  # @return [Number]
+  def vm
+    object.vm.id
+  end
+
+  # HACK return framework id (no embed option in AMS 0.10)
+  #
+  # @return [Number]
+  def framework
+    object.framework.id
+  end
 end

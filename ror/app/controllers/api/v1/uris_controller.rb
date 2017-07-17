@@ -50,6 +50,9 @@ module API
           end
         end
 
+        # HACK need an AR array (even empty) for AMS
+        @uris = Uri.none if @uris.length == 0
+
         respond_to do |format|
           format.json { render json: @uris, status: 200 }
         end

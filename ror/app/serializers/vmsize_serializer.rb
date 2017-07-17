@@ -9,28 +9,32 @@ class VmsizeSerializer < ActiveModel::Serializer
   has_many :vms, key: :vms
 
   # Filter projects for current user
+  # HACK return ids list (no embed option in AMS 0.10)
   #
-  # @return [Array<Project>]
+  # @return [Array<Number>]
   def projects
-    if current_user.admin?
-      object.projects
-    else
-      object.projects.select { |project| project.users.include?(current_user) }
+    projects = object.projects
+    unless current_user.admin?
+      projects = object.projects.select { |project| project.users.include?(current_user) }
     end
+    projects.map { |p| p.id }
   end
 
   # Filter vms for current user
+  # HACK return ids list (no embed option in AMS 0.10)
   #
-  # @return [Array<Vm>]
+  # @return [Array<Number>]
   def vms
+    vms = []
     if current_user.admin?
-      object.vms
+      vms = object.vms
     elsif current_user.lead?
-      object.vms.select { |vm| vm.project.users.include?(current_user) }
+      vms = object.vms.select { |vm| vm.project.users.include?(current_user) }
     elsif current_user.dev?
-      object.vms.select { |vm| vm.user.id == current_user.id || vm.is_jenkins }
+      vms = object.vms.select { |vm| vm.user.id == current_user.id || vm.is_jenkins }
     else
-      object.vms.select { |vm| vm.user.id == current_user.id }
+      vms = object.vms.select { |vm| vm.user.id == current_user.id }
     end
+    vms.map { |v| v.id }
   end
 end

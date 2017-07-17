@@ -24,6 +24,9 @@ module API
           @endpoints = @user.projects.flat_map(&:endpoints).uniq
         end
 
+        # HACK need an AR array (even empty) for AMS
+        @endpoints = Endpoint.none if @endpoints.length == 0
+
         respond_to do |format|
           format.json { render json: @endpoints, status: 200 }
         end

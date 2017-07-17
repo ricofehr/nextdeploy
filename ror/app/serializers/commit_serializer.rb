@@ -9,18 +9,28 @@ class CommitSerializer < ActiveModel::Serializer
   has_one :branche, key: :branche
   has_many :vms, key: :vms
 
-  # Filter vm records for current user
+  # HACK return branche id (no embed option in AMS 0.10)
   #
-  # @return [Array<Vm>]
+  # @return [Number]
+  def branche
+    object.branche.id
+  end
+
+  # Filter vm records for current user
+  # HACK return ids list (no embed option in AMS 0.10)
+  #
+  # @return [Array<Number>]
   def vms
+    vms = []
     if current_user.admin?
-      object.vms
+      vms = object.vms
     elsif current_user.lead?
-      object.vms.select { |vm| vm.project.users.include?(current_user) }
+      vms = object.vms.select { |vm| vm.project.users.include?(current_user) }
     elsif current_user.dev?
-      object.vms.select { |vm| vm.user.id == current_user.id || vm.is_jenkins }
+      vms = object.vms.select { |vm| vm.user.id == current_user.id || vm.is_jenkins }
     else
-      object.vms.select { |vm| vm.user.id == current_user.id }
+      vms = object.vms.select { |vm| vm.user.id == current_user.id }
     end
+    vms.map { |v| v.id }
   end
 end

@@ -12,14 +12,14 @@ class Project < ActiveRecord::Base
   has_many :project_technos, dependent: :destroy
   has_many :technos, through: :project_technos
 
-  has_many :user_project, dependent: :destroy
-  has_many :users, through: :user_project, inverse_of: :projects
+  has_many :user_projects, dependent: :destroy
+  has_many :users, through: :user_projects, inverse_of: :projects
 
-  has_many :project_vmsize, dependent: :destroy
-  has_many :vmsizes, through: :project_vmsize
+  has_many :project_vmsizes, dependent: :destroy
+  has_many :vmsizes, through: :project_vmsizes
 
-  has_many :project_systemimage, dependent: :destroy
-  has_many :systemimages, through: :project_systemimage
+  has_many :project_systemimages, dependent: :destroy
+  has_many :systemimages, through: :project_systemimages
 
   has_many :vms, dependent: :destroy
 
@@ -40,9 +40,7 @@ class Project < ActiveRecord::Base
     Rails.cache.delete("branches/#{id}-#{branch}/commits")
   end
 
-  private
-
-  # Init branchs array
+  # Return branches list
   #
   # @return [Array<Branche>]
   def branches
@@ -50,6 +48,8 @@ class Project < ActiveRecord::Base
         Branche.all(id)
       end
   end
+
+  private
 
   # Create gitlab project from current object attributes
   #

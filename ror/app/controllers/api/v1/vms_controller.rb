@@ -68,6 +68,9 @@ module API
           end
         end
 
+        # HACK need an AR array (even empty) for AMS
+        @vms = Vm.none if @vms.length == 0
+
         respond_to do |format|
           format.json { render json: @vms, status: 200 }
         end

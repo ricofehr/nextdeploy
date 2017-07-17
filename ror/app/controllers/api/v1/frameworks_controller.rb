@@ -19,6 +19,9 @@ module API
           @frameworks = @user.projects.flat_map(&:endpoints).flat_map(&:framework).uniq
         end
 
+        # HACK need an AR array (even empty) for AMS
+        @frameworks = Framework.none if @frameworks.length == 0
+
         respond_to do |format|
           format.json { render json: @frameworks, status: 200 }
         end

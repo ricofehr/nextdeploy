@@ -27,6 +27,9 @@ module API
           end
         end
 
+        # HACK need an AR array (even empty) for AMS
+        @supervises = Supervise.none if @supervises.length == 0
+
         respond_to do |format|
           format.json { render json: @supervises, status: 200 }
         end
