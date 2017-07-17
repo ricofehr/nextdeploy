@@ -39,11 +39,10 @@ module VmsHelper
         # if vm is already running, transfer to it
         if status > 1
           bash_cmd = "rsync -avzPe \"ssh -o StrictHostKeyChecking=no " +
-                     "-o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{name}.authorized_keys " +
-                     "modem@#{floating_ip}:~/.ssh/authorized_keys"
+                     "-o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{name.shellescape}.authorized_keys " +
+                     "modem@#{floating_ip.shellescape}:~/.ssh/authorized_keys"
 
           Rails.logger.warn(bash_cmd)
-          # HACK no escaped bash command !
           system(bash_cmd)
         end
       end
@@ -317,9 +316,8 @@ module VmsHelper
   #
   def clear_vmfiles
     Rails.logger.warn("rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml")
-    # HACK no escaped bash commands !
-    system("rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml")
-    system("rm -f sshkeys/vms/#{name}.authorized_keys")
+    system("rm -f hiera/#{name.shellescape}#{Rails.application.config.os_suffix}.yaml")
+    system("rm -f sshkeys/vms/#{name.shellescape}.authorized_keys")
     system("rm -f thumbs/#{id}.png")
     # keep temporary a requested thumb file for avoid 404 on cached browser items
     system("cd thumbs && ln -sf default.png #{id}.png")
@@ -337,7 +335,7 @@ module VmsHelper
   # @raise [NextDeployException] if errors occurs during lock handling
   # @return [Hash{Symbol => String, Number}] message from cmd and status code
   def gitpull
-    docroot = "/var/www/#{project.name}/"
+    docroot = "/var/www/#{project.name.shellescape}/"
     bashret = ''
 
     # take a lock for vm action
@@ -347,8 +345,7 @@ module VmsHelper
 
         bash_cmd = "cd #{docroot};git reset --hard HEAD >/dev/null;git pull --rebase 2>&1;git cat-file -p HEAD"
         Rails.logger.warn("Gitpull command for vm #{vm_name}")
-        # HACK no escaped bash command !
-        bashret = `ssh modem@#{floating_ip} '#{bash_cmd}'`
+        bashret = `ssh modem@#{floating_ip.shellescape} '#{bash_cmd}'`
       end
 
     rescue
@@ -366,8 +363,7 @@ module VmsHelper
     bashret = ''
 
     Rails.logger.warn("Checkci for vm #{vm_name}")
-    # HACK no escaped bash command !
-    bashret = `ssh modem@#{floating_ip} 'test -f /tmp/commithash1 && echo NOK'`
+    bashret = `ssh modem@#{floating_ip.shellescape} 'test -f /tmp/commithash1 && echo NOK'`
 
     return true if bashret.match(/NOK/)
     return false
@@ -377,20 +373,18 @@ module VmsHelper
   #
   def clearci
     Rails.logger.warn("Remove ci locks for vm #{vm_name}")
-    # HACK no escaped bash command !
-    `ssh modem@#{floating_ip} 'rm -f /tmp/commithash1 /tmp/commithash2'`
+    `ssh modem@#{floating_ip.shellescape} 'rm -f /tmp/commithash1 /tmp/commithash2'`
   end
 
   # Display postinstall script before approvement
   #
   # @return [Hash{Symbol => String, Number}] message from cmd and status code
   def postinstall_display
-    docroot = "/var/www/#{project.name}/"
+    docroot = "/var/www/#{project.name.shellescape}/"
     bashret = ''
 
     Rails.logger.warn("Postinstall display command for vm #{vm_name}")
-    # HACK no escaped bash command !
-    bashret = `ssh modem@#{floating_ip} 'cd #{docroot};cat scripts/postinstall.sh'`
+    bashret = `ssh modem@#{floating_ip.shellescape} 'cd #{docroot};cat scripts/postinstall.sh'`
 
     # Return bash output
     { message: bashret, status: 200 }
@@ -401,7 +395,7 @@ module VmsHelper
   # @raise [NextDeployException] if errors occurs during lock handling
   # @return [Hash{Symbol => String, Number}] message from cmd and status code
   def postinstall
-    docroot = "/var/www/#{project.name}/"
+    docroot = "/var/www/#{project.name.shellescape}/"
     bashret = ''
 
     # take a lock for vm action
@@ -410,8 +404,7 @@ module VmsHelper
         f.flock(File::LOCK_EX)
 
         Rails.logger.warn("Postinstall command for vm #{vm_name}")
-        # HACK no escaped bash command !
-        bashret = `ssh modem@#{floating_ip} 'cd #{docroot};./scripts/./postinstall.sh'`
+        bashret = `ssh modem@#{floating_ip.shellescape} 'cd #{docroot};./scripts/./postinstall.sh'`
       end
 
     rescue
@@ -434,8 +427,7 @@ module VmsHelper
         f.flock(File::LOCK_EX)
 
         Rails.logger.warn(bash_cmd)
-        # HACK no escaped bash command !
-        system("ssh modem@#{floating_ip} '#{bash_cmd}'")
+        system("ssh modem@#{floating_ip.shellescape} '#{bash_cmd}'")
       end
 
     rescue
@@ -449,13 +441,12 @@ module VmsHelper
   # @return [Hash{Symbol => String, Number}] message from cmd and status code
   def logs
     apache_logs = uris.flat_map(&:absolute).map do |absolute|
-      "/var/log/apache2/#{absolute}_access.log /var/log/apache2/#{absolute}_error.log"
+      "/var/log/apache2/#{absolute.shellescape}_access.log /var/log/apache2/#{absolute.shellescape}_error.log"
     end.join(' ')
 
     bash_cmd = "sudo tail -n 60 #{apache_logs} /var/log/mysql.err /var/log/mail.log"
     Rails.logger.warn("ssh modem@#{floating_ip} '#{bash_cmd}'")
-    # HACK no escaped bash command !
-    bashret = `ssh modem@#{floating_ip} '#{bash_cmd}'`
+    bashret = `ssh modem@#{floating_ip.shellescape} '#{bash_cmd}'`
 
     # Return bash output
     { message: bashret, status: 200 }
@@ -496,7 +487,6 @@ module VmsHelper
   def buildtrigger
     bash_cmd = '/usr/bin/java -jar /usr/share/jenkins/jenkins-cli.jar -s http://localhost:9294 build build'
     Rails.logger.warn("ssh modem@#{floating_ip} '#{bash_cmd}'")
-    # HACK no escaped bash command !
-    `ssh modem@#{floating_ip} '#{bash_cmd}'`
+    `ssh modem@#{floating_ip.shellescape} '#{bash_cmd}'`
   end
 end

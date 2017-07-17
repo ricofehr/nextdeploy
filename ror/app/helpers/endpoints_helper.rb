@@ -8,8 +8,9 @@ module EndpointsHelper
   def install_endpoint
     gitlab_prefix = Rails.application.config.gitlab_prefix
 
-    bash_cmd = "/bin/bash /ror/sbin/newendpoint -u #{gitlab_prefix} -n #{project.name} " +
-               "-f #{framework.name} -g #{project.gitpath} -p #{path}"
+    bash_cmd = "/bin/bash /ror/sbin/newendpoint -u #{gitlab_prefix.shellescape} " +
+               "-n #{project.name.shellescape} -f #{framework.name.shellescape} " +
+               "-g #{project.gitpath.shellescape} -p #{path.shellescape}"
 
     # take a lock for project action
     begin
@@ -17,7 +18,6 @@ module EndpointsHelper
         f.flock(File::LOCK_EX)
 
         Rails.logger.warn(bash_cmd)
-        # HACK no escaped bash command !
         system(bash_cmd)
       end
 

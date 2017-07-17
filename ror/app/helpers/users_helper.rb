@@ -7,10 +7,10 @@ module UsersHelper
   #
   def delete_keyfiles
     Rails.logger.warn("rm -f sshkeys/#{email}*")
-    system("rm -f sshkeys/#{email}*")
+    system("rm -f sshkeys/#{email.shellescape}*")
 
     Rails.logger.warn("rm -f vpnkeys/#{email}*")
-    system("rm -f vpnkeys/#{email}*")
+    system("rm -f vpnkeys/#{email.shellescape}*")
   end
 
   # Upload authorized_keys updated to the active vm for the user
@@ -50,7 +50,7 @@ module UsersHelper
       open("/tmp/user#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
 
-        system("cd vpnkeys/bin && source ./vars && KEY_EMAIL=#{email} ./build-key #{email}")
+        system("cd vpnkeys/bin && source ./vars && KEY_EMAIL=#{email.shellescape} ./build-key #{email.shellescape}")
       end
 
     rescue
@@ -104,11 +104,11 @@ module UsersHelper
         f.flock(File::LOCK_EX)
 
         system("mkdir -p sshkeys")
-        system("rm -f sshkeys/#{email}")
-        system("rm -f sshkeys/#{email}.pub")
-        system("ssh-keygen -f sshkeys/#{email} -N ''")
-        system("chmod 644 sshkeys/#{email}")
-        system("chmod 644 sshkeys/#{email}.pub")
+        system("rm -f sshkeys/#{email.shellescape}")
+        system("rm -f sshkeys/#{email.shellescape}.pub")
+        system("ssh-keygen -f sshkeys/#{email.shellescape} -N ''")
+        system("chmod 644 sshkeys/#{email.shellescape}")
+        system("chmod 644 sshkeys/#{email.shellescape}.pub")
 
         gitlabapi = Apiexternal::Gitlabapi.new
         gitlabapi.add_sshkey(gitlab_id, "modemsshkey", public_sshkey_modem)
@@ -130,10 +130,10 @@ module UsersHelper
         f.flock(File::LOCK_EX)
 
         system("mkdir -p sshkeys")
-        system("cp -f sshkeys/#{emailsrc} sshkeys/#{email}")
-        system("cp -f sshkeys/#{emailsrc}.pub sshkeys/#{email}.pub")
-        system("chmod 644 sshkeys/#{email}")
-        system("chmod 644 sshkeys/#{email}.pub")
+        system("cp -f sshkeys/#{emailsrc.shellescape} sshkeys/#{email.shellescape}")
+        system("cp -f sshkeys/#{emailsrc.shellescape}.pub sshkeys/#{email.shellescape}.pub")
+        system("chmod 644 sshkeys/#{email.shellescape}")
+        system("chmod 644 sshkeys/#{email.shellescape}.pub")
       end
 
     rescue
@@ -152,12 +152,12 @@ module UsersHelper
         f.flock(File::LOCK_EX)
 
         system("mkdir -p sshkeys")
-        system("mv sshkeys/#{emailsrc} sshkeys/#{email}")
-        system("mv sshkeys/#{emailsrc}.pub sshkeys/#{email}.pub")
-        system("rm -f sshkeys/#{emailsrc}")
-        system("rm -f sshkeys/#{emailsrc}.pub")
-        system("chmod 644 sshkeys/#{email}")
-        system("chmod 644 sshkeys/#{email}.pub")
+        system("mv sshkeys/#{emailsrc.shellescape} sshkeys/#{email.shellescape}")
+        system("mv sshkeys/#{emailsrc.shellescape}.pub sshkeys/#{email.shellescape}.pub")
+        system("rm -f sshkeys/#{emailsrc.shellescape}")
+        system("rm -f sshkeys/#{emailsrc.shellescape}.pub")
+        system("chmod 644 sshkeys/#{email.shellescape}")
+        system("chmod 644 sshkeys/#{email.shellescape}.pub")
     end
 
     rescue

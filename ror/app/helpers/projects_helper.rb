@@ -6,7 +6,8 @@ module ProjectsHelper
   #
   def create_rootfolder
     gitlab_prefix = Rails.application.config.gitlab_prefix
-    bash_cmd = "/bin/bash /ror/sbin/newproject -u #{gitlab_prefix} -n #{name} -g #{gitpath}"
+    bash_cmd = "/bin/bash /ror/sbin/newproject -u #{gitlab_prefix.shellescape} " +
+               "-n #{name.shellescape} -g #{gitpath.shellescape}"
 
     Rails.logger.warn(bash_cmd)
     system(bash_cmd)
@@ -24,8 +25,7 @@ module ProjectsHelper
         open("/tmp/project#{id}.lock", File::RDWR|File::CREAT) do |f|
           f.flock(File::LOCK_EX)
 
-          # HACK no escaped bash command !
-          system("rm -rf #{Rails.application.config.project_initpath}/#{name}")
+          system("rm -rf #{Rails.application.config.project_initpath}/#{name.shellescape}")
         end
 
       rescue
@@ -44,7 +44,7 @@ module ProjectsHelper
     # generate password for ftp
     (password && password.length > 0) ? (ftppasswd = password[0..7]) : (ftppasswd = 'nextdeploy')
 
-    bash_cmd = "sudo /usr/local/bin/./nextdeploy-addftp #{gitpath}"
+    bash_cmd = "sudo /usr/local/bin/./nextdeploy-addftp #{gitpath.shellescape}"
 
     # take a lock for project action
     begin
@@ -52,8 +52,7 @@ module ProjectsHelper
         f.flock(File::LOCK_EX)
 
         Rails.logger.warn("#{bash_cmd} xxxxxxx")
-        # HACK no escaped bash command !
-        system("#{bash_cmd} #{ftppasswd}")
+        system("#{bash_cmd} #{ftppasswd.shellescape}")
       end
 
     rescue
@@ -67,14 +66,13 @@ module ProjectsHelper
   #
   # @raise an exception if errors occurs during lock handling
   def remove_ftp
-    bash_cmd = "sudo /usr/local/bin/./nextdeploy-rmftp #{gitpath}"
+    bash_cmd = "sudo /usr/local/bin/./nextdeploy-rmftp #{gitpath.shellescape}"
 
     begin
       open("/tmp/project#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
 
         Rails.logger.warn(bash_cmd)
-        # HACK no escaped bash command !
         system(bash_cmd)
       end
 
@@ -95,15 +93,14 @@ module ProjectsHelper
     # generate password for ftp
     (password && password.length > 0) ? (ftppasswd = password[0..7]) : (ftppasswd = 'nextdeploy')
 
-    bash_cmd = "sudo /usr/local/bin/./nextdeploy-updftp #{gitpath}"
+    bash_cmd = "sudo /usr/local/bin/./nextdeploy-updftp #{gitpath.shellescape}"
 
     begin
       open("/tmp/project#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
 
         Rails.logger.warn("#{bash_cmd} xxxxxxx")
-        # HACK no escaped bash command !
-        system("#{bash_cmd} #{ftppasswd}")
+        system("#{bash_cmd} #{ftppasswd.shellescape}")
       end
 
     rescue
