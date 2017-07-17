@@ -10,33 +10,37 @@ module API
       before_action :set_systemimagetype, only: [:show]
 
       # List all systemimagetypes objects
+      #
       def index
         @systemimagetypes = Systemimagetype.all
 
-        # Json output
         respond_to do |format|
-            format.json { render json: @systemimagetypes, status: 200 }
+          format.json { render json: @systemimagetypes, status: 200 }
         end
       end
 
       # Display details about one systemimagetype object
+      #
       def show
-        # Json output
         respond_to do |format|
-            format.json { render json: @systemimagetype, status: 200 }
+          format.json { render json: @systemimagetype, status: 200 }
         end
       end
 
       private
-        # Use callbacks to share common setup or constraints between actions.
-        def set_systemimagetype
-          @systemimagetype = Systemimagetype.find(params[:id])
-        end
 
-        # Never trust parameters from the scary internet, only allow the white list through.
-        def systemimagetype_params
-          params.require(:systemimagetype).permit(:name)
-        end
+      # Init current object
+      #
+      def set_systemimagetype
+        @systemimagetype = Systemimagetype.find(params[:id])
+      end
+
+      # Never trust parameters from the scary internet, only allow the white list through.
+      #
+      def systemimagetype_params
+        params.require(:systemimagetype).permit(:name)
+      end
+
     end
   end
 end

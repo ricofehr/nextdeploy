@@ -7,8 +7,10 @@ class Supervise < ActiveRecord::Base
   belongs_to :vm
   belongs_to :techno
 
-  scope :find_by_foreigns, ->(vm_id, techno_id){ where("vm_id=#{vm_id} AND techno_id=#{techno_id}") }
-
+  # Change current status of the probe
+  #
+  # @param new_status [Boolean]
+  # @return [Boolean] 1 if status has changed his value
   def change_status(new_status)
     if status != new_status
       self.status = new_status

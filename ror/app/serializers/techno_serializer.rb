@@ -10,7 +10,9 @@ class TechnoSerializer < ActiveModel::Serializer
   has_many :supervises, key: :supervises
   has_many :vms, key: :vms
 
-  # dont display projects if user is not allowed for
+  # Filter project records for current user
+  #
+  # @return [Array<Project>]
   def projects
     if current_user.admin?
       object.projects
@@ -19,7 +21,9 @@ class TechnoSerializer < ActiveModel::Serializer
     end
   end
 
-  # dont display vms if user is not allowed for
+  # Filter vm records for current user
+  #
+  # @return [Array<Vm>]
   def vms
     if current_user.admin?
       object.vms
@@ -32,7 +36,9 @@ class TechnoSerializer < ActiveModel::Serializer
     end
   end
 
-  # dont display vms if user is not allowed for
+  # Filter supervise records for current user
+  #
+  # @return [Array<Supervise>]
   def supervises
     if current_user.admin?
       object.supervises

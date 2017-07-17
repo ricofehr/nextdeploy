@@ -6,7 +6,7 @@ class Sshkey < ActiveRecord::Base
 
   # some hooks befor key changes
   before_create :init_sshkey
-  before_destroy :purge_sshkey
+  before_destroy :purge_sshkey, prepend: true
   before_update :reset_sshkey
 
   # some hooks after key changes
@@ -18,23 +18,19 @@ class Sshkey < ActiveRecord::Base
   validates :name, :key, :user_id, presence: true
 
 
-  #get all sshkey for admins users
+  # get all sshkey for admins users
   scope :admins, ->(){ joins(:user => :group).where('groups.access_level' => 50) }
 
   private
 
   # generate an uniq and well formed keyname (for os and gitlab)
   #
-  # No param
-  # No return
   def init_shortname
     self.shortname = "k#{user.id}t#{Time.zone.now.to_i.to_s.sub(/^../,'')}"
   end
 
   # add sshkey to openstack and gitlab
   #
-  # No param
-  # No return
   def init_sshkey
     osapi = Apiexternal::Osapi.new
     gitlabapi = Apiexternal::Gitlabapi.new
@@ -53,28 +49,22 @@ class Sshkey < ActiveRecord::Base
 
   # write new version of authorizedkeys
   #
-  # No param
-  # No return
   def update_authorizedkeys
-      #regenerate authorizedkeys
       user.update_authorizedkeys
   end
 
-
   # reset sshkey to openstack and gitlab
   #
-  # No param
-  # No return
   def reset_sshkey
     osapi = Apiexternal::Osapi.new
     gitlabapi = Apiexternal::Gitlabapi.new
 
     begin
-      #openstack side
+      # openstack side
       osapi.delete_sshkey(shortname)
       osapi.add_sshkey(shortname, key)
 
-      #gitlab side
+      # gitlab side
       gitlabapi.delete_sshkey(user.gitlab_id, gitlab_id)
       self.gitlab_id = gitlabapi.add_sshkey(user.gitlab_id, shortname, key)
     rescue Exceptions::NextDeployException => me
@@ -84,17 +74,15 @@ class Sshkey < ActiveRecord::Base
 
   # remove sshkey to openstack and gitlab
   #
-  # No param
-  # No return
   def purge_sshkey
     osapi = Apiexternal::Osapi.new
     gitlabapi = Apiexternal::Gitlabapi.new
 
     begin
-      #openstack side
+      # openstack side
       osapi.delete_sshkey(shortname)
 
-      #gitlab side
+      # gitlab side
       gitlabapi.delete_sshkey(user.gitlab_id, gitlab_id)
     rescue Exceptions::NextDeployException => me
       me.log

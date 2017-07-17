@@ -9,7 +9,6 @@ class Project < ActiveRecord::Base
   belongs_to :owner, class_name: "User", foreign_key: "owner_id", inverse_of: :own_projects
 
   has_many :endpoints, dependent: :destroy
-  #has_many :frameworks, through: :endpoints, inverse_of: :projects
   has_many :project_technos, dependent: :destroy
   has_many :technos, through: :project_technos
 
@@ -31,8 +30,11 @@ class Project < ActiveRecord::Base
   # Git repository dependence
   before_create :create_git, :create_ftp
   before_update :update_git, :update_ftp
-  before_destroy :delete_git, :remove_ftp
+  before_destroy :delete_git, :remove_ftp, prepend: true
 
+  # Flush project branches caching objects
+  #
+  # @param branch [String]
   def flush_branche(branch)
     Rails.cache.delete("projects/#{id}/branchs")
     Rails.cache.delete("branches/#{id}-#{branch}/commits")
@@ -42,8 +44,7 @@ class Project < ActiveRecord::Base
 
   # Init branchs array
   #
-  # No param
-  # No return
+  # @return [Array<Branche>]
   def branches
       Rails.cache.fetch("projects/#{id}/branchs", expires_in: 240.hours) do
         Branche.all(id)
@@ -52,8 +53,6 @@ class Project < ActiveRecord::Base
 
   # Create gitlab project from current object attributes
   #
-  # No param
-  # No return
   def create_git
     branchs = ['develop', 'hotfixes', 'release']
     gitlabapi = Apiexternal::Gitlabapi.new
@@ -71,8 +70,6 @@ class Project < ActiveRecord::Base
 
   # Delete gitlab project
   #
-  # No param
-  # No return
   def delete_git
     gitlabapi = Apiexternal::Gitlabapi.new
 
@@ -86,8 +83,6 @@ class Project < ActiveRecord::Base
 
   # Update the project-user association
   #
-  # No param
-  # No return
   def update_git
     gitlabapi = Apiexternal::Gitlabapi.new
 

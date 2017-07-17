@@ -7,25 +7,28 @@ class FrameworkSerializer < ActiveModel::Serializer
 
   has_many :endpoints, key: :endpoints
   has_many :uris, key: :uris
-  #has_many :projects, key: :projects
 
-  # dont display endpoints if user is not allowed for
+  # Filter endpoint records for current user
+  #
+  # @return [Array<Endpoint>]
   def endpoints
-   if current_user.admin?
-     object.endpoints
-   else
-     object.endpoints.select { |ep| ep.project.users.include?(current_user) }
-   end
+    if current_user.admin?
+      object.endpoints
+    else
+      object.endpoints.select { |ep| ep.project.users.include?(current_user) }
+    end
   end
 
-  # dont display uri if user is not allowed for
+  # Filter uri records for current user
+  #
+  # @return [Array<Uri>]
   def uris
-   if current_user.admin?
-     object.uris
-   elsif current_user.lead?
-     object.uris.select { |uri| uri.vm.project.users.include?(current_user) }
-   else
+    if current_user.admin?
+      object.uris
+    elsif current_user.lead?
+      object.uris.select { |uri| uri.vm.project.users.include?(current_user) }
+    else
      object.uris.select { |uri| uri.vm.user.id == current_user.id }
-   end
+    end
   end
 end

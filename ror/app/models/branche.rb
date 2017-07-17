@@ -9,9 +9,8 @@ class Branche
 
   # Constructor
   #
-  # @param name [String] name of the branch
-  # @param project_id [Integer] id of the project targetting by the branch
-  # No return
+  # @param name [String]
+  # @param project_id [Number]
   def initialize(name, project_id)
     @name = name
     @project_id = project_id
@@ -20,8 +19,7 @@ class Branche
 
   # Get commits
   #
-  # No params
-  # @return [Array[Commits]]
+  # @return [Array<Commit>]
   def commits
     Rails.cache.fetch("branches/#{@id}/commits", expires_in: 240.hours) do
       Commit.all(@id)
@@ -30,7 +28,7 @@ class Branche
 
   # Find function. Return a branch object from his id
   #
-  # @param id [String] projectid-branchname string
+  # @param id [String] project_id-branch_name string
   # @return [Branche]
   def self.find(id)
     @id = id
@@ -43,16 +41,15 @@ class Branche
 
   # Return all branchs for a project
   #
-  # @param project_id [Integer] id of the project
-  # @return [Array[Branche]]
+  # @param project_id [Number]
+  # @return [Array<Branche>]
   def self.all(project_id)
-    # get project from project_id
+
     gitlab_id = Rails.cache.fetch("projects/#{project_id}/gitlab_id", expires_in: 240.hours) do
       Project.find(project_id).gitlab_id
     end
 
     begin
-      # Init gitlab external api
       gitlabapi = Apiexternal::Gitlabapi.new
       branches = gitlabapi.get_branches(gitlab_id)
     rescue Exceptions::NextDeployException => me
@@ -70,6 +67,4 @@ class Branche
       Project.find(@project_id)
     end
   end
-
-  private
 end

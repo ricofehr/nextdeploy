@@ -10,43 +10,42 @@ module API
       before_action :set_vmsize, only: [:show]
 
       # List all vmsizes
+      #
       def index
         # select only objects allowed by current user
         if @user.lead?
           @vmsizes = Vmsize.all
         else
-          @vmsizes = []
-          projects = @user.projects
-          if projects
-            @vmsizes = projects.flat_map(&:vmsizes).uniq
-          end
+          @vmsizes = @user.projects.flat_map(&:vmsizes).uniq
         end
 
-        # json output
         respond_to do |format|
-            format.json { render json: @vmsizes, status: 200 }
+          format.json { render json: @vmsizes, status: 200 }
         end
       end
 
       # Details about one vmsize object
+      #
       def show
-        # Json output
         respond_to do |format|
-            format.json { render json: @vmsize, status: 200 }
+          format.json { render json: @vmsize, status: 200 }
         end
       end
 
-
       private
-        # Use callbacks to share common setup or constraints between actions.
-        def set_vmsize
-          @vmsize = Vmsize.find(params[:id])
-        end
 
-        # Never trust parameters from the scary internet, only allow the white list through.
-        def vmsize_params
-          params.require(:vmsize).permit(:title, :description)
-        end
+      # Init current object
+      #
+      def set_vmsize
+        @vmsize = Vmsize.find(params[:id])
+      end
+
+      # Never trust parameters from the scary internet, only allow the white list through.
+      #
+      def vmsize_params
+        params.require(:vmsize).permit(:title, :description)
+      end
+
     end
   end
 end

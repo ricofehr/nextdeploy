@@ -6,10 +6,10 @@ require 'rails/all'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-# Global properties for the rails app
-#
-# @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 module NextDeploy
+  # Global properties for the rails app
+  #
+  # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
   class Application < Rails::Application
     # Include externals custom apis
     config.autoload_paths += %W(#{config.root}/lib)

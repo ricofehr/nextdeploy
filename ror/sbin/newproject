@@ -11,7 +11,7 @@ EXITSOP=0
 
 ####################### main function ##########################
 
-#create a new project
+# create a new project
 newproject() {
   local projname=""
   local gitpath=""

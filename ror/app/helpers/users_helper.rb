@@ -5,19 +5,17 @@ module UsersHelper
 
   # Delete key files
   #
-  # No param
-  # No return
   def delete_keyfiles
-    Rails.logger.warn "rm -f sshkeys/#{email}*"
-    Rails.logger.warn "rm -f vpnkeys/#{email}*"
+    Rails.logger.warn("rm -f sshkeys/#{email}*")
     system("rm -f sshkeys/#{email}*")
+
+    Rails.logger.warn("rm -f vpnkeys/#{email}*")
     system("rm -f vpnkeys/#{email}*")
   end
 
   # Upload authorized_keys updated to the active vm for the user
   #
-  # No param
-  # No return
+  # @raise [NextDeployException] if errors occurs during lock handling
   def update_authorizedkeys
 
     # returnn if no projects
@@ -33,7 +31,6 @@ module UsersHelper
           vms_target = vms
         end
 
-        # todo: avoid bash cmd
         vms_target.each do |k|
           k.generate_authorizedkeys
         end
@@ -47,13 +44,12 @@ module UsersHelper
 
   # Generate own openvpn key
   #
-  # No param
-  # No return
+  # @raise [NextDeployException] if errors occurs during lock handling
   def generate_openvpn_keys
     begin
       open("/tmp/user#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-        # todo: avoid bash cmd
+
         system("cd vpnkeys/bin && source ./vars && KEY_EMAIL=#{email} ./build-key #{email}")
       end
 
@@ -64,16 +60,12 @@ module UsersHelper
 
   # Get server certificate
   #
-  # No param
-  # No return
   def openvpn_ca
     File.open("vpnkeys/ca.crt", "rb").read
   end
 
   # Get own vpn key
   #
-  # No param
-  # No return
   def openvpn_key
     generate_openvpn_keys unless File.file?("vpnkeys/#{email}.key") && File.file?("vpnkeys/#{email}.csr")
     File.open("vpnkeys/#{email}.key", "rb").read
@@ -81,8 +73,6 @@ module UsersHelper
 
   # Get own vpn key
   #
-  # No param
-  # No return
   def openvpn_crt
     generate_openvpn_keys unless File.file?("vpnkeys/#{email}.key") && File.file?("vpnkeys/#{email}.csr")
     File.open("vpnkeys/#{email}.crt", "rb").read
@@ -90,9 +80,7 @@ module UsersHelper
 
   # Generate openvpn conf
   #
-  # No param
-  # @raise an exception if errors occurs during file reading
-  # No return
+  # @raise [NextDeployException] if errors occurs during file reading
   def openvpn_conf
     template = "vpnkeys/conf/nextdeploy.conf"
 
@@ -108,15 +96,13 @@ module UsersHelper
 
   # Generate own modem ssh key
   #
-  # No param
-  # No return
+  # @raise [NextDeployException] if errors occurs during lock handling
   def generate_sshkey_modem
 
     begin
       open("/tmp/user#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
 
-        # todo: avoid bash cmd
         system("mkdir -p sshkeys")
         system("rm -f sshkeys/#{email}")
         system("rm -f sshkeys/#{email}.pub")
@@ -135,15 +121,14 @@ module UsersHelper
 
   # Copy modem ssh key
   #
-  # @param emailsrc (String): user from which we copy modemkeys
-  # No return
+  # @param emailsrc [String] user from which we copy modemkeys
+  # @raise [NextDeployException] if errors occurs during lock handling
   def copy_sshkey_modem(emailsrc)
 
     begin
       open("/tmp/user#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
 
-        # todo: avoid bash cmd
         system("mkdir -p sshkeys")
         system("cp -f sshkeys/#{emailsrc} sshkeys/#{email}")
         system("cp -f sshkeys/#{emailsrc}.pub sshkeys/#{email}.pub")
@@ -158,15 +143,14 @@ module UsersHelper
 
   # Move ssh key
   #
-  # @param emailsrc (String): old email from same user
-  # No return
+  # @param emailsrc [String] old email from same user
+  # @raise [NextDeployException] if errors occurs during lock handling
   def move_sshkey_modem(emailsrc)
 
     begin
       open("/tmp/user#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
 
-        # todo: avoid bash cmd
         system("mkdir -p sshkeys")
         system("mv sshkeys/#{emailsrc} sshkeys/#{email}")
         system("mv sshkeys/#{emailsrc}.pub sshkeys/#{email}.pub")
@@ -183,8 +167,6 @@ module UsersHelper
 
   # Get private own modem ssh key
   #
-  # No param
-  # No return
   def private_sshkey_modem
     generate_sshkey_modem unless File.file?("sshkeys/#{email}") && File.file?("sshkeys/#{email}.pub")
     File.open("sshkeys/#{email}", "rb").read
@@ -192,8 +174,6 @@ module UsersHelper
 
   # Get public own modem ssh key
   #
-  # No param
-  # No return
   def public_sshkey_modem
     generate_sshkey_modem unless File.file?("sshkeys/#{email}") && File.file?("sshkeys/#{email}.pub")
     File.open("sshkeys/#{email}.pub", "rb").read

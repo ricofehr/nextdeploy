@@ -6,7 +6,7 @@ RORSBIN="/ror/sbin"
 
 ####################### main function ##########################
 
-#create a new project
+# create a new vm vhost
 newvhost() {
   local absolute=""
   local aliases=""
@@ -36,7 +36,6 @@ newvhost() {
     esac
   done
 
-  # Ensure absolute and ndid are not empty
   [[ "$absolute" = "" ]] && exit 1
   [[ "$ndid" = "" ]] && exit 1
 

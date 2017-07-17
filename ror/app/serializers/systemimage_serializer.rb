@@ -9,7 +9,9 @@ class SystemimageSerializer < ActiveModel::Serializer
   has_many :vms, key: :vms
   has_many :projects, key: :projects
 
-  # dont display projects if user is not allowed for
+  # Filter project records for current user
+  #
+  # @return [Array<Project>]
   def projects
     if current_user.admin?
       object.projects
@@ -18,7 +20,9 @@ class SystemimageSerializer < ActiveModel::Serializer
     end
   end
 
-  # dont display vms if user is not allowed for
+  # Filter vm records for current user
+  #
+  # @return [Array<Vm>]
   def vms
     if current_user.admin?
       object.vms

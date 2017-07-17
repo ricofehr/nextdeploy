@@ -7,7 +7,9 @@ class BrandSerializer < ActiveModel::Serializer
 
   has_many :projects, key: :projects
 
-  # dont display projects if user is not allowed for
+  # Filter project records for current user
+  #
+  # @return [Array<Project>]
   def projects
     if current_user.admin?
       object.projects

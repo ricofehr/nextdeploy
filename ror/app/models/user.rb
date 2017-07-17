@@ -25,12 +25,13 @@ class User < ActiveRecord::Base
   # Some hooks before chnages on user object
   before_save :ensure_authentication_token
 
-  before_create :init_user, :generate_sshkey_modem, :generate_authentication_token, :generate_openvpn_keys
-  before_destroy :purge_user
+  before_create :init_user, :generate_sshkey_modem,
+                :generate_authentication_token, :generate_openvpn_keys
+
+  before_destroy :purge_user, prepend: true
 
   # Return current token and generates one before it if needed
   #
-  # No param
   # @return [String] token
   def ensure_authentication_token
     self.authentication_token ||= generate_authentication_token
@@ -38,8 +39,6 @@ class User < ActiveRecord::Base
 
   # Reset current authentication_token
   #
-  # No param
-  # No return
   def reset_authentication_token!
     self.authentication_token = nil
     save
@@ -47,23 +46,20 @@ class User < ActiveRecord::Base
 
   # Return gitlab username
   #
-  # No param
-  # @return [String] gitlab username compliant (remove @ and . from email)
+  # @return [String] gitlab username compliant
   def gitlab_user
     email.tr('@.','')
   end
 
   # Return group access_level
   #
-  # No param
-  # @return [integer] group accesslevel
+  # @return [Number] group accesslevel
   def access_level
     group.access_level
   end
 
   # Return true if admin
   #
-  # No param
   # @return [Boolean] if admin
   def admin?
     group.admin?
@@ -71,32 +67,41 @@ class User < ActiveRecord::Base
 
   # Return true if lead or admin
   #
-  # No param
-  # @return [Boolean] if >= lead
+  # @return [Boolean] if admin or lead
   def lead?
     group.lead?
   end
 
   # Return true if dev, lead or admin
   #
-  # No param
-  # @return [Boolean] if >= dev
+  # @return [Boolean] if admin or lead or dev
   def dev?
     group.dev?
   end
 
   # Return true if guest
   #
-  # No param
-  # @return [Boolean] if guest
+  # @return [Boolean] if guest and only guest
   def guest?
     group.access_level == 10
   end
 
+  # Return true if project creation right
+  #
+  # @return [Boolean]
+  def project_create?
+    is_project_create
+  end
+
+  # Return true if user creation right
+  #
+  # @return [Boolean]
+  def user_create?
+    is_user_create
+  end
+
   # Update the user to gitlab
   #
-  # No param
-  # No return
   def update_gitlabuser
     gitlabapi = Apiexternal::Gitlabapi.new
 
@@ -125,14 +130,14 @@ class User < ActiveRecord::Base
 
   # Create the user to gitlab, set gitlab_id attribute
   #
-  # No param
-  # No return
   def init_user
     gitlabapi = Apiexternal::Gitlabapi.new
 
     begin
       self.gitlab_id = gitlabapi.create_user(email, password, gitlab_user, "#{firstname} #{lastname}")
-      projects.each { |project| gitlabapi.add_user_to_project(project.gitlab_id, gitlab_id, access_level) }
+      projects.each do |project|
+        gitlabapi.add_user_to_project(project.gitlab_id, gitlab_id, access_level)
+      end
     rescue Exceptions::NextDeployException => me
       me.log
     end
@@ -140,8 +145,6 @@ class User < ActiveRecord::Base
 
   # Purge current user from gitlab
   #
-  # No param
-  # No return
   def purge_user
     gitlabapi = Apiexternal::Gitlabapi.new
 
@@ -156,12 +159,11 @@ class User < ActiveRecord::Base
 
   # Generate a token for Devise library
   #
-  # No param
-  # No return
+  # @return [String] a token
   def generate_authentication_token
     loop do
       token = Devise.friendly_token
-      break token unless User.where(authentication_token: token).first
+      break token unless User.find_by(authentication_token: token)
     end
   end
 end

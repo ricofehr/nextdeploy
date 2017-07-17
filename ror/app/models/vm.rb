@@ -17,21 +17,29 @@ class Vm < ActiveRecord::Base
   has_many :frameworks, through: :uris
 
   # Some scope for find vms objects by commit, by project or by name
-  scope :find_by_user_commit, ->(user_id, commit){ where("user_id=#{user_id} AND commit_id like '%#{commit}'") }
+  scope :find_by_user_commit, ->(user_id, commit){ where('user_id = :user_id AND commit_id like \'%:commit%\'',
+                                                         user_id: user_id,
+                                                         commit: commit) }
   scope :find_by_user_project, ->(user_id, project_id){ where(user_id: user_id, project_id: project_id) }
 
   attr_accessor :floating_ip, :commit, :vnc_url, :thumb
 
   # Some hooks before vm changes
-  before_destroy :delete_vm
+  before_destroy :delete_vm, prepend: true
 
   # Init external api objects and extra attributes
   after_initialize :init_extra_attr
 
+  # Return true if is_prod
+  #
+  # @return [Boolean]
+  def prod?
+    is_prod
+  end
+
   # Update vm password in database
   #
-  # @param password (String): password to replace
-  # No return
+  # @param password [String] password to replace
   def reset_password(password)
     self.termpassword = password
     save
@@ -39,21 +47,19 @@ class Vm < ActiveRecord::Base
 
   # Update vm user
   #
-  # @param user_id (Integer): new owner of the vm
-  # No return
+  # @param user_id [Number] new owner of the vm
   def change_user(user_id)
     self.user = User.find(user_id)
     save
 
     user.update_authorizedkeys unless user.lead?
     generate_hiera
-    puppetrefresh
+    puppet_refresh
   end
 
   # Update vm topic
   #
-  # @param topic (String): new topic
-  # No return
+  # @param topic [String] new topic
   def set_topic(topic)
     self.topic = topic
     save
@@ -61,40 +67,33 @@ class Vm < ActiveRecord::Base
 
   # Toggle is_ro parameter
   #
-  # No param
-  # No return
-  def togglero
+  def toggle_ro
     self.is_ro = is_ro ? false : true
     save
   end
 
   # Toggle is_auth parameter
   #
-  # No param
-  # No return
-  def toggleauth
+  def toggle_auth
     self.is_auth = is_auth ? false : true
     save
     generate_hiera
-    puppetrefresh
+    puppet_refresh
   end
 
   # Toggle is_ht parameter
   #
-  # No param
-  # No return
-  def toggleht
+  def toggle_ht
     self.is_ht = is_ht ? false : true
     save
     generate_hiera
-    puppetrefresh
+    puppet_refresh
   end
 
   # Toggle is_ci parameter
   #
-  # @param dosave (Boolean): set if object must be saved in database
-  # No return
-  def toggleci(dosave=true)
+  # @param dosave [Boolean] set if object must be saved in database
+  def toggle_ci(dosave = true)
     self.is_ci = is_ci ? false : true
     save if dosave
     generate_hiera
@@ -102,9 +101,7 @@ class Vm < ActiveRecord::Base
 
   # Toggle is_backup parameter
   #
-  # No param
-  # No return
-  def togglebackup
+  def toggle_backup
     self.is_backup = is_backup ? false : true
     save
     generate_hiera
@@ -112,9 +109,7 @@ class Vm < ActiveRecord::Base
 
   # Toggle is_prod parameter
   #
-  # No param
-  # No return
-  def toggleprod
+  def toggle_prod
     # ensure that we have still right for change a vm to prod status
     if !is_prod
       if !user.admin? &&
@@ -135,47 +130,40 @@ class Vm < ActiveRecord::Base
     end
 
     generate_hiera
-    puppetrefresh
+    puppet_refresh
   end
 
   # Toggle is_cached parameter
   #
-  # No param
-  # No return
-  def togglecached
+  def toggle_cached
     self.is_cached = is_cached ? false : true
     save
     generate_hiera
-    puppetrefresh
+    puppet_refresh
   end
 
   # Toggle is_cors parameter
   #
-  # No param
-  # No return
-  def togglecors
+  def toggle_cors
     self.is_cors = is_cors ? false : true
     save
     generate_hiera
-    puppetrefresh
+    puppet_refresh
   end
 
   # Toggle is_offline parameter
   #
-  # No param
-  # No return
-  def toggleoffline
+  def toggle_offline
     self.is_offline = is_offline ? false : true
     save
     generate_hiera
-    puppetrefresh
+    puppet_refresh
   end
 
   # Refresh commit value
   #
-  # @param commitid (String): commit to refresh
-  # No return
-  def refreshcommit(commitid)
+  # @param commitid [String] commit to refresh
+  def refresh_commit(commitid)
     tab = "#{project.id}-#{commitid}".split('-')
     commit_hash = tab.pop
     branche_id = tab.join('-')
@@ -194,9 +182,7 @@ class Vm < ActiveRecord::Base
   # Update status field with time build
   # And send alert mail to users
   #
-  # No param
-  # No return
-  def setupcomplete
+  def setup_complete
     if status <= 1
         project.users.each do |u|
           if u.is_recv_vms || u.id == user.id
@@ -213,8 +199,6 @@ class Vm < ActiveRecord::Base
 
   # Set uris by default with project endpoints
   #
-  # No param
-  # No return
   def init_defaulturis
     # init name if empty
     if !name || name.empty?
@@ -229,9 +213,11 @@ class Vm < ActiveRecord::Base
       else
         aliases = ''
       end
-      Uri.new(vm: self, framework: endpoint.framework, absolute: absolute, path: endpoint.path,
-              envvars: endpoint.envvars, aliases: aliases, port: endpoint.port, ipfilter: endpoint.ipfilter,
-              is_sh: endpoint.is_sh, is_import: endpoint.is_import, is_main: endpoint.is_main, is_redir_alias: false).save
+
+      Uri.new(vm: self, framework: endpoint.framework, absolute: absolute,
+              path: endpoint.path, envvars: endpoint.envvars, aliases: aliases,
+              port: endpoint.port, ipfilter: endpoint.ipfilter, is_sh: endpoint.is_sh,
+              is_import: endpoint.is_import, is_main: endpoint.is_main, is_redir_alias: false).save
     end
 
     reload
@@ -240,8 +226,7 @@ class Vm < ActiveRecord::Base
   # Get build time (=status if vm is running)
   # builtime is > 0 if vm is running, else is negative
   #
-  # No param
-  # No return
+  # @return [Number] the build time (in seconds)
   def buildtime
     return status if status != 0
 
@@ -252,15 +237,12 @@ class Vm < ActiveRecord::Base
 
   # Init vnc_url attribute
   #
-  # No param
-  # No return
   def init_vnc_url
     @vnc_url = nil
 
     if nova_id
       @vnc_url =
         Rails.cache.fetch("vms/#{nova_id}/vnc_url", expires_in: 180.seconds) do
-          # init api object
           osapi = Apiexternal::Osapi.new
           # get vnc_url from openstack
           ret = osapi.get_vnctoken(nova_id)
@@ -270,11 +252,10 @@ class Vm < ActiveRecord::Base
 
   # Create a new vm to openstack with current object attributes
   #
-  # No param
-  # No return
+  # @raise [NextDeployException] if error occurs
   def boot
     # Raise an exception if the limit of vms is reachable
-    raise Exceptions::NextDeployException.new("Vms limit is reachable") if Vm.all.length > Rails.application.config.limit_vm
+    raise Exceptions::NextDeployException.new("Vms limit is reachable") if Vm.count > Rails.application.config.limit_vm
 
     osapi = Apiexternal::Osapi.new
 
@@ -308,8 +289,7 @@ class Vm < ActiveRecord::Base
 
   # Reboot vm
   #
-  # @param type (String): type of reboot (SOFT|HARD)
-  # No return
+  # @param type [String] type of reboot (SOFT|HARD)
   def reboot(type)
     if nova_id
       # init api object
@@ -324,7 +304,6 @@ class Vm < ActiveRecord::Base
 
   # Return unique vm title
   #
-  # No param
   # @return [String] unique vm title
   def vm_name
     if !name || name.empty?
@@ -338,8 +317,6 @@ class Vm < ActiveRecord::Base
 
   # Init extra attributes
   #
-  # No param
-  # No return
   def init_extra_attr
     @floating_ip = nil
     @vnc_url = nil
@@ -373,8 +350,7 @@ class Vm < ActiveRecord::Base
 
   # Stop and delete a vm from openstack
   #
-  # No param
-  # No return
+  # @raise [NextDeployException] if error occurs
   def delete_vm
     osapi = Apiexternal::Osapi.new
 
@@ -388,5 +364,4 @@ class Vm < ActiveRecord::Base
     clear_vmfiles
     generate_host_all
   end
-
 end

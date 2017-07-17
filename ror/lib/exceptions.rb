@@ -1,3 +1,4 @@
+# App exceptions namespace
 module Exceptions
   # The head of exception class for the project
   #
@@ -14,8 +15,6 @@ module Exceptions
 
     # Log message and exit (critical exception)
     #
-    # No params
-    # No return
     def log_e
       log
       exit
@@ -23,8 +22,6 @@ module Exceptions
 
     # Log message
     #
-    # No params
-    # No return
     def log
       Rails.logger.warn @message
     end

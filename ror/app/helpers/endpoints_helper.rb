@@ -4,17 +4,21 @@
 module EndpointsHelper
   # Lauch bash script for deploy framework
   #
-  # No param
-  # No return
+  # @raise [NextDeployException] if errors occurs during lock handling
   def install_endpoint
-    # todo: avoid bash cmd
-    Rails.logger.warn "/bin/bash /ror/sbin/newendpoint -u #{Rails.application.config.gitlab_prefix} -n #{project.name} -f #{framework.name} -g #{project.gitpath}  -p #{path}"
+    gitlab_prefix = Rails.application.config.gitlab_prefix
+
+    bash_cmd = "/bin/bash /ror/sbin/newendpoint -u #{gitlab_prefix} -n #{project.name} " +
+               "-f #{framework.name} -g #{project.gitpath} -p #{path}"
 
     # take a lock for project action
     begin
       open("/tmp/project#{project.id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-        system("/bin/bash /ror/sbin/newendpoint -u #{Rails.application.config.gitlab_prefix} -n #{project.name} -f #{framework.name} -g #{project.gitpath} -p #{path}")
+
+        Rails.logger.warn(bash_cmd)
+        # HACK no escaped bash command !
+        system(bash_cmd)
       end
 
     rescue

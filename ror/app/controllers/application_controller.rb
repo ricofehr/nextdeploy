@@ -21,8 +21,11 @@ class ApplicationController < ActionController::Base
   protected
 
   # check if the current user is included into group "lead developer"
+  #
+  # @raise [NextDeployException] if not authorized
+  # @return [Boolean] true if current user is lead
   def check_lead
-    if ! @user
+    if !@user
       raise Exceptions::NextDeployException.new("Access forbidden for this user")
     end
 
@@ -31,8 +34,11 @@ class ApplicationController < ActionController::Base
   end
 
   # check if the current user is included into group "admin"
+  #
+  # @raise [NextDeployException] if not authorized
+  # @return [Boolean] true if current user is admin
   def check_admin
-    if ! @user
+    if !@user
       raise Exceptions::NextDeployException.new("Access forbidden for this user")
     end
 
@@ -41,6 +47,8 @@ class ApplicationController < ActionController::Base
   end
 
   # check right about current user
+  #
+  # @return [Boolean] true if authorized
   def only_me
     if only_admin
       true
@@ -52,8 +60,11 @@ class ApplicationController < ActionController::Base
   end
 
   # check right about admin user
+  #
+  # @raise [NextDeployException] if not authorized
+  # @return [Boolean] true if authorized
   def only_admin
-    if ! @user.admin?
+    if !@user.admin?
       raise Exceptions::NextDeployException.new("Access forbidden for this user")
     end
 
@@ -61,8 +72,11 @@ class ApplicationController < ActionController::Base
   end
 
   # check right about lead user
+  #
+  # @raise [NextDeployException] if not authorized
+  # @return [Boolean] true if authorized
   def only_lead
-    if ! @user.lead?
+    if !@user.lead?
       raise Exceptions::NextDeployException.new("Access forbidden for this user")
     end
 
@@ -71,12 +85,15 @@ class ApplicationController < ActionController::Base
 
   private
 
-  # permit current suer access from serializer objects
+  # Used from serializer objects
+  #
+  # @return [User]
   def current_user
     @user
   end
 
   # signin process
+  #
   def authenticate_user_from_token!
     authenticate_with_http_token do |user_token, options|
       @user = user_token && User.find_by_authentication_token(user_token)

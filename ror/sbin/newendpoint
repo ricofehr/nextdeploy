@@ -11,7 +11,7 @@ DOCONLINE="/directorydontexist"
 
 ####################### main function ##########################
 
-#create a new project
+# create a new project endpoint
 newendpoint() {
   local projname=""
   local gitpath=""
@@ -61,7 +61,7 @@ newendpoint() {
   [[ -d "${DOCONLINE}" ]] && rm -rf "${DOCONLINE}"
   /bin/mkdir -p "${DOCONLINE}"
 
-  #make init commit
+  # make init commit
   pushd ${DOCONLINE} > /dev/null
   git clone "${gitpath}" .
 
@@ -197,7 +197,7 @@ newreact() {
   popd > /dev/null
 }
 
-#install a new drupal
+# install a new drupal
 newdrupal() {
   local projname=""
   local drupalfolder=""
@@ -254,22 +254,22 @@ newdrupal() {
   popd > /dev/null
 }
 
-#create a drupal6 website
+# create a drupal6 website
 newdrupal6() {
   newdrupal -v 6 "$@"
 }
 
-#create a drupal7 website
+# create a drupal7 website
 newdrupal7() {
   newdrupal -v 7 "$@"
 }
 
-#create a drupal8 website
+# create a drupal8 website
 newdrupal8() {
   newdrupal -v 8 "$@"
 }
 
-#create symfony2 website
+# create symfony2 website
 newsymfony2() {
   pushd "${DOCROOT}" > /dev/null
   curl -s https://getcomposer.org/installer | php
@@ -281,18 +281,17 @@ newsymfony2() {
   sed -i "s/^use.*Request;/& umask(0002);/" web/app.php
   sed -i "s/^use.*Request;/& umask(0002);/" web/app_dev.php
   sed -i "s;^if (isset(;/*& ;" web/app_dev.php
-  sed -i "s;^}$;& */;" web/app_dev.php
+  sed -i "0,;^}$;s;^}$;& */;" web/app_dev.php
   popd > /dev/null
 
   pushd "${DOCONLINE}" > /dev/null
   git add .
   git commit -m "init sf2"
   git push origin master
-
   popd > /dev/null
 }
 
-#create symfony3 website
+# create symfony3 website
 newsymfony3() {
   pushd "${DOCROOT}" > /dev/null
   curl -s https://getcomposer.org/installer | php
@@ -304,7 +303,7 @@ newsymfony3() {
   sed -i "s/^use.*Request;/& umask(0002);/" web/app.php
   sed -i "s/^use.*Request;/& umask(0002);/" web/app_dev.php
   sed -i "s;^if (isset(;/*& ;" web/app_dev.php
-  sed -i "s;^}$;& */;" web/app_dev.php
+  sed -i "0,;^}$;s;^}$;& */;" web/app_dev.php
 
   mkdir -p var/sesssions
   touch var/sessions/.gitkeep
@@ -318,18 +317,16 @@ newsymfony3() {
   git add .
   git commit -m "init sf3"
   git push origin master
-
   popd > /dev/null
 }
 
-#create ez website
-#working progress ... or not
+# create ez website
+# working progress ... or not
 newezpublish() {
   echo "ezpublish"
 }
 
-#create wp website
-#working progress ... or not
+# create wp website
 newwordpress() {
   echo "wordpress"
 

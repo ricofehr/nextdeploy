@@ -1,4 +1,4 @@
-# Its a property for the vms sizing (tiny: 1 vcpus / 512Mo ram, large: 2 vcpus / 4Go ram, ...)
+# Vms sizing property (tiny: 1 vcpus / 512Mo ram, large: 2 vcpus / 4Go ram, ...)
 #
 # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
 class Vmsize < ActiveRecord::Base

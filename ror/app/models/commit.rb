@@ -5,14 +5,14 @@ class Commit
   # Activemodel object without database table
   include ActiveModel::Serializers::JSON
 
-  # get on attributes
-  attr_reader :id, :commit_hash, :project_id, :branche_id, :short_id, :title, :author_name, :author_email, :message, :created_at
+  attr_reader :id, :commit_hash, :project_id, :branche_id, :short_id, :title,
+              :author_name, :author_email, :message, :created_at
 
   # Constructor
   #
   # @param commit_hash [String] hash id of the commit
-  # @param branche_id [String] projectid-branchname id of the branch where the commit is coming from
-  # @param options [Array[String]] optional parameters associated with a commit: author, date, message, ...
+  # @param branche_id [String] projectid-branchname id of the branch
+  # @param options [Hash{Symbol => String}] optional parameters (author, date, ...)
   def initialize(commit_hash, branche_id, options={})
     @id = "#{branche_id}-#{commit_hash}"
     @commit_hash = commit_hash
@@ -20,7 +20,6 @@ class Commit
     @project_id = branche_id.split('-')[0]
 
     if options.empty?
-
       begin
         project = Project.find(@project_id)
         gitlabapi = Apiexternal::Gitlabapi.new
@@ -61,8 +60,8 @@ class Commit
 
   # Return all commits for a branch
   #
-  # @param branche_id [String] id of the branch
-  # @return [Array[Commit]]
+  # @param branche_id [String]
+  # @return [Array<Commit>]
   def self.all(branche_id)
     @gitlabapi = Apiexternal::Gitlabapi.new
 
@@ -78,13 +77,16 @@ class Commit
       me.log
     end
 
-    commits.map {|commit|
+    commits.map do |commit|
       Rails.cache.fetch("commits/#{branche_id}-#{commit.id}", expires_in: 240.hours) do
-        new(commit.id, branche_id, {short_id: commit.short_id, title: commit.title,
-                                                                author_name: commit.author_name, author_email: commit.author_email,
-                                                                message: commit.message, created_at: commit.created_at})
+        new(commit.id, branche_id, {short_id: commit.short_id,
+                                    title: commit.title,
+                                    author_name: commit.author_name,
+                                    author_email: commit.author_email,
+                                    message: commit.message,
+                                    created_at: commit.created_at})
       end
-    }
+    end
   end
 
   # Return the branch associated with the commit
@@ -98,9 +100,8 @@ class Commit
 
   # Return the vms associated with the commit
   #
-  # @return [Array[Vm]]
+  # @return [Array<Vm>]
   def vms
     Vm.where(commit_id: @id)
   end
-
 end

@@ -9,7 +9,6 @@ class Group < ActiveRecord::Base
 
   # Return true if admin
   #
-  # No param
   # @return [Boolean] if admin
   def admin?
     access_level > 40
@@ -17,7 +16,6 @@ class Group < ActiveRecord::Base
 
   # Return true if lead
   #
-  # No param
   # @return [Boolean] if admin or lead
   def lead?
     access_level > 30
@@ -25,10 +23,8 @@ class Group < ActiveRecord::Base
 
   # Return true if dev
   #
-  # No param
   # @return [Boolean] if admin or lead or dev
   def dev?
     access_level > 20
   end
-
 end

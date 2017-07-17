@@ -5,8 +5,7 @@ module VmsHelper
 
   # Generate authorized ssh key
   #
-  # No param
-  # No return
+  # @raise [NextDeployException] if errors occurs during lock handling
   def generate_authorizedkeys
 
     system('mkdir -p sshkeys/vms')
@@ -14,7 +13,7 @@ module VmsHelper
     # Read nextdeploy server public key
     ndk = ''
     begin
-      ndk = open("/home/modem/.ssh/id_rsa.pub", "rb") {|io| io.read}
+      ndk = open("/home/modem/.ssh/id_rsa.pub", "rb") { |io| io.read }
     rescue
       raise Exceptions::NextDeployException.new("Read nextdeploy server key failed")
     end
@@ -39,8 +38,13 @@ module VmsHelper
 
         # if vm is already running, transfer to it
         if status > 1
-          Rails.logger.warn "rsync -avzPe \"ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{name}.authorized_keys modem@#{floating_ip}:~/.ssh/authorized_keys"
-          system("rsync -avzPe \"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{name}.authorized_keys modem@#{floating_ip}:~/.ssh/authorized_keys")
+          bash_cmd = "rsync -avzPe \"ssh -o StrictHostKeyChecking=no " +
+                     "-o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{name}.authorized_keys " +
+                     "modem@#{floating_ip}:~/.ssh/authorized_keys"
+
+          Rails.logger.warn(bash_cmd)
+          # HACK no escaped bash command !
+          system(bash_cmd)
         end
       end
 
@@ -49,22 +53,25 @@ module VmsHelper
     end
   end
 
-  # Generate Hiera files with current attributes like technos array
+  # Generate Hiera file for current vm
+  # TODO Split and reduce this 200 lines function
   #
-  # No param
-  # @raise an exception if errors occurs during file writing
-  # No return
+  # @raise [NextDeployException] if errors occurs during file writing
   def generate_hiera
+    # local vars
     vhost = project.name
     classes = []
     templates = []
     vmtechnos = technos.sort_by(&:ordering)
-    # generate ftp password
     ftppasswd = project.password
     rewrites = ""
-    basicAuth = Base64.strict_encode64(htlogin + ':' + htpassword)
+    basic_auth = Base64.strict_encode64(htlogin + ':' + htpassword)
+    os_suffix = Rails.application.config.os_suffix
+    gitlab_prefix = Rails.application.config.gitlab_prefix
+    nextdeployuri = Rails.application.config.nextdeployuri
+    ndc2ip = Rails.application.config.ndc2ip
 
-    #add base puppet class
+    # add base puppet class
     classes << '  - pm::base::apt'
     classes << '  - pm::base'
     classes << '  - pm::mail'
@@ -91,7 +98,7 @@ module VmsHelper
     classes << '  - pm::deploy::postinstall'
 
     begin
-      open("hiera/#{name}#{Rails.application.config.os_suffix}.yaml", File::RDWR|File::CREAT) do |f|
+      open("hiera/#{name}#{os_suffix}.yaml", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
         f.rewind
 
@@ -108,7 +115,7 @@ module VmsHelper
           f.puts "isauth: 0\n"
         end
 
-        if is_prod
+        if prod?
           f.puts "isprod: 1\n"
           f.puts "webenv: 'prod'\n"
         else
@@ -144,7 +151,7 @@ module VmsHelper
         uris.each do |uri|
           rewrites = uri.framework.rewrites
           # change some rewrites for prod env
-          if is_prod
+          if prod?
             rewrites.gsub!("app_dev", "app")
           end
           f.puts "  #{uri.absolute}:\n"
@@ -196,7 +203,7 @@ module VmsHelper
           f.puts "    ipfilter: '#{uri.ipfilter.gsub('.0/24', '').gsub('.', '\.')}'\n"
         end
 
-        if is_prod
+        if prod?
           f.puts "pm::varnish::staticttl: 24h\n"
         else
           f.puts "pm::varnish::staticttl: 30m\n"
@@ -207,7 +214,7 @@ module VmsHelper
         f.puts "pm::varnish::iscached: #{is_cached}\n"
         f.puts "pm::varnish::iscors: #{is_cors}\n"
         f.puts "pm::varnish::isoffline: #{is_offline}\n"
-        f.puts "pm::varnish::basicauth: #{basicAuth}\n"
+        f.puts "pm::varnish::basicauth: #{basic_auth}\n"
 
         # varnish3 for older linux
         if systemimage.name == "Debian7" || systemimage.name == "Ubuntu1404"
@@ -217,27 +224,27 @@ module VmsHelper
         end
 
         f.puts "name: #{name}\n"
-        f.puts "toolsuri: pmtools-#{name}#{Rails.application.config.os_suffix}\n"
+        f.puts "toolsuri: pmtools-#{name}#{os_suffix}\n"
 
         if is_jenkins
-          f.puts "docuri: pmdoc-#{name}#{Rails.application.config.os_suffix}\n"
+          f.puts "docuri: pmdoc-#{name}#{os_suffix}\n"
           f.puts "commit: HEAD\n"
         else
           f.puts "commit: #{@commit.commit_hash}\n"
         end
 
         f.puts "branch: #{@commit.branche.name}\n"
-        f.puts "gitpath: #{Rails.application.config.gitlab_prefix}#{project.gitpath}\n"
+        f.puts "gitpath: #{gitlab_prefix}#{project.gitpath}\n"
         f.puts "email: #{user.email}\n"
         f.puts "layout: #{user.layout}\n"
         f.puts "docrootgit: /var/www/#{vhost}\n"
         f.puts "project: #{project.name}\n"
-        f.puts "nextdeployuri: #{Rails.application.config.nextdeployuri}\n"
+        f.puts "nextdeployuri: #{nextdeployuri}\n"
         f.puts "system: '#{systemimage.name}'"
         f.puts "ftpuser: #{project.gitpath}\n"
         f.puts "ftppasswd: #{ftppasswd}\n"
-        f.puts "ossecip: #{Rails.application.config.ndc2ip}\n"
-        f.puts "influxip: #{Rails.application.config.ndc2ip}\n"
+        f.puts "ossecip: #{ndc2ip}\n"
+        f.puts "influxip: #{ndc2ip}\n"
 
         f.flush
         f.truncate(f.pos)
@@ -250,9 +257,8 @@ module VmsHelper
 
   # Generate user-data files for cloud-init service, using after booting the vm
   #
-  # No param
-  # @raise an exception if errors occurs during file writing
-  # No return
+  # @raise [NextDeployException] if errors occurs during file writing
+  # @return [String] user_data base64 encoded
   def generate_userdata
     template = "cloudinit/pattern_linux.yaml"
 
@@ -273,9 +279,7 @@ module VmsHelper
 
   # Generate Host file with delegated zone for nextdeploy virtual instances
   #
-  # No param
-  # @raise an exception if errors occurs during file writing
-  # No return
+  # @raise [NextDeployException] if errors occurs during file writing
   def generate_host_all
 
     begin
@@ -283,15 +287,18 @@ module VmsHelper
         f.flock(File::LOCK_EX)
         f.rewind
 
-        Vm.all.each do |v|
+        Vm.find_each do |v|
           uri_suffix = "#{v.name}#{Rails.application.config.os_suffix}"
           absolutes = v.uris.flat_map(&:absolute)
           aliases = v.uris.flat_map(&:aliases)
+          hosts_line = "#{v.floating_ip} #{absolutes.join(' ')} " +
+                       "#{aliases.join(' ')} pmtools-#{uri_suffix}"
+
           if v.floating_ip && v.floating_ip.length > 0
             if v.is_jenkins
-              f.puts "#{v.floating_ip} #{absolutes.join(' ')} #{aliases.join(' ')} pmtools-#{uri_suffix} pmdoc-#{uri_suffix} sonar-#{uri_suffix} jenkins-#{uri_suffix}\n"
+              f.puts "#{hosts_line} pmdoc-#{uri_suffix} sonar-#{uri_suffix} jenkins-#{uri_suffix}\n"
             else
-              f.puts "#{v.floating_ip} #{absolutes.join(' ')} #{aliases.join(' ')} pmtools-#{uri_suffix}\n"
+              f.puts "#{hosts_line}\n"
             end
           end
         end
@@ -308,10 +315,9 @@ module VmsHelper
 
   # Clear vcls and hiera files
   #
-  # No param
-  # No return
   def clear_vmfiles
-    Rails.logger.warn "rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml"
+    Rails.logger.warn("rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml")
+    # HACK no escaped bash commands !
     system("rm -f hiera/#{name}#{Rails.application.config.os_suffix}.yaml")
     system("rm -f sshkeys/vms/#{name}.authorized_keys")
     system("rm -f thumbs/#{id}.png")
@@ -322,27 +328,27 @@ module VmsHelper
 
   # Generate default webshot
   #
-  # No param
-  # No return
   def generate_defaultwebshot
     system("cp -f thumbs/default.png thumbs/#{id}.png")
   end
 
   # Execute gitpull cmd into vms
   #
-  # No param
-  # @return message for execution and codestatus for request
+  # @raise [NextDeployException] if errors occurs during lock handling
+  # @return [Hash{Symbol => String, Number}] message from cmd and status code
   def gitpull
     docroot = "/var/www/#{project.name}/"
     bashret = ''
-
-    Rails.logger.warn "Gitpull command for vm #{vm_name}"
 
     # take a lock for vm action
     begin
       open("/tmp/vm#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-        bashret = `ssh modem@#{floating_ip} 'cd #{docroot};git reset --hard HEAD >/dev/null;git pull --rebase 2>&1;git cat-file -p HEAD'`
+
+        bash_cmd = "cd #{docroot};git reset --hard HEAD >/dev/null;git pull --rebase 2>&1;git cat-file -p HEAD"
+        Rails.logger.warn("Gitpull command for vm #{vm_name}")
+        # HACK no escaped bash command !
+        bashret = `ssh modem@#{floating_ip} '#{bash_cmd}'`
       end
 
     rescue
@@ -355,36 +361,35 @@ module VmsHelper
 
   # Check if ci is currently executed
   #
-  # No param
-  # @return message for execution and codestatus for request
+  # @return [Boolean] if executing
   def checkci
     bashret = ''
 
-    Rails.logger.warn "Checkci for vm #{vm_name}"
+    Rails.logger.warn("Checkci for vm #{vm_name}")
+    # HACK no escaped bash command !
     bashret = `ssh modem@#{floating_ip} 'test -f /tmp/commithash1 && echo NOK'`
 
     return true if bashret.match(/NOK/)
     return false
   end
 
-  # Clear ci lock
+  # Clear ci locks
   #
-  # No param
-  # @return nothing
   def clearci
-    Rails.logger.warn "Remove ci lock for vm #{vm_name}"
+    Rails.logger.warn("Remove ci locks for vm #{vm_name}")
+    # HACK no escaped bash command !
     `ssh modem@#{floating_ip} 'rm -f /tmp/commithash1 /tmp/commithash2'`
   end
 
   # Display postinstall script before approvement
   #
-  # No param
-  # @return message for execution and codestatus for request
+  # @return [Hash{Symbol => String, Number}] message from cmd and status code
   def postinstall_display
     docroot = "/var/www/#{project.name}/"
     bashret = ''
 
-    Rails.logger.warn "Postinstall display command for vm #{vm_name}"
+    Rails.logger.warn("Postinstall display command for vm #{vm_name}")
+    # HACK no escaped bash command !
     bashret = `ssh modem@#{floating_ip} 'cd #{docroot};cat scripts/postinstall.sh'`
 
     # Return bash output
@@ -393,17 +398,19 @@ module VmsHelper
 
   # Display postinstall script before approvement
   #
-  # No param
-  # @return message for execution and codestatus for request
+  # @raise [NextDeployException] if errors occurs during lock handling
+  # @return [Hash{Symbol => String, Number}] message from cmd and status code
   def postinstall
     docroot = "/var/www/#{project.name}/"
     bashret = ''
 
-    Rails.logger.warn "Postinstall command for vm #{vm_name}"
     # take a lock for vm action
     begin
       open("/tmp/vm#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
+
+        Rails.logger.warn("Postinstall command for vm #{vm_name}")
+        # HACK no escaped bash command !
         bashret = `ssh modem@#{floating_ip} 'cd #{docroot};./scripts/./postinstall.sh'`
       end
 
@@ -415,18 +422,20 @@ module VmsHelper
     { message: bashret, status: 200 }
   end
 
-  # Execute puppet cmd into vms
+  # Execute puppet agent into vm
   #
-  # No param
-  # No return
-  def puppetrefresh
-    Rails.logger.warn "ssh modem@#{floating_ip} 'sudo /usr/bin/puppet agent -t;(($? == 1)) && sleep 30 && sudo /usr/bin/puppet agent -t'"
+  # @raise [NextDeployException] if errors occurs during lock handling
+  def puppet_refresh
+    bash_cmd = 'sudo /usr/bin/puppet agent -t;(($? == 1)) && sleep 30 && sudo /usr/bin/puppet agent -t'
 
     # take a lock for vm action
     begin
       open("/tmp/vm#{id}.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
-        system("ssh modem@#{floating_ip} 'sudo /usr/bin/puppet agent -t;(($? == 1)) && sleep 30 && sudo /usr/bin/puppet agent -t'")
+
+        Rails.logger.warn(bash_cmd)
+        # HACK no escaped bash command !
+        system("ssh modem@#{floating_ip} '#{bash_cmd}'")
       end
 
     rescue
@@ -437,32 +446,43 @@ module VmsHelper
 
   # Return some vm logs
   #
-  # No param
-  # @return message for execution and codestatus for request
+  # @return [Hash{Symbol => String, Number}] message from cmd and status code
   def logs
-    apache_logs = uris.flat_map(&:absolute).map { |absolute| "/var/log/apache2/#{absolute}_access.log /var/log/apache2/#{absolute}_error.log" }.join(' ')
+    apache_logs = uris.flat_map(&:absolute).map do |absolute|
+      "/var/log/apache2/#{absolute}_access.log /var/log/apache2/#{absolute}_error.log"
+    end.join(' ')
 
-    Rails.logger.warn "ssh modem@#{floating_ip} 'sudo tail -n 60 #{apache_logs} /var/log/mysql.err /var/log/mail.log'"
-    bashret = `ssh modem@#{floating_ip} "sudo tail -n 60 #{apache_logs} /var/log/mysql.err /var/log/mail.log"`
+    bash_cmd = "sudo tail -n 60 #{apache_logs} /var/log/mysql.err /var/log/mail.log"
+    Rails.logger.warn("ssh modem@#{floating_ip} '#{bash_cmd}'")
+    # HACK no escaped bash command !
+    bashret = `ssh modem@#{floating_ip} '#{bash_cmd}'`
 
     # Return bash output
     { message: bashret, status: 200 }
   end
 
+  # Make a screenshot from main uri into the vm
+  #
+  # @raise [NextDeployException] if errors occurs during lock handling
   def webshot
-
     # take a lock for once shot at time
     begin
       open("/tmp/webshot.lock", File::RDWR|File::CREAT) do |f|
         f.flock(File::LOCK_EX)
+
+        # Silently exceptions if error occurs
         suppress(Exception) do
           # Setup Capybara
           ws = Webshot::Screenshot.instance
+
           # Customize thumbnail
           uri = uris.first
-          ws.capture "http://#{htlogin}:#{htpassword}@#{uri.absolute}/", "thumbs/#{id}.png", width: 360, height: 240, quality: 85, timeout: 1, allowed_status_codes: [200, 500, 302, 301, 403, 401]
+          ws.capture "http://#{htlogin}:#{htpassword}@#{uri.absolute}/", "thumbs/#{id}.png",
+                     width: 360, height: 240, quality: 85, timeout: 1,
+                     allowed_status_codes: [200, 301, 302, 401, 403, 404, 500]
         end
       end
+
     rescue => e
       raise Exceptions::NextDeployException.new("Lock on webshot command for #{name} failed, #{e.message}")
     end
@@ -470,8 +490,13 @@ module VmsHelper
     generate_defaultwebshot unless File.exists?("thumbs/#{id}.png")
   end
 
+  # Start a jenkins build on ci vm
+  #
+  # @raise [NextDeployException] if errors occurs during lock handling
   def buildtrigger
-    Rails.logger.warn "ssh modem@#{floating_ip} '/usr/bin/java -jar /usr/share/jenkins/jenkins-cli.jar -s http://localhost:9294 build build'"
-    `ssh modem@#{floating_ip} "/usr/bin/java -jar /usr/share/jenkins/jenkins-cli.jar -s http://localhost:9294 build build"`
+    bash_cmd = '/usr/bin/java -jar /usr/share/jenkins/jenkins-cli.jar -s http://localhost:9294 build build'
+    Rails.logger.warn("ssh modem@#{floating_ip} '#{bash_cmd}'")
+    # HACK no escaped bash command !
+    `ssh modem@#{floating_ip} '#{bash_cmd}'`
   end
 end

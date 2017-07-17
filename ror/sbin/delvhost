@@ -1,13 +1,13 @@
 #!/bin/bash
 
-#global vars
+# global vars
 NGINXFOLDER="/etc/nginx-ndprod"
 RORSBIN="/ror/sbin"
 
 ####################### main function ##########################
 
-#create a new project
-newvhost() {
+# delete a vm vhost
+delvhost() {
   local ndid=""
 
   # get options
@@ -24,13 +24,12 @@ newvhost() {
     esac
   done
 
-  # Ensure absolute and ndid are not empty
+  # ensure absolute and ndid are not empty
   [[ "$ndid" = "" ]] && exit 1
 
-  # if no vhost for this uri, exit
+  # if no vhost for this id, exit
   [[ ! -f ${NGINXFOLDER}/nd${ndid}.conf ]] && exit 0
 
-  # prepare vhost for the prod vm
   pushd ${NGINXFOLDER} > /dev/null
   rm -f nd${ndid}.conf
   popd > /dev/null
@@ -41,4 +40,4 @@ newvhost() {
 }
 
 echo "Parameters: $@"
-newvhost "$@"
+delvhost "$@"

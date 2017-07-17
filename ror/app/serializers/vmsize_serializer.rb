@@ -8,7 +8,9 @@ class VmsizeSerializer < ActiveModel::Serializer
   has_many :projects, key: :projects
   has_many :vms, key: :vms
 
-  # dont display projects if user is not allowed for
+  # Filter projects for current user
+  #
+  # @return [Array<Project>]
   def projects
     if current_user.admin?
       object.projects
@@ -17,7 +19,9 @@ class VmsizeSerializer < ActiveModel::Serializer
     end
   end
 
-  # dont display vms if user is not allowed for
+  # Filter vms for current user
+  #
+  # @return [Array<Vm>]
   def vms
     if current_user.admin?
       object.vms

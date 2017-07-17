@@ -10,39 +10,42 @@ module API
       before_action :set_techno, only: [:show]
 
       # List all technos objects
+      #
       def index
         # If technotype parameter, get all technos for one type
         if technotype_id = params[:technotype_id]
-          technotype = Technotype.includes(:technos).find(technotype_id)
-          @technos = technotype.technos
-        # select only objects allowed by current user
+          @technos = Technotype.includes(:technos).find(technotype_id).technos
         else
           @technos = Techno.all
         end
 
-        # Json output
         respond_to do |format|
-            format.json { render json: @technos || [], status: 200 }
+          format.json { render json: @technos, status: 200 }
         end
       end
 
       # Display details about one techno object
+      #
       def show
         respond_to do |format|
-            format.json { render json: @techno, status: 200 }
+          format.json { render json: @techno, status: 200 }
         end
       end
 
       private
-        # Use callbacks to share common setup or constraints between actions.
-        def set_techno
-          @techno = Techno.find(params[:id])
-        end
 
-        # Never trust parameters from the scary internet, only allow the white list through.
-        def techno_params
-          params.require(:techno).permit(:name, :puppetclass)
-        end
+      # Init current object
+      #
+      def set_techno
+        @techno = Techno.find(params[:id])
+      end
+
+      # Never trust parameters from the scary internet, only allow the white list through.
+      #
+      def techno_params
+        params.require(:techno).permit(:name, :puppetclass)
+      end
+
     end
   end
 end

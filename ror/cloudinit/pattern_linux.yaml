@@ -18,7 +18,7 @@ bootcmd:
 apt_update: true
 
 # Run 'apt-get upgrade' on first boot
-#apt_upgrade: true
+apt_upgrade: true
 
 # Reboot after package install/upgrade if needed (e.g. if kernel update)
 apt_reboot_if_required: True

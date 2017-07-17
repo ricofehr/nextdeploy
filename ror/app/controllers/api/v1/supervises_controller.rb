@@ -7,54 +7,47 @@ module API
     # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
     class SupervisesController < ApplicationController
       # List all vmtechnotypes objects for a vm
+      #
       def index
-        @supervises = []
-        #.find(params[:vm_id]).vm_technos
-
         if @user.admin?
           @supervises = Supervise.all
         else
           if @user.lead?
-            projects = @user.projects
-            if projects
-              vms = projects.flat_map(&:vms).uniq
-              @supervises = vms.flat_map(&:supervises).uniq if vms.size
-            end
+            vms = @user.projects.flat_map(&:vms).uniq
+            @supervises = vms.flat_map(&:supervises).uniq
           else
             if @user.dev?
-              projects = @user.projects
-              if projects
-                vms = projects.flat_map(&:vms).uniq
-                vms.select! { |v| v.user.id == @user.id || v.is_jenkins }
-                @supervises = vms.flat_map(&:supervises).uniq if vms.size
+              vms = @user.projects.flat_map(&:vms).select do |v|
+                v.user.id == @user.id || v.is_jenkins
               end
+              @supervises = vms.flat_map(&:supervises).uniq
             else
-              vms = @user.vms
-              @supervises = vms.flat_map(&:supervises).uniq if vms.size
+              @supervises = @user.vms.flat_map(&:supervises).uniq
             end
           end
         end
 
-        # Json output
         respond_to do |format|
-            format.json { render json: @supervises, status: 200 }
+          format.json { render json: @supervises, status: 200 }
         end
       end
 
       # Display details about one supervise object
+      #
       def show
         @supervise = Supervise.find(params[:id])
         respond_to do |format|
-            format.json { render json: @supervise, status: 200 }
+          format.json { render json: @supervise, status: 200 }
         end
       end
 
       # Execute datas export into vm
+      #
       def status
-        # ensure :satus is boolean
+        # ensure status is boolean
         status = (params[:status] == 1 || params[:status] == true) ? true : false
 
-        changed = Supervise.find_by_foreigns(params[:vm_id], params[:techno_id]).first.change_status(status)
+        changed = Supervise.find_by(vm_id: params[:vm_id], techno_id: params[:techno_id]).change_status(status)
         if changed == 1
           SuperviseMailer.supervise_email(@user, Vm.find(params[:vm_id]), Techno.find(params[:techno_id]), status).deliver
         end
@@ -63,10 +56,13 @@ module API
       end
 
       private
-        # Never trust parameters from the scary internet, only allow the white list through.
-        def technotype_params
-          params.require(:supervise).permit(:vm_id, :techno_id, :status)
-        end
+
+      # Never trust parameters from the scary internet, only allow the white list through.
+      #
+      def technotype_params
+        params.require(:supervise).permit(:vm_id, :techno_id, :status)
+      end
+
     end
   end
 end

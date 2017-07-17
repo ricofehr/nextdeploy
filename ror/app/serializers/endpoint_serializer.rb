@@ -8,6 +8,9 @@ class EndpointSerializer < ActiveModel::Serializer
   has_one :project, key: :project
   has_one :framework, key: :framework
 
+  # Return false for is_install
+  #
+  # @return [Boolean] false
   def is_install
     false
   end

@@ -12,6 +12,7 @@ bundle install --path vendor/bundle
 
 * Configuration
 /ror/config/environments/
+
 /ror/config/databases.yaml
 
 * Database creation
@@ -19,9 +20,8 @@ rake db:schema:load
 
 * Database initialization
 rake db:migrate
+
 rake db:seed
 
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-Go to the Readme.md of the project: https://github.com/ricofehr/nextdeploy/
+* Other instructions
+View the Readme of the NextDeploy project: https://github.com/ricofehr/nextdeploy/

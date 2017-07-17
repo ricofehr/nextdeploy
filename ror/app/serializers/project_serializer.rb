@@ -14,7 +14,9 @@ class ProjectSerializer < ActiveModel::Serializer
   has_one :owner, key: :owner
   has_one :brand, key: :brand
 
-  # avoid for no lead/admin users to see other users details
+  # Filter user records for current user
+  #
+  # @return [Array<User>]
   def users
     if current_user.lead?
       users_a = object.users.select { |u| u.id != current_user.id }
@@ -28,19 +30,24 @@ class ProjectSerializer < ActiveModel::Serializer
     end
   end
 
-  # avoid for no admin or self users to see other users details
+  # Filter owner record for current user
+  #
+  # @return [User]
   def owner
-    if current_user.admin? || (object.owner && object.owner.id == current_user.id)
+    if current_user.lead? || (object.owner && object.owner.id == current_user.id)
       object.owner
     else
       nil
     end
   end
 
-  # gitpath needs string changes
+  # Gitpath needs string changes
+  #
+  # @return [Hash{Symbol => String}]
   def attributes
     data = super
-    data[:gitpath] = Rails.application.config.gitlab_endpoint0.gsub(/https?:\/\//, '') << ':/root/' << data[:gitpath]
+    gitlab_endpoint0 = Rails.application.config.gitlab_endpoint0
+    data[:gitpath] = gitlab_endpoint0.gsub(/https?:\/\//, '') << ':/root/' << data[:gitpath]
     data
   end
 end

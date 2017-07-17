@@ -3,32 +3,44 @@ module API
     # VM controller for the rest API (V1).
     #
     # @author Eric Fehr (ricofehr@nextdeploy.io, github: ricofehr)
-    class API::V1::VmsController < ApplicationController
+    class VmsController < ApplicationController
       # except setupcomplet to rest auth
-      before_filter :authenticate_user_from_token!, :except => [:setupcomplete, :resetpassword, :refreshcommit]
-      before_filter :authenticate_api_v1_user!, :except => [:setupcomplete, :resetpassword, :refreshcommit]
+      before_filter :authenticate_user_from_token!, :except => [:setup_complete,
+                                                                :reset_password,
+                                                                :refresh_commit]
+
+      before_filter :authenticate_api_v1_user!, :except => [:setup_complete,
+                                                            :reset_password,
+                                                            :refresh_commit]
+
       # Hook who set vm object
       before_action :set_vm, only: [:show, :update, :topic, :destroy, :check_status,
-                    :boot, :gitpull, :logs, :toggleauth, :toggleprod, :togglecached,
-                    :toggleht, :toggleci, :togglebackup, :togglecors, :postinstall_display,
-                    :postinstall, :reboot, :togglero, :toggleoffline]
+                    :boot, :gitpull, :logs, :toggle_auth, :toggle_prod, :toggle_cached,
+                    :toggle_ht, :toggle_ci, :toggle_backup, :toggle_cors, :postinstall_display,
+                    :postinstall, :reboot, :toggle_ro, :toggle_offline]
+
       # Hook who check rights before action
       before_action :check_me, only: [:show, :update, :topic, :destroy, :check_status,
-                                      :boot, :gitpull, :logs, :toggleauth, :toggleprod,
-                                      :togglecached, :toggleht, :toggleci, :togglebackup,
-                                      :togglecors, :postinstall_display, :postinstall, :reboot,
-                                      :togglero, :toggleoffline]
+                                      :boot, :gitpull, :logs, :toggle_auth, :toggle_prod,
+                                      :toggle_cached, :toggle_ht, :toggle_ci, :toggle_backup,
+                                      :toggle_cors, :postinstall_display, :postinstall, :reboot,
+                                      :toggle_ro, :toggle_offline]
+
       # Format ember parameters into rails parameters
       before_action :ember_to_rails, only: [:create, :update]
+
       # Check user right for avoid no-authorized access
       before_action :check_admin, only: [:create, :create_short, :destroy, :boot]
+
       # Hook who check ci right before tool action
       before_action :check_ci, only: [:gitpull, :postinstall]
+
       # Hook who reload ci right after tool action
       after_action :reload_ci, only: [:gitpull, :postinstall]
 
 
       # List all vms
+      #
       def index
         # select only objects allowed by current user
         if project_id = params[:project_id]
@@ -43,17 +55,11 @@ module API
             @vms = Vm.all
           else
             if @user.lead?
-              projects = @user.projects
-              if projects
-                @vms = projects.flat_map(&:vms).uniq
-                #@vms.select! { |v| !v.user.admin? }
-              end
+              @vms = @user.projects.flat_map(&:vms).uniq
             else
               if @user.dev?
-                projects = @user.projects
-                if projects
-                  @vms = projects.flat_map(&:vms).uniq
-                  @vms.select! { |v| v.user.id == @user.id || v.is_jenkins }
+                @vms = @user.projects.flat_map(&:vms).select do |v|
+                  v.user.id == @user.id || v.is_jenkins
                 end
               else
                 @vms = @user.vms
@@ -62,22 +68,21 @@ module API
           end
         end
 
-        # Json format
         respond_to do |format|
-            format.json { render json: @vms || [], status: 200 }
+          format.json { render json: @vms, status: 200 }
         end
       end
 
       # Create a new vm request
+      #
       def create
-        # if user_id in param is guest (a guest cannot clone projects), so we replace sshkey for clone project into vm
-        # ! no good for security reason. TODO: better to replace with generic key specific for the project
+        # HACK if user_id in param is guest (a guest cannot clone projects), so we replace sshkey for clone project into vm
+        # TODO better for security reason to replace with generic key specific for the project
         user_vm = User.find(params[:vm][:user_id])
         user_vm.copy_sshkey_modem(@user.email) if user_vm.guest?
 
         @vm = Vm.new(vm_params)
 
-        # Json response (json error if issue occurs)
         respond_to do |format|
           if @vm.save
             format.json { render json: Vm.find(@vm.id), status: 200 }
@@ -88,15 +93,15 @@ module API
       end
 
       # Create a new vm request in short way
+      #
       def create_short
-        # if user_id in param is guest (a guest cannot clone projects), so we replace sshkey for clone project into vm
-        # ! no good for security reason. TODO: better to replace with generic key specific for the project
+        # HACK if user_id in param is guest (a guest cannot clone projects), so we replace sshkey for clone project into vm
+        # TODO better for security reason to replace with generic key specific for the project
         user_vm = User.find(params[:vm][:user_id])
         user_vm.copy_sshkey_modem(@user.email) if user_vm.guest?
 
         @vm = Vm.new(vm_params)
 
-        # Json response (json error if issue occurs)
         respond_to do |format|
           if @vm.save
             @vm.init_defaulturis
@@ -109,6 +114,7 @@ module API
       end
 
       # boot the vm or update user !
+      #
       def update
         if @vm.nova_id.nil?
           @vm.boot
@@ -116,19 +122,20 @@ module API
           @vm.change_user(params[:vm][:user_id]) if @user.lead?
         end
 
-        # Json output
         respond_to do |format|
           format.json { render json: @vm, status: 200 }
         end
       end
 
       # Change topic content
+      #
       def topic
         @vm.set_topic(params[:topic])
         render nothing: true
       end
 
       # Boot vm
+      #
       def boot
         @vm.boot
         # Json output
@@ -138,104 +145,113 @@ module API
       end
 
       # Toggle ro parameter
-      def togglero
-        @vm.togglero
+      #
+      def toggle_ro
+        @vm.toggle_ro
         render nothing: true
       end
 
       # Toggle auth parameter
-      def toggleauth
-        @vm.toggleauth
+      #
+      def toggle_auth
+        @vm.toggle_auth
         render nothing: true
       end
 
       # Toggle isht parameter
-      def toggleht
-        @vm.toggleht
+      #
+      def toggle_ht
+        @vm.toggle_ht
         render nothing: true
       end
 
       # Toggle isci parameter
-      def toggleci
-        @vm.toggleci
+      #
+      def toggle_ci
+        @vm.toggle_ci
         render nothing: true
       end
 
       # Toggle isbackup parameter
-      def togglebackup
-        @vm.togglebackup
+      #
+      def toggle_backup
+        @vm.toggle_backup
         render nothing: true
       end
 
       # Toggle prod parameter
-      def toggleprod
-        @vm.toggleprod
+      #
+      def toggle_prod
+        @vm.toggle_prod
         render nothing: true
       end
 
       # Toggle cors parameter
-      def togglecors
-        @vm.togglecors
+      #
+      def toggle_cors
+        @vm.toggle_cors
         render nothing: true
       end
 
       # Toggle offline parameter
-      def toggleoffline
-        @vm.toggleoffline
+      #
+      def toggle_offline
+        @vm.toggle_offline
         render nothing: true
       end
 
       # Toggle cached parameter
-      def togglecached
-        @vm.togglecached
+      #
+      def toggle_cached
+        @vm.toggle_cached
         render nothing: true
       end
 
       # Details one vm properties
+      #
       def show
         @vm.init_vnc_url
-        # Json output
+
         respond_to do |format|
           format.json { render json: @vm, status: 200 }
         end
       end
 
       # Details one vm properties associated with a commit
+      #
       def show_by_user_commit
         @vm = Vm.find_by_user_commit(params[:user_id], params[:commit])
 
-        # Json output
         respond_to do |format|
           format.json { render json: @vm, status: 200 }
         end
       end
 
       # List vms for one user
+      #
       def show_by_user
         @vms = Vm.find_by_user_id(params[:user_id])
 
-        # Json output
         respond_to do |format|
           format.json { render json: @vms, status: 200 }
         end
       end
 
       # Stop and destroy a vm
+      #
       def destroy
         # ensute we have permission to destroy the vm
-        if  !@vm.is_prod &&
+        if  !@vm.prod? &&
             (@user.vms.any? { |v| v.id == @vm.id } ||
             (@user.lead? && @vm.project.vms.any? { |v| v.id == @vm.id && !@vm.user.admin? }) ||
             @user.admin?)
 
             @vm.destroy
-            # Json output
+
             respond_to do |format|
               format.json { head :no_content }
             end
         else
-
-          # Json output
           respond_to do |format|
             format.json { head :no_content, status: 403 }
           end
@@ -243,73 +259,84 @@ module API
       end
 
       # Compute build time and update status field
-      def setupcomplete
+      #
+      def setup_complete
         @vm = Vm.find_by(name: params[:name])
-        @vm.setupcomplete if (@vm)
+        @vm.setup_complete if @vm
         render nothing: true
       end
 
       # Update vm password
-      def resetpassword
+      #
+      def reset_password
         @vm = Vm.find_by(name: params[:name])
         @vm.reset_password(params[:password]) if (@vm)
         render nothing: true
       end
 
       # Check status, get 200 if vm is running
+      #
       def check_status
         (@vm.status > 1) ? (codestatus = 200) : (codestatus = 410)
         render plain: @vm.buildtime, status: codestatus
       end
 
       # Execute gitpull cmd into vm
+      #
       def gitpull
         ret = @vm.gitpull
         render plain: ret[:message], status: ret[:status]
       end
 
       # Execute display of postinstall cmd into vm
+      #
       def postinstall_display
         ret = @vm.postinstall_display
         render plain: ret[:message], status: ret[:status]
       end
 
       # Execute postinstall cmd into vm
+      #
       def postinstall
         ret = @vm.postinstall
         render plain: ret[:message], status: ret[:status]
       end
 
       # Execute a reboot
+      #
       def reboot
         @vm.reboot(params[:type])
         render nothing: true
       end
 
       # Display current logs for the vm
+      #
       def logs
         ret = @vm.logs
         render plain: ret[:message], status: ret[:status]
       end
 
       # Refresh commit id for vm
-      def refreshcommit
+      #
+      def refresh_commit
         @vm = Vm.find_by(name: params[:name])
         if @vm
-          @vm.refreshcommit(params[:commit_id])
+          @vm.refresh_commit(params[:commit_id])
         else
-          Rails.logger.warn "Refreshcommit, no vm identified by name: #{params[:name]}"
+          Rails.logger.warn("Refreshcommit, no vm identified by name: #{params[:name]}")
         end
+
         render nothing: true
       end
 
       private
 
       # check if ci is enabled for lock mecanism
+      #
       def check_ci
         ncp = 0
         if @vm.is_ci
-          @vm.toggleci(false)
+          @vm.toggle_ci(false)
           # wait max 10min to let ci finish his work
           while @vm.checkci do
             break if ncp == 5
@@ -323,17 +350,20 @@ module API
       end
 
       # reload ci if enabled for lock mecanism
+      #
       def reload_ci
         @vm.reload
         @vm.generate_hiera if @vm.is_ci
       end
 
-      # Use callbacks to share common setup or constraints between actions.
+      # Init current object
+      #
       def set_vm
-        @vm = Vm.find(params[:id])
+        @vm = Vm.includes(:uris, :user, :project).find(params[:id])
       end
 
       # ensure that only admin, lead or hisself can execute action
+      #
       def check_me
         isme = false
         if @user.lead?
@@ -342,20 +372,11 @@ module API
           isme = (@user.id == @vm.user.id)
         end
 
-        # only admins can make changes on admins vms
-        # ... change mind about that, permit (next line commented)
-        # isme = false if @vm.user.admin? && !@user.admin?
-
         raise Exceptions::NextDeployException.new("Access forbidden for this user") unless isme
       end
 
-      # Use callbacks to share common setup or constraints between actions.
-      def set_project
-        @vm = Project.find(params[:project_id])
-      end
-
-      # change ember parameter name for well rails relationships
-      # HACK: ugly method
+      # HACK change ember parameter name for well rails relationships
+      #
       def ember_to_rails
         params_p = params[:vm]
 
@@ -368,7 +389,6 @@ module API
 
         params_p.delete(:created_at)
         params_p.delete(:nova_id)
-        #params_p.delete(:name)
         params_p.delete(:floating_ip)
         params_p.delete(:thumb)
         params_p.delete(:user)
@@ -381,18 +401,19 @@ module API
         params_p.delete(:termpassword)
         params_p.delete(:status)
 
-        # force auth if we are not an admin user
-        #params_p[:is_auth] = true unless @user.admin?
-
         params[:vm] = params_p
       end
 
       # Never trust parameters from the scary internet, only allow the white list through.
+      #
       def vm_params
-        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id, :vmsize_id, :name, :topic,
-                                   :is_auth, :htlogin, :htpassword, :layout, :is_prod, :is_cached, :is_ht, :is_ci,
-                                   :is_cors, :is_ro, :is_jenkins, :is_offline, :techno_ids => [])
+        params.require(:vm).permit(:systemimage_id, :user_id, :commit_id, :project_id,
+                                   :vmsize_id, :name, :topic, :is_auth, :htlogin,
+                                   :htpassword, :layout, :is_prod, :is_cached,
+                                   :is_ht, :is_ci, :is_cors, :is_ro, :is_jenkins,
+                                   :is_offline, :techno_ids => [])
       end
+
     end
   end
 end
