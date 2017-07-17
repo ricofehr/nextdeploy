@@ -287,7 +287,7 @@ The git repository for webui application: https://github.com/ricofehr/nextdeploy
 ```
 cd ror && yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
 ```
-
+Updated documentation http://doc.nextdeploy.io/api/code/
 
 ## TODO
 
