@@ -143,11 +143,15 @@ rvm::gem:
   bundler:
     name: 'bundler'
     ruby_version: 'ruby-2.1.0'
-    ensure: '1.10.6'
+    ensure: '1.15.2'
   rake:
     name: 'rake'
     ruby_version: 'ruby-2.1.0'
-    ensure: '10.4.2'
+    ensure: '11.2.2'
+  yard:
+    name: 'yard'
+    ruby_version: 'ruby-2.1.0'
+    ensure: '0.9.9'
 
 # cron commands
 is_cron: "yes"

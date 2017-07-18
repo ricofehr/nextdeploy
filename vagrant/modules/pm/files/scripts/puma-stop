@@ -13,6 +13,6 @@ PUMAPID="$(puma-status)"
 [[ ! "$PUMAPID" =~ ^[0-9][0-9]*$ ]] && exit 1
 
 pushd /ror >/dev/null
-/usr/local/rvm/gems/ruby-2.1.0/bin/bundle exec pumactl -p "${PUMAPID}" stop
+bundle exec pumactl -p "${PUMAPID}" stop
 (( $? != 0 )) && exit 1
 popd >/dev/null

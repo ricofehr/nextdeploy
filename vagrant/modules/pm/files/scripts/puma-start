@@ -33,7 +33,7 @@ touch /tmp/.pumalock
 
 pushd /ror > /dev/null
 export SECRET_KEY_BASE="$(rake secret)"
-/usr/local/rvm/gems/ruby-2.1.0/bin/bundle exec puma -e %%RAILSENV%% -b unix:///var/run/puma/my_app.sock --pidfile /var/run/puma/puma.pid -d
+bundle exec puma -e %%RAILSENV%% -b unix:///var/run/puma/my_app.sock --pidfile /var/run/puma/puma.pid -d
 (( $? != 0 )) && rm -f /tmp/.pumalock && exit 1
 popd > /dev/null
 
