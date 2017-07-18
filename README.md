@@ -4,12 +4,13 @@
 
 NextDeploy is a deployment system of virtualized web environments (development or production) in a compute cloud. Generic installation templates are defined for different frameworks or cms. When creating a project, a git repository is associated with this installation template. Thus, virtual machines can be run on demand by deploying the site on a preinstalled system following prerequisites specified.
 
-The project uses a cloud to host vms. The api is working actually with openstack. In future, AWS and GCE public cloud will also be taken into account. Installation templates are defined for the puppet tool. Git is used for versioning developments on projects and Gitlab manager is installed for these deposits. A REST API (in ruby on rails) is the intermediary between these systems and can manage user authentication, project creation, adding users, and of course the launch of vms.
+NextDeploy uses an openstack cloud to host vms. In future, AWS and GCE public cloud will also be taken into account. Installation templates are defined with Puppet. Git is used for versioning developments on projects and Gitlab manager is installed for these deposits. A REST API (in ruby on rails) is the intermediary between these systems and can manage user authentication, project creation, adding users, and of course the launch of vms.
 
 The REST api can be reached with 3 different ways
-* a CLI Software (Repository here: https://github.com/ricofehr/nextdeploy-cli)
 * an WebUI developped with EMBER (Repository here: https://github.com/ricofehr/nextdeploy-webui)
+* a CLI Software (Repository here: https://github.com/ricofehr/nextdeploy-cli)
 * an android application (Repository here: https://github.com/ricofehr/nextdeploy-android)
+
 
 ## Features
 
@@ -17,13 +18,13 @@ The REST api can be reached with 3 different ways
 * Actually, 3 cms are supporting: drupal, wordpress and symfony
 * Support for nodejs projects
 * Gitlab for versioning repository
-* Continuous Integration on user projects: sonar scan, phpdocumentor, unit tests, security scans, ...
+* Continuous Integration on user projects: sonar scan, documentation, unit tests, security scans, ...
 * Monitoring (with grafana) and supervise (with ansible) for each vm
-* Rest api developped with rails
 * A WebUI, a CLI software and an android application
 * Docker integration (thanks to CLI software) for launching user's projects in laptop
-* Based on vagrant, there is a complete process for install NextDeploy on his laptop for contributing.
-* Working progress, more features in future (more cms and technos supported, lot of linux image, Aws connector, ...)
+* Based on vagrant, there is a complete process for install NextDeploy on his workstation for contributing.
+* Working progress, more features in future (more cms and technos supported, Aws connector, ...)
+
 
 ## Repository Structure
 ```
@@ -34,14 +35,17 @@ nextdeploy/
    +---pm/      Customs puppet classes
 +--ror/         The rails application who serves the rest api
    +---public/  Destination folder for the EmberJs build of the webui app
+   +---doc/     Destination folder for the yard code documentation
 +--scripts/     Some jobs for setup completely the project in local workstation or remote servers
 +--tmp/         Temporary folder
 +--vagrant/     Definitions for create the 4 openstack nodes, the manager node and the monitoring node
 +--webui/       The Webui developped on EmberJs (submodule, https://github.com/ricofehr/nextdeploy-webui)
 ```
 
+
 ## Submodules and Clone
-The cli application (client folder), the webui (ror/public folder), the vm installation templates (/puppet folder) are included in the project in the form of Submodules git.
+
+The cli application (client folder), the webui (ror/public folder), the vm installation templates (puppet folder) are included in the project with the help of Submodules git.
 
 To retrieve, use this clone cmd.
 ```
@@ -52,6 +56,7 @@ If the clone has already been done, execute this command.
 ```
 git submodule update --init --recursive
 ```
+
 
 ## Local Installation
 
@@ -89,11 +94,12 @@ Usage: ./scripts/./setup [options]
 -r           avoid change resolv.conf and hosts files
 -vm          start a vm after build is complete
 ```
-Installation requires a large amount of RAM, a computer with 12GB of RAM minimum is required. Indeed, the OpenStack cloud is then implemented using vagrant through the creation of four virtual machines (controller, neutron, glance, nova) and another virtual machine is created: for launch the REST app, hosts the gitlab and templates puppet installation. The script requires "curl" and "sudo" as a prerequisite.
+Installation requires a large amount of RAM, a computer with 16GB of RAM minimum is required. Indeed, the OpenStack cloud is then implemented using vagrant through the creation of four virtual machines (controller, neutron, glance, nova) and an other virtual machine is created: for launch the REST app, hosts the gitlab and templates puppet installation. The script requires "curl" and "sudo" as a prerequisite.
 
 The setup script has been tested on mac os x, debian, ubuntu and fedora. The hypervisor for nextdeploy installation is virtualbox (mac osx) or kvm (debian, ubuntu, fedora). Knowing that the performance of virtual machines deployed on OpenStack will be better if nextdeploy is virtualized through kvm.
 
 A set of groups, users and projects are created during installation.
+
 
 ## Remote installation
 
@@ -135,6 +141,7 @@ Usage: ./scripts/./setup-remote [options]
 --ndc2-ip xxxx              install the ndc2 node (ip needed)
 ```
 
+
 ## Groups / Users
 
 5 groups are defined at nextdeploy:
@@ -152,79 +159,37 @@ When local nextdeploy facility (see above Local Installation), the following use
 * userg@os.nextdeploy (password: word123123 and guest group)
 
 
-## Vm installation pattern
+## Vms installation
 
-The tool used for managing templates facilities associated with the project is puppet. Currently supported technologies are mainly php with Symfony2, drupal and wordpress. In next steps, support for Java technology (aem), ruby (ror), python (django), ...
+NextDeploy uses Puppet for managing installations of vms. Currently supported technologies are mainly php with Symfony2, drupal and wordpress. In next steps, support for Java technology (aem), ruby (ror), python (django), ...
 
 The git repository for this templates: https://github.com/ricofehr/nextdeploy-puppet
-
-## Android Application
-
-The android application is on a separate repository. But on a early stage of development (currently, not updated with last api changes).
-Go here: http://github.com/ricofehr/nextdeploy-android
 
 
 ## REST API
 
-The API is the scheduler and project facilitator. Developed in rails, the api manages user authentication, maintains nextdeploy data model and interfaces with apis of gitlab and cloud (OpenStack at this time). Puma rails server is launched to handle requests.
-Thus, we will find mainly the following calls:
-```
-                         Prefix Verb   URI Pattern
-            api_v1_user_current GET    /api/v1/user
-           api_v1_group_current GET    /api/v1/group
-                  api_v1_groups GET    /api/v1/groups
-                                POST   /api/v1/groups
-                   api_v1_group GET    /api/v1/groups/:id
-                                PATCH  /api/v1/groups/:id
-                                PUT    /api/v1/groups/:id
-                                DELETE /api/v1/groups/:id
-                  api_v1_brands GET    /api/v1/brands
-                                POST   /api/v1/brands
-                   api_v1_brand GET    /api/v1/brands/:id
-                                PATCH  /api/v1/brands/:id
-                                PUT    /api/v1/brands/:id
-                                DELETE /api/v1/brands/:id
-                api_v1_projects GET    /api/v1/projects
-                                POST   /api/v1/projects
-                 api_v1_project GET    /api/v1/projects/:id
-                                PATCH  /api/v1/projects/:id
-                                PUT    /api/v1/projects/:id
-                                DELETE /api/v1/projects/:id
-                     api_v1_vms GET    /api/v1/vms
-                                POST   /api/v1/vms
-                      api_v1_vm GET    /api/v1/vms/:id
-                                PATCH  /api/v1/vms/:id
-                                PUT    /api/v1/vms/:id
-                                DELETE /api/v1/vms/:id
-                 api_v1_sshkeys GET    /api/v1/sshkeys
-                                POST   /api/v1/sshkeys
-                  api_v1_sshkey GET    /api/v1/sshkeys/:id
-                                PATCH  /api/v1/sshkeys/:id
-                                PUT    /api/v1/sshkeys/:id
-                                DELETE /api/v1/sshkeys/:id
-                   api_v1_users GET    /api/v1/users
-                                POST   /api/v1/users
-                                GET    /api/v1/users/:id
-                                PATCH  /api/v1/users/:id
-                                PUT    /api/v1/users/:id
-                                DELETE /api/v1/users/:id
-                api_v1_branches GET    /api/v1/branches
-                  api_v1_branch GET    /api/v1/branches/:id
-                 api_v1_commits GET    /api/v1/commits
-                  api_v1_commit GET    /api/v1/commits/:id
-                 api_v1_technos GET    /api/v1/technos
-                  api_v1_techno GET    /api/v1/technos/:id
-                 api_v1_flavors GET    /api/v1/flavors
-                  api_v1_flavor GET    /api/v1/flavors/:id
-              api_v1_frameworks GET    /api/v1/frameworks
-               api_v1_framework GET    /api/v1/frameworks/:id
-            api_v1_systemimages GET    /api/v1/systemimages
-             api_v1_systemimage GET    /api/v1/systemimages/:id
-        new_api_v1_user_session GET    /api/v1/users/sign_in
-            api_v1_user_session POST   /api/v1/users/sign_in
-    destroy_api_v1_user_session DELETE /api/v1/users/sign_out
+The API is the scheduler and project facilitator. Developed in rails, the api manages user authentication, maintains nextdeploy data model and interfaces with gitlab and OpenStack. Puma rails server is launched to handle requests.
 
+Yard manages the rails code documentation
 ```
+cd ror && yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
+```
+Updated code documentation http://doc.nextdeploy.io/api/code/
+
+
+## Ember
+
+The Web UI is developed with Ember framework.
+The Ember stack is located in webui/ folder and builded in rails standard location, into public folder.
+From this webui folder, we find MVC classes respectively into models / templates / controllers folders.
+For build static app into ror/public (needs node, bower and ember-cli)
+```
+cd webui && ember build --output-path ../ror/public/
+```
+
+The git repository for webui application: https://github.com/ricofehr/nextdeploy-webui
+
+Updated code documentation http://doc.nextdeploy.io/webui/code/
 
 
 ## CommandLine Client
@@ -270,24 +235,12 @@ ndeploy version                                     # print current version of n
 The git repository for cli application: https://github.com/ricofehr/nextdeploy-cli
 
 
-## Ember
+## Android Application
 
-The Web UI is developed with Ember framework.
-The Ember stack is located in webui/ folder and builded in rails standard location, into public folder.
-From this webui folder, we find MVC classes respectively into models / templates / controllers folders.
-For build static app into ror/public (needs node, bower and ember-cli)
-```
-cd webui && ember build --output-path ../ror/public/
-```
+The android application is on a separate repository. But on a early stage of development (currently, not updated with last api changes).
 
-The git repository for webui application: https://github.com/ricofehr/nextdeploy-webui
+Go here: http://github.com/ricofehr/nextdeploy-android
 
-## Yard
-
-```
-cd ror && yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
-```
-Updated documentation http://doc.nextdeploy.io/api/code/
 
 ## TODO
 
