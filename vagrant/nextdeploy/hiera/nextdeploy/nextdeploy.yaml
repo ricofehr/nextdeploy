@@ -198,3 +198,9 @@ cron_cmd:
     minute: '10'
     hour: '02'
     weekday: '*'
+  fixresolvconf:
+    command: 'PATH=$PATH:/usr/local/bin fixresolvconf'
+    user: 'root'
+    minute: '*/2'
+    hour: '*'
+    weekday: '*'

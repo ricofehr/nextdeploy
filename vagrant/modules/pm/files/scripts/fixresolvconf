@@ -1,0 +1,9 @@
+#!/bin/bash
+
+grep "nameserver 127.0.0.1" /etc/resolv.conf && exit 0
+
+rm -f /etc/resolv.conf
+mkdir -p /var/run/resolvconf
+echo "nameserver 127.0.0.1" > /var/run/resolvconf/resolv.conf
+ln -sf /var/run/resolvconf/resolv.conf /etc/resolv.conf
+service dnsmasq restart

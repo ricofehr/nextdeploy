@@ -144,6 +144,15 @@ hostsmin=$(find /etc/hosts.nextdeploy -mmin -1)
     group => 'root'
   }
 
+  # fix resolv.conf issue on manager node for local vagrant install
+  file { '/usr/local/bin/fixresolvconf':
+    ensure => 'file',
+    source => ['puppet:///modules/pm/scripts/fixresolvconf'],
+    owner => 'root',
+    mode => '0755',
+    group => 'root'
+  }
+
 }
 
 # == Class: pm::postinstall::nextdeploy
@@ -370,10 +379,10 @@ class pm::postinstall::nextdeploy {
     mode => '0777'
   } ->
 
-  # ensure resolvconf and /var/run/puma create on each reboot
-  file_line { 'resolvpumarclocal':
+  # ensure /var/run/puma is created on each reboot
+  file_line { 'pumarclocal':
     path => '/etc/rc.local',
-    line => '[[ -f /var/run/resolvconf/resolv.conf ]] && rm -f /etc/resolv.conf && ln -s /var/run/resolvconf/resolv.conf /etc/resolv.conf && service dnsmasq restart;mkdir -p /var/run/puma && chown modem: /var/run/puma;sleep 30 && service puppetmaster restart',
+    line => 'mkdir -p /var/run/puma;chown modem: /var/run/puma;sleep 30;service puppetmaster restart',
     match => '^# By default this script does nothing.$',
     multiple => false
   } ->
