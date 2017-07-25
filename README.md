@@ -174,7 +174,7 @@ The API is the scheduler and project facilitator. Developed in rails, the api ma
 
 Yard manages the rails code documentation
 ```
-cd ror && yardoc lib/**/*.rb app/**/*.rb config/**/*.rb
+cd ror && yardoc lib/**/*.rb app/**/*.rb config/**/*.rb lib/*.rb app/**/api/v1/*.rb
 ```
 Updated code documentation http://doc.nextdeploy.io/api/code/
 
