@@ -560,6 +560,27 @@ techno_nodejs5 =
       debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
   )
 
+techno_nodejs6 =
+  Techno.create!(
+    name: "nodejs-6",
+    puppetclass: "pm::nodejs",
+    ordering: 140,
+    technotype: node,
+    hiera: "node_version: 6.x",
+    dockercompose: '',
+    playbook: '- hosts: all
+  gather_facts: False
+  tasks:
+    - name: Check Node Binary
+      shell: test -x /usr/bin/node >/dev/null 2>&1 && echo -en 1 || echo -en 0
+      args:
+        executable: /bin/bash
+      register: check
+      ignore_errors: True
+    - name: Output probe
+      debug: msg="ndeploy:{{ inventory_hostname }}:{{ check.stdout }}"'
+  )
+
 techno_mongodb =
   Techno.create!(
     name: "mongodb-2.6",
