@@ -322,7 +322,7 @@ module UrisHelper
   # Clear varnish cache
   #
   # @return [Hash{Symbol => String, Number}] message from cmd and status code
-  def clearvarnish
+  def clear_varnish
     listaliases = aliases.split(" ")
 
     Rails.logger.warn("clear varnish for #{absolute}")
