@@ -239,7 +239,7 @@ The git repository for cli application: https://github.com/ricofehr/nextdeploy-c
 
 ## Android Application
 
-The android application is on a separate repository. But on a early stage of development (currently, not updated with last api changes).
+The android application is on a separate repository. But on a early stage of development.
 
 Go here: http://github.com/ricofehr/nextdeploy-android
 
