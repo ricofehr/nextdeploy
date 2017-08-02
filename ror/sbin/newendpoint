@@ -303,7 +303,7 @@ newsymfony3() {
   sed -i "s/^use.*Request;/& umask(0002);/" web/app.php
   sed -i "s/^use.*Request;/& umask(0002);/" web/app_dev.php
   sed -i "s;^if (isset(;/*& ;" web/app_dev.php
-  sed -i "0,;^}$;s;^}$;& */;" web/app_dev.php
+  sed -i "0,/^}$/s/^}$/& *\//" web/app_dev.php
 
   mkdir -p var/sesssions
   touch var/sessions/.gitkeep
