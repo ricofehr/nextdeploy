@@ -170,7 +170,7 @@ The git repository for this templates: https://github.com/ricofehr/nextdeploy-pu
 
 ## REST API
 
-The API is the scheduler and project facilitator. Developed in rails, the api manages user authentication, maintains nextdeploy data model and interfaces with gitlab and OpenStack. Puma rails server is launched to handle requests.
+Developed in rails, the api manages user authentication, maintains nextdeploy data model and interfaces with gitlab and OpenStack. Puma rails server is launched to handle requests.
 
 Yard manages the rails code documentation
 ```

@@ -213,7 +213,7 @@ module API
           ret = @uri.sfcmd "cache:clear --env=#{env}"
           messages.push ret[:message]
         else
-          ret = @uri.sfcmd "#{params[:command]} --env=#{env}"
+          ret = @uri.sfcmd "#{params[:command].shellescape} --env=#{env}"
           messages.push ret[:message]
         end
 

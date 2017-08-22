@@ -299,8 +299,8 @@ module UrisHelper
     frwname = framework.name.downcase
     bashret = ''
 
-    bash_cmd = "cd #{docroot};[[ -f app/console ]] && php app/console #{command.shellescape}; " +
-               "[[ -f bin/console ]] && php bin/console #{command.shellescape} 2>&1"
+    bash_cmd = "cd #{docroot};[[ -f app/console ]] && php app/console #{command}; " +
+               "[[ -f bin/console ]] && php bin/console #{command} 2>&1"
 
     # take a lock for vm action
     begin
