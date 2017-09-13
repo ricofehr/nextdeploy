@@ -356,7 +356,7 @@ class pm::postinstall::nextdeploy {
     command => 'rake db:schema:load > /out/logdbschema.log 2>&1',
     timeout => 0,
     creates => '/home/modem/.installnextdeploy',
-    require => File['/usr/bin/node']
+    require => Package['nodejs']
   } ->
 
   exec { 'db-migrate':
@@ -411,18 +411,18 @@ class pm::postinstall::nextdeploy {
   package { 'fsmonitor':
     ensure   => present,
     provider => 'npm',
-    require => [ Exec['apt-update'], File['/usr/bin/node'] ]
+    require => [ Exec['apt-update'], Package['nodejs'] ]
   } ->
 
   package { 'babel-plugin-transform-es2015-block-scoping':
     ensure   => present,
     provider => 'npm',
-    require => [ Exec['apt-update'], File['/usr/bin/node'] ]
+    require => [ Exec['apt-update'], Package['nodejs'] ]
   } ->
 
   package { 'ember-cli':
     ensure   => present,
     provider => 'npm',
-    require => [ Exec['apt-update'], File['/usr/bin/node'] ]
+    require => [ Exec['apt-update'], Package['nodejs'] ]
   }
 }

@@ -15,11 +15,14 @@ Exec {
   # nodejs and ember_build prerequisites
   class { '::nodejs':
     repo_url_suffix => '6.x',
+    legacy_debian_symlinks => false
   }
   ->
-  file { '/usr/bin/node':
-    ensure   => 'link',
-    target => '/usr/bin/nodejs',
+  # ensure node binary exists
+  exec { 'node-symlink':
+    command => '/bin/ln -sf /usr/bin/nodejs /usr/bin/node',
+    user => 'root',
+    creates => '/usr/bin/node'
   }
   ->
   package { ['pm2', 'grunt-cli', 'grunt', 'bower', 'gulp']:
