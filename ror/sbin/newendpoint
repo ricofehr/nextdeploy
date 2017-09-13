@@ -105,6 +105,15 @@ newendpoint() {
     Wordpress-4.5.2)
       newwordpress 4.5.2
       ;;
+    Wordpress-4.5.3)
+      newwordpress 4.5.3
+      ;;
+    Wordpress-4.6.1)
+      newwordpress 4.6.1
+      ;;
+    Wordpress-4.8.1)
+      newwordpress 4.8.1
+      ;;
     Static)
       newstatic
       ;;
