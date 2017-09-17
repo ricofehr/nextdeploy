@@ -28,7 +28,7 @@ class pm::jenkins {
 
   # jenkins service
   package { 'jenkins':
-    ensure => '2.46.3',
+    ensure => '2.46.2',
     install_options => [ '-y', '--force-yes' ]
   } ->
 
