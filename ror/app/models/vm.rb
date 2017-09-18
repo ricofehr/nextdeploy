@@ -17,9 +17,9 @@ class Vm < ActiveRecord::Base
   has_many :frameworks, through: :uris
 
   # Some scope for find vms objects by commit, by project or by name
-  scope :find_by_user_commit, ->(user_id, commit){ where('user_id = :user_id AND commit_id like \'%:commit%\'',
+  scope :find_by_user_commit, ->(user_id, commit){ where('user_id = :user_id AND commit_id like :commit',
                                                          user_id: user_id,
-                                                         commit: commit) }
+                                                         commit: "%#{commit}%") }
   scope :find_by_user_project, ->(user_id, project_id){ where(user_id: user_id, project_id: project_id) }
 
   attr_accessor :floating_ip, :commit, :vnc_url, :thumb
