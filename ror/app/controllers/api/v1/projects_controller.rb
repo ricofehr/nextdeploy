@@ -162,10 +162,13 @@ module API
 
         # TODO reduce business logic from controller
         @project = Project.find_by(gitlab_id: gitlab_id)
-        @project.flush_branche(branch)
 
-        @project.vms.select { |vm| vm.status > 1 && vm.is_jenkins && vm.commit.branche.name == branch }.each do |vm|
-          vm.buildtrigger
+        if @project
+          @project.flush_branche(branch)
+
+          @project.vms.select { |vm| vm.status > 1 && vm.is_jenkins && vm.commit.branche.name == branch }.each do |vm|
+            vm.buildtrigger
+          end
         end
 
         render nothing: true
