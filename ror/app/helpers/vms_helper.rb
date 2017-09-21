@@ -35,20 +35,19 @@ module VmsHelper
         unless user.lead?
           user.sshkeys.each { |k| f.puts k.key }
         end
-
-        # if vm is already running, transfer to it
-        if status > 1
-          bash_cmd = "rsync -avzPe \"ssh -o StrictHostKeyChecking=no " +
-                     "-o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{name.shellescape}.authorized_keys " +
-                     "modem@#{floating_ip.shellescape}:~/.ssh/authorized_keys"
-
-          Rails.logger.warn(bash_cmd)
-          system(bash_cmd)
-        end
       end
-
     rescue
       raise Exceptions::NextDeployException.new("Lock on authkeys for #{name} failed")
+    end
+
+    # if vm is already running, transfer to it
+    if status > 1
+      bash_cmd = "rsync -avzPe \"ssh -o StrictHostKeyChecking=no " +
+                 "-o UserKnownHostsFile=/dev/null\" sshkeys/vms/#{name.shellescape}.authorized_keys " +
+                 "modem@#{floating_ip.shellescape}:~/.ssh/authorized_keys"
+
+      Rails.logger.warn(bash_cmd)
+      system(bash_cmd)
     end
   end
 
