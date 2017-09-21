@@ -35,6 +35,9 @@ module VmsHelper
         unless user.lead?
           user.sshkeys.each { |k| f.puts k.key }
         end
+
+        f.flush
+        f.truncate(f.pos)
       end
     rescue
       raise Exceptions::NextDeployException.new("Lock on authkeys for #{name} failed")
