@@ -114,6 +114,9 @@ newendpoint() {
     Wordpress-4.8.1)
       newwordpress 4.8.1
       ;;
+    Wordpress-4.8.2)
+      newwordpress 4.8.2
+      ;;
     Static)
       newstatic
       ;;

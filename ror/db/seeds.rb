@@ -116,7 +116,7 @@ framework_drupal8 =
 
 framework_wordpress =
   Framework.create!(
-    name: 'Wordpress-4.8.1',
+    name: 'Wordpress-4.8.2',
     publicfolder: '',
     rewrites: "RewriteEngine On\\nRewriteRule ^/?$ /index.php [L]\\n" +
               "RewriteCond %%{literal('%')}{REQUEST_URI} !=/server-status\\n" +
