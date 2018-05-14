@@ -1,7 +1,5 @@
 # NextDeploy
 
-[![Build Status](http://build.nextdeploy.io/buildStatus/icon?job=nextdeploy)](http://build.nextdeploy.io/job/nextdeploy/)
-
 NextDeploy is a deployment system of virtualized web environments (development or production) in a compute cloud. Generic installation templates are defined for different frameworks or cms. When creating a project, a git repository is associated with this installation template. Thus, virtual machines can be run on demand by deploying the site on a preinstalled system following prerequisites specified.
 
 NextDeploy uses an openstack cloud to host vms. In future, AWS and GCE public cloud will also be taken into account. Installation templates are defined with Puppet. Git is used for versioning developments on projects and Gitlab manager is installed for these deposits. A REST API (in ruby on rails) is the intermediary between these systems and can manage user authentication, project creation, adding users, and of course the launch of vms.
