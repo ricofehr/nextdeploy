@@ -10,6 +10,10 @@ The REST api can be reached with 3 different ways
 * an android application (Repository here: https://github.com/ricofehr/nextdeploy-android)
 
 
+## End of support
+
+Due to lack of time for NextDeploy recently, this repository is no longer maintained since Nov 2017 and there are great chance that you meet some trouble during project build or vms launchs
+
 ## Features
 
 * Vms created into a private openstack cloud
